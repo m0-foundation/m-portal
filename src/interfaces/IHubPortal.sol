@@ -1,0 +1,167 @@
+// SPDX-License-Identifier: GPL-3.0
+
+pragma solidity 0.8.26;
+
+import { IPortal } from "./IPortal.sol";
+
+// TODO: If the bridges will already emit events that contain the `messageId` and the `destinationChainId`, then we can
+//       longer need to index the `destinationChainId` and `bridge` in these, and can index the other data instead. This
+//       is because you can cross-reference the `messageId` with the other events form the bridge to index that info.
+
+/**
+ * @title  HubPortal interface.
+ * @author M^0 Labs
+ */
+interface IHubPortal is IPortal {
+    /* ============ Events ============ */
+
+    /**
+     * @notice Emitted when earning is enabled for the Hub Portal.
+     * @param  index The index at which earning was enabled.
+     */
+    event EarningEnabled(uint128 index);
+
+    /**
+     * @notice Emitted when earning is disabled for the Hub Portal.
+     * @param  index The index at which earning was disabled.
+     */
+    event EarningDisabled(uint128 index);
+
+    /**
+     * @notice Emitted when the M token index is sent to a destination chain.
+     * @param  destinationChainId The destination chain ID.
+     * @param  bridge             The address of the bridge that sent the index.
+     * @param  messageId          The unique identifier for the sent message.
+     * @param  index              The the M token index.
+     */
+    event MTokenIndexSent(
+        uint256 indexed destinationChainId,
+        address indexed bridge,
+        bytes32 indexed messageId,
+        uint128 index
+    );
+
+    /**
+     * @notice Emitted when the Registrar key is sent to a destination chain.
+     * @param  destinationChainId The destination chain ID.
+     * @param  bridge             The address of the bridge that sent the key.
+     * @param  messageId          The unique identifier for the sent message.
+     * @param  key                The key that was sent.
+     * @param  value              The value that was sent.
+     */
+    event RegistrarKeySent(
+        uint256 indexed destinationChainId,
+        address indexed bridge,
+        bytes32 indexed messageId,
+        bytes32 key,
+        bytes32 value
+    );
+
+    /**
+     * @notice Emitted when the Registrar list status for an account is sent to a destination chain.
+     * @param  destinationChainId The destination chain ID.
+     * @param  bridge             The address of the bridge that sent the key.
+     * @param  messageId          The unique identifier for the sent message.
+     * @param  listName           The name of the list.
+     * @param  account            The account.
+     * @param  status             The status of the account in the list.
+     */
+    event RegistrarListStatusSent(
+        uint256 indexed destinationChainId,
+        address indexed bridge,
+        bytes32 indexed messageId,
+        bytes32 listName,
+        address account,
+        bool status
+    );
+
+    /* ============ Custom Errors ============ */
+
+    /// @notice Emitted when trying to enable earning after it has been explicitly disabled.
+    error EarningCannotBeReenabled();
+
+    /// @notice Emitted when performing an operation that is not allowed when earning is disabled.
+    error EarningIsDisabled();
+
+    /// @notice Emitted when performing an operation that is not allowed when earning is enabled.
+    error EarningIsEnabled();
+
+    /// @notice Emitted when calling `disableEarning` if the Hub Portal is approved as earner by TTG.
+    error IsApprovedEarner();
+
+    /// @notice Emitted when calling `enableEarning` if the Hub Portal is not approved as earner by TTG.
+    error NotApprovedEarner();
+
+    /* ============ Interactive Functions ============ */
+
+    /**
+     * @notice Sends the M token index to the destination chain.
+     * @param  chainId       The destination chain ID.
+     * @param  refundAddress Refund address to receive excess native gas.
+     * @return ID uniquely identifying the message
+     */
+    function sendMTokenIndex(uint256 chainId, address refundAddress) external payable returns (bytes32);
+
+    /**
+     * @notice Sends the Registrar key to the destination chain.
+     * @param  chainId       The destination chain ID.
+     * @param  key           The key to dispatch.
+     * @param  refundAddress Refund address to receive excess native gas.
+     * @return ID uniquely identifying the message
+     */
+    function sendRegistrarKey(uint256 chainId, bytes32 key, address refundAddress) external payable returns (bytes32);
+
+    /**
+     * @notice Sends the Registrar list status for an account to the destination chain.
+     * @param  chainId       The destination chain ID.
+     * @param  listName      The name of the list.
+     * @param  account       The account.
+     * @param  refundAddress Refund address to receive excess native gas.
+     * @return ID uniquely identifying the message
+     */
+    function sendRegistrarListStatus(
+        uint256 chainId,
+        bytes32 listName,
+        address account,
+        address refundAddress
+    ) external payable returns (bytes32);
+
+    /// @notice Enables earning for the Hub Portal if allowed by TTG.
+    function enableEarning() external;
+
+    /// @notice Disables earning for the Hub Portal if disallowed by TTG.
+    function disableEarning() external;
+
+    /* ============ View/Pure Functions ============ */
+
+    /// @notice Whether earning is enabled for the Hub Portal or not.
+    function isEarningEnabled() external view returns (bool);
+
+    /**
+     * @notice Gets the native fee to pay to send the M Token index to the destination chain.
+     * @param  chainId The destination chain ID.
+     * @return The native fee to pay.
+     */
+    function quoteSendMTokenIndex(uint256 chainId) external view returns (uint256);
+
+    /**
+     * @notice Gets the native fee to pay to send the Registrar key to the destination chain.
+     * @param  chainId The destination chain ID.
+     * @param  key     The key to dispatch.
+     * @return The native fee to pay.
+     */
+    function quoteSendRegistrarKey(uint256 chainId, bytes32 key) external view returns (uint256);
+
+    /**
+     * @notice Gets the native fee to pay to send the Registrar list status for an account to the destination chain.
+     * @param  chainId  The destination chain ID.
+     * @param  listName The name of the list.
+     * @param  account  The account.
+     * @return The native fee to pay.
+     */
+    function quoteSendRegistrarListStatus(
+        uint256 chainId,
+        bytes32 listName,
+        address account
+    ) external view returns (uint256);
+}

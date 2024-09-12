@@ -1,0 +1,41 @@
+# name: Forge Fork Tests
+#
+# on:
+#   push:
+#     branches:
+#       - main
+#   pull_request:
+#
+# permissions: write-all
+#
+# jobs:
+#   check:
+#     name: Fork Tests
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v4
+#         with:
+#           submodules: recursive
+#
+#       - name: Setup Node
+#         uses: actions/setup-node@v4
+#
+#       - name: Install NPM dependencies
+#         run: npm install
+#
+#       - name: Install Foundry
+#         uses: foundry-rs/foundry-toolchain@v1
+#
+#       - name: Run Forge build
+#         run: |
+#           forge --version
+#           make sizes
+#         id: build
+#
+#       - name: Run Forge fork tests
+#         run: make fork profile=ci
+#         env:
+#           MNEMONIC: ${{ secrets.MNEMONIC_FOR_TESTS }}
+#           MAINNET_RPC_URL: ${{ secrets.MAINNET_RPC_URL }}
+#           BASE_RPC_URL: ${{ secrets.BASE_RPC_URL }}
+#           OPTIMISM_RPC_URL: ${{ secrets.OPTIMISM_RPC_URL }}

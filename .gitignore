@@ -1,0 +1,22 @@
+# Compiler files
+cache/
+out/
+
+# Ignores development broadcast logs
+broadcast/**/*run*
+
+# Coverage files
+coverage/
+lcov.info
+
+# Docs
+docs/
+
+# Dotenv file
+.env
+
+# Mac OS files
+.DS_Store
+
+# NPM modules
+node_modules

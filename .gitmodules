@@ -1,0 +1,15 @@
+[submodule "lib/forge-std"]
+	path = lib/forge-std
+	url = git@github.com:foundry-rs/forge-std.git
+	branch = v1
+[submodule "lib/common"]
+	path = lib/common
+	url = git@github.com:m0-foundation/common.git
+[submodule "lib/protocol"]
+	path = lib/protocol
+	url = git@github.com:m0-foundation/protocol.git
+	branch = spoke
+[submodule "lib/ttg"]
+	path = lib/ttg
+	url = git@github.com:m0-foundation/ttg.git
+	branch = spoke

@@ -1,0 +1,29 @@
+# Compiler files
+cache/
+out/
+artifacts/
+
+# Ignores development broadcast logs
+broadcast/
+
+# Dotenv file
+.env
+
+notes.md
+
+coverage/
+lcov.info
+gasreport.ansi
+
+.DS_Store
+
+docs/
+
+node_modules/
+
+results.sarif
+yarn-error.log
+
+# Certora verification:
+.certora_internal
+certora/munged/*
