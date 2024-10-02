@@ -6,11 +6,20 @@
 update:; forge update
 
 # Deployment helpers
-deploy-local:
-	FOUNDRY_PROFILE=production forge script script/Deploy.s.sol --rpc-url localhost --broadcast -v
+deploy-local-hub:
+	FOUNDRY_PROFILE=production forge script script/deploy/dev/DeployDevHub.s.sol:DeployDevHub --private-key $(DEV_PRIVATE_KEY) --rpc-url localhost --skip test --broadcast -v
 
-deploy-dev:
-	FOUNDRY_PROFILE=production forge script script/deploy/dev/DeployDev.s.sol --skip src --skip test --multi --broadcast --slow -v
+deploy-local-spoke:
+	FOUNDRY_PROFILE=production forge script script/deploy/dev/DeployDevSpoke.s.sol:DeployDevSpoke --private-key $(DEV_PRIVATE_KEY) --rpc-url localhost --skip test --non-interactive --broadcast -v
+
+deploy-dev-sepolia:
+	FOUNDRY_PROFILE=production forge script script/deploy/dev/DeployDevHub.s.sol:DeployDevHub --private-key $(DEV_PRIVATE_KEY) --rpc-url $(SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+
+deploy-dev-base-sepolia:
+	FOUNDRY_PROFILE=production forge script script/deploy/dev/DeployDevSpoke.s.sol:DeployDevSpoke --private-key $(DEV_PRIVATE_KEY) --rpc-url $(BASE_SEPOLIA_RPC_URL) --skip test --non-interactive --broadcast --slow -v
+
+deploy-dev-optimism-sepolia:
+	FOUNDRY_PROFILE=production forge script script/deploy/dev/DeployDevSpoke.s.sol:DeployDevSpoke --private-key $(DEV_PRIVATE_KEY) --rpc-url $(OPTIMISM_SEPOLIA_RPC_URL) --skip test --non-interactive --broadcast --slow -v
 
 # Configuration helpers
 config-dev:
