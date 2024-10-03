@@ -22,8 +22,17 @@ deploy-dev-optimism-sepolia:
 	FOUNDRY_PROFILE=production forge script script/deploy/dev/DeployDevSpoke.s.sol:DeployDevSpoke --private-key $(DEV_PRIVATE_KEY) --rpc-url $(OPTIMISM_SEPOLIA_RPC_URL) --skip test --non-interactive --broadcast --slow -v
 
 # Configuration helpers
-config-dev:
-	forge script script/deploy/dev/ConfigDev.s.sol --skip src --skip test --multi --broadcast --slow -v
+configure-local:
+	FOUNDRY_PROFILE=production forge script script/configure/dev/configureDev.s.sol:ConfigureDev --private-key $(DEV_PRIVATE_KEY) --rpc-url localhost --skip test --broadcast -v
+
+configure-dev-sepolia:
+	FOUNDRY_PROFILE=production forge script script/configure/dev/configureDev.s.sol:ConfigureDev --private-key $(DEV_PRIVATE_KEY) --rpc-url $(SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+
+configure-dev-base-sepolia:
+	FOUNDRY_PROFILE=production forge script script/configure/dev/configureDev.s.sol:ConfigureDev --private-key $(DEV_PRIVATE_KEY) --rpc-url $(BASE_SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+
+configure-dev-optimism-sepolia:
+	FOUNDRY_PROFILE=production forge script script/configure/dev/configureDev.s.sol:ConfigureDev --private-key $(DEV_PRIVATE_KEY) --rpc-url $(OPTIMISM_SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
 
 # Run slither
 slither :; FOUNDRY_PROFILE=production forge build --build-info --skip '*/test/**' --skip '*/script/**' --force && slither --compile-force-framework foundry --ignore-compile --sarif results.sarif --config-file slither.config.json .

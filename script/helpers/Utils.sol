@@ -88,4 +88,10 @@ contract Utils {
     function _getCreate3Address(address deployer_, bytes32 salt_) internal view virtual returns (address) {
         return ICreateXLike(_CREATE_X_FACTORY).computeCreate3Address(_computeGuardedSalt(deployer_, salt_));
     }
+
+    function _toUniversalAddress(address evmAddr_) internal pure returns (bytes32 converted_) {
+        assembly ("memory-safe") {
+            converted_ := and(0xffffffffffffffffffffffffffffffffffffffff, evmAddr_)
+        }
+    }
 }
