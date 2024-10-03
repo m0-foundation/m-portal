@@ -5,11 +5,11 @@ pragma solidity 0.8.26;
 import {
     TrimmedAmount,
     TrimmedAmountLib
-} from "lib/example-native-token-transfers/evm/src/libraries/TrimmedAmount.sol";
-import { TransceiverStructs } from "lib/example-native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
+} from "../lib/example-native-token-transfers/evm/src/libraries/TrimmedAmount.sol";
+import { TransceiverStructs } from "../lib/example-native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
 import {
     NttManagerNoRateLimiting
-} from "lib/example-native-token-transfers/evm/src/NttManager/NttManagerNoRateLimiting.sol";
+} from "../lib/example-native-token-transfers/evm/src/NttManager/NttManagerNoRateLimiting.sol";
 
 import { IMTokenLike } from "./interfaces/Dependencies.sol";
 import { IPortal } from "./interfaces/IPortal.sol";

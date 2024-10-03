@@ -9,11 +9,9 @@ verbosity = 3
 via_ir = false
 
 [profile.production]
-optimizer = true
-optimizer_runs = 825
 build_info = true
 optimizer = true
-optimizer_runs = 800
+optimizer_runs = 825
 sizes = true
 via_ir = true
 
