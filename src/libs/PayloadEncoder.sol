@@ -57,7 +57,7 @@ library PayloadEncoder {
     }
 
     function encodeIndex(uint128 index_, uint16 destinationChainId_) internal pure returns (bytes memory) {
-        return abi.encodePacked(INDEX_TRANSFER_PREFIX, index_.toUnit64(), destinationChainId_);
+        return abi.encodePacked(INDEX_TRANSFER_PREFIX, index_.toUint64(), destinationChainId_);
     }
 
     function decodeIndex(bytes memory payload_) internal pure returns (uint128 index, uint16 destinationChainId) {

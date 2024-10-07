@@ -75,7 +75,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         address sender_
     ) internal override returns (TransceiverStructs.NativeTokenTransfer memory nativeTokenTransfer_) {
         // Convert to uint64 for compatibility with Solana and other non-EVM chains.
-        uint64 index_ = _currentIndex().toUnit64();
+        uint64 index_ = _currentIndex().toUint64();
 
         nativeTokenTransfer_ = TransceiverStructs.NativeTokenTransfer(
             amount_,
