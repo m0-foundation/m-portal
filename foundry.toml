@@ -10,9 +10,10 @@ via_ir = false
 
 [profile.production]
 optimizer = true
-optimizer_runs = 999999
+optimizer_runs = 825
 build_info = true
 sizes = true
+via_ir = true
 
 [fuzz]
 runs = 5_000
