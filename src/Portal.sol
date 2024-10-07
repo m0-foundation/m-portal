@@ -2,7 +2,6 @@
 
 pragma solidity 0.8.26;
 
-import { IManagerBase } from "lib/example-native-token-transfers/evm/src/interfaces/IManagerBase.sol";
 import {
     TrimmedAmount,
     TrimmedAmountLib

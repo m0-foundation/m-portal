@@ -2,9 +2,6 @@
 
 pragma solidity 0.8.26;
 
-import { IManagerBase } from "lib/example-native-token-transfers/evm/src/interfaces/IManagerBase.sol";
-import { IERC20 } from "../lib/common/src/interfaces/IERC20.sol";
-
 import { ISpokeMTokenLike, IRegistrarLike } from "./interfaces/Dependencies.sol";
 import { ISpokePortal } from "./interfaces/ISpokePortal.sol";
 

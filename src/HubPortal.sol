@@ -3,12 +3,10 @@
 pragma solidity 0.8.26;
 
 import { IERC20 } from "../lib/common/src/interfaces/IERC20.sol";
-import { IManagerBase } from "lib/example-native-token-transfers/evm/src/interfaces/IManagerBase.sol";
 import { TransceiverStructs } from "lib/example-native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
 
 import { IMTokenLike, IRegistrarLike } from "./interfaces/Dependencies.sol";
 import { IHubPortal } from "./interfaces/IHubPortal.sol";
-import { ISpokePortal } from "./interfaces/ISpokePortal.sol";
 
 import { Portal } from "./Portal.sol";
 import { PayloadEncoder } from "./libs/PayloadEncoder.sol";
