@@ -12,8 +12,10 @@ import {
 } from "../lib/example-native-token-transfers/evm/src/NttManager/NttManagerNoRateLimiting.sol";
 
 import { IPortal } from "./interfaces/IPortal.sol";
+
 import { TypeConverter } from "./libs/TypeConverter.sol";
 import { PayloadType, PayloadEncoder } from "./libs/PayloadEncoder.sol";
+import { RegistrarReader } from "./libs/RegistrarReader.sol";
 
 /**
  * @title  Base Portal contract inherited by HubPortal and SpokePortal.
@@ -59,6 +61,11 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
     /// @inheritdoc IPortal
     function currentIndex() external view returns (uint128) {
         return _currentIndex();
+    }
+
+    /// @notice Returns the address of the current owner.
+    function owner() public view override returns (address) {
+        return RegistrarReader.getConfigurator(registrar);
     }
 
     /* ============ Internal Interactive Functions ============ */
