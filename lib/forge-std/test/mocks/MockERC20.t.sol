@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.7.0 <0.9.0;
 
-import { MockERC20 } from "../../src/mocks/MockERC20.sol";
-import { StdCheats } from "../../src/StdCheats.sol";
-import { Test } from "../../src/Test.sol";
+import {MockERC20} from "../../src/mocks/MockERC20.sol";
+import {StdCheats} from "../../src/StdCheats.sol";
+import {Test} from "../../src/Test.sol";
 
 contract Token_ERC20 is MockERC20 {
     constructor(string memory name, string memory symbol, uint8 decimals) {
@@ -355,13 +355,9 @@ contract MockERC20Test is StdCheats, Test {
         token.transferFrom(from, to, sendAmount);
     }
 
-    function testFailPermitBadNonce(
-        uint256 privateKey,
-        address to,
-        uint256 amount,
-        uint256 deadline,
-        uint256 nonce
-    ) public {
+    function testFailPermitBadNonce(uint256 privateKey, address to, uint256 amount, uint256 deadline, uint256 nonce)
+        public
+    {
         if (deadline < block.timestamp) deadline = block.timestamp;
         if (privateKey == 0) privateKey = 1;
         if (nonce == 0) nonce = 1;

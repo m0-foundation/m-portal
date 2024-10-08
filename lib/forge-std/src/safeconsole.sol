@@ -162,13 +162,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -271,13 +265,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -383,13 +371,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -495,13 +477,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -538,13 +514,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -581,13 +551,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -624,13 +588,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -669,13 +627,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -799,13 +751,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -927,13 +873,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -1055,13 +995,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -1102,13 +1036,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -1149,13 +1077,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -1196,13 +1118,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -1245,13 +1161,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -1378,13 +1288,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -1506,13 +1410,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -1634,13 +1532,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -1681,13 +1573,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -1728,13 +1614,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -1775,13 +1655,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -1824,13 +1698,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -1957,13 +1825,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -2085,13 +1947,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -2213,13 +2069,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -2260,13 +2110,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -2307,13 +2151,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -2354,13 +2192,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -2403,13 +2235,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -2455,13 +2281,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -2502,13 +2322,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -2549,13 +2363,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -2598,13 +2406,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -2650,13 +2452,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -2697,13 +2493,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -2744,13 +2534,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -2793,13 +2577,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -2845,13 +2623,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -2892,13 +2664,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -2939,13 +2705,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -2988,13 +2748,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -3042,13 +2796,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -3096,13 +2844,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -3150,13 +2892,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -3206,13 +2942,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -3357,13 +3087,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -3501,13 +3225,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -3645,13 +3363,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -3696,13 +3408,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -3747,13 +3453,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -3798,13 +3498,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -3851,13 +3545,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -4000,13 +3688,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -4144,13 +3826,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -4288,13 +3964,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -4339,13 +4009,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -4390,13 +4054,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -4441,13 +4099,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -4494,13 +4146,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -4643,13 +4289,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -4787,13 +4427,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -4931,13 +4565,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -4982,13 +4610,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -5033,13 +4655,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -5084,13 +4700,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -5137,13 +4747,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -5193,13 +4797,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -5244,13 +4842,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -5295,13 +4887,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -5348,13 +4934,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -5404,13 +4984,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -5455,13 +5029,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -5506,13 +5074,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -5559,13 +5121,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -5615,13 +5171,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -5666,13 +5216,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -5717,13 +5261,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -5770,13 +5308,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -5828,13 +5360,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -5886,13 +5412,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -5944,13 +5464,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -6004,13 +5518,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -6158,13 +5666,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -6302,13 +5804,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -6446,13 +5942,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -6497,13 +5987,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -6548,13 +6032,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -6599,13 +6077,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -6652,13 +6124,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -6801,13 +6267,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -6945,13 +6405,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -7089,13 +6543,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -7140,13 +6588,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -7191,13 +6633,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -7242,13 +6678,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -7295,13 +6725,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -7444,13 +6868,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -7588,13 +7006,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -7732,13 +7144,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -7783,13 +7189,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -7834,13 +7234,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -7885,13 +7279,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -7938,13 +7326,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -7994,13 +7376,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -8045,13 +7421,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -8096,13 +7466,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -8149,13 +7513,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -8205,13 +7563,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -8256,13 +7608,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -8307,13 +7653,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -8360,13 +7700,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -8416,13 +7750,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -8467,13 +7795,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -8518,13 +7840,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -8571,13 +7887,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -8629,13 +7939,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -8687,13 +7991,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -8745,13 +8043,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -8805,13 +8097,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -8959,13 +8245,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -9103,13 +8383,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -9247,13 +8521,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -9298,13 +8566,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -9349,13 +8611,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -9400,13 +8656,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -9453,13 +8703,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -9602,13 +8846,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -9746,13 +8984,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -9890,13 +9122,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -9941,13 +9167,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -9992,13 +9212,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -10043,13 +9257,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -10096,13 +9304,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -10245,13 +9447,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -10389,13 +9585,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -10533,13 +9723,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -10584,13 +9768,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -10635,13 +9813,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -10686,13 +9858,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -10739,13 +9905,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -10795,13 +9955,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -10846,13 +10000,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -10897,13 +10045,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -10950,13 +10092,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -11006,13 +10142,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -11057,13 +10187,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -11108,13 +10232,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -11161,13 +10279,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -11217,13 +10329,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -11268,13 +10374,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -11319,13 +10419,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -11372,13 +10466,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -11430,13 +10518,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -11488,13 +10570,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -11546,13 +10622,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -11606,13 +10676,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -11667,13 +10731,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -11718,13 +10776,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -11769,13 +10821,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -11822,13 +10868,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -11878,13 +10918,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -11929,13 +10963,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -11980,13 +11008,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -12033,13 +11055,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -12089,13 +11105,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -12140,13 +11150,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -12191,13 +11195,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -12244,13 +11242,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -12302,13 +11294,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -12360,13 +11346,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -12418,13 +11398,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -12478,13 +11452,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -12539,13 +11507,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -12590,13 +11552,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -12641,13 +11597,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -12694,13 +11644,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -12750,13 +11694,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -12801,13 +11739,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -12852,13 +11784,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -12905,13 +11831,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -12961,13 +11881,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -13012,13 +11926,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -13063,13 +11971,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -13116,13 +12018,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -13174,13 +12070,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -13232,13 +12122,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -13290,13 +12174,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -13350,13 +12228,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -13411,13 +12283,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -13462,13 +12328,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -13513,13 +12373,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -13566,13 +12420,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -13622,13 +12470,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -13673,13 +12515,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -13724,13 +12560,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -13777,13 +12607,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -13833,13 +12657,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -13884,13 +12702,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -13935,13 +12747,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -13988,13 +12794,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -14046,13 +12846,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -14104,13 +12898,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -14162,13 +12950,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -14222,13 +13004,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -14285,13 +13061,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -14343,13 +13113,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -14401,13 +13165,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -14461,13 +13219,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -14524,13 +13276,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -14582,13 +13328,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -14640,13 +13380,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -14700,13 +13434,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -14763,13 +13491,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -14821,13 +13543,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -14879,13 +13595,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -14939,13 +13649,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -15004,13 +13708,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -15069,13 +13767,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -15134,13 +13826,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))
@@ -15201,13 +13887,7 @@ library safeconsole {
         assembly {
             function writeString(pos, w) {
                 let length := 0
-                for {} lt(length, 0x20) {
-                    length := add(length, 1)
-                } {
-                    if iszero(byte(length, w)) {
-                        break
-                    }
-                }
+                for {} lt(length, 0x20) { length := add(length, 1) } { if iszero(byte(length, w)) { break } }
                 mstore(pos, length)
                 let shift := sub(256, shl(3, length))
                 mstore(add(pos, 0x20), shl(shift, shr(shift, w)))

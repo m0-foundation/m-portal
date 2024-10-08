@@ -6,6 +6,7 @@ import { ERC20Extended } from "../lib/common/src/ERC20Extended.sol";
 import { UIntMath } from "../lib/common/src/libs/UIntMath.sol";
 
 import { IERC20 } from "../lib/common/src/interfaces/IERC20.sol";
+import { IERC20Extended } from "../lib/common/src/interfaces/IERC20Extended.sol";
 
 import { RegistrarReader } from "./libs/RegistrarReader.sol";
 
@@ -77,8 +78,8 @@ contract MToken is IMToken, ContinuousIndexing, ERC20Extended {
     }
 
     /// @inheritdoc IMToken
-    function burn(address account_, uint256 amount_) external onlyPortal {
-        _burn(account_, amount_);
+    function burn(uint256 amount_) external onlyPortal {
+        _burn(msg.sender, amount_);
     }
 
     /// @inheritdoc IContinuousIndexing

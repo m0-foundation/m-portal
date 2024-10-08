@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.7.0 <0.9.0;
 
-import { MockERC721, IERC721TokenReceiver } from "../../src/mocks/MockERC721.sol";
-import { StdCheats } from "../../src/StdCheats.sol";
-import { Test } from "../../src/Test.sol";
+import {MockERC721, IERC721TokenReceiver} from "../../src/mocks/MockERC721.sol";
+import {StdCheats} from "../../src/StdCheats.sol";
+import {Test} from "../../src/Test.sol";
 
 contract ERC721Recipient is IERC721TokenReceiver {
     address public operator;
@@ -11,12 +11,12 @@ contract ERC721Recipient is IERC721TokenReceiver {
     uint256 public id;
     bytes public data;
 
-    function onERC721Received(
-        address _operator,
-        address _from,
-        uint256 _id,
-        bytes calldata _data
-    ) public virtual override returns (bytes4) {
+    function onERC721Received(address _operator, address _from, uint256 _id, bytes calldata _data)
+        public
+        virtual
+        override
+        returns (bytes4)
+    {
         operator = _operator;
         from = _from;
         id = _id;
@@ -683,10 +683,9 @@ contract MockERC721Test is StdCheats, Test {
         token.safeTransferFrom(address(this), address(new WrongReturnDataERC721Recipient()), id);
     }
 
-    function testFailSafeTransferFromToERC721RecipientWithWrongReturnDataWithData(
-        uint256 id,
-        bytes calldata data
-    ) public {
+    function testFailSafeTransferFromToERC721RecipientWithWrongReturnDataWithData(uint256 id, bytes calldata data)
+        public
+    {
         token.mint(address(this), id);
 
         token.safeTransferFrom(address(this), address(new WrongReturnDataERC721Recipient()), id, data);

@@ -3,10 +3,10 @@ pragma solidity >=0.6.2 <0.9.0;
 
 pragma experimental ABIEncoderV2;
 
-import { IMulticall3 } from "./interfaces/IMulticall3.sol";
-import { MockERC20 } from "./mocks/MockERC20.sol";
-import { MockERC721 } from "./mocks/MockERC721.sol";
-import { VmSafe } from "./Vm.sol";
+import {IMulticall3} from "./interfaces/IMulticall3.sol";
+import {MockERC20} from "./mocks/MockERC20.sol";
+import {MockERC721} from "./mocks/MockERC721.sol";
+import {VmSafe} from "./Vm.sol";
 
 abstract contract StdUtils {
     /*//////////////////////////////////////////////////////////////////////////
@@ -103,11 +103,12 @@ abstract contract StdUtils {
         return vm.computeCreateAddress(deployer, nonce);
     }
 
-    function computeCreate2Address(
-        bytes32 salt,
-        bytes32 initcodeHash,
-        address deployer
-    ) internal pure virtual returns (address) {
+    function computeCreate2Address(bytes32 salt, bytes32 initcodeHash, address deployer)
+        internal
+        pure
+        virtual
+        returns (address)
+    {
         console2_log_StdUtils("computeCreate2Address is deprecated. Please use vm.computeCreate2Address instead.");
         return vm.computeCreate2Address(salt, initcodeHash, deployer);
     }
@@ -119,11 +120,10 @@ abstract contract StdUtils {
     }
 
     /// @dev returns an initialized mock ERC20 contract
-    function deployMockERC20(
-        string memory name,
-        string memory symbol,
-        uint8 decimals
-    ) internal returns (MockERC20 mock) {
+    function deployMockERC20(string memory name, string memory symbol, uint8 decimals)
+        internal
+        returns (MockERC20 mock)
+    {
         mock = new MockERC20();
         mock.initialize(name, symbol, decimals);
     }
@@ -148,10 +148,11 @@ abstract contract StdUtils {
     }
 
     // Performs a single call with Multicall3 to query the ERC-20 token balances of the given addresses.
-    function getTokenBalances(
-        address token,
-        address[] memory addresses
-    ) internal virtual returns (uint256[] memory balances) {
+    function getTokenBalances(address token, address[] memory addresses)
+        internal
+        virtual
+        returns (uint256[] memory balances)
+    {
         uint256 tokenCodeSize;
         assembly {
             tokenCodeSize := extcodesize(token)
@@ -163,10 +164,7 @@ abstract contract StdUtils {
         IMulticall3.Call[] memory calls = new IMulticall3.Call[](length);
         for (uint256 i = 0; i < length; ++i) {
             // 0x70a08231 = bytes4("balanceOf(address)"))
-            calls[i] = IMulticall3.Call({
-                target: token,
-                callData: abi.encodeWithSelector(0x70a08231, (addresses[i]))
-            });
+            calls[i] = IMulticall3.Call({target: token, callData: abi.encodeWithSelector(0x70a08231, (addresses[i]))});
         }
 
         // Make the aggregate call.
@@ -190,9 +188,11 @@ abstract contract StdUtils {
     // This section is used to prevent the compilation of console, which shortens the compilation time when console is
     // not used elsewhere. We also trick the compiler into letting us make the console log methods as `pure` to avoid
     // any breaking changes to function signatures.
-    function _castLogPayloadViewToPure(
-        function(bytes memory) internal view fnIn
-    ) internal pure returns (function(bytes memory) internal pure fnOut) {
+    function _castLogPayloadViewToPure(function(bytes memory) internal view fnIn)
+        internal
+        pure
+        returns (function(bytes memory) internal pure fnOut)
+    {
         assembly {
             fnOut := fnIn
         }

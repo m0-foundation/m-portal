@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.6.2 <0.9.0;
 
-import { Vm } from "./Vm.sol";
+import {Vm} from "./Vm.sol";
 
 struct FindData {
     uint256 slot;
@@ -118,12 +118,12 @@ library stdStorageSafe {
         }
         vm.record();
         (, bytes32 callResult) = callTarget(self);
-        (bytes32[] memory reads, ) = vm.accesses(address(who));
+        (bytes32[] memory reads,) = vm.accesses(address(who));
 
         if (reads.length == 0) {
             revert("stdStorage find(StdStorage): No storage use detected for target.");
         } else {
-            for (uint256 i = reads.length; --i >= 0; ) {
+            for (uint256 i = reads.length; --i >= 0;) {
                 bytes32 prev = vm.load(who, reads[i]);
                 if (prev == bytes32(0)) {
                     emit WARNING_UninitedSlot(who, uint256(reads[i]));
@@ -151,12 +151,8 @@ library stdStorageSafe {
                 }
 
                 emit SlotFound(who, fsig, keccak256(abi.encodePacked(params, field_depth)), uint256(reads[i]));
-                self.finds[who][fsig][keccak256(abi.encodePacked(params, field_depth))] = FindData(
-                    uint256(reads[i]),
-                    offsetLeft,
-                    offsetRight,
-                    true
-                );
+                self.finds[who][fsig][keccak256(abi.encodePacked(params, field_depth))] =
+                    FindData(uint256(reads[i]), offsetLeft, offsetRight, true);
                 break;
             }
         }
@@ -270,7 +266,7 @@ library stdStorageSafe {
         bool found;
         bytes32 root_slot;
         bytes32 parent_slot;
-        (found, , parent_slot) = vm.getMappingKeyAndParentOf(who, bytes32(child));
+        (found,, parent_slot) = vm.getMappingKeyAndParentOf(who, bytes32(child));
         if (!found) {
             revert(
                 "stdStorage read_bool(StdStorage): Cannot find parent. Make sure you give a slot and startMappingRecording() has been called."
@@ -278,7 +274,7 @@ library stdStorageSafe {
         }
         while (found) {
             root_slot = parent_slot;
-            (found, , parent_slot) = vm.getMappingKeyAndParentOf(who, bytes32(root_slot));
+            (found,, parent_slot) = vm.getMappingKeyAndParentOf(who, bytes32(root_slot));
         }
         return uint256(root_slot);
     }
@@ -326,12 +322,11 @@ library stdStorageSafe {
     }
 
     // Returns slot value with updated packed variable.
-    function getUpdatedSlotValue(
-        bytes32 curValue,
-        uint256 varValue,
-        uint256 offsetLeft,
-        uint256 offsetRight
-    ) internal pure returns (bytes32 newValue) {
+    function getUpdatedSlotValue(bytes32 curValue, uint256 varValue, uint256 offsetLeft, uint256 offsetRight)
+        internal
+        pure
+        returns (bytes32 newValue)
+    {
         return bytes32((uint256(curValue) & ~getMaskByOffsets(offsetLeft, offsetRight)) | (varValue << offsetRight));
     }
 }

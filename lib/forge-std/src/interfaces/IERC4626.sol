@@ -9,11 +9,7 @@ interface IERC4626 is IERC20 {
     event Deposit(address indexed sender, address indexed owner, uint256 assets, uint256 shares);
 
     event Withdraw(
-        address indexed sender,
-        address indexed receiver,
-        address indexed owner,
-        uint256 assets,
-        uint256 shares
+        address indexed sender, address indexed receiver, address indexed owner, uint256 assets, uint256 shares
     );
 
     /// @notice Returns the address of the underlying token used for the Vault for accounting, depositing, and withdrawing.
@@ -123,7 +119,7 @@ interface IERC4626 is IERC20 {
     function mint(uint256 shares, address receiver) external returns (uint256 assets);
 
     /// @notice Returns the maximum amount of the underlying asset that can be withdrawn from the owner balance in the
-    /// Vault, through a withdraw call.
+    /// Vault, through a withdrawal call.
     /// @dev
     /// - MUST return a limited value if owner is subject to some withdrawal limit or timelock.
     /// - MUST NOT revert.
@@ -149,7 +145,7 @@ interface IERC4626 is IERC20 {
     /// @dev
     /// - MUST emit the Withdraw event.
     /// - MAY support an additional flow in which the underlying tokens are owned by the Vault contract before the
-    ///   withdraw execution, and are accounted for during withdraw.
+    ///   withdraw execution, and are accounted for during withdrawal.
     /// - MUST revert if all of assets cannot be withdrawn (due to withdrawal limit being reached, slippage, the owner
     ///   not having enough shares, etc).
     ///

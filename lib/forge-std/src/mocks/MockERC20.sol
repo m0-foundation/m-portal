@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.6.2 <0.9.0;
 
-import { IERC20 } from "../interfaces/IERC20.sol";
+import {IERC20} from "../interfaces/IERC20.sol";
 
 /// @notice This is a mock contract of the ERC20 standard for testing purposes only, it SHOULD NOT be used in production.
 /// @dev Forked from: https://github.com/transmissions11/solmate/blob/0384dbaaa4fcb5715738a9254a7c0a4cb62cf458/src/tokens/ERC20.sol
@@ -120,15 +120,10 @@ contract MockERC20 is IERC20 {
                              EIP-2612 LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    function permit(
-        address owner,
-        address spender,
-        uint256 value,
-        uint256 deadline,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) public virtual {
+    function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)
+        public
+        virtual
+    {
         require(deadline >= block.timestamp, "PERMIT_DEADLINE_EXPIRED");
 
         address recoveredAddress = ecrecover(
@@ -167,16 +162,15 @@ contract MockERC20 is IERC20 {
     }
 
     function computeDomainSeparator() internal view virtual returns (bytes32) {
-        return
-            keccak256(
-                abi.encode(
-                    keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
-                    keccak256(bytes(_name)),
-                    keccak256("1"),
-                    _pureChainId(),
-                    address(this)
-                )
-            );
+        return keccak256(
+            abi.encode(
+                keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
+                keccak256(bytes(_name)),
+                keccak256("1"),
+                _pureChainId(),
+                address(this)
+            )
+        );
     }
 
     /*//////////////////////////////////////////////////////////////

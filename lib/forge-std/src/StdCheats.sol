@@ -3,9 +3,9 @@ pragma solidity >=0.6.2 <0.9.0;
 
 pragma experimental ABIEncoderV2;
 
-import { StdStorage, stdStorage } from "./StdStorage.sol";
-import { console2 } from "./console2.sol";
-import { Vm } from "./Vm.sol";
+import {StdStorage, stdStorage} from "./StdStorage.sol";
+import {console2} from "./console2.sol";
+import {Vm} from "./Vm.sol";
 
 abstract contract StdCheatsSafe {
     Vm private constant vm = Vm(address(uint160(uint256(keccak256("hevm cheat code")))));
@@ -228,7 +228,7 @@ abstract contract StdCheatsSafe {
 
     // Checks that `addr` is not blacklisted by token contracts that have a blacklist.
     // This is identical to `assumeNotBlacklisted(address,address)` but with a different name, for
-    // backwards compatibility, since this name was used in the original PR which has already has
+    // backwards compatibility, since this name was used in the original PR which already has
     // a release. This function can be removed in a future release once we want a breaking change.
     function assumeNoBlacklisted(address token, address addr) internal view virtual {
         assumeNotBlacklisted(token, addr);
@@ -290,7 +290,7 @@ abstract contract StdCheatsSafe {
         uint256 origBalanceAddr = address(addr).balance;
 
         vm.deal(address(this), 1);
-        (bool success, ) = payable(addr).call{ value: 1 }("");
+        (bool success,) = payable(addr).call{value: 1}("");
 
         // reset balances
         vm.deal(address(this), origBalanceTest);
@@ -322,36 +322,21 @@ abstract contract StdCheatsSafe {
         // Note: For some chains like Optimism these are technically predeploys (i.e. bytecode placed at a specific
         // address), but the same rationale for excluding them applies so we include those too.
 
-        // These should be present on all EVM-compatible chains.
-        vm.assume(addr < address(0x1) || addr > address(0x9));
+        // These are reserved by Ethereum and may be on all EVM-compatible chains.
+        vm.assume(addr < address(0x1) || addr > address(0xff));
 
         // forgefmt: disable-start
         if (chainId == 10 || chainId == 420) {
             // https://github.com/ethereum-optimism/optimism/blob/eaa371a0184b56b7ca6d9eb9cb0a2b78b2ccd864/op-bindings/predeploys/addresses.go#L6-L21
-            vm.assume(
-                addr < address(0x4200000000000000000000000000000000000000) ||
-                    addr > address(0x4200000000000000000000000000000000000800)
-            );
+            vm.assume(addr < address(0x4200000000000000000000000000000000000000) || addr > address(0x4200000000000000000000000000000000000800));
         } else if (chainId == 42161 || chainId == 421613) {
             // https://developer.arbitrum.io/useful-addresses#arbitrum-precompiles-l2-same-on-all-arb-chains
-            vm.assume(
-                addr < address(0x0000000000000000000000000000000000000064) ||
-                    addr > address(0x0000000000000000000000000000000000000068)
-            );
+            vm.assume(addr < address(0x0000000000000000000000000000000000000064) || addr > address(0x0000000000000000000000000000000000000068));
         } else if (chainId == 43114 || chainId == 43113) {
             // https://github.com/ava-labs/subnet-evm/blob/47c03fd007ecaa6de2c52ea081596e0a88401f58/precompile/params.go#L18-L59
-            vm.assume(
-                addr < address(0x0100000000000000000000000000000000000000) ||
-                    addr > address(0x01000000000000000000000000000000000000ff)
-            );
-            vm.assume(
-                addr < address(0x0200000000000000000000000000000000000000) ||
-                    addr > address(0x02000000000000000000000000000000000000FF)
-            );
-            vm.assume(
-                addr < address(0x0300000000000000000000000000000000000000) ||
-                    addr > address(0x03000000000000000000000000000000000000Ff)
-            );
+            vm.assume(addr < address(0x0100000000000000000000000000000000000000) || addr > address(0x01000000000000000000000000000000000000ff));
+            vm.assume(addr < address(0x0200000000000000000000000000000000000000) || addr > address(0x02000000000000000000000000000000000000FF));
+            vm.assume(addr < address(0x0300000000000000000000000000000000000000) || addr > address(0x03000000000000000000000000000000000000Ff));
         }
         // forgefmt: disable-end
     }
@@ -359,15 +344,17 @@ abstract contract StdCheatsSafe {
     function assumeNotForgeAddress(address addr) internal pure virtual {
         // vm, console, and Create2Deployer addresses
         vm.assume(
-            addr != address(vm) &&
-                addr != 0x000000000000000000636F6e736F6c652e6c6f67 &&
-                addr != 0x4e59b44847b379578588920cA78FbF26c0B4956C
+            addr != address(vm) && addr != 0x000000000000000000636F6e736F6c652e6c6f67
+                && addr != 0x4e59b44847b379578588920cA78FbF26c0B4956C
         );
     }
 
-    function readEIP1559ScriptArtifact(
-        string memory path
-    ) internal view virtual returns (EIP1559ScriptArtifact memory) {
+    function readEIP1559ScriptArtifact(string memory path)
+        internal
+        view
+        virtual
+        returns (EIP1559ScriptArtifact memory)
+    {
         string memory data = vm.readFile(path);
         bytes memory parsedData = vm.parseJson(data);
         RawEIP1559ScriptArtifact memory rawArtifact = abi.decode(parsedData, (RawEIP1559ScriptArtifact));
@@ -401,9 +388,12 @@ abstract contract StdCheatsSafe {
         return transaction;
     }
 
-    function rawToConvertedEIP1559Detail(
-        RawTx1559Detail memory rawDetail
-    ) internal pure virtual returns (Tx1559Detail memory) {
+    function rawToConvertedEIP1559Detail(RawTx1559Detail memory rawDetail)
+        internal
+        pure
+        virtual
+        returns (Tx1559Detail memory)
+    {
         Tx1559Detail memory txDetail;
         txDetail.data = rawDetail.data;
         txDetail.from = rawDetail.from;
@@ -473,9 +463,12 @@ abstract contract StdCheatsSafe {
         return receipt;
     }
 
-    function rawToConvertedReceiptLogs(
-        RawReceiptLog[] memory rawLogs
-    ) internal pure virtual returns (ReceiptLog[] memory) {
+    function rawToConvertedReceiptLogs(RawReceiptLog[] memory rawLogs)
+        internal
+        pure
+        virtual
+        returns (ReceiptLog[] memory)
+    {
         ReceiptLog[] memory logs = new ReceiptLog[](rawLogs.length);
         for (uint256 i; i < rawLogs.length; i++) {
             logs[i].logAddress = rawLogs[i].logAddress;
@@ -544,7 +537,7 @@ abstract contract StdCheatsSafe {
 
     // creates a labeled address
     function makeAddr(string memory name) internal virtual returns (address addr) {
-        (addr, ) = makeAddrAndKey(name);
+        (addr,) = makeAddrAndKey(name);
     }
 
     // Destroys an account immediately, sending the balance to beneficiary.
@@ -566,10 +559,11 @@ abstract contract StdCheatsSafe {
         (account.addr, account.key) = makeAddrAndKey(name);
     }
 
-    function deriveRememberKey(
-        string memory mnemonic,
-        uint32 index
-    ) internal virtual returns (address who, uint256 privateKey) {
+    function deriveRememberKey(string memory mnemonic, uint32 index)
+        internal
+        virtual
+        returns (address who, uint256 privateKey)
+    {
         privateKey = vm.deriveKey(mnemonic, index);
         who = vm.rememberKey(privateKey);
     }
@@ -783,9 +777,8 @@ abstract contract StdCheats is StdCheatsSafe {
         require(successMinted, "StdCheats deal(address,address,uint,bool): id not minted.");
 
         // get owner current balance
-        (, bytes memory fromBalData) = token.staticcall(
-            abi.encodeWithSelector(0x70a08231, abi.decode(ownerData, (address)))
-        );
+        (, bytes memory fromBalData) =
+            token.staticcall(abi.encodeWithSelector(0x70a08231, abi.decode(ownerData, (address))));
         uint256 fromPrevBal = abi.decode(fromBalData, (uint256));
 
         // get new user current balance
@@ -811,14 +804,14 @@ abstract contract StdCheats is StdCheatsSafe {
     function deployCodeTo(string memory what, bytes memory args, uint256 value, address where) internal virtual {
         bytes memory creationCode = vm.getCode(what);
         vm.etch(where, abi.encodePacked(creationCode, args));
-        (bool success, bytes memory runtimeBytecode) = where.call{ value: value }("");
+        (bool success, bytes memory runtimeBytecode) = where.call{value: value}("");
         require(success, "StdCheats deployCodeTo(string,bytes,uint256,address): Failed to create runtime bytecode.");
         vm.etch(where, runtimeBytecode);
     }
 
     // Used to prevent the compilation of console, which shortens the compilation time when console is not used elsewhere.
     function console2_log_StdCheats(string memory p0) private view {
-        (bool status, ) = address(CONSOLE2_ADDRESS).staticcall(abi.encodeWithSignature("log(string)", p0));
+        (bool status,) = address(CONSOLE2_ADDRESS).staticcall(abi.encodeWithSignature("log(string)", p0));
         status;
     }
 }

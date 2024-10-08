@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.7.0 <0.9.0;
 
-import "../src/StdAssertions.sol";
-import { Vm } from "../src/Vm.sol";
+import {StdAssertions} from "../src/StdAssertions.sol";
+import {Vm} from "../src/Vm.sol";
 
 interface VmInternal is Vm {
     function _expectCheatcodeRevert(bytes memory message) external;
@@ -47,10 +47,7 @@ contract StdAssertionsTest is StdAssertions {
         vm._expectCheatcodeRevert(
             bytes(
                 string.concat(
-                    "Call return data does not match: ",
-                    vm.toString(returnDataA),
-                    " != ",
-                    vm.toString(returnDataB)
+                    "Call return data does not match: ", vm.toString(returnDataA), " != ", vm.toString(returnDataB)
                 )
             )
         );
@@ -83,10 +80,7 @@ contract StdAssertionsTest is StdAssertions {
         vm._expectCheatcodeRevert(
             bytes(
                 string.concat(
-                    "Call revert data does not match: ",
-                    vm.toString(revertDataA),
-                    " != ",
-                    vm.toString(revertDataB)
+                    "Call revert data does not match: ", vm.toString(revertDataA), " != ", vm.toString(revertDataB)
                 )
             )
         );

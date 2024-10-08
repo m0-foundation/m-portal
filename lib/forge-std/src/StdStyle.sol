@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.4.22 <0.9.0;
 
-import { VmSafe } from "./Vm.sol";
+import {VmSafe} from "./Vm.sol";
 
 library StdStyle {
     VmSafe private constant vm = VmSafe(address(uint160(uint256(keccak256("hevm cheat code")))));

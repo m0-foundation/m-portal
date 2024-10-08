@@ -5,11 +5,13 @@ pragma solidity 0.8.26;
 import { MToken } from "../../src/MToken.sol";
 
 contract MTokenHarness is MToken {
+
     constructor(address registrar_) MToken(registrar_) {}
 
     /******************************************************************************************************************\
     |                                                     Getters                                                      |
     \******************************************************************************************************************/
+
 
     function getLatestIndexInMToken() public view returns (uint128) {
         return latestIndex;

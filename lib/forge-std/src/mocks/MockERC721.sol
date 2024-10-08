@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.6.2 <0.9.0;
 
-import { IERC721Metadata, IERC721TokenReceiver } from "../interfaces/IERC721.sol";
+import {IERC721Metadata, IERC721TokenReceiver} from "../interfaces/IERC721.sol";
 
 /// @notice This is a mock contract of the ERC721 standard for testing purposes only, it SHOULD NOT be used in production.
 /// @dev Forked from: https://github.com/transmissions11/solmate/blob/0384dbaaa4fcb5715738a9254a7c0a4cb62cf458/src/tokens/ERC721.sol
@@ -123,20 +123,25 @@ contract MockERC721 is IERC721Metadata {
         transferFrom(from, to, id);
 
         require(
-            !_isContract(to) ||
-                IERC721TokenReceiver(to).onERC721Received(msg.sender, from, id, "") ==
-                IERC721TokenReceiver.onERC721Received.selector,
+            !_isContract(to)
+                || IERC721TokenReceiver(to).onERC721Received(msg.sender, from, id, "")
+                    == IERC721TokenReceiver.onERC721Received.selector,
             "UNSAFE_RECIPIENT"
         );
     }
 
-    function safeTransferFrom(address from, address to, uint256 id, bytes memory data) public payable virtual override {
+    function safeTransferFrom(address from, address to, uint256 id, bytes memory data)
+        public
+        payable
+        virtual
+        override
+    {
         transferFrom(from, to, id);
 
         require(
-            !_isContract(to) ||
-                IERC721TokenReceiver(to).onERC721Received(msg.sender, from, id, data) ==
-                IERC721TokenReceiver.onERC721Received.selector,
+            !_isContract(to)
+                || IERC721TokenReceiver(to).onERC721Received(msg.sender, from, id, data)
+                    == IERC721TokenReceiver.onERC721Received.selector,
             "UNSAFE_RECIPIENT"
         );
     }
@@ -146,10 +151,9 @@ contract MockERC721 is IERC721Metadata {
     //////////////////////////////////////////////////////////////*/
 
     function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
-        return
-            interfaceId == 0x01ffc9a7 || // ERC165 Interface ID for ERC165
-            interfaceId == 0x80ac58cd || // ERC165 Interface ID for ERC721
-            interfaceId == 0x5b5e139f; // ERC165 Interface ID for ERC721Metadata
+        return interfaceId == 0x01ffc9a7 // ERC165 Interface ID for ERC165
+            || interfaceId == 0x80ac58cd // ERC165 Interface ID for ERC721
+            || interfaceId == 0x5b5e139f; // ERC165 Interface ID for ERC721Metadata
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -192,9 +196,9 @@ contract MockERC721 is IERC721Metadata {
         _mint(to, id);
 
         require(
-            !_isContract(to) ||
-                IERC721TokenReceiver(to).onERC721Received(msg.sender, address(0), id, "") ==
-                IERC721TokenReceiver.onERC721Received.selector,
+            !_isContract(to)
+                || IERC721TokenReceiver(to).onERC721Received(msg.sender, address(0), id, "")
+                    == IERC721TokenReceiver.onERC721Received.selector,
             "UNSAFE_RECIPIENT"
         );
     }
@@ -203,9 +207,9 @@ contract MockERC721 is IERC721Metadata {
         _mint(to, id);
 
         require(
-            !_isContract(to) ||
-                IERC721TokenReceiver(to).onERC721Received(msg.sender, address(0), id, data) ==
-                IERC721TokenReceiver.onERC721Received.selector,
+            !_isContract(to)
+                || IERC721TokenReceiver(to).onERC721Received(msg.sender, address(0), id, data)
+                    == IERC721TokenReceiver.onERC721Received.selector,
             "UNSAFE_RECIPIENT"
         );
     }
