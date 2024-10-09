@@ -13,13 +13,13 @@ deploy-local-spoke:
 	FOUNDRY_PROFILE=production forge script script/deploy/dev/DeployDevSpoke.s.sol:DeployDevSpoke --private-key $(DEV_PRIVATE_KEY) --rpc-url localhost --skip test --non-interactive --broadcast -v
 
 deploy-dev-sepolia:
-	FOUNDRY_PROFILE=production forge script script/deploy/dev/DeployDevHub.s.sol:DeployDevHub --private-key $(DEV_PRIVATE_KEY) --rpc-url $(SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+	FOUNDRY_PROFILE=production forge script script/deploy/dev/DeployDevHub.s.sol:DeployDevHub --private-key $(DEV_PRIVATE_KEY) --rpc-url $(SEPOLIA_RPC_URL) --etherscan-api-key $(ETHERSCAN_API_KEY) --skip test --broadcast --slow -v --verify
 
 deploy-dev-base-sepolia:
-	FOUNDRY_PROFILE=production forge script script/deploy/dev/DeployDevSpoke.s.sol:DeployDevSpoke --private-key $(DEV_PRIVATE_KEY) --rpc-url $(BASE_SEPOLIA_RPC_URL) --skip test --non-interactive --broadcast --slow -v
+	FOUNDRY_PROFILE=production forge script script/deploy/dev/DeployDevSpoke.s.sol:DeployDevSpoke --private-key $(DEV_PRIVATE_KEY) --rpc-url $(BASE_SEPOLIA_RPC_URL) --etherscan-api-key $(BASE_ETHERSCAN_API_KEY) --skip test --non-interactive --broadcast --slow -v --verify
 
 deploy-dev-optimism-sepolia:
-	FOUNDRY_PROFILE=production forge script script/deploy/dev/DeployDevSpoke.s.sol:DeployDevSpoke --private-key $(DEV_PRIVATE_KEY) --rpc-url $(OPTIMISM_SEPOLIA_RPC_URL) --skip test --non-interactive --broadcast --slow -v
+	FOUNDRY_PROFILE=production forge script script/deploy/dev/DeployDevSpoke.s.sol:DeployDevSpoke --private-key $(DEV_PRIVATE_KEY) --rpc-url $(OPTIMISM_SEPOLIA_RPC_URL) --etherscan-api-key $(OPTIMISM_ETHERSCAN_API_KEY) --skip test --non-interactive --broadcast --slow -v --verify
 
 # Configuration helpers
 configure-local:
