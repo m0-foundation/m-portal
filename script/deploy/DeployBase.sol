@@ -4,7 +4,6 @@ pragma solidity 0.8.26;
 
 import { Script, console2 } from "../../lib/forge-std/src/Script.sol";
 
-import { ContractHelper } from "../../lib/common/src/libs/ContractHelper.sol";
 import { MToken as SpokeMToken } from "../../lib/protocol/src/MToken.sol";
 import { Registrar as SpokeRegistrar } from "../../lib/ttg/src/Registrar.sol";
 
@@ -148,7 +147,7 @@ contract DeployBase is Script, Utils {
         }
 
         // Pre-compute the expected SpokePortal proxy address.
-        spokeRegistrar_ = _deploySpokeRegistrar(_getCreate3Address(deployer_, _computeSalt(deployer_, "SpokePortal")));
+        spokeRegistrar_ = _deploySpokeRegistrar(_getCreate3Address(deployer_, _computeSalt(deployer_, "Portal")));
 
         deployerNonce_ = vm.getNonce(deployer_);
         if (deployerNonce_ != _SPOKE_M_TOKEN_NONCE) {

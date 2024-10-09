@@ -4,6 +4,9 @@ pragma solidity 0.8.26;
 
 import { Test } from "../../lib/forge-std/src/Test.sol";
 
+import { MToken as SpokeMToken } from "../../lib/protocol/src/MToken.sol";
+import { Registrar as SpokeRegistrar } from "../../lib/ttg/src/Registrar.sol";
+
 import { DeployBase } from "../../script/deploy/DeployBase.sol";
 
 contract Deploy is DeployBase, Test {
@@ -73,6 +76,10 @@ contract Deploy is DeployBase, Test {
         assertEq(baseSpokeWormholeTransceiver_, expectedSpokeWormholeTransceiver_);
         assertEq(baseSpokeRegistrar_, _MAINNET_REGISTRAR);
         assertEq(baseSpokeMToken_, _MAINNET_M_TOKEN);
+
+        assertEq(SpokeMToken(baseSpokeMToken_).portal(), baseSpokePortal_);
+        assertEq(SpokeMToken(baseSpokeMToken_).registrar(), baseSpokeRegistrar_);
+        assertEq(SpokeRegistrar(baseSpokeRegistrar_).portal(), baseSpokePortal_);
     }
 
     function _burnNonces(address account_, uint64 startingNonce_, uint64 targetNonce_) internal {
