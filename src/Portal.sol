@@ -128,6 +128,8 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         uint256 amount_ = trimmedAmount_.untrim(tokenDecimals());
         uint128 currentIndex_ = _currentIndex();
 
+        emit MTokenReceived(sourceChainId_, messageId_, sender_, recipient_, amount_, index_);
+
         _mintOrUnlock(recipient_, amount_, index_);
 
         // TODO: We cannot assume that the sender is EVM address,
@@ -140,8 +142,6 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         if (currentIndex_ > index_ && IMTokenLike(mToken()).isEarning(senderAddress_)) {
             _mintOrUnlock(senderAddress_, (amount_ * (currentIndex_ - index_)) / _EXP_SCALED_ONE, index_);
         }
-
-        emit MTokenReceived(sourceChainId_, messageId_, sender_, recipient_, amount_, index_);
     }
 
     function _receiveCustomPayload(
@@ -152,7 +152,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
 
     function _verifyDestinationChain(uint16 destinationChainId_) internal view {
         // Verify that the destination chain is the current chain.
-        if (destinationChainId_ != chainId) revert InvalidTargetChain(destinationChainId, chainId);
+        if (destinationChainId_ != chainId) revert InvalidTargetChain(destinationChainId_, chainId);
     }
 
     /**

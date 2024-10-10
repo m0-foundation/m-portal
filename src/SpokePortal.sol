@@ -46,9 +46,10 @@ contract SpokePortal is ISpokePortal, Portal {
         (uint128 index_, uint16 destinationChainId_) = payload_.decodeIndex();
 
         _verifyDestinationChain(destinationChainId_);
-        ISpokeMTokenLike(mToken()).updateIndex(index_);
 
         emit MTokenIndexReceived(messageId_, index_);
+
+        ISpokeMTokenLike(mToken()).updateIndex(index_);
     }
 
     /// @notice Sets a Registrar key received from the Hub chain.
@@ -56,9 +57,10 @@ contract SpokePortal is ISpokePortal, Portal {
         (bytes32 key_, bytes32 value_, uint16 destinationChainId_) = payload_.decodeKey();
 
         _verifyDestinationChain(destinationChainId_);
-        IRegistrarLike(registrar).setKey(key_, value_);
 
         emit RegistrarKeyReceived(messageId_, key_, value_);
+
+        IRegistrarLike(registrar).setKey(key_, value_);
     }
 
     /// @notice Adds or removes an account from the Registrar List based on the message from the Hub chain.
@@ -67,13 +69,13 @@ contract SpokePortal is ISpokePortal, Portal {
 
         _verifyDestinationChain(destinationChainId_);
 
+        emit RegistrarListStatusReceived(messageId_, listName_, account_, add_);
+
         if (add_) {
             IRegistrarLike(registrar).addToList(listName_, account_);
         } else {
             IRegistrarLike(registrar).removeFromList(listName_, account_);
         }
-
-        emit RegistrarListStatusReceived(messageId_, listName_, account_, add_);
     }
 
     /**
