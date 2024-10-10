@@ -53,7 +53,7 @@ contract HubPortal is IHubPortal, Portal {
     ) external payable returns (bytes32 messageId_) {
         uint128 index_ = _currentIndex();
         bytes memory payload_ = PayloadEncoder.encodeIndex(index_, destinationChainId_);
-        messageId_ = _sendMessage(destinationChainId_, refundAddress_, transceiverInstructions_, payload_);
+        messageId_ = _sendMessage(destinationChainId_, refundAddress_, payload_, transceiverInstructions_);
 
         emit MTokenIndexSent(destinationChainId_, messageId_, index_);
     }
