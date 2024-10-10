@@ -39,13 +39,25 @@ upgrade-transceiver-local:
 	FOUNDRY_PROFILE=production forge script script/upgrade/dev/UpgradeWormholeTransceiverDev.s.sol:UpgradeWormholeTransceiverDev --private-key $(DEV_PRIVATE_KEY) --rpc-url localhost --skip test --broadcast -v
 
 upgrade-transceiver-dev-sepolia:
-	FOUNDRY_PROFILE=production forge script script/upgrade/dev/UpgradeWormholeTransceiverDev.s.sol:UpgradeWormholeTransceiverDev --private-key $(DEV_PRIVATE_KEY) --rpc-url $(SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+	FOUNDRY_PROFILE=production forge script script/upgrade/dev/UpgradeWormholeTransceiverDev.s.sol:UpgradeWormholeTransceiverDev --private-key $(DEV_PRIVATE_KEY) --rpc-url $(SEPOLIA_RPC_URL) --etherscan-api-key $(ETHERSCAN_API_KEY) --skip test --broadcast --slow -v --verify
 
 upgrade-transceiver-dev-base-sepolia:
-	FOUNDRY_PROFILE=production forge script script/upgrade/dev/UpgradeWormholeTransceiverDev.s.sol:UpgradeWormholeTransceiverDev --private-key $(DEV_PRIVATE_KEY) --rpc-url $(BASE_SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+	FOUNDRY_PROFILE=production forge script script/upgrade/dev/UpgradeWormholeTransceiverDev.s.sol:UpgradeWormholeTransceiverDev --private-key $(DEV_PRIVATE_KEY) --rpc-url $(BASE_SEPOLIA_RPC_URL) --etherscan-api-key $(BASE_ETHERSCAN_API_KEY) --skip test --broadcast --slow -v --verify
 
 upgrade-transceiver-dev-optimism-sepolia:
-	FOUNDRY_PROFILE=production forge script script/upgrade/dev/UpgradeWormholeTransceiverDev.s.sol:UpgradeWormholeTransceiverDev --private-key $(DEV_PRIVATE_KEY) --rpc-url $(OPTIMISM_SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+	FOUNDRY_PROFILE=production forge script script/upgrade/dev/UpgradeWormholeTransceiverDev.s.sol:UpgradeWormholeTransceiverDev --private-key $(DEV_PRIVATE_KEY) --rpc-url $(OPTIMISM_SEPOLIA_RPC_URL) --etherscan-api-key $(OPTIMISM_ETHERSCAN_API_KEY) --skip test --broadcast --slow -v --verify
+
+upgrade-portal-local:
+	FOUNDRY_PROFILE=production forge script script/upgrade/dev/UpgradePortalDev.s.sol:UpgradePortalDev --private-key $(DEV_PRIVATE_KEY) --rpc-url localhost --skip test --broadcast -v
+
+upgrade-portal-dev-sepolia:
+	FOUNDRY_PROFILE=production forge script script/upgrade/dev/UpgradePortalDev.s.sol:UpgradePortalDev --private-key $(DEV_PRIVATE_KEY) --rpc-url $(SEPOLIA_RPC_URL) --etherscan-api-key $(ETHERSCAN_API_KEY) --skip test --broadcast --slow -v --verify
+
+upgrade-portal-dev-base-sepolia:
+	FOUNDRY_PROFILE=production forge script script/upgrade/dev/UpgradePortalDev.s.sol:UpgradePortalDev --private-key $(DEV_PRIVATE_KEY) --rpc-url $(BASE_SEPOLIA_RPC_URL) --etherscan-api-key $(BASE_ETHERSCAN_API_KEY) --skip test --broadcast --slow -v --verify
+
+upgrade-portal-dev-optimism-sepolia:
+	FOUNDRY_PROFILE=production forge script script/upgrade/dev/UpgradePortalDev.s.sol:UpgradePortalDev --private-key $(DEV_PRIVATE_KEY) --rpc-url $(OPTIMISM_SEPOLIA_RPC_URL) --etherscan-api-key $(OPTIMISM_ETHERSCAN_API_KEY) --skip test --broadcast --slow -v --verify
 
 # Run slither
 slither :; FOUNDRY_PROFILE=production forge build --build-info --skip '*/test/**' --skip '*/script/**' --force && slither --compile-force-framework foundry --ignore-compile --sarif results.sarif --config-file slither.config.json .

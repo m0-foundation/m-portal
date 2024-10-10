@@ -13,7 +13,7 @@ contract UpgradeWormholeTransceiverDev is UpgradeBase {
 
             _upgradeWormholeTransceiver(
                 deployer_,
-                UpgradeParams({
+                WormholeTransceiverUpgradeParams({
                     wormholeChainId: _SEPOLIA_WORMHOLE_CHAIN_ID,
                     wormholeCoreBridge: _SEPOLIA_WORMHOLE_CORE_BRIDGE,
                     wormholeRelayerAddr: _SEPOLIA_WORMHOLE_RELAYER,
@@ -29,7 +29,7 @@ contract UpgradeWormholeTransceiverDev is UpgradeBase {
 
             _upgradeWormholeTransceiver(
                 deployer_,
-                UpgradeParams({
+                WormholeTransceiverUpgradeParams({
                     wormholeChainId: _BASE_SEPOLIA_WORMHOLE_CHAIN_ID,
                     wormholeCoreBridge: _BASE_SEPOLIA_WORMHOLE_CORE_BRIDGE,
                     wormholeRelayerAddr: _BASE_SEPOLIA_WORMHOLE_RELAYER,
@@ -45,7 +45,7 @@ contract UpgradeWormholeTransceiverDev is UpgradeBase {
 
             _upgradeWormholeTransceiver(
                 deployer_,
-                UpgradeParams({
+                WormholeTransceiverUpgradeParams({
                     wormholeChainId: _OPTIMISM_SEPOLIA_WORMHOLE_CHAIN_ID,
                     wormholeCoreBridge: _OPTIMISM_SEPOLIA_WORMHOLE_CORE_BRIDGE,
                     wormholeRelayerAddr: _OPTIMISM_SEPOLIA_WORMHOLE_RELAYER,
