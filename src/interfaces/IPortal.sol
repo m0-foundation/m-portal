@@ -11,7 +11,7 @@ interface IPortal {
 
     /**
      * @notice Emitted when M token are sent to a destination chain.
-     * @param  destinationChainId The destination chain ID.
+     * @param  destinationChainId The Wormhole destination chain ID.
      * @param  messageId          The unique identifier for the sent message.
      * @param  sender             The address that bridged the M tokens via the Portal.
      * @param  recipient          The account receiving tokens on destination chain.
@@ -29,7 +29,7 @@ interface IPortal {
 
     /**
      * @notice Emitted when M token are received from a source chain.
-     * @param  sourceChainId The source chain ID.
+     * @param  sourceChainId The Wormhole source chain ID.
      * @param  messageId     The unique identifier for the received message.
      * @param  sender        The account sending tokens.
      * @param  recipient     The account receiving tokens.
@@ -39,7 +39,7 @@ interface IPortal {
     event MTokenReceived(
         uint16 sourceChainId,
         bytes32 indexed messageId,
-        bytes32 indexed sender,
+        bytes32 sender,
         address indexed recipient,
         uint256 amount,
         uint128 index

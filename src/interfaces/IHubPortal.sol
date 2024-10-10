@@ -29,7 +29,7 @@ interface IHubPortal is IPortal {
 
     /**
      * @notice Emitted when the M token index is sent to a destination chain.
-     * @param  destinationChainId The destination chain ID.
+     * @param  destinationChainId The Wormhole destination chain ID.
      * @param  messageId          The unique identifier for the sent message.
      * @param  index              The the M token index.
      */
@@ -37,7 +37,7 @@ interface IHubPortal is IPortal {
 
     /**
      * @notice Emitted when the Registrar key is sent to a destination chain.
-     * @param  destinationChainId The destination chain ID.
+     * @param  destinationChainId The Wormhole destination chain ID.
      * @param  messageId          The unique identifier for the sent message.
      * @param  key                The key that was sent.
      * @param  value              The value that was sent.
@@ -46,7 +46,7 @@ interface IHubPortal is IPortal {
 
     /**
      * @notice Emitted when the Registrar list status for an account is sent to a destination chain.
-     * @param  destinationChainId The destination chain ID.
+     * @param  destinationChainId The Wormhole destination chain ID.
      * @param  messageId          The unique identifier for the sent message.
      * @param  listName           The name of the list.
      * @param  account            The account.
@@ -81,7 +81,7 @@ interface IHubPortal is IPortal {
 
     /**
      * @notice Sends the M token index to the destination chain.
-     * @param  destinationChainId      The destination chain ID.
+     * @param  destinationChainId      The Wormhole destination chain ID.
      * @param  refundAddress           Refund address to receive excess native gas.
      * @param  transceiverInstructions Additional instructions to be forwarded to the destination chain.
      * @return ID uniquely identifying the message
@@ -94,7 +94,7 @@ interface IHubPortal is IPortal {
 
     /**
      * @notice Sends the Registrar key to the destination chain.
-     * @param  destinationChainId      The destination chain ID.
+     * @param  destinationChainId      The Wormhole destination chain ID.
      * @param  key                     The key to dispatch.
      * @param  refundAddress           Refund address to receive excess native gas.
      * @param  transceiverInstructions Additional instructions to be forwarded to the destination chain.
@@ -109,7 +109,7 @@ interface IHubPortal is IPortal {
 
     /**
      * @notice Sends the Registrar list status for an account to the destination chain.
-     * @param  destinationChainId      The destination chain ID.
+     * @param  destinationChainId      The Wormhole destination chain ID.
      * @param  listName                The name of the list.
      * @param  account                 The account.
      * @param  refundAddress           Refund address to receive excess native gas.
