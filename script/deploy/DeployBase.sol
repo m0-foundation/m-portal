@@ -68,7 +68,7 @@ contract DeployBase is Script, Utils {
             wormholeRelayerAddr: wormholeRelayerAddr_,
             specialRelayerAddr: specialRelayerAddr_,
             consistencyLevel: _INSTANT_CONSISTENCY_LEVEL,
-            gasLimit: _MIN_WORMHOLE_GAS_LIMIT
+            gasLimit: _WORMHOLE_GAS_LIMIT
         });
 
         hubPortal_ = _deployHubPortal(params_, _computeSalt(deployer_, "Portal"));
@@ -116,7 +116,7 @@ contract DeployBase is Script, Utils {
             wormholeRelayerAddr: wormholeRelayerAddr_,
             specialRelayerAddr: specialRelayerAddr_,
             consistencyLevel: _INSTANT_CONSISTENCY_LEVEL,
-            gasLimit: _MIN_WORMHOLE_GAS_LIMIT
+            gasLimit: _WORMHOLE_GAS_LIMIT
         });
 
         spokePortal_ = _deploySpokePortal(params_, _computeSalt(deployer_, "Portal"));

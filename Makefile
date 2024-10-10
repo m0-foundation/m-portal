@@ -34,6 +34,19 @@ configure-dev-base-sepolia:
 configure-dev-optimism-sepolia:
 	FOUNDRY_PROFILE=production forge script script/configure/dev/configureDev.s.sol:ConfigureDev --private-key $(DEV_PRIVATE_KEY) --rpc-url $(OPTIMISM_SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
 
+# Upgrade helpers
+upgrade-transceiver-local:
+	FOUNDRY_PROFILE=production forge script script/upgrade/dev/UpgradeWormholeTransceiverDev.s.sol:UpgradeWormholeTransceiverDev --private-key $(DEV_PRIVATE_KEY) --rpc-url localhost --skip test --broadcast -v
+
+upgrade-transceiver-dev-sepolia:
+	FOUNDRY_PROFILE=production forge script script/upgrade/dev/UpgradeWormholeTransceiverDev.s.sol:UpgradeWormholeTransceiverDev --private-key $(DEV_PRIVATE_KEY) --rpc-url $(SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+
+upgrade-transceiver-dev-base-sepolia:
+	FOUNDRY_PROFILE=production forge script script/upgrade/dev/UpgradeWormholeTransceiverDev.s.sol:UpgradeWormholeTransceiverDev --private-key $(DEV_PRIVATE_KEY) --rpc-url $(BASE_SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+
+upgrade-transceiver-dev-optimism-sepolia:
+	FOUNDRY_PROFILE=production forge script script/upgrade/dev/UpgradeWormholeTransceiverDev.s.sol:UpgradeWormholeTransceiverDev --private-key $(DEV_PRIVATE_KEY) --rpc-url $(OPTIMISM_SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+
 # Run slither
 slither :; FOUNDRY_PROFILE=production forge build --build-info --skip '*/test/**' --skip '*/script/**' --force && slither --compile-force-framework foundry --ignore-compile --sarif results.sarif --config-file slither.config.json .
 
