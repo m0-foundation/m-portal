@@ -2,7 +2,8 @@
 
 pragma solidity 0.8.26;
 
-import { ISpokeMTokenLike, IRegistrarLike } from "./interfaces/Dependencies.sol";
+import { ISpokeMTokenLike } from "./interfaces/ISpokeMTokenLike.sol";
+import { IRegistrarLike } from "./interfaces/IRegistrarLike.sol";
 import { ISpokePortal } from "./interfaces/ISpokePortal.sol";
 
 import { Portal } from "./Portal.sol";

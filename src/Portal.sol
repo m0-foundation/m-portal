@@ -11,7 +11,7 @@ import {
     NttManagerNoRateLimiting
 } from "../lib/example-native-token-transfers/evm/src/NttManager/NttManagerNoRateLimiting.sol";
 
-import { IMTokenLike } from "./interfaces/Dependencies.sol";
+import { IMTokenLike } from "./interfaces/IMTokenLike.sol";
 import { IPortal } from "./interfaces/IPortal.sol";
 import { TypeConverter } from "./libs/TypeConverter.sol";
 import { PayloadType, PayloadEncoder } from "./libs/PayloadEncoder.sol";
