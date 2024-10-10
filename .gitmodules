@@ -15,5 +15,5 @@
 	branch = spoke
 [submodule "lib/example-native-token-transfers"]
 	path = lib/example-native-token-transfers
-	url = git@github.com:wormholelabs-xyz/example-native-token-transfers.git
-	branch = custom-payload
+	url = git@github.com:wormhole-foundation/example-native-token-transfers.git
+	branch = main
