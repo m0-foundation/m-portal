@@ -150,9 +150,9 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         bytes memory payload_
     ) internal virtual {}
 
-    function _verifyDestinationChain(uint16 destinationChainId) internal view {
+    function _verifyDestinationChain(uint16 destinationChainId_) internal view {
         // Verify that the destination chain is the current chain.
-        if (destinationChainId != chainId) revert InvalidTargetChain(destinationChainId, chainId);
+        if (destinationChainId_ != chainId) revert InvalidTargetChain(destinationChainId, chainId);
     }
 
     /**

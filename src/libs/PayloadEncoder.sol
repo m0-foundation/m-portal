@@ -29,7 +29,7 @@ library PayloadEncoder {
     error InvalidPayloadLength(uint256 length);
     error InvalidPayloadPrefix(bytes4 prefix);
 
-    function getPayloadType(bytes memory payload_) internal pure returns (PayloadType) {
+    function getPayloadType(bytes memory payload_) internal pure returns (PayloadType payloadType_) {
         if (payload_.length < PAYLOAD_PREFIX_LENGTH) revert InvalidPayloadLength(payload_.length);
 
         (bytes4 prefix, ) = payload_.asBytes4Unchecked(0);
@@ -44,46 +44,49 @@ library PayloadEncoder {
 
     function decodeTokenTransfer(
         bytes memory payload_
-    ) internal pure returns (TrimmedAmount trimmedAmount, uint128 index, address recipient, uint16 destinationChainId) {
-        TransceiverStructs.NativeTokenTransfer memory nativeTokenTransfer = TransceiverStructs.parseNativeTokenTransfer(
-            payload_
-        );
+    )
+        internal
+        pure
+        returns (TrimmedAmount trimmedAmount_, uint128 index_, address recipient_, uint16 destinationChainId_)
+    {
+        TransceiverStructs.NativeTokenTransfer memory nativeTokenTransfer_ = TransceiverStructs
+            .parseNativeTokenTransfer(payload_);
 
-        (uint64 index_, ) = nativeTokenTransfer.additionalPayload.asUint64(0);
-        index = uint128(index_);
-        trimmedAmount = nativeTokenTransfer.amount;
-        recipient = nativeTokenTransfer.to.toAddress();
-        destinationChainId = nativeTokenTransfer.toChain;
+        (index_, ) = nativeTokenTransfer_.additionalPayload.asUint64(0);
+        trimmedAmount_ = nativeTokenTransfer_.amount;
+        recipient_ = nativeTokenTransfer_.to.toAddress();
+        destinationChainId_ = nativeTokenTransfer_.toChain;
     }
 
-    function encodeIndex(uint128 index_, uint16 destinationChainId_) internal pure returns (bytes memory) {
+    function encodeIndex(uint128 index_, uint16 destinationChainId_) internal pure returns (bytes memory encoded_) {
         return abi.encodePacked(INDEX_TRANSFER_PREFIX, index_.toUint64(), destinationChainId_);
     }
 
-    function decodeIndex(bytes memory payload_) internal pure returns (uint128 index, uint16 destinationChainId) {
+    function decodeIndex(bytes memory payload_) internal pure returns (uint128 index_, uint16 destinationChainId_) {
         uint256 offset_ = PAYLOAD_PREFIX_LENGTH;
 
-        uint64 index_;
         (index_, offset_) = payload_.asUint64Unchecked(offset_);
-        index = uint128(index_);
-
-        (destinationChainId, offset_) = payload_.asUint16Unchecked(offset_);
+        (destinationChainId_, offset_) = payload_.asUint16Unchecked(offset_);
 
         payload_.checkLength(offset_);
     }
 
-    function encodeKey(bytes32 key_, bytes32 value_, uint16 destinationChainId_) internal pure returns (bytes memory) {
+    function encodeKey(
+        bytes32 key_,
+        bytes32 value_,
+        uint16 destinationChainId_
+    ) internal pure returns (bytes memory encoded_) {
         return abi.encodePacked(KEY_TRANSFER_PREFIX, key_, value_, destinationChainId_);
     }
 
     function decodeKey(
         bytes memory payload_
-    ) internal pure returns (bytes32 key, bytes32 value, uint16 destinationChainId) {
+    ) internal pure returns (bytes32 key_, bytes32 value_, uint16 destinationChainId_) {
         uint256 offset_ = PAYLOAD_PREFIX_LENGTH;
 
-        (key, offset_) = payload_.asBytes32Unchecked(offset_);
-        (value, offset_) = payload_.asBytes32Unchecked(offset_);
-        (destinationChainId, offset_) = payload_.asUint16Unchecked(offset_);
+        (key_, offset_) = payload_.asBytes32Unchecked(offset_);
+        (value_, offset_) = payload_.asBytes32Unchecked(offset_);
+        (destinationChainId_, offset_) = payload_.asUint16Unchecked(offset_);
 
         payload_.checkLength(offset_);
     }
@@ -93,19 +96,19 @@ library PayloadEncoder {
         address account_,
         bool add_,
         uint16 destinationChainId_
-    ) internal pure returns (bytes memory) {
+    ) internal pure returns (bytes memory encoded_) {
         return abi.encodePacked(LIST_UPDATE_PREFIX, listName_, account_, add_, destinationChainId_);
     }
 
     function decodeListUpdate(
         bytes memory payload_
-    ) internal pure returns (bytes32 listName, address account, bool add, uint16 destinationChainId) {
+    ) internal pure returns (bytes32 listName_, address account_, bool add_, uint16 destinationChainId_) {
         uint256 offset_ = PAYLOAD_PREFIX_LENGTH;
 
-        (listName, offset_) = payload_.asBytes32Unchecked(offset_);
-        (account, offset_) = payload_.asAddressUnchecked(offset_);
-        (add, offset_) = payload_.asBoolUnchecked(offset_);
-        (destinationChainId, offset_) = payload_.asUint16Unchecked(offset_);
+        (listName_, offset_) = payload_.asBytes32Unchecked(offset_);
+        (account_, offset_) = payload_.asAddressUnchecked(offset_);
+        (add_, offset_) = payload_.asBoolUnchecked(offset_);
+        (destinationChainId_, offset_) = payload_.asUint16Unchecked(offset_);
 
         payload_.checkLength(offset_);
     }
