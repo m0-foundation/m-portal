@@ -2,8 +2,8 @@
 
 pragma solidity 0.8.26;
 
-import { IManagerBase } from "lib/example-native-token-transfers/evm/src/interfaces/IManagerBase.sol";
-import { TransceiverStructs } from "lib/example-native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
+import { IManagerBase } from "../../lib/example-native-token-transfers/evm/src/interfaces/IManagerBase.sol";
+import { TransceiverStructs } from "../../lib/example-native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
 
 import { IHubPortal } from "../../src/interfaces/IHubPortal.sol";
 import { HubPortal } from "../../src/HubPortal.sol";
