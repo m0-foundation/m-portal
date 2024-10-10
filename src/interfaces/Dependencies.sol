@@ -39,12 +39,11 @@ interface ISpokeMTokenLike is IMTokenLike {
     function mint(address account, uint256 amount, uint128 index) external;
 
     /**
-     * @notice Burns tokens.
+     * @notice Burns tokens of msg.sender.
      * @dev    MUST only be callable by the SpokePortal.
-     * @param  account The address of account to burn from.
      * @param  amount  The amount of M Token to burn.
      */
-    function burn(address account, uint256 amount) external;
+    function burn(uint256 amount) external;
 
     /**
      * @notice Updates the latest index and latest accrual time in storage.

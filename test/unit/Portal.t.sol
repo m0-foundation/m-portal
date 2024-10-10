@@ -2,137 +2,148 @@
 
 pragma solidity 0.8.26;
 
-import { Test } from "../../lib/forge-std/src/Test.sol";
-
 import { IManagerBase } from "lib/example-native-token-transfers/evm/src/interfaces/IManagerBase.sol";
+import { INttManager } from "lib/example-native-token-transfers/evm/src/interfaces/INttManager.sol";
+import { TransceiverStructs } from "lib/example-native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
+import { TrimmedAmountLib } from "lib/example-native-token-transfers/evm/src/libraries/TrimmedAmount.sol";
+
 import { IPortal } from "../../src/interfaces/IPortal.sol";
+import { TypeConverter } from "../../src/libs/TypeConverter.sol";
+import { PayloadEncoder } from "../../src/libs/PayloadEncoder.sol";
 
-import { MockSpokeMToken, MockSpokeRegistrar } from "../utils/Mocks.sol";
-import { PortalHarness } from "../utils/PortalHarness.sol";
-import { Utils } from "../utils/Utils.sol";
+import { UnitTestBase } from "./UnitTestBase.t.sol";
+import { MockSpokeMToken } from "../mocks/MockSpokeMToken.sol";
+import { MockTransceiver } from "../mocks/MockTransceiver.sol";
+import { MockSpokeRegistrar } from "../mocks/MockSpokeRegistrar.sol";
+import { PortalHarness } from "../harnesses/PortalHarness.sol";
 
-contract PortalTests is Test {
-    uint16 internal _WORMHOLE_CHAIN_ID = 2;
+contract PortalTests is UnitTestBase {
+    using TypeConverter for *;
+    using TrimmedAmountLib for *;
 
-    /* ============ Deployer ============ */
+    MockSpokeMToken internal _mToken;
+    MockSpokeRegistrar internal _registrar;
 
-    address internal _deployer = makeAddr("deployer");
-
-    /* ============ Users ============ */
-
-    address internal _alice = makeAddr("alice");
-
-    /* ============ Variables ============ */
-
-    MockSpokeMToken public mToken;
-    MockSpokeRegistrar public registrar;
-
-    PortalHarness public portal;
+    PortalHarness internal _portal;
 
     function setUp() external {
-        mToken = new MockSpokeMToken();
-        registrar = new MockSpokeRegistrar();
-        portal = new PortalHarness(address(mToken), address(registrar), IManagerBase.Mode.BURNING, _WORMHOLE_CHAIN_ID);
-    }
+        _mToken = new MockSpokeMToken();
 
-    /* ============ initialState ============ */
+        _tokenDecimals = _mToken.decimals();
+        _tokenAddress = address(_mToken);
 
-    function test_initialState() external view {
-        assertEq(portal.mToken(), address(mToken));
-        assertEq(portal.registrar(), address(registrar));
-        assertEq(uint8(portal.mode()), uint8(IManagerBase.Mode.BURNING));
-        assertEq(portal.chainId(), _WORMHOLE_CHAIN_ID);
+        _registrar = new MockSpokeRegistrar();
+        _transceiver = new MockTransceiver();
+
+        PortalHarness implementation_ = new PortalHarness(
+            address(_mToken),
+            address(_registrar),
+            IManagerBase.Mode.BURNING,
+            _LOCAL_CHAIN_ID
+        );
+        _portal = PortalHarness(_createProxy(address(implementation_)));
+        _initializePortal(_portal);
     }
 
     /* ============ constructor ============ */
-    function test_constructor_zeroRegistrar() external {
-        vm.expectRevert(abi.encodeWithSelector(IPortal.ZeroRegistrar.selector));
-        new PortalHarness(address(mToken), address(0), IManagerBase.Mode.BURNING, _WORMHOLE_CHAIN_ID);
+
+    function test_constructor_zeroMToken() external {
+        vm.expectRevert(IPortal.ZeroMToken.selector);
+        new PortalHarness(address(0), address(_registrar), IManagerBase.Mode.BURNING, _LOCAL_CHAIN_ID);
     }
 
-    // /* ============ quoteSendMToken ============ */
+    function test_constructor_zeroRegistrar() external {
+        vm.expectRevert(IPortal.ZeroRegistrar.selector);
+        new PortalHarness(address(_mToken), address(0), IManagerBase.Mode.BURNING, _LOCAL_CHAIN_ID);
+    }
 
-    // function test_quoteSendMToken() external {
-    //     uint256 amount_ = 1_000e6;
-    //     uint256 chainId_ = Utils.LOCAL_CHAIN_ID;
-    //     uint128 index_ = Utils.EXP_SCALED_ONE;
+    /* ============ transfer ============ */
 
-    //     mToken.setCurrentIndex(index_);
+    function test_transfer_insufficientAmount() external {
+        vm.expectRevert(INttManager.ZeroAmount.selector);
 
-    //     vm.expectCall(
-    //         address(bridge),
-    //         abi.encodeWithSelector(
-    //             IBridge.quote.selector,
-    //             chainId_,
-    //             abi.encodeCall(IPortal.receiveMToken, (Utils.LOCAL_CHAIN_ID, _alice, _alice, amount_, index_)),
-    //             Utils.SEND_M_TOKEN_GAS_LIMIT
-    //         )
-    //     );
+        vm.prank(_alice);
+        _portal.transfer(0, _REMOTE_CHAIN_ID, _alice.toBytes32());
+    }
 
-    //     vm.prank(_alice);
-    //     portal.quoteSendMToken(chainId_, _alice, amount_);
-    // }
+    function test_transfer_invalidRecipient() external {
+        vm.expectRevert(INttManager.InvalidRecipient.selector);
 
-    // /* ============ sendMToken ============ */
+        vm.prank(_alice);
+        _portal.transfer(1_000e6, _REMOTE_CHAIN_ID, bytes32(0));
+    }
 
-    // function test_sendMToken_insufficientAmount() external {
-    //     vm.expectRevert(abi.encodeWithSelector(IPortal.InsufficientAmount.selector, 0));
+    function test_transfer() external {
+        uint256 amount_ = 1_000e6;
+        uint128 index_ = 0;
+        uint256 msgValue_ = 2;
+        bytes32 recipient_ = _alice.toBytes32();
 
-    //     vm.prank(_alice);
-    //     portal.sendMToken(1, _alice, 0, _alice);
-    // }
+        (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) = _createTransferMessage(
+            amount_,
+            index_,
+            recipient_,
+            _LOCAL_CHAIN_ID,
+            _REMOTE_CHAIN_ID
+        );
 
-    // function test_sendMToken_invalidRecipient() external {
-    //     vm.expectRevert(abi.encodeWithSelector(IPortal.InvalidRecipient.selector, address(0)));
+        vm.deal(_alice, msgValue_);
+        _mToken.mintTo(_alice, amount_);
 
-    //     vm.prank(_alice);
-    //     portal.sendMToken(1, address(0), 1_000e6, _alice);
-    // }
+        vm.startPrank(_alice);
+        _mToken.approve(address(_portal), amount_);
 
-    // function test_sendMToken() external {
-    //     uint256 chainId_ = 1;
-    //     uint256 amount_ = 1_000e6;
-    //     uint128 index_ = 0;
-    //     uint256 msgValue_ = 1;
+        vm.expectCall(
+            address(_transceiver),
+            0,
+            abi.encodeCall(
+                _transceiver.sendMessage,
+                (
+                    _REMOTE_CHAIN_ID,
+                    _emptyTransceiverInstruction,
+                    TransceiverStructs.encodeNttManagerMessage(message_),
+                    _PEER,
+                    recipient_
+                )
+            )
+        );
 
-    //     vm.expectCall(
-    //         address(bridge),
-    //         msgValue_,
-    //         abi.encodeWithSelector(
-    //             IBridge.dispatch.selector,
-    //             chainId_,
-    //             abi.encodeCall(IPortal.receiveMToken, (Utils.LOCAL_CHAIN_ID, _alice, _alice, amount_, index_)),
-    //             Utils.SEND_M_TOKEN_GAS_LIMIT,
-    //             _alice
-    //         )
-    //     );
+        vm.expectEmit();
+        emit IPortal.MTokenSent(_REMOTE_CHAIN_ID, messageId_, _alice, recipient_, amount_, index_);
 
-    //     vm.expectEmit();
-    //     emit IPortal.MTokenSent(chainId_, address(bridge), 0, _alice, _alice, amount_, index_);
+        _portal.transfer{ value: msgValue_ }(amount_, _REMOTE_CHAIN_ID, recipient_);
+    }
 
-    //     vm.deal(_alice, msgValue_);
+    /* ============ _handleMsg ============ */
 
-    //     vm.prank(_alice);
-    //     portal.sendMToken{ value: msgValue_ }(chainId_, _alice, amount_, _alice);
-    // }
+    function test_handleMsg_invalidPayloadLength() external {
+        TransceiverStructs.NttManagerMessage memory message_ = TransceiverStructs.NttManagerMessage(
+            bytes32(0),
+            _alice.toBytes32(),
+            "a"
+        );
 
-    // /* ============ receiveMToken ============ */
+        vm.expectRevert(abi.encodeWithSelector(PayloadEncoder.InvalidPayloadLength.selector, 1));
 
-    // function test_receiveMToken_notBridge() external {
-    //     vm.expectRevert(abi.encodeWithSelector(IPortal.NotBridge.selector, _alice));
-    //     vm.prank(_alice);
-    //     portal.receiveMToken(1, _alice, _alice, 0, 0);
-    // }
+        vm.prank(address(_transceiver));
+        _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
+    }
 
-    // function test_receiveMToken() external {
-    //     uint256 amount_ = 1_000e6;
-    //     uint256 fromChainId_ = 1;
-    //     uint128 index_ = Utils.EXP_SCALED_ONE;
+    function test_handleMsg_invalidPayloadType() external {
+        TransceiverStructs.NttManagerMessage memory message_ = TransceiverStructs.NttManagerMessage(
+            bytes32(0),
+            _alice.toBytes32(),
+            hex"AAAAAAAA"
+        );
 
-    //     vm.expectEmit();
-    //     emit IPortal.MTokenReceived(fromChainId_, address(bridge), _alice, _alice, amount_, index_);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                PayloadEncoder.InvalidPayloadPrefix.selector,
+                0xaaaaaaaa00000000000000000000000000000000000000000000000000000000
+            )
+        );
 
-    //     vm.prank(address(bridge));
-    //     portal.receiveMToken(fromChainId_, _alice, _alice, amount_, index_);
-    // }
+        vm.prank(address(_transceiver));
+        _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
+    }
 }

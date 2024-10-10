@@ -111,19 +111,14 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         PayloadType payloadType_ = message_.payload.getPayloadType();
 
         if (payloadType_ == PayloadType.Token) {
-            _handleTokenTransfer(sourceChainId_, messageId_, message_.sender, payload_);
+            _receiveMToken(sourceChainId_, messageId_, message_.sender, payload_);
             return;
         }
 
-        _handleCustomPayload(messageId_, payloadType_, payload_);
+        _receiveCustomPayload(messageId_, payloadType_, payload_);
     }
 
-    function _handleTokenTransfer(
-        uint16 sourceChainId_,
-        bytes32 messageId_,
-        bytes32 sender_,
-        bytes memory payload_
-    ) private {
+    function _receiveMToken(uint16 sourceChainId_, bytes32 messageId_, bytes32 sender_, bytes memory payload_) private {
         (TrimmedAmount trimmedAmount_, uint128 index_, address recipient_, uint16 destinationChainId_) = payload_
             .decodeTokenTransfer();
 
@@ -149,7 +144,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         emit MTokenReceived(sourceChainId_, messageId_, sender_, recipient_, amount_, index_);
     }
 
-    function _handleCustomPayload(
+    function _receiveCustomPayload(
         bytes32 messageId_,
         PayloadType payloadType_,
         bytes memory payload_

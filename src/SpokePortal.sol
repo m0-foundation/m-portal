@@ -27,22 +27,22 @@ contract SpokePortal is ISpokePortal, Portal {
         uint16 chainId_
     ) Portal(mToken_, registrar_, Mode.BURNING, chainId_) {}
 
-    function _handleCustomPayload(
+    function _receiveCustomPayload(
         bytes32 messageId_,
         PayloadType payloadType_,
         bytes memory payload_
     ) internal override {
         if (payloadType_ == PayloadType.Index) {
-            _setIndex(messageId_, payload_);
+            _updateMTokenIndex(messageId_, payload_);
         } else if (payloadType_ == PayloadType.Key) {
-            _setKey(messageId_, payload_);
+            _setRegistrarKey(messageId_, payload_);
         } else if (payloadType_ == PayloadType.List) {
             _updateRegistrarList(messageId_, payload_);
         }
     }
 
     /// @notice Updates M Token index to the index received from the remote chain.
-    function _setIndex(bytes32 messageId_, bytes memory payload_) private {
+    function _updateMTokenIndex(bytes32 messageId_, bytes memory payload_) private {
         (uint128 index_, uint16 destinationChainId_) = payload_.decodeIndex();
 
         _verifyDestinationChain(destinationChainId_);
@@ -52,7 +52,7 @@ contract SpokePortal is ISpokePortal, Portal {
     }
 
     /// @notice Sets a Registrar key received from the Hub chain.
-    function _setKey(bytes32 messageId_, bytes memory payload_) private {
+    function _setRegistrarKey(bytes32 messageId_, bytes memory payload_) private {
         (bytes32 key_, bytes32 value_, uint16 destinationChainId_) = payload_.decodeKey();
 
         _verifyDestinationChain(destinationChainId_);
