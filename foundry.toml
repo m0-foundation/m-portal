@@ -1,6 +1,6 @@
 [profile.default]
 evm_version = "cancun"
-gas_reports = ["*"]
+gas_reports = ["HubPortal", "SpokePortal"]
 gas_reports_ignore = []
 ignored_error_codes = []
 optimizer = false
@@ -10,9 +10,10 @@ via_ir = false
 
 [profile.production]
 optimizer = true
-optimizer_runs = 999999
+optimizer_runs = 800
 build_info = true
 sizes = true
+via_ir = true
 
 [fuzz]
 runs = 5_000

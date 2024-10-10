@@ -29,46 +29,31 @@ interface IHubPortal is IPortal {
 
     /**
      * @notice Emitted when the M token index is sent to a destination chain.
-     * @param  destinationChainId The destination chain ID.
-     * @param  bridge             The address of the bridge that sent the index.
+     * @param  destinationChainId The Wormhole destination chain ID.
      * @param  messageId          The unique identifier for the sent message.
      * @param  index              The the M token index.
      */
-    event MTokenIndexSent(
-        uint256 indexed destinationChainId,
-        address indexed bridge,
-        bytes32 indexed messageId,
-        uint128 index
-    );
+    event MTokenIndexSent(uint16 indexed destinationChainId, bytes32 indexed messageId, uint128 index);
 
     /**
      * @notice Emitted when the Registrar key is sent to a destination chain.
-     * @param  destinationChainId The destination chain ID.
-     * @param  bridge             The address of the bridge that sent the key.
+     * @param  destinationChainId The Wormhole destination chain ID.
      * @param  messageId          The unique identifier for the sent message.
      * @param  key                The key that was sent.
      * @param  value              The value that was sent.
      */
-    event RegistrarKeySent(
-        uint256 indexed destinationChainId,
-        address indexed bridge,
-        bytes32 indexed messageId,
-        bytes32 key,
-        bytes32 value
-    );
+    event RegistrarKeySent(uint16 indexed destinationChainId, bytes32 indexed messageId, bytes32 key, bytes32 value);
 
     /**
      * @notice Emitted when the Registrar list status for an account is sent to a destination chain.
-     * @param  destinationChainId The destination chain ID.
-     * @param  bridge             The address of the bridge that sent the key.
+     * @param  destinationChainId The Wormhole destination chain ID.
      * @param  messageId          The unique identifier for the sent message.
      * @param  listName           The name of the list.
      * @param  account            The account.
      * @param  status             The status of the account in the list.
      */
     event RegistrarListStatusSent(
-        uint256 indexed destinationChainId,
-        address indexed bridge,
+        uint16 indexed destinationChainId,
         bytes32 indexed messageId,
         bytes32 listName,
         address account,
@@ -96,34 +81,47 @@ interface IHubPortal is IPortal {
 
     /**
      * @notice Sends the M token index to the destination chain.
-     * @param  chainId       The destination chain ID.
-     * @param  refundAddress Refund address to receive excess native gas.
+     * @param  destinationChainId      The Wormhole destination chain ID.
+     * @param  refundAddress           Refund address to receive excess native gas.
+     * @param  transceiverInstructions Additional instructions to be forwarded to the destination chain.
      * @return ID uniquely identifying the message
      */
-    function sendMTokenIndex(uint256 chainId, address refundAddress) external payable returns (bytes32);
+    function sendMTokenIndex(
+        uint16 destinationChainId,
+        bytes32 refundAddress,
+        bytes memory transceiverInstructions
+    ) external payable returns (bytes32);
 
     /**
      * @notice Sends the Registrar key to the destination chain.
-     * @param  chainId       The destination chain ID.
-     * @param  key           The key to dispatch.
-     * @param  refundAddress Refund address to receive excess native gas.
+     * @param  destinationChainId      The Wormhole destination chain ID.
+     * @param  key                     The key to dispatch.
+     * @param  refundAddress           Refund address to receive excess native gas.
+     * @param  transceiverInstructions Additional instructions to be forwarded to the destination chain.
      * @return ID uniquely identifying the message
      */
-    function sendRegistrarKey(uint256 chainId, bytes32 key, address refundAddress) external payable returns (bytes32);
+    function sendRegistrarKey(
+        uint16 destinationChainId,
+        bytes32 key,
+        bytes32 refundAddress,
+        bytes memory transceiverInstructions
+    ) external payable returns (bytes32);
 
     /**
      * @notice Sends the Registrar list status for an account to the destination chain.
-     * @param  chainId       The destination chain ID.
-     * @param  listName      The name of the list.
-     * @param  account       The account.
-     * @param  refundAddress Refund address to receive excess native gas.
+     * @param  destinationChainId      The Wormhole destination chain ID.
+     * @param  listName                The name of the list.
+     * @param  account                 The account.
+     * @param  refundAddress           Refund address to receive excess native gas.
+     * @param  transceiverInstructions Additional instructions to be forwarded to the destination chain.
      * @return ID uniquely identifying the message
      */
     function sendRegistrarListStatus(
-        uint256 chainId,
+        uint16 destinationChainId,
         bytes32 listName,
         address account,
-        address refundAddress
+        bytes32 refundAddress,
+        bytes memory transceiverInstructions
     ) external payable returns (bytes32);
 
     /// @notice Enables earning for the Hub Portal if allowed by TTG.
@@ -136,32 +134,4 @@ interface IHubPortal is IPortal {
 
     /// @notice Whether earning is enabled for the Hub Portal or not.
     function isEarningEnabled() external view returns (bool);
-
-    /**
-     * @notice Gets the native fee to pay to send the M Token index to the destination chain.
-     * @param  chainId The destination chain ID.
-     * @return The native fee to pay.
-     */
-    function quoteSendMTokenIndex(uint256 chainId) external view returns (uint256);
-
-    /**
-     * @notice Gets the native fee to pay to send the Registrar key to the destination chain.
-     * @param  chainId The destination chain ID.
-     * @param  key     The key to dispatch.
-     * @return The native fee to pay.
-     */
-    function quoteSendRegistrarKey(uint256 chainId, bytes32 key) external view returns (uint256);
-
-    /**
-     * @notice Gets the native fee to pay to send the Registrar list status for an account to the destination chain.
-     * @param  chainId  The destination chain ID.
-     * @param  listName The name of the list.
-     * @param  account  The account.
-     * @return The native fee to pay.
-     */
-    function quoteSendRegistrarListStatus(
-        uint256 chainId,
-        bytes32 listName,
-        address account
-    ) external view returns (uint256);
 }
