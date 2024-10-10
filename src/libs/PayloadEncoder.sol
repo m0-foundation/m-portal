@@ -21,10 +21,10 @@ library PayloadEncoder {
     using BytesParsing for bytes;
     using TypeConverter for *;
 
-    uint256 constant PAYLOAD_PREFIX_LENGTH = 4;
-    bytes4 constant INDEX_TRANSFER_PREFIX = 0x4d304954; // M0IT - M0 Index Transfer
-    bytes4 constant KEY_TRANSFER_PREFIX = 0x4d304b54; // M0KT - M0 Key Transfer
-    bytes4 constant LIST_UPDATE_PREFIX = 0x4d304c55; // M0LU - M0 List Update
+    uint256 internal constant PAYLOAD_PREFIX_LENGTH = 4;
+    bytes4 internal constant INDEX_TRANSFER_PREFIX = 0x4d304954; // M0IT - M0 Index Transfer
+    bytes4 internal constant KEY_TRANSFER_PREFIX = 0x4d304b54; // M0KT - M0 Key Transfer
+    bytes4 internal constant LIST_UPDATE_PREFIX = 0x4d304c55; // M0LU - M0 List Update
 
     error InvalidPayloadLength(uint256 length);
     error InvalidPayloadPrefix(bytes4 prefix);
