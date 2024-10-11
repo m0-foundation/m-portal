@@ -23,16 +23,16 @@ deploy-dev-optimism-sepolia:
 
 # Configuration helpers
 configure-local:
-	FOUNDRY_PROFILE=production forge script script/configure/dev/configureDev.s.sol:ConfigureDev --private-key $(DEV_PRIVATE_KEY) --rpc-url localhost --skip test --broadcast -v
+	forge script script/configure/dev/configureDev.s.sol:ConfigureDev --private-key $(DEV_PRIVATE_KEY) --rpc-url localhost --skip test --broadcast -v
 
 configure-dev-sepolia:
-	FOUNDRY_PROFILE=production forge script script/configure/dev/configureDev.s.sol:ConfigureDev --private-key $(DEV_PRIVATE_KEY) --rpc-url $(SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+	forge script script/configure/dev/configureDev.s.sol:ConfigureDev --private-key $(DEV_PRIVATE_KEY) --rpc-url $(SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
 
 configure-dev-base-sepolia:
-	FOUNDRY_PROFILE=production forge script script/configure/dev/configureDev.s.sol:ConfigureDev --private-key $(DEV_PRIVATE_KEY) --rpc-url $(BASE_SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+	forge script script/configure/dev/configureDev.s.sol:ConfigureDev --private-key $(DEV_PRIVATE_KEY) --rpc-url $(BASE_SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
 
 configure-dev-optimism-sepolia:
-	FOUNDRY_PROFILE=production forge script script/configure/dev/configureDev.s.sol:ConfigureDev --private-key $(DEV_PRIVATE_KEY) --rpc-url $(OPTIMISM_SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+	forge script script/configure/dev/configureDev.s.sol:ConfigureDev --private-key $(DEV_PRIVATE_KEY) --rpc-url $(OPTIMISM_SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
 
 # Upgrade helpers
 upgrade-transceiver-local:
@@ -58,6 +58,25 @@ upgrade-portal-dev-base-sepolia:
 
 upgrade-portal-dev-optimism-sepolia:
 	FOUNDRY_PROFILE=production forge script script/upgrade/dev/UpgradePortalDev.s.sol:UpgradePortalDev --private-key $(DEV_PRIVATE_KEY) --rpc-url $(OPTIMISM_SEPOLIA_RPC_URL) --etherscan-api-key $(OPTIMISM_ETHERSCAN_API_KEY) --skip test --broadcast --slow -v --verify
+
+# Cast helpers
+cast-send-m-token-index-local:
+	forge script script/cast/dev/CastSendMTokenIndexDev.s.sol:CastSendMTokenIndexDev --private-key $(DEV_PRIVATE_KEY) --rpc-url localhost --skip test --broadcast -v
+
+cast-send-m-token-index-dev-sepolia:
+	forge script script/cast/dev/CastSendMTokenIndexDev.s.sol:CastSendMTokenIndexDev --private-key $(DEV_PRIVATE_KEY) --rpc-url $(SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+
+cast-send-registrar-key-local:
+	forge script script/cast/dev/CastSendRegistrarKeyDev.s.sol:CastSendRegistrarKeyDev --private-key $(DEV_PRIVATE_KEY) --rpc-url localhost --skip test --broadcast -v
+
+cast-send-registrar-key-dev-sepolia:
+	forge script script/cast/dev/CastSendRegistrarKeyDev.s.sol:CastSendRegistrarKeyDev --private-key $(DEV_PRIVATE_KEY) --rpc-url $(SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+
+cast-send-registrar-list-status-local:
+	forge script script/cast/dev/CastSendRegistrarListStatusDev.s.sol:CastSendRegistrarListStatusDev --private-key $(DEV_PRIVATE_KEY) --rpc-url localhost --skip test --broadcast -v
+
+cast-send-registrar-list-status-dev-sepolia:
+	forge script script/cast/dev/CastSendRegistrarListStatusDev.s.sol:CastSendRegistrarListStatusDev --private-key $(DEV_PRIVATE_KEY) --rpc-url $(SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
 
 # Run slither
 slither :; FOUNDRY_PROFILE=production forge build --build-info --skip '*/test/**' --skip '*/script/**' --force && slither --compile-force-framework foundry --ignore-compile --sarif results.sarif --config-file slither.config.json .

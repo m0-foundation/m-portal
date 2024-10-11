@@ -2,6 +2,8 @@
 
 pragma solidity 0.8.26;
 
+import { console2 } from "../../../lib/forge-std/src/Script.sol";
+
 import { UpgradeBase } from "../UpgradeBase.sol";
 
 contract UpgradePortalDev is UpgradeBase {
@@ -46,6 +48,9 @@ contract UpgradePortalDev is UpgradeBase {
             );
 
             vm.stopBroadcast();
+        } else {
+            console2.log("Chain id: {}", block.chainid);
+            revert("Unsupported chain id.");
         }
     }
 }

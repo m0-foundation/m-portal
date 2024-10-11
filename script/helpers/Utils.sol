@@ -2,6 +2,8 @@
 
 pragma solidity 0.8.26;
 
+import { console2 } from "../../lib/forge-std/src/Script.sol";
+
 import { ICreateXLike } from "../deploy/interfaces/ICreateXLike.sol";
 
 contract Utils {
@@ -93,6 +95,25 @@ contract Utils {
     function _toUniversalAddress(address evmAddr_) internal pure returns (bytes32 converted_) {
         assembly ("memory-safe") {
             converted_ := and(0xffffffffffffffffffffffffffffffffffffffff, evmAddr_)
+        }
+    }
+
+    function _getWormholeChainId(uint256 chainId_) internal pure returns (uint16) {
+        if (chainId_ == _MAINNET_CHAIN_ID) {
+            return _MAINNET_WORMHOLE_CHAIN_ID;
+        } else if (chainId_ == _BASE_CHAIN_ID) {
+            return _BASE_WORMHOLE_CHAIN_ID;
+        } else if (chainId_ == _OPTIMISM_CHAIN_ID) {
+            return _OPTIMISM_WORMHOLE_CHAIN_ID;
+        } else if (chainId_ == _SEPOLIA_CHAIN_ID) {
+            return _SEPOLIA_WORMHOLE_CHAIN_ID;
+        } else if (chainId_ == _BASE_SEPOLIA_CHAIN_ID) {
+            return _BASE_SEPOLIA_WORMHOLE_CHAIN_ID;
+        } else if (chainId_ == _OPTIMISM_SEPOLIA_CHAIN_ID) {
+            return _OPTIMISM_SEPOLIA_WORMHOLE_CHAIN_ID;
+        } else {
+            console2.log("Chain id: {}", chainId_);
+            revert("Unsupported chain id.");
         }
     }
 }
