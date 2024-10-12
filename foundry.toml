@@ -1,6 +1,6 @@
 [profile.default]
 evm_version = "cancun"
-gas_reports = ["*"]
+gas_reports = ["HubPortal", "SpokePortal"]
 gas_reports_ignore = []
 ignored_error_codes = []
 libs = ["lib"]

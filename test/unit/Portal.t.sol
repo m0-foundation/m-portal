@@ -2,10 +2,10 @@
 
 pragma solidity 0.8.26;
 
-import { IManagerBase } from "lib/example-native-token-transfers/evm/src/interfaces/IManagerBase.sol";
-import { INttManager } from "lib/example-native-token-transfers/evm/src/interfaces/INttManager.sol";
-import { TransceiverStructs } from "lib/example-native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
-import { TrimmedAmountLib } from "lib/example-native-token-transfers/evm/src/libraries/TrimmedAmount.sol";
+import { IManagerBase } from "../../lib/example-native-token-transfers/evm/src/interfaces/IManagerBase.sol";
+import { INttManager } from "../../lib/example-native-token-transfers/evm/src/interfaces/INttManager.sol";
+import { TransceiverStructs } from "../../lib/example-native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
+import { TrimmedAmountLib } from "../../lib/example-native-token-transfers/evm/src/libraries/TrimmedAmount.sol";
 
 import { IPortal } from "../../src/interfaces/IPortal.sol";
 import { TypeConverter } from "../../src/libs/TypeConverter.sol";
@@ -78,11 +78,13 @@ contract PortalTests is UnitTestBase {
         uint128 index_ = 0;
         uint256 msgValue_ = 2;
         bytes32 recipient_ = _alice.toBytes32();
+        bytes32 excessRecipient_ = recipient_;
 
         (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) = _createTransferMessage(
             amount_,
             index_,
             recipient_,
+            excessRecipient_,
             _LOCAL_CHAIN_ID,
             _REMOTE_CHAIN_ID
         );

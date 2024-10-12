@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.26;
 
-import { TransceiverStructs } from "lib/example-native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
+import { TransceiverStructs } from "../../lib/example-native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
 
 contract MockTransceiver {
     function quoteDeliveryPrice(
