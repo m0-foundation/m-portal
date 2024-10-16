@@ -27,12 +27,28 @@ contract DeployDevSpoke is DeployBase {
                     _burnNonces
                 );
 
+            (
+                address spokeBaseSepoliaSmartMTokenImplementation_,
+                address spokeBaseSepoliaSmartMTokenProxy_
+            ) = _deploySpokeSmartMToken(
+                    deployer_,
+                    spokeBaseSepoliaMToken_,
+                    spokeBaseSepoliaRegistrar_,
+                    deployer_,
+                    _burnNonces
+                );
+
             vm.stopBroadcast();
 
             console2.log("Base Sepolia Spoke NTT Manager address:", spokeBaseSepoliaNTTManager_);
             console2.log("Base Sepolia Spoke Wormhole Transceiver address:", spokeBaseSepoliaWormholeTransceiver_);
             console2.log("Base Sepolia Spoke Registrar address:", spokeBaseSepoliaRegistrar_);
             console2.log("Base Sepolia Spoke MToken address:", spokeBaseSepoliaMToken_);
+            console2.log(
+                "Base Sepolia SmartMToken implementation address:",
+                spokeBaseSepoliaSmartMTokenImplementation_
+            );
+            console2.log("Base Sepolia Spoke MToken proxy address:", spokeBaseSepoliaSmartMTokenProxy_);
         } else if (block.chainid == _OPTIMISM_SEPOLIA_CHAIN_ID) {
             vm.startBroadcast(deployer_);
 
@@ -50,6 +66,17 @@ contract DeployDevSpoke is DeployBase {
                     _burnNonces
                 );
 
+            (
+                address spokeOptimismSepoliaSmartMTokenImplementation_,
+                address spokeOptimismSepoliaSmartMTokenProxy_
+            ) = _deploySpokeSmartMToken(
+                    deployer_,
+                    spokeOptimismSepoliaMToken_,
+                    spokeOptimismSepoliaRegistrar_,
+                    deployer_,
+                    _burnNonces
+                );
+
             console2.log("Optimism Sepolia Spoke NTT Manager address:", spokeOptimismSepoliaNTTManager_);
             console2.log(
                 "Optimism Sepolia Spoke Wormhole Transceiver address:",
@@ -57,6 +84,11 @@ contract DeployDevSpoke is DeployBase {
             );
             console2.log("Optimism Sepolia Spoke Registrar address:", spokeOptimismSepoliaRegistrar_);
             console2.log("Optimism Sepolia Spoke MToken address:", spokeOptimismSepoliaMToken_);
+            console2.log(
+                "Optimism Sepolia SmartMToken implementation address:",
+                spokeOptimismSepoliaSmartMTokenImplementation_
+            );
+            console2.log("Optimism Sepolia Spoke MToken proxy address:", spokeOptimismSepoliaSmartMTokenProxy_);
 
             vm.stopBroadcast();
         } else {

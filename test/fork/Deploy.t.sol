@@ -4,6 +4,8 @@ pragma solidity 0.8.26;
 
 import { Test } from "../../lib/forge-std/src/Test.sol";
 
+import { ContractHelper } from "../../lib/common/src/libs/ContractHelper.sol";
+
 import { MToken as SpokeMToken } from "../../lib/protocol/src/MToken.sol";
 import { Registrar as SpokeRegistrar } from "../../lib/ttg/src/Registrar.sol";
 
@@ -63,6 +65,14 @@ contract Deploy is DeployBase, Test {
                 _burnNonces
             );
 
+        // TODO: remove once Wrapped M Token has been updated to pass vault address to constructor.
+        vm.mockCall(baseSpokeRegistrar_, abi.encodeWithSelector(bytes4(keccak256("vault()"))), abi.encode(address(0)));
+
+        (
+            address spokeBaseSepoliaSmartMTokenImplementation_,
+            address spokeBaseSepoliaSmartMTokenProxy_
+        ) = _deploySpokeSmartMToken(_DEPLOYER, baseSpokeMToken_, baseSpokeRegistrar_, _DEPLOYER, _burnNonces);
+
         vm.stopPrank();
 
         // Contracts addresses should be the same across all networks.
@@ -72,10 +82,15 @@ contract Deploy is DeployBase, Test {
             _computeSalt(_DEPLOYER, "WormholeTransceiver")
         );
 
+        address expectedSmartMTokenImplementation_ = ContractHelper.getContractFrom(_DEPLOYER, 39);
+        address expectedSmartMTokenProxy_ = ContractHelper.getContractFrom(_DEPLOYER, 40);
+
         assertEq(baseSpokePortal_, expectedSpokePortal_);
         assertEq(baseSpokeWormholeTransceiver_, expectedSpokeWormholeTransceiver_);
         assertEq(baseSpokeRegistrar_, _MAINNET_REGISTRAR);
         assertEq(baseSpokeMToken_, _MAINNET_M_TOKEN);
+        assertEq(spokeBaseSepoliaSmartMTokenImplementation_, expectedSmartMTokenImplementation_);
+        assertEq(spokeBaseSepoliaSmartMTokenProxy_, expectedSmartMTokenProxy_);
 
         assertEq(SpokeMToken(baseSpokeMToken_).portal(), baseSpokePortal_);
         assertEq(SpokeMToken(baseSpokeMToken_).registrar(), baseSpokeRegistrar_);

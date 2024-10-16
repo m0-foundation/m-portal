@@ -4,8 +4,12 @@ pragma solidity 0.8.26;
 
 import { Script, console2 } from "../../lib/forge-std/src/Script.sol";
 
+import { ContractHelper } from "../../lib/common/src/libs/ContractHelper.sol";
+
 import { MToken as SpokeMToken } from "../../lib/protocol/src/MToken.sol";
 import { Registrar as SpokeRegistrar } from "../../lib/ttg/src/Registrar.sol";
+import { WrappedMToken as SpokeSmartMToken } from "../../lib/wrapped-m-token/src/WrappedMToken.sol";
+import { Proxy as SpokeSmartMTokenProxy } from "../../lib/wrapped-m-token/src/Proxy.sol";
 
 import {
     ERC1967Proxy
@@ -83,16 +87,16 @@ contract DeployBase is Script, Utils {
 
     /**
      * @dev    Deploys Spoke components.
-     * @param  deployer_            The address of the deployer.
-     * @param  wormholeChainId_     The Wormhole chain ID on which the contracts will be deployed.
-     * @param  wormholeCoreBridge_  The address of the Wormhole Core Bridge.
-     * @param  wormholeRelayerAddr_ The address of the Wormhole Standard Relayer.
-     * @param  specialRelayerAddr_  The address of the Specialized Relayer.
-     * @param  burnNonces_          The function to burn nonces.
-     * @return spokePortal_         The address of the deployed Spoke Portal.
-     * @return spokeTransceiver_    The address of the deployed Spoke WormholeTransceiver.
-     * @return spokeRegistrar_      The address of the deployed Spoke Registrar.
-     * @return spokeMToken_         The address of the deployed Spoke MToken.
+     * @param  deployer_                       The address of the deployer.
+     * @param  wormholeChainId_                The Wormhole chain ID on which the contracts will be deployed.
+     * @param  wormholeCoreBridge_             The address of the Wormhole Core Bridge.
+     * @param  wormholeRelayerAddr_            The address of the Wormhole Standard Relayer.
+     * @param  specialRelayerAddr_             The address of the Specialized Relayer.
+     * @param  burnNonces_                     The function to burn nonces.
+     * @return spokePortal_                    The address of the deployed Spoke Portal.
+     * @return spokeTransceiver_               The address of the deployed Spoke WormholeTransceiver.
+     * @return spokeRegistrar_                 The address of the deployed Spoke Registrar.
+     * @return spokeMToken_                    The address of the deployed Spoke MToken.
      */
     function _deploySpokeComponents(
         address deployer_,
@@ -233,6 +237,57 @@ contract DeployBase is Script, Utils {
         console2.log("SpokeMToken:", address(spokeMToken_));
 
         return address(spokeMToken_);
+    }
+
+    function _deploySpokeSmartMToken(
+        address deployer_,
+        address spokeMToken_,
+        address registrar_,
+        address migrationAdmin_,
+        function(address, uint64, uint64) internal burnNonces_
+    ) internal returns (address spokeSmartMTokenImplementation_, address spokeSmartMTokenProxy_) {
+        uint64 deployerNonce_ = vm.getNonce(deployer_);
+
+        if (deployerNonce_ > _SPOKE_SMART_TOKEN_NONCE) {
+            revert DeployerNonceTooHigh(_SPOKE_SMART_TOKEN_NONCE, deployerNonce_);
+        }
+
+        burnNonces_(deployer_, deployerNonce_, _SPOKE_SMART_TOKEN_NONCE);
+
+        deployerNonce_ = vm.getNonce(deployer_);
+        if (deployerNonce_ != _SPOKE_SMART_TOKEN_NONCE) {
+            revert DeployerNonceTooHigh(_SPOKE_SMART_TOKEN_NONCE, deployerNonce_);
+        }
+
+        // Pre-compute the expected SpokeSmartMToken implementation address.
+        address expectedSmartMTokenImplementation_ = ContractHelper.getContractFrom(
+            deployer_,
+            _SPOKE_SMART_TOKEN_NONCE
+        );
+
+        spokeSmartMTokenImplementation_ = address(new SpokeSmartMToken(spokeMToken_, registrar_, migrationAdmin_));
+
+        if (expectedSmartMTokenImplementation_ != spokeSmartMTokenImplementation_) {
+            revert ExpectedAddressMismatch(expectedSmartMTokenImplementation_, spokeSmartMTokenImplementation_);
+        }
+
+        console2.log("SpokeSmartMTokenImplementation:", spokeSmartMTokenImplementation_);
+
+        deployerNonce_ = vm.getNonce(deployer_);
+        if (deployerNonce_ != _SPOKE_SMART_TOKEN_PROXY_NONCE) {
+            revert DeployerNonceTooHigh(_SPOKE_SMART_TOKEN_PROXY_NONCE, deployerNonce_);
+        }
+
+        // Pre-compute the expected SpokeSmartMToken proxy address.
+        address expectedSmartMTokenProxy_ = ContractHelper.getContractFrom(deployer_, _SPOKE_SMART_TOKEN_PROXY_NONCE);
+
+        spokeSmartMTokenProxy_ = address(new SpokeSmartMTokenProxy(spokeSmartMTokenImplementation_));
+
+        if (expectedSmartMTokenProxy_ != spokeSmartMTokenProxy_) {
+            revert ExpectedAddressMismatch(expectedSmartMTokenProxy_, spokeSmartMTokenProxy_);
+        }
+
+        console2.log("SpokeSmartMTokenProxy:", spokeSmartMTokenProxy_);
     }
 
     function _configurePortal(address portal_, address transceiver_) internal {
