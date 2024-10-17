@@ -64,11 +64,6 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         return _currentIndex();
     }
 
-    /// @notice Returns the address of the current owner.
-    function owner() public view override returns (address) {
-        return RegistrarReader.getConfigurator(registrar);
-    }
-
     /* ============ Internal Interactive Functions ============ */
 
     /// @dev Adds M Token index and refund address to the NTT payload.

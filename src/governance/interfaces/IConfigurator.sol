@@ -16,6 +16,9 @@ interface IConfigurator {
     /// @notice Emitted when the Portal address is 0x0.
     error ZeroPortal();
 
+    /// @notice Emitted when the WormholeTransceiver address is 0x0.
+    error ZeroWormholeTransceiver();
+
     /// @notice Executes the configuration approved by governance.
     function execute() external;
 
@@ -24,4 +27,7 @@ interface IConfigurator {
 
     /// @notice Address of the Registrar where Configurator and Migrator are stored.
     function registrar() external view returns (address);
+
+    /// @notice Address of the WormholeTransceiver used to relay messages.
+    function wormholeTransceiver() external view returns (address);
 }
