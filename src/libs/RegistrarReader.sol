@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.26;
 
-import { IRegistrarLike } from "../interfaces/Dependencies.sol";
+import { IRegistrarLike } from "../interfaces/IRegistrarLike.sol";
 
 /**
  * @title  Library to read Registrar contract parameters.
@@ -12,13 +12,21 @@ library RegistrarReader {
     /* ============ Variables ============ */
 
     /// @notice The name of parameter that defines the Portal configurator address.
-    bytes32 internal constant CONFIGURATOR_PREFIX = "configurator";
+    bytes32 internal constant PORTAL_CONFIGURATOR = "portal_configurator";
+
+    /// @notice The name of parameter that defines the Portal migrator address.
+    bytes32 internal constant PORTAL_MIGRATOR = "portal_migrator";
 
     /* ============ Internal View/Pure Functions ============ */
 
-    /// @notice Gets the configurator address.
-    function getConfigurator(address registrar_) internal view returns (address) {
-        return toAddress(_get(registrar_, keccak256(abi.encode(CONFIGURATOR_PREFIX, block.chainid))));
+    /// @notice Gets the Portal configurator address.
+    function getPortalConfigurator(address registrar_) internal view returns (address) {
+        return toAddress(_get(registrar_, PORTAL_CONFIGURATOR));
+    }
+
+    /// @notice Gets the Portal migrator address.
+    function getPortalMigrator(address registrar_) internal view returns (address) {
+        return toAddress(_get(registrar_, PORTAL_MIGRATOR));
     }
 
     /// @notice Converts given bytes32 to address.
