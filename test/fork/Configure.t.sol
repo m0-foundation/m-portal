@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.26;
 
-import { Test, console2 } from "../../lib/forge-std/src/Test.sol";
+import { Test } from "../../lib/forge-std/src/Test.sol";
 
 import {
     ERC1967Proxy
@@ -10,7 +10,6 @@ import {
 
 import { IManagerBase } from "../../lib/example-native-token-transfers/evm/src/interfaces/IManagerBase.sol";
 import { INttManager } from "../../lib/example-native-token-transfers/evm/src/interfaces/INttManager.sol";
-import { ITransceiver } from "../../lib/example-native-token-transfers/evm/src/interfaces/ITransceiver.sol";
 import {
     IWormholeTransceiver
 } from "../../lib/example-native-token-transfers/evm/src/interfaces/IWormholeTransceiver.sol";
@@ -24,8 +23,7 @@ import { ICreateXLike } from "../../script/deploy/interfaces/ICreateXLike.sol";
 import { IRegistrarLike } from "../../src/interfaces/IRegistrarLike.sol";
 
 import { Governor } from "../../src/governance/Governor.sol";
-import { IConfigurator } from "../../src/governance/interfaces/IConfigurator.sol";
-import { MainnetConfigurator } from "../../src/governance/MainnetConfigurator.sol";
+import { MainnetConfigurator } from "../../src/governance/configurator/MainnetConfigurator.sol";
 
 import { HubPortal } from "../../src/HubPortal.sol";
 
@@ -60,7 +58,7 @@ contract Configure is ConfigureBase, Test {
             _MAINNET_WORMHOLE_RELAYER,
             address(0),
             _INSTANT_CONSISTENCY_LEVEL,
-            _MIN_WORMHOLE_GAS_LIMIT
+            _WORMHOLE_GAS_LIMIT
         );
 
         WormholeTransceiver wormholeTransceiver_ = WormholeTransceiver(

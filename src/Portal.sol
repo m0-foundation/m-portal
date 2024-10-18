@@ -13,10 +13,8 @@ import {
 
 import { IMTokenLike } from "./interfaces/IMTokenLike.sol";
 import { IPortal } from "./interfaces/IPortal.sol";
-
 import { TypeConverter } from "./libs/TypeConverter.sol";
 import { PayloadType, PayloadEncoder } from "./libs/PayloadEncoder.sol";
-import { RegistrarReader } from "./libs/RegistrarReader.sol";
 
 /**
  * @title  Base Portal contract inherited by HubPortal and SpokePortal.

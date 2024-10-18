@@ -2,15 +2,15 @@
 
 pragma solidity 0.8.26;
 
-import { IConfigurator } from "./interfaces/IConfigurator.sol";
+import { IConfigurator } from "../interfaces/IConfigurator.sol";
 
 import { Configurator } from "./Configurator.sol";
 
 /**
- * @title  Sepolia configurator contract.
+ * @title  Mainnet configurator contract.
  * @author M^0 Labs
  */
-contract SepoliaConfigurator is Configurator {
+contract MainnetConfigurator is Configurator {
     struct ChainConfig {
         uint16 chainId;
         bool isEvmChain;
@@ -20,9 +20,9 @@ contract SepoliaConfigurator is Configurator {
         bytes32 wormholeTransceiver;
     }
 
-    uint16 internal constant _SEPOLIA_WORMHOLE_CHAIN_ID = 10002;
-    uint16 internal constant _BASE_SEPOLIA_WORMHOLE_CHAIN_ID = 10004;
-    uint16 internal constant _OPTIMISM_SEPOLIA_WORMHOLE_CHAIN_ID = 10005;
+    uint16 internal constant _MAINNET_WORMHOLE_CHAIN_ID = 2;
+    uint16 internal constant _BASE_WORMHOLE_CHAIN_ID = 30;
+    uint16 internal constant _OPTIMISM_WORMHOLE_CHAIN_ID = 24;
 
     constructor(address portal_, address wormholeTransceiver_) Configurator(portal_, wormholeTransceiver_) {}
 
@@ -31,9 +31,9 @@ contract SepoliaConfigurator is Configurator {
         bytes32 portalUniversalAddress_ = _toUniversalAddress(portal);
         bytes32 wormholeTransceiverUniversalAddress_ = _toUniversalAddress(wormholeTransceiver);
 
-        ChainConfig[] memory sepoliaConfig_ = new ChainConfig[](3);
-        sepoliaConfig_[0] = ChainConfig({
-            chainId: _SEPOLIA_WORMHOLE_CHAIN_ID,
+        ChainConfig[] memory mainnetConfig_ = new ChainConfig[](3);
+        mainnetConfig_[0] = ChainConfig({
+            chainId: _MAINNET_WORMHOLE_CHAIN_ID,
             isEvmChain: true,
             isSpecialRelayingEnabled: false,
             isWormholeRelayingEnabled: true,
@@ -41,8 +41,8 @@ contract SepoliaConfigurator is Configurator {
             wormholeTransceiver: wormholeTransceiverUniversalAddress_
         });
 
-        sepoliaConfig_[1] = ChainConfig({
-            chainId: _BASE_SEPOLIA_WORMHOLE_CHAIN_ID,
+        mainnetConfig_[1] = ChainConfig({
+            chainId: _BASE_WORMHOLE_CHAIN_ID,
             isEvmChain: true,
             isSpecialRelayingEnabled: false,
             isWormholeRelayingEnabled: true,
@@ -50,8 +50,8 @@ contract SepoliaConfigurator is Configurator {
             wormholeTransceiver: wormholeTransceiverUniversalAddress_
         });
 
-        sepoliaConfig_[2] = ChainConfig({
-            chainId: _OPTIMISM_SEPOLIA_WORMHOLE_CHAIN_ID,
+        mainnetConfig_[2] = ChainConfig({
+            chainId: _OPTIMISM_WORMHOLE_CHAIN_ID,
             isEvmChain: true,
             isSpecialRelayingEnabled: false,
             isWormholeRelayingEnabled: true,
@@ -59,15 +59,15 @@ contract SepoliaConfigurator is Configurator {
             wormholeTransceiver: wormholeTransceiverUniversalAddress_
         });
 
-        if (block.chainid == 11155111) {
-            _configurePortal(sepoliaConfig_, _SEPOLIA_WORMHOLE_CHAIN_ID);
-            _configureWormholeTransceiver(sepoliaConfig_, _SEPOLIA_WORMHOLE_CHAIN_ID);
-        } else if (block.chainid == 84532) {
-            _configurePortal(sepoliaConfig_, _BASE_SEPOLIA_WORMHOLE_CHAIN_ID);
-            _configureWormholeTransceiver(sepoliaConfig_, _BASE_SEPOLIA_WORMHOLE_CHAIN_ID);
-        } else if (block.chainid == 11155420) {
-            _configurePortal(sepoliaConfig_, _OPTIMISM_SEPOLIA_WORMHOLE_CHAIN_ID);
-            _configureWormholeTransceiver(sepoliaConfig_, _OPTIMISM_SEPOLIA_WORMHOLE_CHAIN_ID);
+        if (block.chainid == 1) {
+            _configurePortal(mainnetConfig_, _MAINNET_WORMHOLE_CHAIN_ID);
+            _configureWormholeTransceiver(mainnetConfig_, _MAINNET_WORMHOLE_CHAIN_ID);
+        } else if (block.chainid == 8453) {
+            _configurePortal(mainnetConfig_, _BASE_WORMHOLE_CHAIN_ID);
+            _configureWormholeTransceiver(mainnetConfig_, _BASE_WORMHOLE_CHAIN_ID);
+        } else if (block.chainid == 10) {
+            _configurePortal(mainnetConfig_, _OPTIMISM_WORMHOLE_CHAIN_ID);
+            _configureWormholeTransceiver(mainnetConfig_, _OPTIMISM_WORMHOLE_CHAIN_ID);
         }
     }
 
