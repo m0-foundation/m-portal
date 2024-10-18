@@ -34,10 +34,10 @@ contract Governor is IGovernor {
     }
 
     /// @inheritdoc IGovernor
-    function migrate() external {
-        address migrator_ = RegistrarReader.getPortalMigrator(registrar);
-        if (migrator_ == address(0)) revert ZeroMigrator();
+    function upgrade() external {
+        address upgrader_ = RegistrarReader.getPortalUpgrader(registrar);
+        if (upgrader_ == address(0)) revert ZeroUpgrader();
 
-        migrator_.delegatecall(abi.encodeWithSignature("execute()"));
+        upgrader_.delegatecall(abi.encodeWithSignature("execute()"));
     }
 }

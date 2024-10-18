@@ -12,10 +12,8 @@ import {
 } from "../lib/example-native-token-transfers/evm/src/NttManager/NttManagerNoRateLimiting.sol";
 
 import { IPortal } from "./interfaces/IPortal.sol";
-
 import { TypeConverter } from "./libs/TypeConverter.sol";
 import { PayloadType, PayloadEncoder } from "./libs/PayloadEncoder.sol";
-import { RegistrarReader } from "./libs/RegistrarReader.sol";
 
 /**
  * @title  Base Portal contract inherited by HubPortal and SpokePortal.
