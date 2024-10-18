@@ -78,11 +78,13 @@ contract PortalTests is UnitTestBase {
         uint128 index_ = 0;
         uint256 msgValue_ = 2;
         bytes32 recipient_ = _alice.toBytes32();
+        bytes32 excessRecipient_ = recipient_;
 
         (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) = _createTransferMessage(
             amount_,
             index_,
             recipient_,
+            excessRecipient_,
             _LOCAL_CHAIN_ID,
             _REMOTE_CHAIN_ID
         );
