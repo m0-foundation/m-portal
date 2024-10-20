@@ -27,6 +27,22 @@ jobs:
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
 
+      # Cache build artifacts from foundry
+      #
+      # This step will speed up workflow runs that don't touch the whole codebase
+      # (or the ones that don't touch the codebase at all)
+      - name: Cache foundry artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            out
+            cache
+          key: ${{ runner.os }}-foundry-${{ github.ref_name }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-foundry-${{ github.ref_name }}-
+            ${{ runner.os }}-foundry-main-
+            ${{ runner.os }}-foundry-
+
       - name: Run Forge build
         run: |
           forge --version
