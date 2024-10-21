@@ -3,7 +3,6 @@ evm_version = "cancun"
 gas_reports = ["HubPortal", "SpokePortal"]
 gas_reports_ignore = []
 ignored_error_codes = []
-libs = ["lib"]
 optimizer = false
 solc_version = "0.8.26"
 verbosity = 3

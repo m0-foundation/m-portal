@@ -26,12 +26,6 @@ jobs:
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
 
-      - name: Run Forge build
-        run: |
-          forge --version
-          make sizes
-        id: build
-
       - name: Run Forge tests with gas report
         run: make gas-report profile=ci
         env:
