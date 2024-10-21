@@ -153,13 +153,16 @@ contract SpokePortalTests is UnitTestBase {
         uint256 amount_ = 1_000e6;
         uint128 localIndex_ = 1_100000068703;
         uint128 remoteIndex_ = _EXP_SCALED_ONE;
+        bytes32 recipient_ = _alice.toBytes32();
+        bytes32 excessRecipient_ = _bob.toBytes32();
 
         _mToken.setCurrentIndex(localIndex_);
 
         (TransceiverStructs.NttManagerMessage memory message_, ) = _createTransferMessage(
             amount_,
             remoteIndex_,
-            _alice.toBytes32(),
+            recipient_,
+            excessRecipient_,
             _REMOTE_CHAIN_ID,
             _LOCAL_CHAIN_ID
         );
@@ -174,18 +177,21 @@ contract SpokePortalTests is UnitTestBase {
         localIndex_ = uint128(bound(localIndex_, _EXP_SCALED_ONE, 10 * _EXP_SCALED_ONE));
         remoteIndex_ = uint128(bound(remoteIndex_, _EXP_SCALED_ONE, 10 * _EXP_SCALED_ONE));
         amount_ = uint240(bound(amount_, 1, _getMaxTransferAmount(_tokenDecimals)));
+        bytes32 recipient_ = _alice.toBytes32();
+        bytes32 excessRecipient_ = _bob.toBytes32();
 
         _mToken.setCurrentIndex(localIndex_);
 
         (TransceiverStructs.NttManagerMessage memory message_, ) = _createTransferMessage(
             amount_,
             remoteIndex_,
-            _alice.toBytes32(),
+            recipient_,
+            excessRecipient_,
             _REMOTE_CHAIN_ID,
             _LOCAL_CHAIN_ID
         );
 
-        vm.expectCall(address(_mToken), abi.encodeCall(_mToken.mint, (_alice, amount_, remoteIndex_)));
+        vm.expectCall(address(_mToken), abi.encodeCall(_mToken.mint, (recipient_.toAddress(), amount_, remoteIndex_)));
 
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
@@ -195,20 +201,27 @@ contract SpokePortalTests is UnitTestBase {
         uint256 amount_ = 1_000e6;
         uint128 localIndex_ = 1_100000068703;
         uint128 remoteIndex_ = _EXP_SCALED_ONE;
+        bytes32 recipient_ = _alice.toBytes32();
+        bytes32 excessRecipient_ = _bob.toBytes32();
 
         _mToken.setCurrentIndex(localIndex_);
         _mToken.setIsEarning(_alice, true);
+        _mToken.setIsEarning(_bob, true);
 
         (TransceiverStructs.NttManagerMessage memory message_, ) = _createTransferMessage(
             amount_,
             remoteIndex_,
-            _alice.toBytes32(),
+            recipient_,
+            excessRecipient_,
             _REMOTE_CHAIN_ID,
             _LOCAL_CHAIN_ID
         );
 
-        vm.expectCall(address(_mToken), abi.encodeCall(_mToken.mint, (_alice, amount_, remoteIndex_)));
-        vm.expectCall(address(_mToken), abi.encodeCall(_mToken.mint, (_alice, 100_000068, remoteIndex_)));
+        vm.expectCall(address(_mToken), abi.encodeCall(_mToken.mint, (recipient_.toAddress(), amount_, remoteIndex_)));
+        vm.expectCall(
+            address(_mToken),
+            abi.encodeCall(_mToken.mint, (excessRecipient_.toAddress(), 100_000068, remoteIndex_))
+        );
 
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
@@ -218,19 +231,23 @@ contract SpokePortalTests is UnitTestBase {
         uint256 amount_ = 1_000e6;
         uint128 localIndex_ = 1_100000068703;
         uint128 remoteIndex_ = localIndex_;
+        bytes32 recipient_ = _alice.toBytes32();
+        bytes32 excessRecipient_ = _bob.toBytes32();
 
         _mToken.setCurrentIndex(localIndex_);
         _mToken.setIsEarning(_alice, true);
+        _mToken.setIsEarning(_bob, true);
 
         (TransceiverStructs.NttManagerMessage memory message_, ) = _createTransferMessage(
             amount_,
             remoteIndex_,
-            _alice.toBytes32(),
+            recipient_,
+            excessRecipient_,
             _REMOTE_CHAIN_ID,
             _LOCAL_CHAIN_ID
         );
 
-        vm.expectCall(address(_mToken), abi.encodeCall(_mToken.mint, (_alice, amount_, remoteIndex_)));
+        vm.expectCall(address(_mToken), abi.encodeCall(_mToken.mint, (recipient_.toAddress(), amount_, remoteIndex_)));
 
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
@@ -240,19 +257,23 @@ contract SpokePortalTests is UnitTestBase {
         uint256 amount_ = 1_000e6;
         uint128 localIndex_ = 1_100000068703;
         uint128 remoteIndex_ = 1_200000068703;
+        bytes32 recipient_ = _alice.toBytes32();
+        bytes32 excessRecipient_ = _bob.toBytes32();
 
         _mToken.setCurrentIndex(localIndex_);
         _mToken.setIsEarning(_alice, true);
+        _mToken.setIsEarning(_bob, true);
 
         (TransceiverStructs.NttManagerMessage memory message_, ) = _createTransferMessage(
             amount_,
             remoteIndex_,
-            _alice.toBytes32(),
+            recipient_,
+            excessRecipient_,
             _REMOTE_CHAIN_ID,
             _LOCAL_CHAIN_ID
         );
 
-        vm.expectCall(address(_mToken), abi.encodeCall(_mToken.mint, (_alice, amount_, remoteIndex_)));
+        vm.expectCall(address(_mToken), abi.encodeCall(_mToken.mint, (recipient_.toAddress(), amount_, remoteIndex_)));
 
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
@@ -262,25 +283,33 @@ contract SpokePortalTests is UnitTestBase {
         localIndex_ = uint128(bound(localIndex_, _EXP_SCALED_ONE, 10 * _EXP_SCALED_ONE));
         remoteIndex_ = uint128(bound(remoteIndex_, _EXP_SCALED_ONE, 10 * _EXP_SCALED_ONE));
         amount_ = uint240(bound(amount_, 1, _getMaxTransferAmount(_tokenDecimals)));
+        bytes32 recipient_ = _alice.toBytes32();
+        bytes32 excessRecipient_ = _bob.toBytes32();
 
         _mToken.setCurrentIndex(localIndex_);
         _mToken.setIsEarning(_alice, true);
+        _mToken.setIsEarning(_bob, true);
 
         (TransceiverStructs.NttManagerMessage memory message_, ) = _createTransferMessage(
             amount_,
             remoteIndex_,
-            _alice.toBytes32(),
+            recipient_,
+            excessRecipient_,
             _REMOTE_CHAIN_ID,
             _LOCAL_CHAIN_ID
         );
 
-        vm.expectCall(address(_mToken), abi.encodeCall(_mToken.mint, (_alice, amount_, remoteIndex_)));
+        vm.expectCall(address(_mToken), abi.encodeCall(_mToken.mint, (recipient_.toAddress(), amount_, remoteIndex_)));
         if (localIndex_ > remoteIndex_) {
             vm.expectCall(
                 address(_mToken),
                 abi.encodeCall(
                     _mToken.mint,
-                    (_alice, (amount_ * (localIndex_ - remoteIndex_)) / _EXP_SCALED_ONE, remoteIndex_)
+                    (
+                        excessRecipient_.toAddress(),
+                        (amount_ * (localIndex_ - remoteIndex_)) / _EXP_SCALED_ONE,
+                        remoteIndex_
+                    )
                 )
             );
         }
