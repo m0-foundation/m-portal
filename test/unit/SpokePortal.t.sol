@@ -171,10 +171,8 @@ contract SpokePortalTests is UnitTestBase {
     }
 
     function testFuzz_receiveMToken_nonEarner(uint72 transferAmount_, uint8 localIndexMultiplier_, uint8 remoteIndexMultiplier_) external {
-        localIndexMultiplier_ = bound(localIndexMultiplier_, 1, 10);
-        remoteIndexMultiplier_ = bound(remoteIndexMultiplier_, 1, 10);
-        uint128 localIndex_ = uint128(localIndexMultiplier_ * _EXP_SCALED_ONE);
-        uint128 remoteIndex_ = uint128(remoteIndexMultiplier_ * _EXP_SCALED_ONE);
+        uint128 localIndex_ = uint128(bound(localIndexMultiplier_, 1, 10) * _EXP_SCALED_ONE);
+        uint128 remoteIndex_ = uint128(bound(remoteIndexMultiplier_, 1, 10) * _EXP_SCALED_ONE);
         transferAmount_ = uint72(bound(transferAmount_, 1, _getMaxTransferAmount(_tokenDecimals)));
         uint240 amount_ = uint240(transferAmount_);
 
