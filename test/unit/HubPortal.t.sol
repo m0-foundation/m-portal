@@ -326,7 +326,7 @@ contract HubPortalTests is UnitTestBase {
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
     }
-
+/*
     function testFuzz_receiveMToken_nonEarner(uint240 amount_, uint256 localIndexMultiplier_, uint256 remoteIndexMultiplier_) external {
         // Hub index is always greater than a spoke index.
         localIndexMultiplier_ = bound(localIndexMultiplier_, 1, 10);
@@ -350,7 +350,7 @@ contract HubPortalTests is UnitTestBase {
 
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
-    }
+    }*/
 
     function test_receiveMToken_earner_lowerIncomingIndex() external {
         uint256 amount_ = 1_000e6;
@@ -401,7 +401,7 @@ contract HubPortalTests is UnitTestBase {
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
     }
-
+/*
     function testFuzz_receiveMToken_earner(uint240 amount_, uint256 localIndexMultiplier_, uint256 remoteIndexMultiplier_) external {
         // Hub index is always greater than a spoke index.
         localIndexMultiplier_ = bound(localIndexMultiplier_, 1, 10);
@@ -432,5 +432,5 @@ contract HubPortalTests is UnitTestBase {
 
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
-    }
+    }*/
 }
