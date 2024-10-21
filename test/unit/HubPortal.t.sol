@@ -327,10 +327,12 @@ contract HubPortalTests is UnitTestBase {
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
     }
 
-    function testFuzz_receiveMToken_nonEarner(uint240 amount_, uint128 localIndex_, uint128 remoteIndex_) external {
-        // Mainnet index is always greater than a spoke index.
-        localIndex_ = uint128(bound(localIndex_, _EXP_SCALED_ONE, 10 * _EXP_SCALED_ONE));
-        remoteIndex_ = uint128(bound(remoteIndex_, _EXP_SCALED_ONE, localIndex_));
+    function testFuzz_receiveMToken_nonEarner(uint240 amount_, uint256 localIndexMultiplier_, uint256 remoteIndexMultiplier_) external {
+        // Hub index is always greater than a spoke index.
+        localIndexMultiplier_ = bound(localIndexMultiplier_, 1, 10);
+        remoteIndexMultiplier_ = bound(remoteIndexMultiplier_, 1, localIndexMultiplier_);
+        uint128 localIndex_ = uint128(localIndexMultiplier_ * _EXP_SCALED_ONE);
+        uint128 remoteIndex_ = uint128(remoteIndexMultiplier_ * _EXP_SCALED_ONE);
         amount_ = uint240(bound(amount_, 1, _getMaxTransferAmount(_tokenDecimals)));
 
         _mToken.setCurrentIndex(localIndex_);
@@ -400,10 +402,12 @@ contract HubPortalTests is UnitTestBase {
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
     }
 
-    function testFuzz_receiveMToken_earner(uint240 amount_, uint128 localIndex_, uint128 remoteIndex_) external {
-        // Mainnet index is always greater than spoke index.
-        localIndex_ = uint128(bound(localIndex_, _EXP_SCALED_ONE, 10 * _EXP_SCALED_ONE));
-        remoteIndex_ = uint128(bound(remoteIndex_, _EXP_SCALED_ONE, localIndex_));
+    function testFuzz_receiveMToken_earner(uint240 amount_, uint256 localIndexMultiplier_, uint256 remoteIndexMultiplier_) external {
+        // Hub index is always greater than a spoke index.
+        localIndexMultiplier_ = bound(localIndexMultiplier_, 1, 10);
+        remoteIndexMultiplier_ = bound(remoteIndexMultiplier_, 1, localIndexMultiplier_);
+        uint128 localIndex_ = uint128(localIndexMultiplier_ * _EXP_SCALED_ONE);
+        uint128 remoteIndex_ = uint128(remoteIndexMultiplier_ * _EXP_SCALED_ONE);
         amount_ = uint240(bound(amount_, 1, _getMaxTransferAmount(_tokenDecimals)));
         uint240 excess_ = localIndex_ > remoteIndex_ ? (amount_ * (localIndex_ - remoteIndex_)) / _EXP_SCALED_ONE : 0;
 
