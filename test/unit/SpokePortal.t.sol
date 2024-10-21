@@ -169,13 +169,14 @@ contract SpokePortalTests is UnitTestBase {
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
     }
-/*
-    function testFuzz_receiveMToken_nonEarner(uint240 amount_, uint256 localIndexMultiplier_, uint256 remoteIndexMultiplier_) external {
+
+    function testFuzz_receiveMToken_nonEarner(uint72 transferAmount_, uint8 localIndexMultiplier_, uint8 remoteIndexMultiplier_) external {
         localIndexMultiplier_ = bound(localIndexMultiplier_, 1, 10);
         remoteIndexMultiplier_ = bound(remoteIndexMultiplier_, 1, 10);
         uint128 localIndex_ = uint128(localIndexMultiplier_ * _EXP_SCALED_ONE);
         uint128 remoteIndex_ = uint128(remoteIndexMultiplier_ * _EXP_SCALED_ONE);
-        amount_ = uint240(bound(amount_, 1, _getMaxTransferAmount(_tokenDecimals)));
+        transferAmount_ = uint72(bound(transferAmount_, 1, _getMaxTransferAmount(_tokenDecimals)));
+        uint240 amount_ = uint240(transferAmount_);
 
         _mToken.setCurrentIndex(localIndex_);
 
@@ -191,7 +192,7 @@ contract SpokePortalTests is UnitTestBase {
 
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
-    }*/
+    }
 
     function test_receiveMToken_earner_lowerRemoteIndex() external {
         uint256 amount_ = 1_000e6;
