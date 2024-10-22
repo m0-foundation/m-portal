@@ -31,4 +31,3 @@ interface ISpokeMTokenLike is IMTokenLike {
      */
     function updateIndex(uint128 index) external;
 }
-

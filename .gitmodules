@@ -20,4 +20,4 @@
 [submodule "lib/wrapped-m-token"]
 	path = lib/wrapped-m-token
 	url = git@github.com:m0-foundation/wrapped-m-token.git
-	branch = feat/excess-destination
+	branch = main
