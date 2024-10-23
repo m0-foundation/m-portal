@@ -20,9 +20,9 @@ interface IPortal {
      */
     event MTokenSent(
         uint16 indexed destinationChainId,
-        bytes32 indexed messageId,
-        address sender,
-        bytes32 recipient,
+        bytes32 messageId,
+        address indexed sender,
+        bytes32 indexed recipient,
         uint256 amount,
         uint128 index
     );
@@ -37,9 +37,9 @@ interface IPortal {
      * @param  index         The the M token index.
      */
     event MTokenReceived(
-        uint16 sourceChainId,
-        bytes32 indexed messageId,
-        bytes32 sender,
+        uint16 indexed sourceChainId,
+        bytes32 messageId,
+        bytes32 indexed sender,
         address indexed recipient,
         uint256 amount,
         uint128 index
