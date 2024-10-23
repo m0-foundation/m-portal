@@ -70,7 +70,6 @@ contract UnitTestBase is Test {
         uint256 amount_,
         uint128 index_,
         bytes32 recipient_,
-        bytes32 excessRecipient_,
         uint16 sourceChainId_,
         uint16 destinationChainId_
     ) internal view returns (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) {
@@ -79,7 +78,7 @@ contract UnitTestBase is Test {
             _tokenAddress.toBytes32(),
             recipient_,
             destinationChainId_,
-            abi.encodePacked(index_.toUint64(), excessRecipient_)
+            abi.encodePacked(index_.toUint64())
         );
         bytes memory payload_ = TransceiverStructs.encodeNativeTokenTransfer(nativeTokenTransfer_);
         message_ = TransceiverStructs.NttManagerMessage(bytes32(0), _alice.toBytes32(), payload_);

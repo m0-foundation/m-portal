@@ -11,7 +11,6 @@ import {
     NttManagerNoRateLimiting
 } from "../lib/example-native-token-transfers/evm/src/NttManager/NttManagerNoRateLimiting.sol";
 
-import { IMTokenLike } from "./interfaces/IMTokenLike.sol";
 import { IPortal } from "./interfaces/IPortal.sol";
 import { TypeConverter } from "./libs/TypeConverter.sol";
 import { PayloadType, PayloadEncoder } from "./libs/PayloadEncoder.sol";
@@ -64,7 +63,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
 
     /* ============ Internal Interactive Functions ============ */
 
-    /// @dev Adds M Token index and refund address to the NTT payload.
+    /// @dev Adds M Token index to the NTT payload.
     /// @dev The refund address will be used as a yield excess recipient on the destination.
     function _prepareNativeTokenTransfer(
         TrimmedAmount amount_,
@@ -72,7 +71,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         uint16 destinationChainId_,
         uint64 sequence_,
         address sender_,
-        bytes32 refundAddress_
+        bytes32 // refundAddress
     ) internal override returns (TransceiverStructs.NativeTokenTransfer memory nativeTokenTransfer_) {
         // Convert to uint64 for compatibility with Solana and other non-EVM chains.
         uint64 index_ = _currentIndex().toUint64();
@@ -82,7 +81,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
             token.toBytes32(),
             recipient_,
             destinationChainId_,
-            abi.encodePacked(index_, refundAddress_)
+            abi.encodePacked(index_)
         );
 
         bytes32 messageId_ = TransceiverStructs.nttManagerMessageDigest(
@@ -116,29 +115,17 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
     }
 
     function _receiveMToken(uint16 sourceChainId_, bytes32 messageId_, bytes32 sender_, bytes memory payload_) private {
-        (
-            TrimmedAmount trimmedAmount_,
-            uint128 index_,
-            address recipient_,
-            address excessRecipient_,
-            uint16 destinationChainId_
-        ) = payload_.decodeTokenTransfer();
+        (TrimmedAmount trimmedAmount_, uint128 index_, address recipient_, uint16 destinationChainId_) = payload_
+            .decodeTokenTransfer();
 
         _verifyDestinationChain(destinationChainId_);
 
         // NOTE: Assumes that token.decimals() are the same on all chains.
         uint256 amount_ = trimmedAmount_.untrim(tokenDecimals());
-        uint128 currentIndex_ = _currentIndex();
 
         emit MTokenReceived(sourceChainId_, messageId_, sender_, recipient_, amount_, index_);
 
         _mintOrUnlock(recipient_, amount_, index_);
-
-        // If the index from the origin chain is lower than the current index and the excess recipient is an earner,
-        // adjust the amount to account for the accrued earnings.
-        if (currentIndex_ > index_ && IMTokenLike(mToken()).isEarning(excessRecipient_)) {
-            _mintOrUnlock(excessRecipient_, (amount_ * (currentIndex_ - index_)) / _EXP_SCALED_ONE, index_);
-        }
     }
 
     function _receiveCustomPayload(
