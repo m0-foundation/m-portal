@@ -2,11 +2,13 @@
 
 pragma solidity 0.8.26;
 
+import { IMigratable } from "../proxy/interfaces/IMigratable.sol";
+
 /**
  * @title  SpokeVault interface.
  * @author M^0 Labs
  */
-interface ISpokeVault {
+interface ISpokeVault is IMigratable {
     /* ============ Events ============ */
 
     /**
@@ -34,6 +36,9 @@ interface ISpokeVault {
      */
     error InsufficientMTokenBalance(uint256 balance, uint256 amount);
 
+    /// @notice Emitted when the non-governance migrate function is called by an account other than the migration admin.
+    error UnauthorizedMigration();
+
     /// @notice Emitted when the HubVault address is 0x0.
     error ZeroHubVault();
 
@@ -42,6 +47,9 @@ interface ISpokeVault {
 
     /// @notice Emitted when the destination chain id is 0.
     error ZeroDestinationChainId();
+
+    /// @notice Emitted in constructor if Migration Admin is 0x0.
+    error ZeroMigrationAdmin();
 
     /* ============ Interactive Functions ============ */
 
@@ -53,17 +61,34 @@ interface ISpokeVault {
      */
     function transferExcessM(uint256 amount, bytes32 refundAddress) external payable returns (uint64 messageSequence);
 
+    /* ============ Temporary Admin Migration ============ */
+
+    /**
+     * @notice Performs an arbitrarily defined migration.
+     * @param  migrator The address of a migrator contract.
+     */
+    function migrate(address migrator) external;
+
     /* ============ View/Pure Functions ============ */
 
+    /// @notice Registrar key prefix to determine the migrator contract.
+    function MIGRATOR_KEY_PREFIX() external pure returns (bytes32 migratorKeyPrefix);
+
+    /// @notice The account that can bypass the Registrar and call the `migrate(address migrator)` function.
+    function migrationAdmin() external view returns (address migrationAdmin);
+
     /// @notice The Wormhole destination chain ID.
-    function destinationChainId() external view returns (uint16);
+    function destinationChainId() external view returns (uint16 destinationChainId);
 
     /// @notice The address of the M token.
-    function mToken() external view returns (address);
+    function mToken() external view returns (address mToken);
 
     /// @notice Address of the Vault on Ethereum Mainnet that will receive the excess M.
-    function hubVault() external view returns (address);
+    function hubVault() external view returns (address hubVault);
+
+    /// @notice The address of the Registrar contract.
+    function registrar() external view returns (address registrar);
 
     /// @notice Address of the SpokePortal being used to bridge M back to Ethereum Mainnet.
-    function spokePortal() external view returns (address);
+    function spokePortal() external view returns (address spokePortal);
 }
