@@ -64,7 +64,6 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
     /* ============ Internal Interactive Functions ============ */
 
     /// @dev Adds M Token index to the NTT payload.
-    /// @dev The refund address will be used as a yield excess recipient on the destination.
     function _prepareNativeTokenTransfer(
         TrimmedAmount amount_,
         bytes32 recipient_,
