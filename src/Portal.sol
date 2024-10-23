@@ -85,10 +85,6 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
             abi.encodePacked(index_, refundAddress_)
         );
 
-        // TODO: NttManager will have an additional `TransferSent` event that includes
-        //       messageId (aka digest), but doesn't include an additional payload (index).
-        //       Profile the gas cost of calculating messageId here to determine
-        //       whether we should include it in our `MTokenSent` event or use NttManager's event.
         bytes32 messageId_ = TransceiverStructs.nttManagerMessageDigest(
             chainId,
             TransceiverStructs.NttManagerMessage(

@@ -4,10 +4,6 @@ pragma solidity 0.8.26;
 
 import { IPortal } from "./IPortal.sol";
 
-// TODO: If the bridges will already emit events that contain the `messageId` and the `destinationChainId`, then we can
-//       longer need to index the `destinationChainId` and `bridge` in these, and can index the other data instead. This
-//       is because you can cross-reference the `messageId` with the other events form the bridge to index that info.
-
 /**
  * @title  HubPortal interface.
  * @author M^0 Labs
@@ -33,7 +29,7 @@ interface IHubPortal is IPortal {
      * @param  messageId          The unique identifier for the sent message.
      * @param  index              The the M token index.
      */
-    event MTokenIndexSent(uint16 indexed destinationChainId, bytes32 indexed messageId, uint128 index);
+    event MTokenIndexSent(uint16 indexed destinationChainId, bytes32 messageId, uint128 index);
 
     /**
      * @notice Emitted when the Registrar key is sent to a destination chain.
@@ -42,7 +38,7 @@ interface IHubPortal is IPortal {
      * @param  key                The key that was sent.
      * @param  value              The value that was sent.
      */
-    event RegistrarKeySent(uint16 indexed destinationChainId, bytes32 indexed messageId, bytes32 key, bytes32 value);
+    event RegistrarKeySent(uint16 indexed destinationChainId, bytes32 messageId, bytes32 indexed key, bytes32 value);
 
     /**
      * @notice Emitted when the Registrar list status for an account is sent to a destination chain.
@@ -54,9 +50,9 @@ interface IHubPortal is IPortal {
      */
     event RegistrarListStatusSent(
         uint16 indexed destinationChainId,
-        bytes32 indexed messageId,
-        bytes32 listName,
-        address account,
+        bytes32 messageId,
+        bytes32 indexed listName,
+        address indexed account,
         bool status
     );
 
