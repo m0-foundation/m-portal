@@ -147,7 +147,7 @@ contract Upgrade is UpgradeBase, Test {
         IManagerBase(hubPortal_).setTransceiver(address(wormholeTransceiver_));
         INttManager(hubPortal_).setThreshold(1);
 
-        Governor governor_ = new Governor(address(hubPortal_));
+        Governor governor_ = new Governor(address(hubPortal_), address(this));
         address upgrader_ = address(new MainnetUpgrader(address(hubPortal_), address(wormholeTransceiver_)));
 
         hubPortal_.transferOwnership(address(governor_));

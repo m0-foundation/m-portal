@@ -222,7 +222,7 @@ contract Configure is ConfigureBase, Test {
 
         config_[2] = optimismConfig_;
 
-        Governor governor_ = new Governor(address(hubPortal_));
+        Governor governor_ = new Governor(address(hubPortal_), address(this));
         address configurator_ = address(new MainnetConfigurator(address(hubPortal_), address(wormholeTransceiver_)));
 
         hubPortal_.transferOwnership(address(governor_));
