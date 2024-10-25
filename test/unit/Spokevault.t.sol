@@ -118,11 +118,15 @@ contract SpokeVaultTests is UnitTestBase {
     function test_transferExcessM() external {
         uint256 amount_ = 1_000e6;
         uint256 balance_ = 10_000e6;
+        uint256 fee_ = 1;
+
+        vm.deal(_alice, fee_);
 
         vm.mockCall(address(_mToken), abi.encodeCall(_mToken.balanceOf, (address(_vault))), abi.encode(balance_));
 
         vm.expectCall(
             address(_portal),
+            fee_,
             abi.encodeCall(
                 _portal.transfer,
                 (amount_, _REMOTE_CHAIN_ID, _hubVault.toBytes32(), _alice.toBytes32(), false, new bytes(1))
@@ -133,7 +137,7 @@ contract SpokeVaultTests is UnitTestBase {
         emit ISpokeVault.ExcessMTokenSent(_REMOTE_CHAIN_ID, 0, _alice.toBytes32(), _hubVault.toBytes32(), amount_);
 
         vm.prank(_alice);
-        _vault.transferExcessM(amount_, _alice.toBytes32());
+        _vault.transferExcessM{ value: fee_ }(amount_, _alice.toBytes32());
     }
 
     /* ============ migrate ============ */

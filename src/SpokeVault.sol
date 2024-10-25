@@ -77,7 +77,7 @@ contract SpokeVault is ISpokeVault, Migratable {
 
         bytes32 hubVault_ = hubVault.toBytes32();
 
-        messageSequence_ = INttManager(spokePortal).transfer(
+        messageSequence_ = INttManager(spokePortal).transfer{ value: msg.value }(
             amount_,
             destinationChainId,
             hubVault_,
