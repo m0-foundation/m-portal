@@ -17,3 +17,7 @@
 	path = lib/example-native-token-transfers
 	url = git@github.com:wormhole-foundation/example-native-token-transfers.git
 	branch = main
+[submodule "lib/smart-m-token"]
+	path = lib/smart-m-token
+	url = git@github.com:m0-foundation/smart-m-token.git
+	branch = main
