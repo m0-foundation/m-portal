@@ -11,19 +11,20 @@ import { Configurator } from "./Configurator.sol";
  * @author M^0 Labs
  */
 contract MainnetConfigurator is Configurator {
-    struct ChainConfig {
-        uint16 chainId;
-        bool isEvmChain;
-        bool isSpecialRelayingEnabled;
-        bool isWormholeRelayingEnabled;
-        bytes32 portal;
-        bytes32 wormholeTransceiver;
-    }
-
+    /// @dev Ethereum Mainnet Wormhole chain ID.
     uint16 internal constant _MAINNET_WORMHOLE_CHAIN_ID = 2;
+
+    /// @dev Base Wormhole chain ID
     uint16 internal constant _BASE_WORMHOLE_CHAIN_ID = 30;
+
+    /// @dev Optimism Wormhole chain ID.
     uint16 internal constant _OPTIMISM_WORMHOLE_CHAIN_ID = 24;
 
+    /**
+     * @dev    Constructs the MainnetConfigurator contract.
+     * @param  portal_              The address of the Portal.
+     * @param  wormholeTransceiver_ The address of the Wormhole transceiver.
+     */
     constructor(address portal_, address wormholeTransceiver_) Configurator(portal_, wormholeTransceiver_) {}
 
     /// @inheritdoc IConfigurator
@@ -68,49 +69,6 @@ contract MainnetConfigurator is Configurator {
         } else if (block.chainid == 10) {
             _configurePortal(mainnetConfig_, _OPTIMISM_WORMHOLE_CHAIN_ID);
             _configureWormholeTransceiver(mainnetConfig_, _OPTIMISM_WORMHOLE_CHAIN_ID);
-        }
-    }
-
-    function _configurePortal(ChainConfig[] memory targetConfigs_, uint16 sourceWormholeChainId_) internal {
-        for (uint256 i_; i_ < targetConfigs_.length; ++i_) {
-            ChainConfig memory targetConfig_ = targetConfigs_[i_];
-
-            if (targetConfig_.chainId == sourceWormholeChainId_) {
-                continue;
-            } else {
-                _setPeerPortal(targetConfig_.chainId, targetConfig_.portal);
-            }
-        }
-    }
-
-    function _configureWormholeTransceiver(
-        ChainConfig[] memory targetConfigs_,
-        uint16 sourceWormholeChainId_
-    ) internal {
-        for (uint256 i_; i_ < targetConfigs_.length; ++i_) {
-            ChainConfig memory targetConfig_ = targetConfigs_[i_];
-
-            if (targetConfig_.chainId == sourceWormholeChainId_) {
-                continue;
-            } else {
-                if (targetConfig_.isWormholeRelayingEnabled) {
-                    _setIsWormholeRelayingEnabled(targetConfig_.chainId, true);
-                } else if (targetConfig_.isSpecialRelayingEnabled) {
-                    _setIsSpecialRelayingEnabled(targetConfig_.chainId, true);
-                }
-
-                _setPeerWormholeTransceiver(targetConfig_.chainId, targetConfig_.wormholeTransceiver);
-
-                if (targetConfig_.isEvmChain) {
-                    _setIsWormholeEvmChain(targetConfig_.chainId, true);
-                }
-            }
-        }
-    }
-
-    function _toUniversalAddress(address evmAddr_) internal pure returns (bytes32 converted_) {
-        assembly ("memory-safe") {
-            converted_ := and(0xffffffffffffffffffffffffffffffffffffffff, evmAddr_)
         }
     }
 }
