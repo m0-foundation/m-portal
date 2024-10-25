@@ -11,16 +11,32 @@ import { Upgrader } from "./Upgrader.sol";
  * @author M^0 Labs
  */
 contract MainnetUpgrader is Upgrader {
+    /// @dev Mainnet Wormhole chain ID.
     uint16 internal constant _MAINNET_WORMHOLE_CHAIN_ID = 2;
+
+    /// @dev Base Wormhole chain ID.
     uint16 internal constant _BASE_WORMHOLE_CHAIN_ID = 30;
+
+    /// @dev Optimism Wormhole chain ID.
     uint16 internal constant _OPTIMISM_WORMHOLE_CHAIN_ID = 24;
 
+    /// @dev Mainnet MToken address.
     address internal constant _MAINNET_M_TOKEN = 0x866A2BF4E572CbcF37D5071A7a58503Bfb36be1b;
+
+    /// @dev Mainnet Registrar address.
     address internal constant _MAINNET_REGISTRAR = 0x975Bf5f212367D09CB7f69D3dc4BA8C9B440aD3A;
 
+    /// @dev Finalized consistency level for Wormhole transceivers.
     uint8 internal constant _FINALIZED_CONSISTENCY_LEVEL = 15;
+
+    /// @dev Gas limit for Wormhole messages.
     uint256 internal constant _WORMHOLE_GAS_LIMIT = 200_000;
 
+    /**
+     * @dev    Constructs the MainnetUpgrader contract.
+     * @param  portal_              The address of the Portal.
+     * @param  wormholeTransceiver_ The address of the WormholeTransceiver.
+     */
     constructor(address portal_, address wormholeTransceiver_) Upgrader(portal_, wormholeTransceiver_) {}
 
     /// @inheritdoc IUpgrader
