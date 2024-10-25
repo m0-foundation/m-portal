@@ -47,23 +47,12 @@ library PayloadEncoder {
     )
         internal
         pure
-        returns (
-            TrimmedAmount trimmedAmount_,
-            uint128 index_,
-            address recipient_,
-            address excessRecipient_,
-            uint16 destinationChainId_
-        )
+        returns (TrimmedAmount trimmedAmount_, uint128 index_, address recipient_, uint16 destinationChainId_)
     {
         TransceiverStructs.NativeTokenTransfer memory nativeTokenTransfer_ = TransceiverStructs
             .parseNativeTokenTransfer(payload_);
 
-        uint256 offset_ = 0;
-        bytes32 excessRecipientBytes32_;
-        bytes memory additionalPayload_ = nativeTokenTransfer_.additionalPayload;
-        (index_, offset_) = additionalPayload_.asUint64(offset_);
-        (excessRecipientBytes32_, ) = additionalPayload_.asBytes32Unchecked(offset_);
-        excessRecipient_ = excessRecipientBytes32_.toAddress();
+        (index_, ) = nativeTokenTransfer_.additionalPayload.asUint64(0);
 
         trimmedAmount_ = nativeTokenTransfer_.amount;
         recipient_ = nativeTokenTransfer_.to.toAddress();

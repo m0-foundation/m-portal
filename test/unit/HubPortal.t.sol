@@ -310,16 +310,13 @@ contract HubPortalTests is UnitTestBase {
     function test_receiveMToken_nonEarner() external {
         uint256 amount_ = 1_000e6;
         uint128 remoteIndex_ = _EXP_SCALED_ONE;
-        bytes32 recipient_ = _alice.toBytes32();
-        bytes32 excessRecipient_ = recipient_;
 
         _mToken.mintTo(address(_portal), amount_);
 
         (TransceiverStructs.NttManagerMessage memory message_, ) = _createTransferMessage(
             amount_,
             remoteIndex_,
-            recipient_,
-            excessRecipient_,
+            _alice.toBytes32(),
             _REMOTE_CHAIN_ID,
             _LOCAL_CHAIN_ID
         );
@@ -335,8 +332,6 @@ contract HubPortalTests is UnitTestBase {
         localIndex_ = uint128(bound(localIndex_, _EXP_SCALED_ONE, 10 * _EXP_SCALED_ONE));
         remoteIndex_ = uint128(bound(remoteIndex_, _EXP_SCALED_ONE, localIndex_));
         amount_ = uint240(bound(amount_, 1, _getMaxTransferAmount(_tokenDecimals)));
-        bytes32 recipient_ = _alice.toBytes32();
-        bytes32 excessRecipient_ = recipient_;
 
         _mToken.setCurrentIndex(localIndex_);
         _mToken.mintTo(address(_portal), amount_);
@@ -344,8 +339,7 @@ contract HubPortalTests is UnitTestBase {
         (TransceiverStructs.NttManagerMessage memory message_, ) = _createTransferMessage(
             amount_,
             remoteIndex_,
-            recipient_,
-            excessRecipient_,
+            _alice.toBytes32(),
             _REMOTE_CHAIN_ID,
             _LOCAL_CHAIN_ID
         );
@@ -358,29 +352,23 @@ contract HubPortalTests is UnitTestBase {
 
     function test_receiveMToken_earner_lowerIncomingIndex() external {
         uint256 amount_ = 1_000e6;
-        uint256 excess_ = 100_000068;
         uint128 localIndex_ = 1_100000068703;
         uint128 remoteIndex_ = _EXP_SCALED_ONE;
-        bytes32 recipient_ = _alice.toBytes32();
-        bytes32 excessRecipient_ = _bob.toBytes32();
 
         _mToken.setCurrentIndex(localIndex_);
         _mToken.setIsEarning(_alice, true);
-        _mToken.setIsEarning(_bob, true);
         _mToken.setIsEarning(address(_portal), true);
-        _mToken.mintTo(address(_portal), amount_ + excess_);
+        _mToken.mintTo(address(_portal), amount_);
 
         (TransceiverStructs.NttManagerMessage memory message_, ) = _createTransferMessage(
             amount_,
             remoteIndex_,
-            recipient_,
-            excessRecipient_,
+            _alice.toBytes32(),
             _REMOTE_CHAIN_ID,
             _LOCAL_CHAIN_ID
         );
 
-        vm.expectCall(address(_mToken), abi.encodeCall(_mToken.transfer, (recipient_.toAddress(), amount_)));
-        vm.expectCall(address(_mToken), abi.encodeCall(_mToken.transfer, (excessRecipient_.toAddress(), excess_)));
+        vm.expectCall(address(_mToken), abi.encodeCall(_mToken.transfer, (_alice, amount_)));
 
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
@@ -390,25 +378,21 @@ contract HubPortalTests is UnitTestBase {
         uint256 amount_ = 1_000e6;
         uint128 localIndex_ = 1_100000068703;
         uint128 remoteIndex_ = localIndex_;
-        bytes32 recipient_ = _alice.toBytes32();
-        bytes32 excessRecipient_ = _bob.toBytes32();
 
         _mToken.setCurrentIndex(localIndex_);
         _mToken.setIsEarning(_alice, true);
-        _mToken.setIsEarning(_bob, true);
         _mToken.setIsEarning(address(_portal), true);
         _mToken.mintTo(address(_portal), amount_);
 
         (TransceiverStructs.NttManagerMessage memory message_, ) = _createTransferMessage(
             amount_,
             remoteIndex_,
-            recipient_,
-            excessRecipient_,
+            _alice.toBytes32(),
             _REMOTE_CHAIN_ID,
             _LOCAL_CHAIN_ID
         );
 
-        vm.expectCall(address(_mToken), abi.encodeCall(_mToken.transfer, (recipient_.toAddress(), amount_)));
+        vm.expectCall(address(_mToken), abi.encodeCall(_mToken.transfer, (_alice, amount_)));
 
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
@@ -419,30 +403,21 @@ contract HubPortalTests is UnitTestBase {
         localIndex_ = uint128(bound(localIndex_, _EXP_SCALED_ONE, 10 * _EXP_SCALED_ONE));
         remoteIndex_ = uint128(bound(remoteIndex_, _EXP_SCALED_ONE, localIndex_));
         amount_ = uint240(bound(amount_, 1, _getMaxTransferAmount(_tokenDecimals)));
-        uint240 excess_ = localIndex_ > remoteIndex_ ? (amount_ * (localIndex_ - remoteIndex_)) / _EXP_SCALED_ONE : 0;
-        bytes32 recipient_ = _alice.toBytes32();
-        bytes32 excessRecipient_ = _bob.toBytes32();
 
         _mToken.setCurrentIndex(localIndex_);
         _mToken.setIsEarning(address(_portal), true);
         _mToken.setIsEarning(_alice, true);
-        _mToken.setIsEarning(_bob, true);
-        _mToken.mintTo(address(_portal), amount_ + excess_);
+        _mToken.mintTo(address(_portal), amount_);
 
         (TransceiverStructs.NttManagerMessage memory message_, ) = _createTransferMessage(
             amount_,
             remoteIndex_,
-            recipient_,
-            excessRecipient_,
+            _alice.toBytes32(),
             _REMOTE_CHAIN_ID,
             _LOCAL_CHAIN_ID
         );
 
-        vm.expectCall(address(_mToken), abi.encodeCall(_mToken.transfer, (recipient_.toAddress(), amount_)));
-
-        if (localIndex_ > remoteIndex_) {
-            vm.expectCall(address(_mToken), abi.encodeCall(_mToken.transfer, (excessRecipient_.toAddress(), excess_)));
-        }
+        vm.expectCall(address(_mToken), abi.encodeCall(_mToken.transfer, (_alice, amount_)));
 
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
