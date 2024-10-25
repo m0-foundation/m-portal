@@ -72,8 +72,8 @@ contract SpokeVault is ISpokeVault, Migratable {
         uint256 amount_,
         bytes32 refundAddress_
     ) external payable returns (uint64 messageSequence_) {
-        if (IERC20(mToken).balanceOf(address(this)) < amount_)
-            revert InsufficientMTokenBalance(IERC20(mToken).balanceOf(address(this)), amount_);
+        uint256 mTokenBalance_ = IERC20(mToken).balanceOf(address(this));
+        if (mTokenBalance_ < amount_) revert InsufficientMTokenBalance(mTokenBalance_, amount_);
 
         bytes32 hubVault_ = hubVault.toBytes32();
 
