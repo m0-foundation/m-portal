@@ -18,12 +18,14 @@ import { IUpgrader } from "../interfaces/IUpgrader.sol";
  * @author M^0 Labs
  */
 contract Upgrader is IUpgrader {
+    /// @dev Portal upgrade parameters.
     struct PortalUpgradeParams {
         address mToken;
         address registrar;
         uint16 wormholeChainId;
     }
 
+    /// @dev Wormhole transceiver upgrade parameters.
     struct WormholeTransceiverUpgradeParams {
         uint16 wormholeChainId;
         address wormholeCoreBridge;
@@ -39,6 +41,11 @@ contract Upgrader is IUpgrader {
     /// @inheritdoc IUpgrader
     address public immutable wormholeTransceiver;
 
+    /**
+     * @dev    Constructs the Upgrader contract.
+     * @param  portal_              The address of the portal contract.
+     * @param  wormholeTransceiver_ The address of the wormhole transceiver contract.
+     */
     constructor(address portal_, address wormholeTransceiver_) {
         if ((portal = portal_) == address(0)) revert ZeroPortal();
         if ((wormholeTransceiver = wormholeTransceiver_) == address(0)) revert ZeroWormholeTransceiver();
@@ -47,16 +54,28 @@ contract Upgrader is IUpgrader {
     /// @inheritdoc IUpgrader
     function execute() external virtual {}
 
+    /**
+     * @notice Upgrades the HubPortal contract.
+     * @param  params_ The parameters for the upgrade.
+     */
     function _upgradeHubPortal(PortalUpgradeParams memory params_) internal {
         HubPortal implementation_ = new HubPortal(params_.mToken, params_.registrar, params_.wormholeChainId);
         IManagerBase(portal).upgrade(address(implementation_));
     }
 
+    /**
+     * @notice Upgrades the SpokePortal contract.
+     * @param  params_ The parameters for the upgrade.
+     */
     function _upgradeSpokePortal(PortalUpgradeParams memory params_) internal {
         SpokePortal implementation_ = new SpokePortal(params_.mToken, params_.registrar, params_.wormholeChainId);
         IManagerBase(portal).upgrade(address(implementation_));
     }
 
+    /**
+     * @notice Upgrades the WormholeTransceiver contract.
+     * @param  params_ The parameters for the upgrade.
+     */
     function _upgradeWormholeTransceiver(WormholeTransceiverUpgradeParams memory params_) internal {
         WormholeTransceiver implementation_ = new WormholeTransceiver(
             portal,

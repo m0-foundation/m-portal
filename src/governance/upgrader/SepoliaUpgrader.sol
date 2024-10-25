@@ -11,16 +11,32 @@ import { Upgrader } from "./Upgrader.sol";
  * @author M^0 Labs
  */
 contract SepoliaUpgrader is Upgrader {
+    /// @dev Sepolia Wormhole chain ID.
     uint16 internal constant _SEPOLIA_WORMHOLE_CHAIN_ID = 10002;
+
+    /// @dev Base Sepolia Wormhole chain ID.
     uint16 internal constant _BASE_SEPOLIA_WORMHOLE_CHAIN_ID = 10004;
+
+    /// @dev Optimism Sepolia Wormhole chain ID.
     uint16 internal constant _OPTIMISM_SEPOLIA_WORMHOLE_CHAIN_ID = 10005;
 
+    /// @dev Sepolia Spoke M token address.
     address internal constant _SEPOLIA_SPOKE_M_TOKEN = 0xCEC6566b227a95C76a0E3dbFdC7794CA795C7F9e;
+
+    /// @dev Sepolia Spoke Registrar address.
     address internal constant _SEPOLIA_SPOKE_REGISTRAR = 0x39a5F8C5ADC500E1d30115c09A1016764D90bC94;
 
+    /// @dev Instant consistency level.
     uint8 internal constant _INSTANT_CONSISTENCY_LEVEL = 200;
+
+    /// @dev Wormhole gas limit.
     uint256 internal constant _WORMHOLE_GAS_LIMIT = 200_000;
 
+    /**
+     * @dev   Constructs the SepoliaUpgrader contract.
+     * @param portal_              Address of the Portal contract.
+     * @param wormholeTransceiver_ Address of the Wormhole transceiver contract.
+     */
     constructor(address portal_, address wormholeTransceiver_) Upgrader(portal_, wormholeTransceiver_) {}
 
     /// @inheritdoc IUpgrader

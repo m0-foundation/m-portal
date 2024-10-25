@@ -9,7 +9,7 @@ import { IPortal } from "../interfaces/IPortal.sol";
 import { IGovernor } from "./interfaces/IGovernor.sol";
 
 /**
- * @title  Base governor contract.
+ * @title  Governor contract used to perform governance operations on the Portal.
  * @author M^0 Labs
  */
 contract Governor is IGovernor {
@@ -19,6 +19,10 @@ contract Governor is IGovernor {
     /// @inheritdoc IGovernor
     address public immutable registrar;
 
+    /**
+     * @dev   Constructs the Governor contract.
+     * @param portal_ Address of the Portal being governed.
+     */
     constructor(address portal_) {
         if ((portal = portal_) == address(0)) revert ZeroPortal();
 
