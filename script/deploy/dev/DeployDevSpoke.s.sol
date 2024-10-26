@@ -9,12 +9,13 @@ import { DeployBase } from "../DeployBase.sol";
 contract DeployDevSpoke is DeployBase {
     function run() external {
         address deployer_ = vm.rememberKey(vm.envUint("DEV_PRIVATE_KEY"));
+        address migrationAdmin_ = deployer_;
 
         if (block.chainid == _BASE_SEPOLIA_CHAIN_ID) {
             vm.startBroadcast(deployer_);
 
             (
-                address spokeBaseSepoliaNTTManager_,
+                address spokeBaseSepoliaPortal_,
                 address spokeBaseSepoliaWormholeTransceiver_,
                 address spokeBaseSepoliaRegistrar_,
                 address spokeBaseSepoliaMToken_
@@ -27,6 +28,14 @@ contract DeployDevSpoke is DeployBase {
                     _burnNonces
                 );
 
+            (, address spokeBaseSepoliaVault_) = _deploySpokeVault(
+                deployer_,
+                spokeBaseSepoliaPortal_,
+                _SEPOLIA_VAULT,
+                _SEPOLIA_WORMHOLE_CHAIN_ID,
+                migrationAdmin_
+            );
+
             (
                 address spokeBaseSepoliaSmartMTokenImplementation_,
                 address spokeBaseSepoliaSmartMTokenProxy_
@@ -34,16 +43,18 @@ contract DeployDevSpoke is DeployBase {
                     deployer_,
                     spokeBaseSepoliaMToken_,
                     spokeBaseSepoliaRegistrar_,
-                    deployer_,
+                    spokeBaseSepoliaVault_,
+                    migrationAdmin_,
                     _burnNonces
                 );
 
             vm.stopBroadcast();
 
-            console2.log("Base Sepolia Spoke NTT Manager address:", spokeBaseSepoliaNTTManager_);
+            console2.log("Base Sepolia Spoke Portal address:", spokeBaseSepoliaPortal_);
             console2.log("Base Sepolia Spoke Wormhole Transceiver address:", spokeBaseSepoliaWormholeTransceiver_);
             console2.log("Base Sepolia Spoke Registrar address:", spokeBaseSepoliaRegistrar_);
             console2.log("Base Sepolia Spoke MToken address:", spokeBaseSepoliaMToken_);
+            console2.log("Base Sepolia Spoke Vault address:", spokeBaseSepoliaVault_);
             console2.log(
                 "Base Sepolia SmartMToken implementation address:",
                 spokeBaseSepoliaSmartMTokenImplementation_
@@ -53,7 +64,7 @@ contract DeployDevSpoke is DeployBase {
             vm.startBroadcast(deployer_);
 
             (
-                address spokeOptimismSepoliaNTTManager_,
+                address spokeOptimismSepoliaPortal_,
                 address spokeOptimismSepoliaWormholeTransceiver_,
                 address spokeOptimismSepoliaRegistrar_,
                 address spokeOptimismSepoliaMToken_
@@ -66,6 +77,14 @@ contract DeployDevSpoke is DeployBase {
                     _burnNonces
                 );
 
+            (, address spokeOptimismSepoliaVault_) = _deploySpokeVault(
+                deployer_,
+                spokeOptimismSepoliaPortal_,
+                _SEPOLIA_VAULT,
+                _SEPOLIA_WORMHOLE_CHAIN_ID,
+                migrationAdmin_
+            );
+
             (
                 address spokeOptimismSepoliaSmartMTokenImplementation_,
                 address spokeOptimismSepoliaSmartMTokenProxy_
@@ -73,17 +92,19 @@ contract DeployDevSpoke is DeployBase {
                     deployer_,
                     spokeOptimismSepoliaMToken_,
                     spokeOptimismSepoliaRegistrar_,
-                    deployer_,
+                    spokeOptimismSepoliaVault_,
+                    migrationAdmin_,
                     _burnNonces
                 );
 
-            console2.log("Optimism Sepolia Spoke NTT Manager address:", spokeOptimismSepoliaNTTManager_);
+            console2.log("Optimism Sepolia Spoke Portal address:", spokeOptimismSepoliaPortal_);
             console2.log(
                 "Optimism Sepolia Spoke Wormhole Transceiver address:",
                 spokeOptimismSepoliaWormholeTransceiver_
             );
             console2.log("Optimism Sepolia Spoke Registrar address:", spokeOptimismSepoliaRegistrar_);
             console2.log("Optimism Sepolia Spoke MToken address:", spokeOptimismSepoliaMToken_);
+            console2.log("Optimism Sepolia Spoke Vault address:", spokeOptimismSepoliaVault_);
             console2.log(
                 "Optimism Sepolia SmartMToken implementation address:",
                 spokeOptimismSepoliaSmartMTokenImplementation_

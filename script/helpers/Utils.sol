@@ -4,6 +4,10 @@ pragma solidity 0.8.26;
 
 import { console2 } from "../../lib/forge-std/src/Script.sol";
 
+import {
+    ERC1967Proxy
+} from "../../lib/example-native-token-transfers/evm/lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+
 import { ICreateXLike } from "../deploy/interfaces/ICreateXLike.sol";
 
 contract Utils {
@@ -14,9 +18,11 @@ contract Utils {
 
     address internal constant _MAINNET_REGISTRAR = 0x119FbeeDD4F4f4298Fb59B720d5654442b81ae2c;
     address internal constant _MAINNET_M_TOKEN = 0x866A2BF4E572CbcF37D5071A7a58503Bfb36be1b;
+    address internal constant _MAINNET_VAULT = 0xd7298f620B0F752Cf41BD818a16C756d9dCAA34f;
 
     address internal constant _SEPOLIA_REGISTRAR = 0x975Bf5f212367D09CB7f69D3dc4BA8C9B440aD3A;
     address internal constant _SEPOLIA_M_TOKEN = 0x0c941AD94Ca4A52EDAeAbF203b61bdd1807CeEC0;
+    address internal constant _SEPOLIA_VAULT = 0x3dc71Be52d6D687e21FC0d4FFc196F32cacbc26d;
 
     uint8 internal constant _M_TOKEN_DECIMALS = 6;
 
@@ -88,6 +94,14 @@ contract Utils {
             mstore(0x20, b)
             hash := keccak256(0x00, 0x40)
         }
+    }
+
+    function _deployCreate3Proxy(address implementation_, bytes32 salt_) internal returns (address) {
+        return
+            ICreateXLike(_CREATE_X_FACTORY).deployCreate3(
+                salt_,
+                abi.encodePacked(type(ERC1967Proxy).creationCode, abi.encode(address(implementation_), ""))
+            );
     }
 
     function _getCreate3Address(address deployer_, bytes32 salt_) internal view virtual returns (address) {

@@ -8,20 +8,20 @@ import { ContractHelper } from "../../lib/common/src/libs/ContractHelper.sol";
 
 import { MToken as SpokeMToken } from "../../lib/protocol/src/MToken.sol";
 import { Registrar as SpokeRegistrar } from "../../lib/ttg/src/Registrar.sol";
-import { WrappedMToken as SpokeSmartMToken } from "../../lib/wrapped-m-token/src/WrappedMToken.sol";
-import { Proxy as SpokeSmartMTokenProxy } from "../../lib/wrapped-m-token/src/Proxy.sol";
+import { WrappedMToken as SpokeSmartMToken } from "../../lib/smart-m-token/src/WrappedMToken.sol";
+import { Proxy as SpokeSmartMTokenProxy } from "../../lib/smart-m-token/src/Proxy.sol";
 
-import {
-    ERC1967Proxy
-} from "../../lib/example-native-token-transfers/evm/lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import { IManagerBase } from "../../lib/example-native-token-transfers/evm/src/interfaces/IManagerBase.sol";
 import { INttManager } from "../../lib/example-native-token-transfers/evm/src/interfaces/INttManager.sol";
 import {
     WormholeTransceiver
 } from "../../lib/example-native-token-transfers/evm/src/Transceiver/WormholeTransceiver/WormholeTransceiver.sol";
 
+import { Proxy as SpokeVaultProxy } from "../../src/proxy/Proxy.sol";
+
 import { HubPortal } from "../../src/HubPortal.sol";
 import { SpokePortal } from "../../src/SpokePortal.sol";
+import { SpokeVault } from "../../src/SpokeVault.sol";
 
 import { Utils } from "../helpers/Utils.sol";
 
@@ -75,12 +75,8 @@ contract DeployBase is Script, Utils {
             gasLimit: _WORMHOLE_GAS_LIMIT
         });
 
-        hubPortal_ = _deployHubPortal(params_, _computeSalt(deployer_, "Portal"));
-        hubTransceiver_ = _deployWormholeTransceiver(
-            params_,
-            hubPortal_,
-            _computeSalt(deployer_, "WormholeTransceiver")
-        );
+        hubPortal_ = _deployHubPortal(deployer_, params_);
+        hubTransceiver_ = _deployWormholeTransceiver(deployer_, params_, hubPortal_);
 
         _configurePortal(hubPortal_, hubTransceiver_);
     }
@@ -123,12 +119,8 @@ contract DeployBase is Script, Utils {
             gasLimit: _WORMHOLE_GAS_LIMIT
         });
 
-        spokePortal_ = _deploySpokePortal(params_, _computeSalt(deployer_, "Portal"));
-        spokeTransceiver_ = _deployWormholeTransceiver(
-            params_,
-            spokePortal_,
-            _computeSalt(deployer_, "WormholeTransceiver")
-        );
+        spokePortal_ = _deploySpokePortal(deployer_, params_);
+        spokeTransceiver_ = _deployWormholeTransceiver(deployer_, params_, spokePortal_);
 
         _configurePortal(spokePortal_, spokeTransceiver_);
     }
@@ -161,14 +153,10 @@ contract DeployBase is Script, Utils {
         spokeMToken_ = _deploySpokeMToken(spokeRegistrar_);
     }
 
-    function _deployHubPortal(DeploymentParams memory params_, bytes32 salt_) internal returns (address) {
+    function _deployHubPortal(address deployer_, DeploymentParams memory params_) internal returns (address) {
         HubPortal implementation_ = new HubPortal(params_.mToken, params_.registrar, params_.wormholeChainId);
-
         HubPortal hubPortalProxy_ = HubPortal(
-            ICreateXLike(_CREATE_X_FACTORY).deployCreate3(
-                salt_,
-                abi.encodePacked(type(ERC1967Proxy).creationCode, abi.encode(address(implementation_), ""))
-            )
+            _deployCreate3Proxy(address(implementation_), _computeSalt(deployer_, "Portal"))
         );
 
         hubPortalProxy_.initialize();
@@ -178,14 +166,10 @@ contract DeployBase is Script, Utils {
         return address(hubPortalProxy_);
     }
 
-    function _deploySpokePortal(DeploymentParams memory params_, bytes32 salt_) internal returns (address) {
+    function _deploySpokePortal(address deployer_, DeploymentParams memory params_) internal returns (address) {
         SpokePortal implementation_ = new SpokePortal(params_.mToken, params_.registrar, params_.wormholeChainId);
-
         SpokePortal spokePortalProxy_ = SpokePortal(
-            ICreateXLike(_CREATE_X_FACTORY).deployCreate3(
-                salt_,
-                abi.encodePacked(type(ERC1967Proxy).creationCode, abi.encode(address(implementation_), ""))
-            )
+            _deployCreate3Proxy(address(implementation_), _computeSalt(deployer_, "Portal"))
         );
 
         spokePortalProxy_.initialize();
@@ -196,9 +180,9 @@ contract DeployBase is Script, Utils {
     }
 
     function _deployWormholeTransceiver(
+        address deployer_,
         DeploymentParams memory params_,
-        address nttManager_,
-        bytes32 salt_
+        address nttManager_
     ) internal returns (address) {
         WormholeTransceiver implementation_ = new WormholeTransceiver(
             nttManager_,
@@ -210,10 +194,7 @@ contract DeployBase is Script, Utils {
         );
 
         WormholeTransceiver transceiverProxy_ = WormholeTransceiver(
-            ICreateXLike(_CREATE_X_FACTORY).deployCreate3(
-                salt_,
-                abi.encodePacked(type(ERC1967Proxy).creationCode, abi.encode(address(implementation_), ""))
-            )
+            _deployCreate3Proxy(address(implementation_), _computeSalt(deployer_, "WormholeTransceiver"))
         );
 
         transceiverProxy_.initialize();
@@ -239,10 +220,27 @@ contract DeployBase is Script, Utils {
         return address(spokeMToken_);
     }
 
+    function _deploySpokeVault(
+        address deployer_,
+        address spokePortal_,
+        address hubVault_,
+        uint16 destinationChainId_,
+        address migrationAdmin_
+    ) internal returns (address spokeVaultImplementation_, address spokeVaultProxy_) {
+        spokeVaultImplementation_ = address(
+            new SpokeVault(spokePortal_, hubVault_, destinationChainId_, migrationAdmin_)
+        );
+
+        spokeVaultProxy_ = _deployCreate3Proxy(address(spokeVaultImplementation_), _computeSalt(deployer_, "Vault"));
+
+        console2.log("SpokeVault:", spokeVaultProxy_);
+    }
+
     function _deploySpokeSmartMToken(
         address deployer_,
         address spokeMToken_,
         address registrar_,
+        address spokeVault_,
         address migrationAdmin_,
         function(address, uint64, uint64) internal burnNonces_
     ) internal returns (address spokeSmartMTokenImplementation_, address spokeSmartMTokenProxy_) {
@@ -265,7 +263,9 @@ contract DeployBase is Script, Utils {
             _SPOKE_SMART_TOKEN_NONCE
         );
 
-        spokeSmartMTokenImplementation_ = address(new SpokeSmartMToken(spokeMToken_, registrar_, migrationAdmin_));
+        spokeSmartMTokenImplementation_ = address(
+            new SpokeSmartMToken(spokeMToken_, registrar_, spokeVault_, migrationAdmin_)
+        );
 
         if (expectedSmartMTokenImplementation_ != spokeSmartMTokenImplementation_) {
             revert ExpectedAddressMismatch(expectedSmartMTokenImplementation_, spokeSmartMTokenImplementation_);

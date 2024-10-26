@@ -14,6 +14,9 @@ import { DeployBase } from "../../script/deploy/DeployBase.sol";
 contract Deploy is DeployBase, Test {
     address internal constant _DEPLOYER = 0xF2f1ACbe0BA726fEE8d75f3E32900526874740BB;
 
+    // TODO: confirm that this is the correct address.
+    address internal constant _MIGRATION_ADMIN = 0x431169728D75bd02f4053435b87D15c8d1FB2C72;
+
     function testFork_deployHub() external {
         vm.createSelectFork(vm.rpcUrl("mainnet"));
 
@@ -65,13 +68,22 @@ contract Deploy is DeployBase, Test {
                 _burnNonces
             );
 
-        // TODO: remove once Wrapped M Token has been updated to pass vault address to constructor.
-        vm.mockCall(baseSpokeRegistrar_, abi.encodeWithSelector(bytes4(keccak256("vault()"))), abi.encode(address(0)));
+        (, address baseSpokeVault_) = _deploySpokeVault(
+            _DEPLOYER,
+            baseSpokePortal_,
+            _MAINNET_VAULT,
+            _MAINNET_WORMHOLE_CHAIN_ID,
+            _MIGRATION_ADMIN
+        );
 
-        (
-            address spokeBaseSepoliaSmartMTokenImplementation_,
-            address spokeBaseSepoliaSmartMTokenProxy_
-        ) = _deploySpokeSmartMToken(_DEPLOYER, baseSpokeMToken_, baseSpokeRegistrar_, _DEPLOYER, _burnNonces);
+        (address baseSpokeSmartMTokenImplementation_, address baseSpokeSmartMTokenProxy_) = _deploySpokeSmartMToken(
+            _DEPLOYER,
+            baseSpokeMToken_,
+            baseSpokeRegistrar_,
+            baseSpokeVault_,
+            _MIGRATION_ADMIN,
+            _burnNonces
+        );
 
         vm.stopPrank();
 
@@ -82,6 +94,8 @@ contract Deploy is DeployBase, Test {
             _computeSalt(_DEPLOYER, "WormholeTransceiver")
         );
 
+        address expectedSpokeVault_ = _getCreate3Address(_DEPLOYER, _computeSalt(_DEPLOYER, "Vault"));
+
         address expectedSmartMTokenImplementation_ = ContractHelper.getContractFrom(_DEPLOYER, 39);
         address expectedSmartMTokenProxy_ = ContractHelper.getContractFrom(_DEPLOYER, 40);
 
@@ -89,8 +103,9 @@ contract Deploy is DeployBase, Test {
         assertEq(baseSpokeWormholeTransceiver_, expectedSpokeWormholeTransceiver_);
         assertEq(baseSpokeRegistrar_, _MAINNET_REGISTRAR);
         assertEq(baseSpokeMToken_, _MAINNET_M_TOKEN);
-        assertEq(spokeBaseSepoliaSmartMTokenImplementation_, expectedSmartMTokenImplementation_);
-        assertEq(spokeBaseSepoliaSmartMTokenProxy_, expectedSmartMTokenProxy_);
+        assertEq(baseSpokeVault_, expectedSpokeVault_);
+        assertEq(baseSpokeSmartMTokenImplementation_, expectedSmartMTokenImplementation_);
+        assertEq(baseSpokeSmartMTokenProxy_, expectedSmartMTokenProxy_);
 
         assertEq(SpokeMToken(baseSpokeMToken_).portal(), baseSpokePortal_);
         assertEq(SpokeMToken(baseSpokeMToken_).registrar(), baseSpokeRegistrar_);
