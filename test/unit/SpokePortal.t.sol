@@ -137,7 +137,7 @@ contract SpokePortalTests is UnitTestBase {
     function test_sendMToken() external {
         uint256 amount_ = 1_000e6;
 
-        _mToken.mintTo(_alice, amount_);
+        _mToken.mint(_alice, amount_);
 
         vm.startPrank(_alice);
         _mToken.approve(address(_portal), amount_);
@@ -164,7 +164,7 @@ contract SpokePortalTests is UnitTestBase {
             _LOCAL_CHAIN_ID
         );
 
-        vm.expectCall(address(_mToken), abi.encodeCall(_mToken.mint, (_alice, amount_, remoteIndex_)));
+        vm.expectCall(address(_mToken), abi.encodeWithSignature("mint(address,uint256)", _alice, amount_));
 
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
@@ -185,7 +185,11 @@ contract SpokePortalTests is UnitTestBase {
             _LOCAL_CHAIN_ID
         );
 
-        vm.expectCall(address(_mToken), abi.encodeCall(_mToken.mint, (_alice, amount_, remoteIndex_)));
+        bytes memory call = remoteIndex_ > localIndex_
+            ? abi.encodeWithSignature("mint(address,uint256,uint128)", _alice, amount_, remoteIndex_)
+            : abi.encodeWithSignature("mint(address,uint256)", _alice, amount_);
+
+        vm.expectCall(address(_mToken), call);
 
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
@@ -207,7 +211,7 @@ contract SpokePortalTests is UnitTestBase {
             _LOCAL_CHAIN_ID
         );
 
-        vm.expectCall(address(_mToken), abi.encodeCall(_mToken.mint, (_alice, amount_, remoteIndex_)));
+        vm.expectCall(address(_mToken), abi.encodeWithSignature("mint(address,uint256)", _alice, amount_));
 
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
@@ -229,7 +233,7 @@ contract SpokePortalTests is UnitTestBase {
             _LOCAL_CHAIN_ID
         );
 
-        vm.expectCall(address(_mToken), abi.encodeCall(_mToken.mint, (_alice, amount_, remoteIndex_)));
+        vm.expectCall(address(_mToken), abi.encodeWithSignature("mint(address,uint256)", _alice, amount_));
 
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
@@ -251,7 +255,10 @@ contract SpokePortalTests is UnitTestBase {
             _LOCAL_CHAIN_ID
         );
 
-        vm.expectCall(address(_mToken), abi.encodeCall(_mToken.mint, (_alice, amount_, remoteIndex_)));
+        vm.expectCall(
+            address(_mToken),
+            abi.encodeWithSignature("mint(address,uint256,uint128)", _alice, amount_, remoteIndex_)
+        );
 
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
@@ -273,7 +280,11 @@ contract SpokePortalTests is UnitTestBase {
             _LOCAL_CHAIN_ID
         );
 
-        vm.expectCall(address(_mToken), abi.encodeCall(_mToken.mint, (_alice, amount_, remoteIndex_)));
+        bytes memory call = remoteIndex_ > localIndex_
+            ? abi.encodeWithSignature("mint(address,uint256,uint128)", _alice, amount_, remoteIndex_)
+            : abi.encodeWithSignature("mint(address,uint256)", _alice, amount_);
+
+        vm.expectCall(address(_mToken), call);
 
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);

@@ -56,7 +56,7 @@ abstract contract MockERC20 {
         return true;
     }
 
-    function mintTo(address to, uint256 amount) external {
+    function mint(address to, uint256 amount) external {
         _mint(to, amount);
     }
 

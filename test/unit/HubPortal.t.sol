@@ -295,7 +295,7 @@ contract HubPortalTests is UnitTestBase {
         uint256 fee_ = 1;
 
         vm.deal(_alice, fee_);
-        _mToken.mintTo(_alice, amount_);
+        _mToken.mint(_alice, amount_);
 
         vm.startPrank(_alice);
         _mToken.approve(address(_portal), amount_);
@@ -311,7 +311,7 @@ contract HubPortalTests is UnitTestBase {
         uint256 amount_ = 1_000e6;
         uint128 remoteIndex_ = _EXP_SCALED_ONE;
 
-        _mToken.mintTo(address(_portal), amount_);
+        _mToken.mint(address(_portal), amount_);
 
         (TransceiverStructs.NttManagerMessage memory message_, ) = _createTransferMessage(
             amount_,
@@ -334,7 +334,7 @@ contract HubPortalTests is UnitTestBase {
         amount_ = uint240(bound(amount_, 1, _getMaxTransferAmount(_tokenDecimals)));
 
         _mToken.setCurrentIndex(localIndex_);
-        _mToken.mintTo(address(_portal), amount_);
+        _mToken.mint(address(_portal), amount_);
 
         (TransceiverStructs.NttManagerMessage memory message_, ) = _createTransferMessage(
             amount_,
@@ -358,7 +358,7 @@ contract HubPortalTests is UnitTestBase {
         _mToken.setCurrentIndex(localIndex_);
         _mToken.setIsEarning(_alice, true);
         _mToken.setIsEarning(address(_portal), true);
-        _mToken.mintTo(address(_portal), amount_);
+        _mToken.mint(address(_portal), amount_);
 
         (TransceiverStructs.NttManagerMessage memory message_, ) = _createTransferMessage(
             amount_,
@@ -382,7 +382,7 @@ contract HubPortalTests is UnitTestBase {
         _mToken.setCurrentIndex(localIndex_);
         _mToken.setIsEarning(_alice, true);
         _mToken.setIsEarning(address(_portal), true);
-        _mToken.mintTo(address(_portal), amount_);
+        _mToken.mint(address(_portal), amount_);
 
         (TransceiverStructs.NttManagerMessage memory message_, ) = _createTransferMessage(
             amount_,
@@ -407,7 +407,7 @@ contract HubPortalTests is UnitTestBase {
         _mToken.setCurrentIndex(localIndex_);
         _mToken.setIsEarning(address(_portal), true);
         _mToken.setIsEarning(_alice, true);
-        _mToken.mintTo(address(_portal), amount_);
+        _mToken.mint(address(_portal), amount_);
 
         (TransceiverStructs.NttManagerMessage memory message_, ) = _createTransferMessage(
             amount_,
