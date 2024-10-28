@@ -10,6 +10,14 @@ import { IMTokenLike } from "./IMTokenLike.sol";
  */
 interface ISpokeMTokenLike is IMTokenLike {
     /**
+     * @notice Mints tokens.
+     * @dev    MUST only be callable by the SpokePortal.
+     * @param  account The address of account to mint to.
+     * @param  amount  The amount of M Token to mint.
+     */
+    function mint(address account, uint256 amount) external;
+
+    /**
      * @notice Updates the index and mints tokens.
      * @dev    MUST only be callable by the SpokePortal.
      * @param  account The address of account to mint to.
