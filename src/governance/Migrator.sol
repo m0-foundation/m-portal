@@ -2,16 +2,16 @@
 
 pragma solidity 0.8.26;
 
-import { IManagerBase } from "../../../lib/example-native-token-transfers/evm/src/interfaces/IManagerBase.sol";
-import { ITransceiver } from "../../../lib/example-native-token-transfers/evm/src/interfaces/ITransceiver.sol";
+import { IManagerBase } from "../../lib/example-native-token-transfers/evm/src/interfaces/IManagerBase.sol";
+import { ITransceiver } from "../../lib/example-native-token-transfers/evm/src/interfaces/ITransceiver.sol";
 import {
     WormholeTransceiver
-} from "../../../lib/example-native-token-transfers/evm/src/Transceiver/WormholeTransceiver/WormholeTransceiver.sol";
+} from "../../lib/example-native-token-transfers/evm/src/Transceiver/WormholeTransceiver/WormholeTransceiver.sol";
 
-import { HubPortal } from "../../HubPortal.sol";
-import { SpokePortal } from "../../SpokePortal.sol";
+import { HubPortal } from "../HubPortal.sol";
+import { SpokePortal } from "../SpokePortal.sol";
 
-import { IMigrator } from "../interfaces/IMigrator.sol";
+import { IMigrator } from "./interfaces/IMigrator.sol";
 
 /**
  * @title  Base migrator contract.

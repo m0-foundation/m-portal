@@ -2,9 +2,8 @@
 
 pragma solidity 0.8.26;
 
-import { IConfigurator } from "../interfaces/IConfigurator.sol";
-
-import { Configurator } from "./Configurator.sol";
+import { IConfigurator } from "../../../../src/governance/interfaces/IConfigurator.sol";
+import { Configurator } from "../../../../src/governance/Configurator.sol";
 
 /**
  * @title  Mainnet configurator contract.

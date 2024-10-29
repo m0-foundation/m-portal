@@ -18,11 +18,10 @@ import { UpgradeBase } from "../../script/upgrade/UpgradeBase.sol";
 import { ICreateXLike } from "../../script/deploy/interfaces/ICreateXLike.sol";
 
 import { IRegistrarLike } from "../../src/interfaces/IRegistrarLike.sol";
-
 import { Governor } from "../../src/governance/Governor.sol";
-import { MainnetMigrator } from "../../src/governance/migrator/MainnetMigrator.sol";
-
 import { HubPortal } from "../../src/HubPortal.sol";
+
+import { MainnetMigrator } from "./fixtures/migrator/MainnetMigrator.sol";
 
 contract Upgrade is UpgradeBase, Test {
     address internal constant _DEPLOYER = 0xF2f1ACbe0BA726fEE8d75f3E32900526874740BB;

@@ -2,9 +2,8 @@
 
 pragma solidity 0.8.26;
 
-import { IMigrator } from "../interfaces/IMigrator.sol";
-
-import { Migrator } from "./Migrator.sol";
+import { IMigrator } from "../../../../src/governance/interfaces/IMigrator.sol";
+import { Migrator } from "../../../../src/governance/Migrator.sol";
 
 /**
  * @title  Sepolia migrator contract.

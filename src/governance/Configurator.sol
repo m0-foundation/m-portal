@@ -2,12 +2,12 @@
 
 pragma solidity 0.8.26;
 
-import { INttManager } from "../../../lib/example-native-token-transfers/evm/src/interfaces/INttManager.sol";
+import { INttManager } from "../../lib/example-native-token-transfers/evm/src/interfaces/INttManager.sol";
 import {
     IWormholeTransceiver
-} from "../../../lib/example-native-token-transfers/evm/src/interfaces/IWormholeTransceiver.sol";
+} from "../../lib/example-native-token-transfers/evm/src/interfaces/IWormholeTransceiver.sol";
 
-import { IConfigurator } from "../interfaces/IConfigurator.sol";
+import { IConfigurator } from "./interfaces/IConfigurator.sol";
 
 /**
  * @title  Base configurator contract.

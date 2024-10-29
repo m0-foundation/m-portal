@@ -21,11 +21,10 @@ import { ConfigureBase } from "../../script/configure/ConfigureBase.sol";
 import { ICreateXLike } from "../../script/deploy/interfaces/ICreateXLike.sol";
 
 import { IRegistrarLike } from "../../src/interfaces/IRegistrarLike.sol";
-
 import { Governor } from "../../src/governance/Governor.sol";
-import { MainnetConfigurator } from "../../src/governance/configurator/MainnetConfigurator.sol";
-
 import { HubPortal } from "../../src/HubPortal.sol";
+
+import { MainnetConfigurator } from "./fixtures/configurator/MainnetConfigurator.sol";
 
 contract Configure is ConfigureBase, Test {
     address internal constant _DEPLOYER = 0xF2f1ACbe0BA726fEE8d75f3E32900526874740BB;
