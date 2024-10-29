@@ -27,6 +27,9 @@ import { HubPortal } from "../../src/HubPortal.sol";
 contract Upgrade is UpgradeBase, Test {
     address internal constant _DEPLOYER = 0xF2f1ACbe0BA726fEE8d75f3E32900526874740BB;
 
+    // TODO: replace by the actual multisig address.
+    address internal _governorAdmin = makeAddr("governor-admin");
+
     function testFork_upgrade() external {
         vm.createSelectFork(vm.rpcUrl("mainnet"));
 
@@ -147,7 +150,7 @@ contract Upgrade is UpgradeBase, Test {
         IManagerBase(hubPortal_).setTransceiver(address(wormholeTransceiver_));
         INttManager(hubPortal_).setThreshold(1);
 
-        Governor governor_ = new Governor(address(hubPortal_));
+        Governor governor_ = new Governor(address(hubPortal_), _governorAdmin);
         address upgrader_ = address(new MainnetUpgrader(address(hubPortal_), address(wormholeTransceiver_)));
 
         hubPortal_.transferOwnership(address(governor_));

@@ -28,7 +28,7 @@ contract SepoliaConfigurator is Configurator {
     constructor(address portal_, address wormholeTransceiver_) Configurator(portal_, wormholeTransceiver_) {}
 
     /// @inheritdoc IConfigurator
-    function execute() external override {
+    function configure() external override {
         bytes32 portalUniversalAddress_ = _toUniversalAddress(portal);
         bytes32 wormholeTransceiverUniversalAddress_ = _toUniversalAddress(wormholeTransceiver);
 

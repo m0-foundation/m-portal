@@ -14,7 +14,7 @@ interface IConfigurator {
     error ZeroWormholeTransceiver();
 
     /// @notice Executes the configuration approved by governance.
-    function execute() external;
+    function configure() external;
 
     /// @notice Address of the Portal being configured.
     function portal() external view returns (address);

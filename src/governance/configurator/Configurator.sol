@@ -49,7 +49,7 @@ contract Configurator is IConfigurator {
     /* ============ Interactive Functions ============ */
 
     /// @inheritdoc IConfigurator
-    function execute() external virtual {}
+    function configure() external virtual {}
 
     /* ============ Internal Interactive Functions ============ */
 

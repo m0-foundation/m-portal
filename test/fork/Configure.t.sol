@@ -30,6 +30,9 @@ import { HubPortal } from "../../src/HubPortal.sol";
 contract Configure is ConfigureBase, Test {
     address internal constant _DEPLOYER = 0xF2f1ACbe0BA726fEE8d75f3E32900526874740BB;
 
+    // TODO: replace by the actual multisig address.
+    address internal _governorAdmin = makeAddr("governor-admin");
+
     function testFork_configure() external {
         vm.createSelectFork(vm.rpcUrl("mainnet"));
 
@@ -222,7 +225,7 @@ contract Configure is ConfigureBase, Test {
 
         config_[2] = optimismConfig_;
 
-        Governor governor_ = new Governor(address(hubPortal_));
+        Governor governor_ = new Governor(address(hubPortal_), _governorAdmin);
         address configurator_ = address(new MainnetConfigurator(address(hubPortal_), address(wormholeTransceiver_)));
 
         hubPortal_.transferOwnership(address(governor_));
