@@ -59,12 +59,12 @@ contract Governor is IGovernor {
 
     /// @inheritdoc IGovernor
     function upgrade() external {
-        _upgrade(RegistrarReader.getPortalUpgrader(registrar));
+        _upgrade(RegistrarReader.getPortalMigrator(registrar));
     }
 
     /// @inheritdoc IGovernor
-    function upgrade(address upgrader_) external onlyGovernorAdmin {
-        _upgrade(upgrader_);
+    function upgrade(address migrator_) external onlyGovernorAdmin {
+        _upgrade(migrator_);
     }
 
     /// @inheritdoc IGovernor
@@ -95,13 +95,13 @@ contract Governor is IGovernor {
     }
 
     /**
-     * @dev Executes the upgrade in `upgrader_`.
-     * @param  upgrader_ The address of the Upgrader contract.
+     * @dev Executes the upgrade in `migrator_`.
+     * @param  migrator_ The address of the Migrator contract.
      */
-    function _upgrade(address upgrader_) internal {
-        if (upgrader_ == address(0)) revert ZeroUpgrader();
+    function _upgrade(address migrator_) internal {
+        if (migrator_ == address(0)) revert ZeroMigrator();
 
-        (bool success_, bytes memory data_) = upgrader_.delegatecall(abi.encodeWithSignature("execute()"));
+        (bool success_, bytes memory data_) = migrator_.delegatecall(abi.encodeWithSignature("migrate()"));
 
         if (!success_) {
             revert DelegatecallFailed(data_);

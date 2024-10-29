@@ -2,15 +2,15 @@
 
 pragma solidity 0.8.26;
 
-import { IUpgrader } from "../interfaces/IUpgrader.sol";
+import { IMigrator } from "../interfaces/IMigrator.sol";
 
-import { Upgrader } from "./Upgrader.sol";
+import { Migrator } from "./Migrator.sol";
 
 /**
- * @title  Mainnet upgrader contract.
+ * @title  Mainnet migrator contract.
  * @author M^0 Labs
  */
-contract MainnetUpgrader is Upgrader {
+contract MainnetMigrator is Migrator {
     /// @dev Mainnet Wormhole chain ID.
     uint16 internal constant _MAINNET_WORMHOLE_CHAIN_ID = 2;
 
@@ -33,14 +33,14 @@ contract MainnetUpgrader is Upgrader {
     uint256 internal constant _WORMHOLE_GAS_LIMIT = 200_000;
 
     /**
-     * @dev    Constructs the MainnetUpgrader contract.
+     * @dev    Constructs the MainnetMigrator contract.
      * @param  portal_              The address of the Portal.
      * @param  wormholeTransceiver_ The address of the WormholeTransceiver.
      */
-    constructor(address portal_, address wormholeTransceiver_) Upgrader(portal_, wormholeTransceiver_) {}
+    constructor(address portal_, address wormholeTransceiver_) Migrator(portal_, wormholeTransceiver_) {}
 
-    /// @inheritdoc IUpgrader
-    function execute() external override {
+    /// @inheritdoc IMigrator
+    function migrate() external override {
         if (block.chainid == 1) {
             _upgradeHubPortal(
                 PortalUpgradeParams({

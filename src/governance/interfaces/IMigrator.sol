@@ -3,10 +3,10 @@
 pragma solidity 0.8.26;
 
 /**
- * @title  Upgrader interface.
+ * @title  Migrator interface.
  * @author M^0 Labs
  */
-interface IUpgrader {
+interface IMigrator {
     /// @notice Emitted when the Portal address is 0x0.
     error ZeroPortal();
 
@@ -14,7 +14,7 @@ interface IUpgrader {
     error ZeroWormholeTransceiver();
 
     /// @notice Executes the upgrade approved by governance.
-    function execute() external;
+    function migrate() external;
 
     /// @notice Address of the Portal being upgraded.
     function portal() external view returns (address);

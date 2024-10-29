@@ -36,8 +36,8 @@ interface IGovernor {
     /// @notice Emitted when the Portal address is 0x0.
     error ZeroPortal();
 
-    /// @notice Emitted when the Upgrader address is 0x0.
-    error ZeroUpgrader();
+    /// @notice Emitted when the Migrator address is 0x0.
+    error ZeroMigrator();
 
     /* ============ Interactive Functions ============ */
 
@@ -55,11 +55,11 @@ interface IGovernor {
     function upgrade() external;
 
     /**
-     * @notice Executes the upgrade in `upgrader`.
+     * @notice Executes the upgrade in `migrator`.
      * @dev    MUST only be callable by the Governor admin.
-     * @param  upgrader The address of the Upgrader contract.
+     * @param  migrator The address of the Migrator contract.
      */
-    function upgrade(address upgrader) external;
+    function upgrade(address migrator) external;
 
     /**
      * @notice Transfers ownership of the Governor to a new Governor admin.
@@ -82,6 +82,6 @@ interface IGovernor {
     /// @notice Address of the Portal being governed.
     function portal() external view returns (address);
 
-    /// @notice Address of the Registrar where Configurator and Upgrader are stored.
+    /// @notice Address of the Registrar where Configurator and Migrator are stored.
     function registrar() external view returns (address);
 }

@@ -2,15 +2,15 @@
 
 pragma solidity 0.8.26;
 
-import { IUpgrader } from "../interfaces/IUpgrader.sol";
+import { IMigrator } from "../interfaces/IMigrator.sol";
 
-import { Upgrader } from "./Upgrader.sol";
+import { Migrator } from "./Migrator.sol";
 
 /**
- * @title  Sepolia upgrader contract.
+ * @title  Sepolia migrator contract.
  * @author M^0 Labs
  */
-contract SepoliaUpgrader is Upgrader {
+contract SepoliaMigrator is Migrator {
     /// @dev Sepolia Wormhole chain ID.
     uint16 internal constant _SEPOLIA_WORMHOLE_CHAIN_ID = 10002;
 
@@ -33,14 +33,14 @@ contract SepoliaUpgrader is Upgrader {
     uint256 internal constant _WORMHOLE_GAS_LIMIT = 200_000;
 
     /**
-     * @dev   Constructs the SepoliaUpgrader contract.
+     * @dev   Constructs the SepoliaMigrator contract.
      * @param portal_              Address of the Portal contract.
      * @param wormholeTransceiver_ Address of the Wormhole transceiver contract.
      */
-    constructor(address portal_, address wormholeTransceiver_) Upgrader(portal_, wormholeTransceiver_) {}
+    constructor(address portal_, address wormholeTransceiver_) Migrator(portal_, wormholeTransceiver_) {}
 
-    /// @inheritdoc IUpgrader
-    function execute() external override {
+    /// @inheritdoc IMigrator
+    function migrate() external override {
         if (block.chainid == 11155111) {
             _upgradeHubPortal(
                 PortalUpgradeParams({

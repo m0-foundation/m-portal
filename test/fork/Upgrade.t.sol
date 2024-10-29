@@ -20,7 +20,7 @@ import { ICreateXLike } from "../../script/deploy/interfaces/ICreateXLike.sol";
 import { IRegistrarLike } from "../../src/interfaces/IRegistrarLike.sol";
 
 import { Governor } from "../../src/governance/Governor.sol";
-import { MainnetUpgrader } from "../../src/governance/upgrader/MainnetUpgrader.sol";
+import { MainnetMigrator } from "../../src/governance/migrator/MainnetMigrator.sol";
 
 import { HubPortal } from "../../src/HubPortal.sol";
 
@@ -151,7 +151,7 @@ contract Upgrade is UpgradeBase, Test {
         INttManager(hubPortal_).setThreshold(1);
 
         Governor governor_ = new Governor(address(hubPortal_), _governorAdmin);
-        address upgrader_ = address(new MainnetUpgrader(address(hubPortal_), address(wormholeTransceiver_)));
+        address migrator_ = address(new MainnetMigrator(address(hubPortal_), address(wormholeTransceiver_)));
 
         hubPortal_.transferOwnership(address(governor_));
 
@@ -161,8 +161,8 @@ contract Upgrade is UpgradeBase, Test {
 
         vm.mockCall(
             _MAINNET_REGISTRAR,
-            abi.encodeWithSelector(IRegistrarLike.get.selector, bytes32("portal_upgrader")),
-            abi.encode(bytes32(uint256(uint160(upgrader_))))
+            abi.encodeWithSelector(IRegistrarLike.get.selector, bytes32("portal_migrator")),
+            abi.encode(bytes32(uint256(uint160(migrator_))))
         );
 
         // Anyone can call upgrade().

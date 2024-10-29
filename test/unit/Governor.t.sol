@@ -5,7 +5,7 @@ pragma solidity 0.8.26;
 import { IConfigurator } from "../../src/governance/interfaces/IConfigurator.sol";
 import { IGovernor } from "../../src/governance/interfaces/IGovernor.sol";
 import { IRegistrarLike } from "../../src/interfaces/IRegistrarLike.sol";
-import { IUpgrader } from "../../src/governance/interfaces/IUpgrader.sol";
+import { IMigrator } from "../../src/governance/interfaces/IMigrator.sol";
 
 import { Governor } from "../../src/governance/Governor.sol";
 
@@ -23,7 +23,7 @@ contract GovernorTests is UnitTestBase {
 
     address internal _configurator = makeAddr("configurator");
     address internal _mToken = makeAddr("m-token");
-    address internal _upgrader = makeAddr("upgrader");
+    address internal _migrator = makeAddr("migrator");
 
     function setUp() external {
         _registrar = new MockSpokeRegistrar();
@@ -103,8 +103,8 @@ contract GovernorTests is UnitTestBase {
 
     /* ============ upgrade ============ */
 
-    function test_upgrade_zeroUpgrader() external {
-        vm.expectRevert(IGovernor.ZeroUpgrader.selector);
+    function test_upgrade_zeroMigrator() external {
+        vm.expectRevert(IGovernor.ZeroMigrator.selector);
         _governor.upgrade();
     }
 
@@ -113,14 +113,14 @@ contract GovernorTests is UnitTestBase {
 
         vm.mockCall(
             address(_registrar),
-            abi.encodeWithSelector(IRegistrarLike.get.selector, bytes32("portal_upgrader")),
-            abi.encode(_upgrader)
+            abi.encodeWithSelector(IRegistrarLike.get.selector, bytes32("portal_migrator")),
+            abi.encode(_migrator)
         );
 
-        vm.expectCall(address(_registrar), abi.encodeCall(_registrar.get, (bytes32("portal_upgrader"))));
+        vm.expectCall(address(_registrar), abi.encodeCall(_registrar.get, (bytes32("portal_migrator"))));
 
-        vm.mockCallRevert(_upgrader, abi.encodeWithSelector(IUpgrader.execute.selector), delegatecallData_);
-        vm.expectCall(_upgrader, abi.encodeWithSelector(IUpgrader.execute.selector));
+        vm.mockCallRevert(_migrator, abi.encodeWithSelector(IMigrator.migrate.selector), delegatecallData_);
+        vm.expectCall(_migrator, abi.encodeWithSelector(IMigrator.migrate.selector));
 
         vm.expectRevert(abi.encodeWithSelector(IGovernor.DelegatecallFailed.selector, delegatecallData_));
         _governor.upgrade();
@@ -129,26 +129,26 @@ contract GovernorTests is UnitTestBase {
     function test_upgrade() external {
         vm.mockCall(
             address(_registrar),
-            abi.encodeWithSelector(IRegistrarLike.get.selector, bytes32("portal_upgrader")),
-            abi.encode(_upgrader)
+            abi.encodeWithSelector(IRegistrarLike.get.selector, bytes32("portal_migrator")),
+            abi.encode(_migrator)
         );
 
-        vm.expectCall(address(_registrar), abi.encodeCall(_registrar.get, (bytes32("portal_upgrader"))));
-        vm.expectCall(_upgrader, abi.encodeWithSelector(IUpgrader.execute.selector));
+        vm.expectCall(address(_registrar), abi.encodeCall(_registrar.get, (bytes32("portal_migrator"))));
+        vm.expectCall(_migrator, abi.encodeWithSelector(IMigrator.migrate.selector));
 
         _governor.upgrade();
     }
 
     function test_upgrade_unauthorizedGovernorAdmin() external {
         vm.expectRevert(IGovernor.UnauthorizedGovernorAdmin.selector);
-        _governor.upgrade(_upgrader);
+        _governor.upgrade(_migrator);
     }
 
     function test_upgrade_byGovernorAdmin() external {
-        vm.expectCall(_upgrader, abi.encodeWithSelector(IUpgrader.execute.selector));
+        vm.expectCall(_migrator, abi.encodeWithSelector(IMigrator.migrate.selector));
 
         vm.prank(_governorAdmin);
-        _governor.upgrade(_upgrader);
+        _governor.upgrade(_migrator);
     }
 
     /* ============ ownership ============ */

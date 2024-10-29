@@ -11,13 +11,13 @@ import {
 import { HubPortal } from "../../HubPortal.sol";
 import { SpokePortal } from "../../SpokePortal.sol";
 
-import { IUpgrader } from "../interfaces/IUpgrader.sol";
+import { IMigrator } from "../interfaces/IMigrator.sol";
 
 /**
- * @title  Base upgrader contract.
+ * @title  Base migrator contract.
  * @author M^0 Labs
  */
-contract Upgrader is IUpgrader {
+contract Migrator is IMigrator {
     /// @dev Portal upgrade parameters.
     struct PortalUpgradeParams {
         address mToken;
@@ -35,14 +35,14 @@ contract Upgrader is IUpgrader {
         uint256 gasLimit;
     }
 
-    /// @inheritdoc IUpgrader
+    /// @inheritdoc IMigrator
     address public immutable portal;
 
-    /// @inheritdoc IUpgrader
+    /// @inheritdoc IMigrator
     address public immutable wormholeTransceiver;
 
     /**
-     * @dev    Constructs the Upgrader contract.
+     * @dev    Constructs the Migrator contract.
      * @param  portal_              The address of the portal contract.
      * @param  wormholeTransceiver_ The address of the wormhole transceiver contract.
      */
@@ -51,8 +51,8 @@ contract Upgrader is IUpgrader {
         if ((wormholeTransceiver = wormholeTransceiver_) == address(0)) revert ZeroWormholeTransceiver();
     }
 
-    /// @inheritdoc IUpgrader
-    function execute() external virtual {}
+    /// @inheritdoc IMigrator
+    function migrate() external virtual {}
 
     /**
      * @notice Upgrades the HubPortal contract.
