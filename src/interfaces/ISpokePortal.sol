@@ -39,4 +39,12 @@ interface ISpokePortal is IPortal {
         address indexed account,
         bool status
     );
+
+    /* ============ View/Pure Functions ============ */
+
+    /// @notice The principal of the total bridged amount
+    function outstandingPrincipal() external view returns (uint112);
+
+    /// @notice The excess of M token on the Hub accumulated due to index propagation delays
+    function excess() external view returns (uint240);
 }

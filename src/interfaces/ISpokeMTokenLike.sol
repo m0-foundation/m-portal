@@ -5,7 +5,7 @@ pragma solidity 0.8.26;
 import { IMTokenLike } from "./IMTokenLike.sol";
 
 /**
- * @title  Subset of Spoke M Token interface required for `SpokePortal` contracr.
+ * @title  Subset of Spoke M Token interface required for `SpokePortal` contract.
  * @author M^0 Labs
  */
 interface ISpokeMTokenLike is IMTokenLike {

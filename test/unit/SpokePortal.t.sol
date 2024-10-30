@@ -11,6 +11,7 @@ import { PayloadEncoder } from "../../src/libs/PayloadEncoder.sol";
 import { TypeConverter } from "../../src/libs/TypeConverter.sol";
 
 import { UnitTestBase } from "./UnitTestBase.t.sol";
+import { SpokePortalHarness } from "../harnesses/SpokePortalHarness.sol";
 import { MockSpokeMToken } from "../mocks/MockSpokeMToken.sol";
 import { MockSpokeRegistrar } from "../mocks/MockSpokeRegistrar.sol";
 import { MockTransceiver } from "../mocks/MockTransceiver.sol";
@@ -21,7 +22,7 @@ contract SpokePortalTests is UnitTestBase {
     MockSpokeMToken internal _mToken;
     MockSpokeRegistrar internal _registrar;
 
-    SpokePortal internal _portal;
+    SpokePortalHarness internal _portal;
 
     function setUp() external {
         _mToken = new MockSpokeMToken();
@@ -32,8 +33,8 @@ contract SpokePortalTests is UnitTestBase {
         _registrar = new MockSpokeRegistrar();
         _transceiver = new MockTransceiver();
 
-        SpokePortal implementation_ = new SpokePortal(address(_mToken), address(_registrar), _LOCAL_CHAIN_ID);
-        _portal = SpokePortal(_createProxy(address(implementation_)));
+        SpokePortal implementation_ = new SpokePortalHarness(address(_mToken), address(_registrar), _LOCAL_CHAIN_ID);
+        _portal = SpokePortalHarness(_createProxy(address(implementation_)));
 
         _initializePortal(_portal);
     }
@@ -137,7 +138,11 @@ contract SpokePortalTests is UnitTestBase {
     function test_sendMToken() external {
         uint256 amount_ = 1_000e6;
 
+        _mToken.setCurrentIndex(_EXP_SCALED_ONE);
         _mToken.mint(_alice, amount_);
+        _portal.workaround_setOutstandingPrincipal(uint112(amount_));
+
+        assertEq(_portal.outstandingPrincipal(), amount_);
 
         vm.startPrank(_alice);
         _mToken.approve(address(_portal), amount_);
@@ -145,6 +150,8 @@ contract SpokePortalTests is UnitTestBase {
         vm.expectCall(address(_mToken), abi.encodeCall(_mToken.burn, (amount_)));
 
         _portal.transfer(amount_, _REMOTE_CHAIN_ID, _alice.toBytes32());
+
+        assertEq(_portal.outstandingPrincipal(), 0);
     }
 
     /* ============ _receiveMToken ============ */
@@ -155,6 +162,8 @@ contract SpokePortalTests is UnitTestBase {
         uint128 remoteIndex_ = _EXP_SCALED_ONE;
 
         _mToken.setCurrentIndex(localIndex_);
+
+        assertEq(_portal.outstandingPrincipal(), 0);
 
         (TransceiverStructs.NttManagerMessage memory message_, ) = _createTransferMessage(
             amount_,
@@ -168,6 +177,9 @@ contract SpokePortalTests is UnitTestBase {
 
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
+
+        // outstandingPrincipal = amount / index
+        assertEq(_portal.outstandingPrincipal(), 909090852);
     }
 
     function testFuzz_receiveMToken_nonEarner(uint240 amount_, uint128 localIndex_, uint128 remoteIndex_) external {
@@ -193,6 +205,8 @@ contract SpokePortalTests is UnitTestBase {
 
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
+
+        assertEq(_portal.outstandingPrincipal(), (amount_ * _EXP_SCALED_ONE) / _mToken.currentIndex());
     }
 
     function test_receiveMToken_earner_lowerRemoteIndex() external {
@@ -215,6 +229,8 @@ contract SpokePortalTests is UnitTestBase {
 
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
+
+        assertEq(_portal.outstandingPrincipal(), 909090852);
     }
 
     function test_receiveMToken_earner_sameRemoteIndex() external {
@@ -237,6 +253,8 @@ contract SpokePortalTests is UnitTestBase {
 
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
+
+        assertEq(_portal.outstandingPrincipal(), 909090852);
     }
 
     function test_receiveMToken_earner_higherRemoteIndex() external {
@@ -262,6 +280,8 @@ contract SpokePortalTests is UnitTestBase {
 
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
+
+        assertEq(_portal.outstandingPrincipal(), 833333285);
     }
 
     function testFuzz_receiveMToken_earner(uint240 amount_, uint128 localIndex_, uint128 remoteIndex_) external {
@@ -288,5 +308,7 @@ contract SpokePortalTests is UnitTestBase {
 
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
+
+        assertEq(_portal.outstandingPrincipal(), (amount_ * _EXP_SCALED_ONE) / _mToken.currentIndex());
     }
 }
