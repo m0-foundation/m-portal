@@ -76,14 +76,19 @@ contract Deploy is DeployBase, Test {
             _MIGRATION_ADMIN
         );
 
-        (address baseSpokeSmartMTokenImplementation_, address baseSpokeSmartMTokenProxy_) = _deploySpokeSmartMToken(
-            _DEPLOYER,
-            baseSpokeMToken_,
-            baseSpokeRegistrar_,
-            baseSpokeVault_,
-            _MIGRATION_ADMIN,
-            _burnNonces
-        );
+        (
+            address baseSpokeSmartMTokenEarnerManagerImplementation_,
+            address baseSpokeSmartMTokenEarnerManagerProxy_,
+            address baseSpokeSmartMTokenImplementation_,
+            address baseSpokeSmartMTokenProxy_
+        ) = _deploySpokeSmartMToken(
+                _DEPLOYER,
+                baseSpokeMToken_,
+                baseSpokeRegistrar_,
+                baseSpokeVault_,
+                _MIGRATION_ADMIN,
+                _burnNonces
+            );
 
         vm.stopPrank();
 
@@ -96,16 +101,16 @@ contract Deploy is DeployBase, Test {
 
         address expectedSpokeVault_ = _getCreate3Address(_DEPLOYER, _computeSalt(_DEPLOYER, "Vault"));
 
-        address expectedSmartMTokenImplementation_ = ContractHelper.getContractFrom(_DEPLOYER, 39);
-        address expectedSmartMTokenProxy_ = ContractHelper.getContractFrom(_DEPLOYER, 40);
-
         assertEq(baseSpokePortal_, expectedSpokePortal_);
         assertEq(baseSpokeWormholeTransceiver_, expectedSpokeWormholeTransceiver_);
         assertEq(baseSpokeRegistrar_, _MAINNET_REGISTRAR);
         assertEq(baseSpokeMToken_, _MAINNET_M_TOKEN);
         assertEq(baseSpokeVault_, expectedSpokeVault_);
-        assertEq(baseSpokeSmartMTokenImplementation_, expectedSmartMTokenImplementation_);
-        assertEq(baseSpokeSmartMTokenProxy_, expectedSmartMTokenProxy_);
+
+        assertEq(baseSpokeSmartMTokenEarnerManagerImplementation_, ContractHelper.getContractFrom(_DEPLOYER, 37));
+        assertEq(baseSpokeSmartMTokenEarnerManagerProxy_, ContractHelper.getContractFrom(_DEPLOYER, 38));
+        assertEq(baseSpokeSmartMTokenImplementation_, ContractHelper.getContractFrom(_DEPLOYER, 39));
+        assertEq(baseSpokeSmartMTokenProxy_, ContractHelper.getContractFrom(_DEPLOYER, 40));
 
         assertEq(SpokeMToken(baseSpokeMToken_).portal(), baseSpokePortal_);
         assertEq(SpokeMToken(baseSpokeMToken_).registrar(), baseSpokeRegistrar_);

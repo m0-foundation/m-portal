@@ -13,8 +13,10 @@ import { ICreateXLike } from "../deploy/interfaces/ICreateXLike.sol";
 contract Utils {
     uint64 internal constant _SPOKE_REGISTRAR_NONCE = 7;
     uint64 internal constant _SPOKE_M_TOKEN_NONCE = 8;
-    uint64 internal constant _SPOKE_SMART_TOKEN_NONCE = 39;
-    uint64 internal constant _SPOKE_SMART_TOKEN_PROXY_NONCE = 40;
+    uint64 internal constant _SPOKE_SMART_M_TOKEN_EARNER_MANAGER_NONCE = 37;
+    uint64 internal constant _SPOKE_SMART_M_TOKEN_EARNER_MANAGER_PROXY_NONCE = 38;
+    uint64 internal constant _SPOKE_SMART_M_TOKEN_NONCE = 39;
+    uint64 internal constant _SPOKE_SMART_M_TOKEN_PROXY_NONCE = 40;
 
     address internal constant _MAINNET_REGISTRAR = 0x119FbeeDD4F4f4298Fb59B720d5654442b81ae2c;
     address internal constant _MAINNET_M_TOKEN = 0x866A2BF4E572CbcF37D5071A7a58503Bfb36be1b;

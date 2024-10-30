@@ -37,6 +37,8 @@ contract DeployDevSpoke is DeployBase {
             );
 
             (
+                address spokeBaseSmartMTokenEarnerManagerImplementation_,
+                address spokeBaseSmartMTokenEarnerManagerProxy_,
                 address spokeBaseSepoliaSmartMTokenImplementation_,
                 address spokeBaseSepoliaSmartMTokenProxy_
             ) = _deploySpokeSmartMToken(
@@ -55,11 +57,21 @@ contract DeployDevSpoke is DeployBase {
             console2.log("Base Sepolia Spoke Registrar address:", spokeBaseSepoliaRegistrar_);
             console2.log("Base Sepolia Spoke MToken address:", spokeBaseSepoliaMToken_);
             console2.log("Base Sepolia Spoke Vault address:", spokeBaseSepoliaVault_);
+
+            console2.log(
+                "Base Sepolia SmartMToken Earner Manager implementation address:",
+                spokeBaseSmartMTokenEarnerManagerImplementation_
+            );
+            console2.log(
+                "Base Sepolia Spoke SmartMToken Earner Manager proxy address:",
+                spokeBaseSmartMTokenEarnerManagerProxy_
+            );
+
             console2.log(
                 "Base Sepolia SmartMToken implementation address:",
                 spokeBaseSepoliaSmartMTokenImplementation_
             );
-            console2.log("Base Sepolia Spoke MToken proxy address:", spokeBaseSepoliaSmartMTokenProxy_);
+            console2.log("Base Sepolia Spoke SmartMToken proxy address:", spokeBaseSepoliaSmartMTokenProxy_);
         } else if (block.chainid == _OPTIMISM_SEPOLIA_CHAIN_ID) {
             vm.startBroadcast(deployer_);
 
@@ -86,6 +98,8 @@ contract DeployDevSpoke is DeployBase {
             );
 
             (
+                address spokeOptimismSmartMTokenEarnerManagerImplementation_,
+                address spokeOptimismSmartMTokenEarnerManagerProxy_,
                 address spokeOptimismSepoliaSmartMTokenImplementation_,
                 address spokeOptimismSepoliaSmartMTokenProxy_
             ) = _deploySpokeSmartMToken(
@@ -105,11 +119,21 @@ contract DeployDevSpoke is DeployBase {
             console2.log("Optimism Sepolia Spoke Registrar address:", spokeOptimismSepoliaRegistrar_);
             console2.log("Optimism Sepolia Spoke MToken address:", spokeOptimismSepoliaMToken_);
             console2.log("Optimism Sepolia Spoke Vault address:", spokeOptimismSepoliaVault_);
+
+            console2.log(
+                "Optimism Sepolia SmartMToken Earner Manager implementation address:",
+                spokeOptimismSmartMTokenEarnerManagerImplementation_
+            );
+            console2.log(
+                "Optimism Sepolia Spoke SmartMToken Earner Manager proxy address:",
+                spokeOptimismSmartMTokenEarnerManagerProxy_
+            );
+
             console2.log(
                 "Optimism Sepolia SmartMToken implementation address:",
                 spokeOptimismSepoliaSmartMTokenImplementation_
             );
-            console2.log("Optimism Sepolia Spoke MToken proxy address:", spokeOptimismSepoliaSmartMTokenProxy_);
+            console2.log("Optimism Sepolia Spoke SmartMToken proxy address:", spokeOptimismSepoliaSmartMTokenProxy_);
 
             vm.stopBroadcast();
         } else {

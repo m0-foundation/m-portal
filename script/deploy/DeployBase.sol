@@ -2,14 +2,16 @@
 
 pragma solidity 0.8.26;
 
-import { Script, console2 } from "../../lib/forge-std/src/Script.sol";
+import { console } from "../../lib/forge-std/src/console.sol";
+import { Script } from "../../lib/forge-std/src/Script.sol";
 
 import { ContractHelper } from "../../lib/common/src/libs/ContractHelper.sol";
+import { Proxy } from "../../lib/common/src/Proxy.sol";
 
 import { MToken as SpokeMToken } from "../../lib/protocol/src/MToken.sol";
 import { Registrar as SpokeRegistrar } from "../../lib/ttg/src/Registrar.sol";
-import { WrappedMToken as SpokeSmartMToken } from "../../lib/smart-m-token/src/WrappedMToken.sol";
-import { Proxy as SpokeSmartMTokenProxy } from "../../lib/smart-m-token/src/Proxy.sol";
+import { EarnerManager as SpokeSmartMTokenEarnerManager } from "../../lib/smart-m-token/src/EarnerManager.sol";
+import { SmartMToken as SpokeSmartMToken } from "../../lib/smart-m-token/src/SmartMToken.sol";
 
 import { IManagerBase } from "../../lib/example-native-token-transfers/evm/src/interfaces/IManagerBase.sol";
 import { INttManager } from "../../lib/example-native-token-transfers/evm/src/interfaces/INttManager.sol";
@@ -157,7 +159,7 @@ contract DeployBase is Script, Utils {
 
         hubPortalProxy_.initialize();
 
-        console2.log("HubPortal:", address(hubPortalProxy_));
+        console.log("HubPortal:", address(hubPortalProxy_));
 
         return address(hubPortalProxy_);
     }
@@ -170,7 +172,7 @@ contract DeployBase is Script, Utils {
 
         spokePortalProxy_.initialize();
 
-        console2.log("SpokePortal:", address(spokePortalProxy_));
+        console.log("SpokePortal:", address(spokePortalProxy_));
 
         return address(spokePortalProxy_);
     }
@@ -195,7 +197,7 @@ contract DeployBase is Script, Utils {
 
         transceiverProxy_.initialize();
 
-        console2.log("WormholeTransceiver:", address(transceiverProxy_));
+        console.log("WormholeTransceiver:", address(transceiverProxy_));
 
         return address(transceiverProxy_);
     }
@@ -203,7 +205,7 @@ contract DeployBase is Script, Utils {
     function _deploySpokeRegistrar(address spokeNTTManager_) internal returns (address) {
         SpokeRegistrar spokeRegistrar_ = new SpokeRegistrar(spokeNTTManager_);
 
-        console2.log("SpokeRegistrar:", address(spokeRegistrar_));
+        console.log("SpokeRegistrar:", address(spokeRegistrar_));
 
         return address(spokeRegistrar_);
     }
@@ -211,7 +213,7 @@ contract DeployBase is Script, Utils {
     function _deploySpokeMToken(address spokeRegistrar_) internal returns (address) {
         SpokeMToken spokeMToken_ = new SpokeMToken(spokeRegistrar_);
 
-        console2.log("SpokeMToken:", address(spokeMToken_));
+        console.log("SpokeMToken:", address(spokeMToken_));
 
         return address(spokeMToken_);
     }
@@ -229,7 +231,7 @@ contract DeployBase is Script, Utils {
 
         spokeVaultProxy_ = _deployCreate3Proxy(address(spokeVaultImplementation_), _computeSalt(deployer_, "Vault"));
 
-        console2.log("SpokeVault:", spokeVaultProxy_);
+        console.log("SpokeVault:", spokeVaultProxy_);
     }
 
     function _deploySpokeSmartMToken(
@@ -239,58 +241,105 @@ contract DeployBase is Script, Utils {
         address spokeVault_,
         address migrationAdmin_,
         function(address, uint64, uint64) internal burnNonces_
-    ) internal returns (address spokeSmartMTokenImplementation_, address spokeSmartMTokenProxy_) {
+    )
+        internal
+        returns (
+            address spokeSmartMTokenEarnerManagerImplementation_,
+            address spokeSmartMTokenEarnerManagerProxy_,
+            address spokeSmartMTokenImplementation_,
+            address spokeSmartMTokenProxy_
+        )
+    {
         uint64 deployerNonce_ = vm.getNonce(deployer_);
 
-        if (deployerNonce_ > _SPOKE_SMART_TOKEN_NONCE) {
-            revert DeployerNonceTooHigh(_SPOKE_SMART_TOKEN_NONCE, deployerNonce_);
+        if (deployerNonce_ > _SPOKE_SMART_M_TOKEN_EARNER_MANAGER_NONCE) {
+            revert DeployerNonceTooHigh(_SPOKE_SMART_M_TOKEN_EARNER_MANAGER_NONCE, deployerNonce_);
         }
 
-        burnNonces_(deployer_, deployerNonce_, _SPOKE_SMART_TOKEN_NONCE);
+        burnNonces_(deployer_, deployerNonce_, _SPOKE_SMART_M_TOKEN_EARNER_MANAGER_NONCE);
 
         deployerNonce_ = vm.getNonce(deployer_);
-        if (deployerNonce_ != _SPOKE_SMART_TOKEN_NONCE) {
-            revert DeployerNonceTooHigh(_SPOKE_SMART_TOKEN_NONCE, deployerNonce_);
+        if (deployerNonce_ != _SPOKE_SMART_M_TOKEN_EARNER_MANAGER_NONCE) {
+            revert DeployerNonceTooHigh(_SPOKE_SMART_M_TOKEN_EARNER_MANAGER_NONCE, deployerNonce_);
         }
+
+        // Pre-compute the expected SpokeSmartMTokenEarnerManager implementation address.
+        address expectedSmartMTokenEarnerManagerImplementation_ = ContractHelper.getContractFrom(
+            deployer_,
+            _SPOKE_SMART_M_TOKEN_EARNER_MANAGER_NONCE
+        );
+
+        spokeSmartMTokenEarnerManagerImplementation_ = address(
+            new SpokeSmartMTokenEarnerManager(registrar_, migrationAdmin_)
+        );
+
+        if (expectedSmartMTokenEarnerManagerImplementation_ != spokeSmartMTokenEarnerManagerImplementation_) {
+            revert ExpectedAddressMismatch(
+                expectedSmartMTokenEarnerManagerImplementation_,
+                spokeSmartMTokenEarnerManagerImplementation_
+            );
+        }
+
+        console.log("SpokeSmartMTokenEarnerManagerImplementation:", spokeSmartMTokenEarnerManagerImplementation_);
+
+        // Pre-compute the expected SpokeSmartMTokenEarnerManager proxy address.
+        address expectedSmartMTokenEarnerManagerProxy_ = ContractHelper.getContractFrom(
+            deployer_,
+            _SPOKE_SMART_M_TOKEN_EARNER_MANAGER_PROXY_NONCE
+        );
+
+        spokeSmartMTokenEarnerManagerProxy_ = address(new Proxy(spokeSmartMTokenEarnerManagerImplementation_));
+
+        if (expectedSmartMTokenEarnerManagerProxy_ != spokeSmartMTokenEarnerManagerProxy_) {
+            revert ExpectedAddressMismatch(expectedSmartMTokenEarnerManagerProxy_, spokeSmartMTokenEarnerManagerProxy_);
+        }
+
+        console.log("SpokeSmartMTokenEarnerManagerProxy:", spokeSmartMTokenEarnerManagerProxy_);
 
         // Pre-compute the expected SpokeSmartMToken implementation address.
         address expectedSmartMTokenImplementation_ = ContractHelper.getContractFrom(
             deployer_,
-            _SPOKE_SMART_TOKEN_NONCE
+            _SPOKE_SMART_M_TOKEN_NONCE
         );
 
         spokeSmartMTokenImplementation_ = address(
-            new SpokeSmartMToken(spokeMToken_, registrar_, spokeVault_, migrationAdmin_)
+            new SpokeSmartMToken(
+                spokeMToken_,
+                registrar_,
+                spokeSmartMTokenEarnerManagerProxy_,
+                spokeVault_,
+                migrationAdmin_
+            )
         );
 
         if (expectedSmartMTokenImplementation_ != spokeSmartMTokenImplementation_) {
             revert ExpectedAddressMismatch(expectedSmartMTokenImplementation_, spokeSmartMTokenImplementation_);
         }
 
-        console2.log("SpokeSmartMTokenImplementation:", spokeSmartMTokenImplementation_);
+        console.log("SpokeSmartMTokenImplementation:", spokeSmartMTokenImplementation_);
 
         deployerNonce_ = vm.getNonce(deployer_);
-        if (deployerNonce_ != _SPOKE_SMART_TOKEN_PROXY_NONCE) {
-            revert DeployerNonceTooHigh(_SPOKE_SMART_TOKEN_PROXY_NONCE, deployerNonce_);
+        if (deployerNonce_ != _SPOKE_SMART_M_TOKEN_PROXY_NONCE) {
+            revert DeployerNonceTooHigh(_SPOKE_SMART_M_TOKEN_PROXY_NONCE, deployerNonce_);
         }
 
         // Pre-compute the expected SpokeSmartMToken proxy address.
-        address expectedSmartMTokenProxy_ = ContractHelper.getContractFrom(deployer_, _SPOKE_SMART_TOKEN_PROXY_NONCE);
+        address expectedSmartMTokenProxy_ = ContractHelper.getContractFrom(deployer_, _SPOKE_SMART_M_TOKEN_PROXY_NONCE);
 
-        spokeSmartMTokenProxy_ = address(new SpokeSmartMTokenProxy(spokeSmartMTokenImplementation_));
+        spokeSmartMTokenProxy_ = address(new Proxy(spokeSmartMTokenImplementation_));
 
         if (expectedSmartMTokenProxy_ != spokeSmartMTokenProxy_) {
             revert ExpectedAddressMismatch(expectedSmartMTokenProxy_, spokeSmartMTokenProxy_);
         }
 
-        console2.log("SpokeSmartMTokenProxy:", spokeSmartMTokenProxy_);
+        console.log("SpokeSmartMTokenProxy:", spokeSmartMTokenProxy_);
     }
 
     function _configurePortal(address portal_, address transceiver_) internal {
         IManagerBase(portal_).setTransceiver(transceiver_);
-        console2.log("Transceiver address set: ", transceiver_);
+        console.log("Transceiver address set: ", transceiver_);
 
         INttManager(portal_).setThreshold(1);
-        console2.log("Threshold set: ", uint256(1));
+        console.log("Threshold set: ", uint256(1));
     }
 }
