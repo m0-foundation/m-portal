@@ -105,7 +105,7 @@ contract SpokePortal is ISpokePortal, Portal {
     /// @dev Decreases `outstandingPrincipal`
     function _beforeTokenSent(uint256 amount_) internal override {
         unchecked {
-            outstandingPrincipal -= IndexingMath.getPrincipalAmountRoundedDown(amount_.safe112(), _currentIndex());
+            outstandingPrincipal -= IndexingMath.getPrincipalAmountRoundedDown(amount_.safe240(), _currentIndex());
         }
     }
 
@@ -120,14 +120,14 @@ contract SpokePortal is ISpokePortal, Portal {
 
         // Update M token index only if the index received from the remote chain is bigger
         if (index_ > currentIndex_) {
-            ISpokeMTokenLike(mToken()).mint(recipient_, amount_, index_);
             currentIndex_ = index_;
+            ISpokeMTokenLike(mToken()).mint(recipient_, amount_, index_);
         } else {
             ISpokeMTokenLike(mToken()).mint(recipient_, amount_);
         }
 
         unchecked {
-            outstandingPrincipal += IndexingMath.getPrincipalAmountRoundedDown(amount_.safe112(), currentIndex_);
+            outstandingPrincipal += IndexingMath.getPrincipalAmountRoundedDown(amount_.safe240(), currentIndex_);
         }
     }
 
