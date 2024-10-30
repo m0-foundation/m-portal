@@ -16,8 +16,9 @@ import { IMigrator } from "./interfaces/IMigrator.sol";
 /**
  * @title  Base migrator contract.
  * @author M^0 Labs
+ * @dev    Base contract that can be inherited by migrator contracts to perform contracts migrations.
  */
-contract Migrator is IMigrator {
+abstract contract Migrator is IMigrator {
     /// @dev Portal migration parameters.
     struct PortalMigrateParams {
         address mToken;

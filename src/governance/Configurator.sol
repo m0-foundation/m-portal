@@ -12,8 +12,9 @@ import { IConfigurator } from "./interfaces/IConfigurator.sol";
 /**
  * @title  Base configurator contract.
  * @author M^0 Labs
+ * @dev    Base contract that can be inherited by configurator contracts to perform configuration changes.
  */
-contract Configurator is IConfigurator {
+abstract contract Configurator is IConfigurator {
     /* ============ Struct ============ */
 
     /// @dev Chain configuration.
