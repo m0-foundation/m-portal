@@ -108,9 +108,7 @@ abstract contract Configurator is IConfigurator {
         for (uint256 i_; i_ < targetConfigs_.length; ++i_) {
             ChainConfig memory targetConfig_ = targetConfigs_[i_];
 
-            if (targetConfig_.chainId == sourceWormholeChainId_) {
-                continue;
-            } else {
+            if (targetConfig_.chainId != sourceWormholeChainId_) {
                 _setPeerPortal(targetConfig_.chainId, targetConfig_.portal);
             }
         }
