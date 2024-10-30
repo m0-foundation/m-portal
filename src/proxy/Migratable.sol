@@ -51,7 +51,7 @@ abstract contract Migratable is IMigratable {
         emit Migrated(migrator_, oldImplementation_, newImplementation_);
 
         // NOTE: Redundant event emitted to conform to the EIP-1967 standard.
-        emit Upgraded(newImplementation_);
+        emit Migrated(newImplementation_);
     }
 
     /* ============ Internal View/Pure Functions ============ */

@@ -63,6 +63,7 @@ contract Utils {
 
     // Instant confirmation. Guardians signs the VAA once the transaction has been included in a block.
     uint8 internal constant _INSTANT_CONSISTENCY_LEVEL = 200;
+    uint8 internal constant _FINALIZED_CONSISTENCY_LEVEL = 15;
 
     // Same address across all supported mainnet and testnets networks.
     address internal constant _CREATE_X_FACTORY = 0xba5Ed099633D3B313e4D5F7bdc1305d3c28ba5Ed;
