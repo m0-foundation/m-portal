@@ -5,6 +5,7 @@
 [submodule "lib/common"]
 	path = lib/common
 	url = git@github.com:m0-foundation/common.git
+	branch = main
 [submodule "lib/protocol"]
 	path = lib/protocol
 	url = git@github.com:m0-foundation/protocol.git

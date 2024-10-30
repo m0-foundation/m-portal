@@ -17,15 +17,11 @@ import {
     WormholeTransceiver
 } from "../../lib/example-native-token-transfers/evm/src/Transceiver/WormholeTransceiver/WormholeTransceiver.sol";
 
-import { Proxy as SpokeVaultProxy } from "../../src/proxy/Proxy.sol";
-
 import { HubPortal } from "../../src/HubPortal.sol";
 import { SpokePortal } from "../../src/SpokePortal.sol";
 import { SpokeVault } from "../../src/SpokeVault.sol";
 
 import { Utils } from "../helpers/Utils.sol";
-
-import { ICreateXLike } from "./interfaces/ICreateXLike.sol";
 
 contract DeployBase is Script, Utils {
     error DeployerNonceTooHigh(uint64 expected, uint64 actual);

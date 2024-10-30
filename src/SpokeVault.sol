@@ -3,11 +3,10 @@
 pragma solidity 0.8.26;
 
 import { IERC20 } from "../lib/common/src/interfaces/IERC20.sol";
+import { Migratable } from "../lib/common/src/Migratable.sol";
 import { INttManager } from "../lib/example-native-token-transfers/evm/src/interfaces/INttManager.sol";
 
 import { TypeConverter } from "./libs/TypeConverter.sol";
-
-import { Migratable } from "./proxy/Migratable.sol";
 
 import { IPortal } from "./interfaces/IPortal.sol";
 import { IRegistrarLike } from "./interfaces/IRegistrarLike.sol";
