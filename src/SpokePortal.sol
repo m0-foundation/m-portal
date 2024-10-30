@@ -2,6 +2,10 @@
 
 pragma solidity 0.8.26;
 
+import { IERC20 } from "../lib/common/src/interfaces/IERC20.sol";
+import { UIntMath } from "../lib/common/src/libs/UIntMath.sol";
+import { IndexingMath } from "../lib/smart-m-token/src/libs/IndexingMath.sol";
+
 import { ISpokeMTokenLike } from "./interfaces/ISpokeMTokenLike.sol";
 import { IRegistrarLike } from "./interfaces/IRegistrarLike.sol";
 import { ISpokePortal } from "./interfaces/ISpokePortal.sol";
@@ -15,6 +19,10 @@ import { PayloadType, PayloadEncoder } from "./libs/PayloadEncoder.sol";
  */
 contract SpokePortal is ISpokePortal, Portal {
     using PayloadEncoder for bytes;
+    using UIntMath for uint256;
+
+    /// @inheritdoc ISpokePortal
+    uint112 public outstandingPrincipal;
 
     /**
      * @notice Constructs the contract.
@@ -27,6 +35,19 @@ contract SpokePortal is ISpokePortal, Portal {
         address registrar_,
         uint16 chainId_
     ) Portal(mToken_, registrar_, Mode.BURNING, chainId_) {}
+
+    /* ============ View/Pure Functions ============ */
+
+    /// @inheritdoc ISpokePortal
+    function excess() external view returns (uint240 excess_) {
+        unchecked {
+            return
+                IndexingMath.getPresentAmountRoundedDown(outstandingPrincipal, _currentIndex()) -
+                IERC20(mToken()).totalSupply().safe240();
+        }
+    }
+
+    /* ============ Internal Interactive Functions ============ */
 
     function _receiveCustomPayload(
         bytes32 messageId_,
@@ -50,7 +71,9 @@ contract SpokePortal is ISpokePortal, Portal {
 
         emit MTokenIndexReceived(messageId_, index_);
 
-        ISpokeMTokenLike(mToken()).updateIndex(index_);
+        if (index_ > _currentIndex()) {
+            ISpokeMTokenLike(mToken()).updateIndex(index_);
+        }
     }
 
     /// @notice Sets a Registrar key received from the Hub chain.
@@ -79,6 +102,13 @@ contract SpokePortal is ISpokePortal, Portal {
         }
     }
 
+    /// @dev Decreases `outstandingPrincipal`
+    function _beforeTokenSent(uint256 amount_) internal override {
+        unchecked {
+            outstandingPrincipal -= IndexingMath.getPrincipalAmountRoundedDown(amount_.safe240(), _currentIndex());
+        }
+    }
+
     /**
      * @dev Mints M Token to the `recipient_`.
      * @param recipient_ The account to mint M tokens to.
@@ -86,7 +116,19 @@ contract SpokePortal is ISpokePortal, Portal {
      * @param index_     The index from the source chain.
      */
     function _mintOrUnlock(address recipient_, uint256 amount_, uint128 index_) internal override {
-        ISpokeMTokenLike(mToken()).mint(recipient_, amount_, index_);
+        uint128 currentIndex_ = _currentIndex();
+
+        // Update M token index only if the index received from the remote chain is bigger
+        if (index_ > currentIndex_) {
+            currentIndex_ = index_;
+            ISpokeMTokenLike(mToken()).mint(recipient_, amount_, index_);
+        } else {
+            ISpokeMTokenLike(mToken()).mint(recipient_, amount_);
+        }
+
+        unchecked {
+            outstandingPrincipal += IndexingMath.getPrincipalAmountRoundedDown(amount_.safe240(), currentIndex_);
+        }
     }
 
     /// @dev Returns the current M token index used by the Spoke Portal.

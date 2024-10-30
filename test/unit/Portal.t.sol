@@ -88,7 +88,7 @@ contract PortalTests is UnitTestBase {
         );
 
         vm.deal(_alice, msgValue_);
-        _mToken.mintTo(_alice, amount_);
+        _mToken.mint(_alice, amount_);
 
         vm.startPrank(_alice);
         _mToken.approve(address(_portal), amount_);
