@@ -4,11 +4,15 @@ pragma solidity 0.8.26;
 
 import { IRegistrarLike } from "../interfaces/IRegistrarLike.sol";
 
+import { TypeConverter } from "./TypeConverter.sol";
+
 /**
  * @title  Library to read Registrar contract parameters.
  * @author M^0 Labs
  */
 library RegistrarReader {
+    using TypeConverter for bytes32;
+
     /* ============ Variables ============ */
 
     /// @notice The name of parameter that defines the Portal configurator address.
@@ -21,17 +25,12 @@ library RegistrarReader {
 
     /// @notice Gets the Portal configurator address.
     function getPortalConfigurator(address registrar_) internal view returns (address) {
-        return toAddress(_get(registrar_, PORTAL_CONFIGURATOR));
+        return _get(registrar_, PORTAL_CONFIGURATOR).toAddress();
     }
 
     /// @notice Gets the Portal migrator address.
     function getPortalMigrator(address registrar_) internal view returns (address) {
-        return toAddress(_get(registrar_, PORTAL_MIGRATOR));
-    }
-
-    /// @notice Converts given bytes32 to address.
-    function toAddress(bytes32 input_) internal pure returns (address) {
-        return address(uint160(uint256(input_)));
+        return _get(registrar_, PORTAL_MIGRATOR).toAddress();
     }
 
     /// @notice Gets the value of the given key.
