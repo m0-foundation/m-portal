@@ -41,16 +41,16 @@ contract SepoliaMigrator is Migrator {
     /// @inheritdoc IMigrator
     function migrate() external override {
         if (block.chainid == 11155111) {
-            _upgradeHubPortal(
-                PortalUpgradeParams({
+            _migrateHubPortal(
+                PortalMigrateParams({
                     mToken: 0x0c941AD94Ca4A52EDAeAbF203b61bdd1807CeEC0,
                     registrar: 0x975Bf5f212367D09CB7f69D3dc4BA8C9B440aD3A,
                     wormholeChainId: _SEPOLIA_WORMHOLE_CHAIN_ID
                 })
             );
 
-            _upgradeWormholeTransceiver(
-                WormholeTransceiverUpgradeParams({
+            _migrateWormholeTransceiver(
+                WormholeTransceiverMigrateParams({
                     wormholeChainId: _SEPOLIA_WORMHOLE_CHAIN_ID,
                     wormholeCoreBridge: 0x4a8bc80Ed5a4067f1CCf107057b8270E0cC11A78,
                     wormholeRelayerAddr: 0x7B1bD7a6b4E61c2a123AC6BC2cbfC614437D0470,
@@ -60,16 +60,16 @@ contract SepoliaMigrator is Migrator {
                 })
             );
         } else if (block.chainid == 84532) {
-            _upgradeSpokePortal(
-                PortalUpgradeParams({
+            _migrateSpokePortal(
+                PortalMigrateParams({
                     mToken: _SEPOLIA_SPOKE_M_TOKEN,
                     registrar: _SEPOLIA_SPOKE_REGISTRAR,
                     wormholeChainId: _BASE_SEPOLIA_WORMHOLE_CHAIN_ID
                 })
             );
 
-            _upgradeWormholeTransceiver(
-                WormholeTransceiverUpgradeParams({
+            _migrateWormholeTransceiver(
+                WormholeTransceiverMigrateParams({
                     wormholeChainId: _BASE_SEPOLIA_WORMHOLE_CHAIN_ID,
                     wormholeCoreBridge: 0x79A1027a6A159502049F10906D333EC57E95F083,
                     wormholeRelayerAddr: 0x93BAD53DDfB6132b0aC8E37f6029163E63372cEE,
@@ -79,16 +79,16 @@ contract SepoliaMigrator is Migrator {
                 })
             );
         } else if (block.chainid == 11155420) {
-            _upgradeSpokePortal(
-                PortalUpgradeParams({
+            _migrateSpokePortal(
+                PortalMigrateParams({
                     mToken: _SEPOLIA_SPOKE_M_TOKEN,
                     registrar: _SEPOLIA_SPOKE_REGISTRAR,
                     wormholeChainId: _OPTIMISM_SEPOLIA_WORMHOLE_CHAIN_ID
                 })
             );
 
-            _upgradeWormholeTransceiver(
-                WormholeTransceiverUpgradeParams({
+            _migrateWormholeTransceiver(
+                WormholeTransceiverMigrateParams({
                     wormholeChainId: _OPTIMISM_SEPOLIA_WORMHOLE_CHAIN_ID,
                     wormholeCoreBridge: 0x31377888146f3253211EFEf5c676D41ECe7D58Fe,
                     wormholeRelayerAddr: 0x93BAD53DDfB6132b0aC8E37f6029163E63372cEE,

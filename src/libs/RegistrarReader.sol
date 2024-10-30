@@ -15,7 +15,7 @@ library RegistrarReader {
     bytes32 internal constant PORTAL_CONFIGURATOR = "portal_configurator";
 
     /// @notice The name of parameter that defines the Portal migrator address.
-    bytes32 internal constant PORTAL_UPGRADER = "portal_migrator";
+    bytes32 internal constant PORTAL_MIGRATOR = "portal_migrator";
 
     /* ============ Internal View/Pure Functions ============ */
 
@@ -26,7 +26,7 @@ library RegistrarReader {
 
     /// @notice Gets the Portal migrator address.
     function getPortalMigrator(address registrar_) internal view returns (address) {
-        return toAddress(_get(registrar_, PORTAL_UPGRADER));
+        return toAddress(_get(registrar_, PORTAL_MIGRATOR));
     }
 
     /// @notice Converts given bytes32 to address.

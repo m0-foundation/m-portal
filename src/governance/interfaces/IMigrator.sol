@@ -13,10 +13,10 @@ interface IMigrator {
     /// @notice Emitted when the WormholeTransceiver address is 0x0.
     error ZeroWormholeTransceiver();
 
-    /// @notice Executes the upgrade approved by governance.
+    /// @notice Executes the migration approved by governance.
     function migrate() external;
 
-    /// @notice Address of the Portal being upgraded.
+    /// @notice Address of the Portal being migrated.
     function portal() external view returns (address);
 
     /// @notice Address of the WormholeTransceiver used to relay messages.

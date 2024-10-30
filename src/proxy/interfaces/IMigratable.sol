@@ -21,7 +21,7 @@ interface IMigratable {
      * @notice Emitted when the implementation address for the proxy is changed.
      * @param  implementation The address of the new implementation for the proxy.
      */
-    event Upgraded(address indexed implementation);
+    event Migrated(address indexed implementation);
 
     /// @notice Emitted when calling `stopEarning` for an account approved as earner by the Registrar.
     error InvalidMigrator();

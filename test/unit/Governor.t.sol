@@ -101,14 +101,14 @@ contract GovernorTests is UnitTestBase {
         _governor.configure(_configurator);
     }
 
-    /* ============ upgrade ============ */
+    /* ============ migration ============ */
 
-    function test_upgrade_zeroMigrator() external {
+    function test_migrate_zeroMigrator() external {
         vm.expectRevert(IGovernor.ZeroMigrator.selector);
-        _governor.upgrade();
+        _governor.migrate();
     }
 
-    function test_upgrade_delegatecallFailed() external {
+    function test_migrate_delegatecallFailed() external {
         bytes memory delegatecallData_ = "Call failed.";
 
         vm.mockCall(
@@ -123,10 +123,10 @@ contract GovernorTests is UnitTestBase {
         vm.expectCall(_migrator, abi.encodeWithSelector(IMigrator.migrate.selector));
 
         vm.expectRevert(abi.encodeWithSelector(IGovernor.DelegatecallFailed.selector, delegatecallData_));
-        _governor.upgrade();
+        _governor.migrate();
     }
 
-    function test_upgrade() external {
+    function test_migrate() external {
         vm.mockCall(
             address(_registrar),
             abi.encodeWithSelector(IRegistrarLike.get.selector, bytes32("portal_migrator")),
@@ -136,19 +136,19 @@ contract GovernorTests is UnitTestBase {
         vm.expectCall(address(_registrar), abi.encodeCall(_registrar.get, (bytes32("portal_migrator"))));
         vm.expectCall(_migrator, abi.encodeWithSelector(IMigrator.migrate.selector));
 
-        _governor.upgrade();
+        _governor.migrate();
     }
 
-    function test_upgrade_unauthorizedGovernorAdmin() external {
+    function test_migrate_unauthorizedGovernorAdmin() external {
         vm.expectRevert(IGovernor.UnauthorizedGovernorAdmin.selector);
-        _governor.upgrade(_migrator);
+        _governor.migrate(_migrator);
     }
 
-    function test_upgrade_byGovernorAdmin() external {
+    function test_migrate_byGovernorAdmin() external {
         vm.expectCall(_migrator, abi.encodeWithSelector(IMigrator.migrate.selector));
 
         vm.prank(_governorAdmin);
-        _governor.upgrade(_migrator);
+        _governor.migrate(_migrator);
     }
 
     /* ============ ownership ============ */

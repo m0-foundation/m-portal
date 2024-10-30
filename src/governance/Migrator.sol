@@ -18,15 +18,15 @@ import { IMigrator } from "./interfaces/IMigrator.sol";
  * @author M^0 Labs
  */
 contract Migrator is IMigrator {
-    /// @dev Portal upgrade parameters.
-    struct PortalUpgradeParams {
+    /// @dev Portal migration parameters.
+    struct PortalMigrateParams {
         address mToken;
         address registrar;
         uint16 wormholeChainId;
     }
 
-    /// @dev Wormhole transceiver upgrade parameters.
-    struct WormholeTransceiverUpgradeParams {
+    /// @dev Wormhole transceiver migration parameters.
+    struct WormholeTransceiverMigrateParams {
         uint16 wormholeChainId;
         address wormholeCoreBridge;
         address wormholeRelayerAddr;
@@ -55,28 +55,28 @@ contract Migrator is IMigrator {
     function migrate() external virtual {}
 
     /**
-     * @notice Upgrades the HubPortal contract.
-     * @param  params_ The parameters for the upgrade.
+     * @notice Migrates the HubPortal contract.
+     * @param  params_ The parameters for the migrate.
      */
-    function _upgradeHubPortal(PortalUpgradeParams memory params_) internal {
+    function _migrateHubPortal(PortalMigrateParams memory params_) internal {
         HubPortal implementation_ = new HubPortal(params_.mToken, params_.registrar, params_.wormholeChainId);
         IManagerBase(portal).upgrade(address(implementation_));
     }
 
     /**
-     * @notice Upgrades the SpokePortal contract.
-     * @param  params_ The parameters for the upgrade.
+     * @notice Migrates the SpokePortal contract.
+     * @param  params_ The parameters for the migrate.
      */
-    function _upgradeSpokePortal(PortalUpgradeParams memory params_) internal {
+    function _migrateSpokePortal(PortalMigrateParams memory params_) internal {
         SpokePortal implementation_ = new SpokePortal(params_.mToken, params_.registrar, params_.wormholeChainId);
         IManagerBase(portal).upgrade(address(implementation_));
     }
 
     /**
-     * @notice Upgrades the WormholeTransceiver contract.
-     * @param  params_ The parameters for the upgrade.
+     * @notice Migrates the WormholeTransceiver contract.
+     * @param  params_ The parameters for the migrate.
      */
-    function _upgradeWormholeTransceiver(WormholeTransceiverUpgradeParams memory params_) internal {
+    function _migrateWormholeTransceiver(WormholeTransceiverMigrateParams memory params_) internal {
         WormholeTransceiver implementation_ = new WormholeTransceiver(
             portal,
             params_.wormholeCoreBridge,

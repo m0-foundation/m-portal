@@ -23,13 +23,13 @@ import { HubPortal } from "../../src/HubPortal.sol";
 
 import { MainnetMigrator } from "./fixtures/migrator/MainnetMigrator.sol";
 
-contract Upgrade is UpgradeBase, Test {
+contract Migrate is UpgradeBase, Test {
     address internal constant _DEPLOYER = 0xF2f1ACbe0BA726fEE8d75f3E32900526874740BB;
 
     // TODO: replace by the actual multisig address.
     address internal _governorAdmin = makeAddr("governor-admin");
 
-    function testFork_upgrade() external {
+    function testFork_migrate() external {
         vm.createSelectFork(vm.rpcUrl("mainnet"));
 
         deal(_DEPLOYER, 10 ether);
@@ -103,7 +103,7 @@ contract Upgrade is UpgradeBase, Test {
         vm.stopPrank();
     }
 
-    function testFork_upgradeViaGovernance() external {
+    function testFork_migrateViaGovernance() external {
         vm.createSelectFork(vm.rpcUrl("mainnet"));
 
         deal(_DEPLOYER, 10 ether);
@@ -164,8 +164,8 @@ contract Upgrade is UpgradeBase, Test {
             abi.encode(bytes32(uint256(uint160(migrator_))))
         );
 
-        // Anyone can call upgrade().
-        governor_.upgrade();
+        // Anyone can call migrate().
+        governor_.migrate();
 
         assertEq(wormholeTransceiver_.gasLimit(), _WORMHOLE_GAS_LIMIT);
     }

@@ -51,15 +51,15 @@ interface IGovernor {
      */
     function configure(address configurator) external;
 
-    /// @notice Executes the upgrade approved by governance.
-    function upgrade() external;
+    /// @notice Executes the migration approved by governance.
+    function migrate() external;
 
     /**
-     * @notice Executes the upgrade in `migrator`.
+     * @notice Executes the migration in `migrator`.
      * @dev    MUST only be callable by the Governor admin.
      * @param  migrator The address of the Migrator contract.
      */
-    function upgrade(address migrator) external;
+    function migrate(address migrator) external;
 
     /**
      * @notice Transfers ownership of the Governor to a new Governor admin.

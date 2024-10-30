@@ -35,7 +35,7 @@ contract Governor is IGovernor {
 
     /**
      * @dev   Constructs the Governor contract.
-     * @param portal_ Address of the Portal being governed.
+     * @param portal_        Address of the Portal being governed.
      * @param governorAdmin_ Address of the Governor admin.
      */
     constructor(address portal_, address governorAdmin_) {
@@ -58,13 +58,13 @@ contract Governor is IGovernor {
     }
 
     /// @inheritdoc IGovernor
-    function upgrade() external {
-        _upgrade(RegistrarReader.getPortalMigrator(registrar));
+    function migrate() external {
+        _migrate(RegistrarReader.getPortalMigrator(registrar));
     }
 
     /// @inheritdoc IGovernor
-    function upgrade(address migrator_) external onlyGovernorAdmin {
-        _upgrade(migrator_);
+    function migrate(address migrator_) external onlyGovernorAdmin {
+        _migrate(migrator_);
     }
 
     /// @inheritdoc IGovernor
@@ -81,7 +81,7 @@ contract Governor is IGovernor {
     /* ============ Internal Interactive Functions ============ */
 
     /**
-     * @dev Executes the configuration in `configurator_`.
+     * @dev   Executes the configuration in `configurator_`.
      * @param configurator_ The address of the Configurator contract.
      */
     function _configure(address configurator_) internal {
@@ -95,10 +95,10 @@ contract Governor is IGovernor {
     }
 
     /**
-     * @dev Executes the upgrade in `migrator_`.
-     * @param  migrator_ The address of the Migrator contract.
+     * @dev   Executes the migration in `migrator_`.
+     * @param migrator_ The address of the Migrator contract.
      */
-    function _upgrade(address migrator_) internal {
+    function _migrate(address migrator_) internal {
         if (migrator_ == address(0)) revert ZeroMigrator();
 
         (bool success_, bytes memory data_) = migrator_.delegatecall(abi.encodeWithSignature("migrate()"));

@@ -41,16 +41,16 @@ contract MainnetMigrator is Migrator {
     /// @inheritdoc IMigrator
     function migrate() external override {
         if (block.chainid == 1) {
-            _upgradeHubPortal(
-                PortalUpgradeParams({
+            _migrateHubPortal(
+                PortalMigrateParams({
                     mToken: _MAINNET_M_TOKEN,
                     registrar: _MAINNET_REGISTRAR,
                     wormholeChainId: _MAINNET_WORMHOLE_CHAIN_ID
                 })
             );
 
-            _upgradeWormholeTransceiver(
-                WormholeTransceiverUpgradeParams({
+            _migrateWormholeTransceiver(
+                WormholeTransceiverMigrateParams({
                     wormholeChainId: _MAINNET_WORMHOLE_CHAIN_ID,
                     wormholeCoreBridge: 0x98f3c9e6E3fAce36bAAd05FE09d375Ef1464288B,
                     wormholeRelayerAddr: 0x27428DD2d3DD32A4D7f7C497eAaa23130d894911,
@@ -60,16 +60,16 @@ contract MainnetMigrator is Migrator {
                 })
             );
         } else if (block.chainid == 8453) {
-            _upgradeSpokePortal(
-                PortalUpgradeParams({
+            _migrateSpokePortal(
+                PortalMigrateParams({
                     mToken: _MAINNET_M_TOKEN,
                     registrar: _MAINNET_REGISTRAR,
                     wormholeChainId: _BASE_WORMHOLE_CHAIN_ID
                 })
             );
 
-            _upgradeWormholeTransceiver(
-                WormholeTransceiverUpgradeParams({
+            _migrateWormholeTransceiver(
+                WormholeTransceiverMigrateParams({
                     wormholeChainId: _BASE_WORMHOLE_CHAIN_ID,
                     wormholeCoreBridge: 0xbebdb6C8ddC678FfA9f8748f85C815C556Dd8ac6,
                     wormholeRelayerAddr: 0x706F82e9bb5b0813501714Ab5974216704980e31,
@@ -79,16 +79,16 @@ contract MainnetMigrator is Migrator {
                 })
             );
         } else if (block.chainid == 10) {
-            _upgradeSpokePortal(
-                PortalUpgradeParams({
+            _migrateSpokePortal(
+                PortalMigrateParams({
                     mToken: _MAINNET_M_TOKEN,
                     registrar: _MAINNET_REGISTRAR,
                     wormholeChainId: _OPTIMISM_WORMHOLE_CHAIN_ID
                 })
             );
 
-            _upgradeWormholeTransceiver(
-                WormholeTransceiverUpgradeParams({
+            _migrateWormholeTransceiver(
+                WormholeTransceiverMigrateParams({
                     wormholeChainId: _OPTIMISM_WORMHOLE_CHAIN_ID,
                     wormholeCoreBridge: 0xEe91C335eab126dF5fDB3797EA9d6aD93aeC9722,
                     wormholeRelayerAddr: 0x27428DD2d3DD32A4D7f7C497eAaa23130d894911,
