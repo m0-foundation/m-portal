@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.26;
 
-import { IMigratable } from "../proxy/interfaces/IMigratable.sol";
+import { IMigratable } from "../../lib/common/src/interfaces/IMigratable.sol";
 
 /**
  * @title  SpokeVault interface.

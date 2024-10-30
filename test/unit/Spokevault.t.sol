@@ -2,19 +2,16 @@
 
 pragma solidity 0.8.26;
 
-import { IManagerBase } from "../../lib/example-native-token-transfers/evm/src/interfaces/IManagerBase.sol";
-import { TransceiverStructs } from "../../lib/example-native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
-
 import { ISpokeVault } from "../../src/interfaces/ISpokeVault.sol";
 import { SpokeVault } from "../../src/SpokeVault.sol";
 
-import { PayloadEncoder } from "../../src/libs/PayloadEncoder.sol";
 import { TypeConverter } from "../../src/libs/TypeConverter.sol";
 
-import { UnitTestBase } from "./UnitTestBase.t.sol";
 import { MockSpokeMToken } from "../mocks/MockSpokeMToken.sol";
 import { MockSpokePortal } from "../mocks/MockSpokePortal.sol";
 import { MockSpokeRegistrar } from "../mocks/MockSpokeRegistrar.sol";
+
+import { UnitTestBase } from "./UnitTestBase.t.sol";
 
 contract SpokeVaultV2 {
     function foo() external pure returns (uint256) {
