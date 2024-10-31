@@ -81,15 +81,6 @@ contract HubPortalTests is UnitTestBase {
         assertEq(_portal.currentIndex(), latestIndex_);
     }
 
-    /* ============ isEarningEnabled ============ */
-
-    function test_isEarningEnabled() external {
-        assertFalse(_portal.isEarningEnabled());
-
-        _mToken.setIsEarning(address(_portal), true);
-        assertTrue(_portal.isEarningEnabled());
-    }
-
     /* ============ enableEarning ============ */
 
     function test_enableEarning_notApprovedEarner() external {

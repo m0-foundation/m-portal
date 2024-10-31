@@ -42,7 +42,7 @@ interface ISpokePortal is IPortal {
 
     /* ============ View/Pure Functions ============ */
 
-    /// @notice The principal of the total bridged amount
+    /// @notice The maximum earning principal of the total bridged amount, used for calculations of yield excess of the Hub Portal
     function outstandingPrincipal() external view returns (uint112);
 
     /// @notice The excess of M token on the Hub accumulated due to index propagation delays

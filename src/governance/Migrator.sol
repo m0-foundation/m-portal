@@ -12,6 +12,7 @@ import { HubPortal } from "../HubPortal.sol";
 import { SpokePortal } from "../SpokePortal.sol";
 
 import { IMigrator } from "./interfaces/IMigrator.sol";
+import { ISpokeVault } from "../interfaces/ISpokeVault.sol";
 
 /**
  * @title  Base migrator contract.
@@ -42,14 +43,19 @@ abstract contract Migrator is IMigrator {
     /// @inheritdoc IMigrator
     address public immutable wormholeTransceiver;
 
+    /// @inheritdoc IMigrator
+    address public immutable vault;
+
     /**
      * @dev    Constructs the Migrator contract.
      * @param  portal_              The address of the portal contract.
      * @param  wormholeTransceiver_ The address of the wormhole transceiver contract.
+     * @param  vault_               The address of the vault contract.
      */
-    constructor(address portal_, address wormholeTransceiver_) {
+    constructor(address portal_, address wormholeTransceiver_, address vault_) {
         if ((portal = portal_) == address(0)) revert ZeroPortal();
         if ((wormholeTransceiver = wormholeTransceiver_) == address(0)) revert ZeroWormholeTransceiver();
+        if ((vault = vault_) == address(0)) revert ZeroVault();
     }
 
     /// @inheritdoc IMigrator
@@ -88,5 +94,13 @@ abstract contract Migrator is IMigrator {
         );
 
         ITransceiver(wormholeTransceiver).upgrade(address(implementation_));
+    }
+
+    /**
+     * @notice Migrates the Spoke Vault contract.
+     * @param  migrator_ The address of the migrator contract.
+     */
+    function _migrateVault(address migrator_) internal {
+        ISpokeVault(vault).migrate(migrator_);
     }
 }

@@ -35,8 +35,13 @@ contract MainnetMigrator is Migrator {
      * @dev    Constructs the MainnetMigrator contract.
      * @param  portal_              The address of the Portal.
      * @param  wormholeTransceiver_ The address of the WormholeTransceiver.
+     * @param  vault_               The address of the Vault.
      */
-    constructor(address portal_, address wormholeTransceiver_) Migrator(portal_, wormholeTransceiver_) {}
+    constructor(
+        address portal_,
+        address wormholeTransceiver_,
+        address vault_
+    ) Migrator(portal_, wormholeTransceiver_, vault_) {}
 
     /// @inheritdoc IMigrator
     function migrate() external override {

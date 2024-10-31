@@ -29,6 +29,9 @@ contract Migrate is UpgradeBase, Test {
     // TODO: replace by the actual multisig address.
     address internal _governorAdmin = makeAddr("governor-admin");
 
+    // TODO: replace with actual vault address.
+    address internal _spokeVault = makeAddr("spoke-vault");
+
     function testFork_migrate() external {
         vm.createSelectFork(vm.rpcUrl("mainnet"));
 
@@ -150,7 +153,9 @@ contract Migrate is UpgradeBase, Test {
         INttManager(hubPortal_).setThreshold(1);
 
         Governor governor_ = new Governor(address(hubPortal_), _governorAdmin);
-        address migrator_ = address(new MainnetMigrator(address(hubPortal_), address(wormholeTransceiver_)));
+        address migrator_ = address(
+            new MainnetMigrator(address(hubPortal_), address(wormholeTransceiver_), address(_spokeVault))
+        );
 
         hubPortal_.transferOwnership(address(governor_));
 
