@@ -102,14 +102,14 @@ contract SpokePortal is ISpokePortal, Portal {
         }
     }
 
-    /// @dev Decreases `outstandingPrincipal` to allow calculations of HubPortal's `excess` of M token.
+    /// @dev Decreases `outstandingPrincipal` after transfer out to track maximum possible M principal of earners on the Spoke Portal..
     function _beforeTokenSent(uint256 amount_) internal override {
         unchecked {
             outstandingPrincipal -= IndexingMath.getPrincipalAmountRoundedDown(amount_.safe240(), _currentIndex());
         }
     }
 
-    /// @dev Increases `outstandingPrincipal` to account for icreasing priallow calculations of HubPortal's `excess` of M token.
+    /// @dev Increases `outstandingPrincipal` after transfer in to track maximum possible M principal of earners on the Spoke Portal.
     function _afterTokenReceived(uint256 amount_) internal override {
         unchecked {
             outstandingPrincipal += IndexingMath.getPrincipalAmountRoundedDown(amount_.safe240(), _currentIndex());
