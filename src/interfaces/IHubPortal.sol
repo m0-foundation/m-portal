@@ -125,9 +125,4 @@ interface IHubPortal is IPortal {
 
     /// @notice Disables earning for the Hub Portal if disallowed by TTG.
     function disableEarning() external;
-
-    /* ============ View/Pure Functions ============ */
-
-    /// @notice Whether earning is enabled for the Hub Portal or not.
-    function isEarningEnabled() external view returns (bool);
 }

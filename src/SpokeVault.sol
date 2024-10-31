@@ -76,6 +76,8 @@ contract SpokeVault is ISpokeVault, Migratable {
 
         bytes32 hubVault_ = hubVault.toBytes32();
 
+        emit ExcessMTokenSent(destinationChainId, messageSequence_, msg.sender.toBytes32(), hubVault_, amount_);
+
         messageSequence_ = INttManager(spokePortal).transfer{ value: msg.value }(
             amount_,
             destinationChainId,
@@ -84,8 +86,6 @@ contract SpokeVault is ISpokeVault, Migratable {
             false,
             new bytes(1)
         );
-
-        emit ExcessMTokenSent(destinationChainId, messageSequence_, msg.sender.toBytes32(), hubVault_, amount_);
     }
 
     /* ============ Temporary Admin Migration ============ */

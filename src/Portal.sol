@@ -27,9 +27,6 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
     /// @inheritdoc IPortal
     address public immutable registrar;
 
-    /// @notice The scaling of rates in for exponent math.
-    uint56 internal constant _EXP_SCALED_ONE = 1e12;
-
     /* ============ Constructor ============ */
 
     /**
@@ -98,7 +95,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         emit MTokenSent(destinationChainId_, messageId_, sender_, recipient_, untrimmedAmount_, index_);
     }
 
-    /// @dev Hook that is called before cross-chain transfer
+    /// @dev Hook that is called before sending out M tokens via cross-chain transfer.
     function _beforeTokenSent(uint256 amount_) internal virtual {}
 
     /// @dev Handles token transfer with an additional payload and custom payload types on the destination.

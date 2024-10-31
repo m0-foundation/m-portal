@@ -35,8 +35,13 @@ contract SepoliaMigrator is Migrator {
      * @dev   Constructs the SepoliaMigrator contract.
      * @param portal_              Address of the Portal contract.
      * @param wormholeTransceiver_ Address of the Wormhole transceiver contract.
+     * @param vault_               Address of the Vault contract.
      */
-    constructor(address portal_, address wormholeTransceiver_) Migrator(portal_, wormholeTransceiver_) {}
+    constructor(
+        address portal_,
+        address wormholeTransceiver_,
+        address vault_
+    ) Migrator(portal_, wormholeTransceiver_, vault_) {}
 
     /// @inheritdoc IMigrator
     function migrate() external override {

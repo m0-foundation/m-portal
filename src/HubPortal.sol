@@ -91,7 +91,7 @@ contract HubPortal is IHubPortal, Portal {
     /// @inheritdoc IHubPortal
     function enableEarning() external {
         if (!_isApprovedEarner()) revert NotApprovedEarner();
-        if (isEarningEnabled()) revert EarningIsEnabled();
+        if (_isEarningEnabled()) revert EarningIsEnabled();
 
         // NOTE: This is a temporary measure to prevent re-enabling earning after it has been disabled.
         //       This line will be removed in the future.
@@ -109,7 +109,7 @@ contract HubPortal is IHubPortal, Portal {
     /// @inheritdoc IHubPortal
     function disableEarning() external {
         if (_isApprovedEarner()) revert IsApprovedEarner();
-        if (!isEarningEnabled()) revert EarningIsDisabled();
+        if (!_isEarningEnabled()) revert EarningIsDisabled();
 
         IMTokenLike mToken_ = IMTokenLike(mToken());
         uint128 currentMIndex_ = mToken_.currentIndex();
@@ -118,13 +118,6 @@ contract HubPortal is IHubPortal, Portal {
         mToken_.stopEarning();
 
         emit EarningDisabled(currentMIndex_);
-    }
-
-    /* ============ View/Pure Functions ============ */
-
-    /// @inheritdoc IHubPortal
-    function isEarningEnabled() public view returns (bool) {
-        return IMTokenLike(mToken()).isEarning(address(this));
     }
 
     /* ============ Internal Interactive Functions ============ */
@@ -179,7 +172,7 @@ contract HubPortal is IHubPortal, Portal {
 
     /// @dev Returns the current M token index used by the Hub Portal.
     function _currentIndex() internal view override returns (uint128) {
-        if (isEarningEnabled()) {
+        if (_isEarningEnabled()) {
             return IMTokenLike(mToken()).currentIndex();
         }
 
@@ -198,5 +191,10 @@ contract HubPortal is IHubPortal, Portal {
         return
             registrar_.get(_EARNERS_LIST_IGNORED) != bytes32(0) ||
             registrar_.listContains(_EARNERS_LIST, address(this));
+    }
+
+    /// @dev Returns whether earning was enabled for HubPortal or not.
+    function _isEarningEnabled() internal view returns (bool) {
+        return IMTokenLike(mToken()).isEarning(address(this));
     }
 }

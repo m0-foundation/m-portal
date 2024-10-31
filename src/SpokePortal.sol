@@ -102,7 +102,8 @@ contract SpokePortal is ISpokePortal, Portal {
         }
     }
 
-    /// @dev Decreases `outstandingPrincipal`
+    /// @dev Decreases `outstandingPrincipal` after M tokens are transfered out,
+    ///      tracks maximum possible M principal of the Spoke Portal.
     function _beforeTokenSent(uint256 amount_) internal override {
         unchecked {
             outstandingPrincipal -= IndexingMath.getPrincipalAmountRoundedDown(amount_.safe240(), _currentIndex());
