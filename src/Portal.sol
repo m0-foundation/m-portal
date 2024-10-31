@@ -95,10 +95,10 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         emit MTokenSent(destinationChainId_, messageId_, sender_, recipient_, untrimmedAmount_, index_);
     }
 
-    /// @dev Hook that is called before sending M tokens via cross-chain transfer
+    /// @dev Hook that is called before sending out M tokens via cross-chain transfer.
     function _beforeTokenSent(uint256 amount_) internal virtual {}
 
-    /// @dev Hook that is called after receiving M tokens via cross-chain transfer
+    /// @dev Hook that is called after receiving M tokens via cross-chain transfer.
     function _afterTokenReceived(uint256 amount_) internal virtual {}
 
     /// @dev Handles token transfer with an additional payload and custom payload types on the destination.
