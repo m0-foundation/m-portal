@@ -1,16 +1,35 @@
-# Foundry template
+# M Portal
 
-Template to kickstart a Foundry project.
+The aim of M^0 cross-chain strategy is to make $M token natively multichain, offering users the same yield-earning capabilities on different chains while maintaining $M issuance and governance on Ethereum.
 
-## Getting started
+**M Portals** are the main components of M^0 multichain model responsible for bridging tokens and propagating system information. They utilize [Wormhole's NTT framework](https://wormhole.com/docs/learn/messaging/native-token-transfers/) for cross-chain communication.
 
-The easiest way to get started is by clicking the [Use this template](https://github.com/MZero-Labs/foundry-template/generate) button at the top right of this page.
+## Architecture
 
-If you prefer to go the CLI way:
+Since both governance and issuance of new $M tokens are done exclusively on Ethereum, the M^0 multichain model employs different implementations of the Portal contract on different chains. On Ethereum, `HubPortal` uses a _lock-and-release_ mechanism for token transfers and enables the propagation of $M earning index and TTG registrar values to other chains. Conversely, `SpokePortal`, deployed on all other chains, follows a _mint-and-burn_ model for bridging tokens and is responsible for updating $M earning index and TTG registrar values based on messages received from `HubPortal`.
 
-```bash
-forge init my-project --template https://github.com/MZero-Labs/foundry-template
-```
+Both HubPortal and SpokePortal inherit Wormhole's `NttManager` contract that encapsules all the necessary cross-chain messaging functionality.
+
+### M Token Transfer
+
+When a user transfers tokens from the Hub chain to a Spoke chain, the tokens are locked in the `HubPortal`, and a cross-chain message is sent to the Spoke chain via `WormholeTransceiver`. Upon receiving the message, an equivalent number of tokens is minted on the Spoke chain and transferred to the user. Similarly, when transferring M tokens from a Spoke chain back to the Hub, the tokens are burned on the Spoke chain, and an equivalent number of tokens is released on the Hub chain. Bridging $M tokens between Spoke chains involves minting and burning operations on both chains, without affecting the total number of $M tokens locked in `HubPortal`.
+
+<img src="./assets/hub-and-spoke-diagram.png"/>
+
+### Earning Index Propagation
+
+$M is a yield-bearing token with built-in earning functionality for a selected set of earners approved by TTG. The maximum earner rate is determined through TTG governance, while an additional safe earner rate is automatically derived based on the total active owed $M and the total earning supply.
+
+This safe rate is calculated in [EarnerRateModel](https://etherscan.io/address/0x6b198067E22d3A4e5aB8CeCda41a6Da56DBf5F59#code) contract on Ethereum. The $M index represents the accrual of this rate to all earners in the system. Propagating the earner rate is essential for accurate yield distribution across the M^0 Protocol on Ethereum and other chains.
+
+There are two ways to update the $M earning index on a Spoke chain:
+
+- Perform a cross-chain transfer from the Hub chain.
+- Explicitly call `sendMTokenIndex` function in `HubPortal`.
+
+### TTG Registrar Values Propagation
+
+M^0 system parameters approved by the governance are stored in `Registrar` contract on Ethereum. `HubPortal` propagates those parameters to Spoke chains.
 
 ## Development
 
@@ -25,7 +44,8 @@ You may have to install the following tools to use this repository:
 Install dependencies:
 
 ```bash
-npm i
+npm install
+forge install
 ```
 
 ### Env
@@ -105,27 +125,6 @@ To fix solhint errors, run:
 ```bash
 npm run solhint-fix
 ```
-
-### CI
-
-The following Github Actions workflow are setup to run on push and pull requests:
-
-- [.github/workflows/coverage.yml](.github/workflows/coverage.yml)
-- [.github/workflows/test-gas.yml](.github/workflows/test-gas.yml)
-
-It will build the contracts and run the test coverage, as well as a gas report.
-
-The coverage report will be displayed in the PR by [github-actions-report-lcov](https://github.com/zgosalvez/github-actions-report-lcov) and the gas report by [foundry-gas-diff](https://github.com/Rubilmax/foundry-gas-diff).
-
-For the workflows to work, you will need to setup the `MNEMONIC_FOR_TESTS` and `MAINNET_RPC_URL` repository secrets in the settings of your Github repository.
-
-Some additional workflows are available if you wish to add fuzz, integration and invariant tests:
-
-- [.github/workflows/test-fuzz.yml](.github/workflows/test-fuzz.yml)
-- [.github/workflows/test-integration.yml](.github/workflows/test-integration.yml)
-- [.github/workflows/test-invariant.yml](.github/workflows/test-invariant.yml)
-
-You will need to uncomment them to activate them.
 
 ### Documentation
 
