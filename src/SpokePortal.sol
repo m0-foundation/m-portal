@@ -110,14 +110,6 @@ contract SpokePortal is ISpokePortal, Portal {
         }
     }
 
-    /// @dev Increases `outstandingPrincipal` after M tokens are transfer in,
-    ///      tracks maximum possible M principal of the Spoke Portal.
-    function _afterTokenReceived(uint256 amount_) internal override {
-        unchecked {
-            outstandingPrincipal += IndexingMath.getPrincipalAmountRoundedDown(amount_.safe240(), _currentIndex());
-        }
-    }
-
     /**
      * @dev Mints M Token to the `recipient_`.
      * @param recipient_ The account to mint M tokens to.
@@ -125,11 +117,18 @@ contract SpokePortal is ISpokePortal, Portal {
      * @param index_     The index from the source chain.
      */
     function _mintOrUnlock(address recipient_, uint256 amount_, uint128 index_) internal override {
+        uint128 currentIndex_ = _currentIndex();
+
         // Update M token index only if the index received from the remote chain is bigger
-        if (index_ > _currentIndex()) {
+        if (index_ > currentIndex_) {
+            currentIndex_ = index_;
             ISpokeMTokenLike(mToken()).mint(recipient_, amount_, index_);
         } else {
             ISpokeMTokenLike(mToken()).mint(recipient_, amount_);
+        }
+
+        unchecked {
+            outstandingPrincipal += IndexingMath.getPrincipalAmountRoundedDown(amount_.safe240(), currentIndex_);
         }
     }
 
