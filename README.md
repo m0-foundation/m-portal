@@ -1,22 +1,18 @@
 # M Portal
 
-## Overview
-
-[M^0 protocol](https://www.m0.org/) and [Two Token Governance (TTG)](https://governance.m0.org/), launched in May 2024 on Ethereum, are immutable smart contract modules designed to be simplistic, generic, and adjustable via a strictly restricted set of TTG parameters.
-
 The aim of M^0 cross-chain strategy is to make $M token natively multichain, offering users the same yield-earning capabilities on different chains while maintaining $M issuance and governance on Ethereum.
 
 **M Portals** are the main components of M^0 multichain model responsible for bridging tokens and propagating system information. They utilize [Wormhole's NTT framework](https://wormhole.com/docs/learn/messaging/native-token-transfers/) for cross-chain communication.
 
 ## Architecture
 
-Since both governance and issuance of new $M tokens are done exclusively on Ethereum, the M^0 multichain model employs different implementations of the Portal contract on different chains. On Ethereum, `HubPortal` uses a _lock-and-release_ mechanism for token transfers and enables the propagation of $M earning index and TTG registrar values to other chains. Conversely, SpokePortal, deployed on all other chains, follows a _mint-and-burn_ model for bridging tokens and is responsible for updating $M earning index and TTG registrar values based on messages received from the HubPortal.
+Since both governance and issuance of new $M tokens are done exclusively on Ethereum, the M^0 multichain model employs different implementations of the Portal contract on different chains. On Ethereum, `HubPortal` uses a _lock-and-release_ mechanism for token transfers and enables the propagation of $M earning index and TTG registrar values to other chains. Conversely, `SpokePortal`, deployed on all other chains, follows a _mint-and-burn_ model for bridging tokens and is responsible for updating $M earning index and TTG registrar values based on messages received from `HubPortal`.
 
 Both HubPortal and SpokePortal inherit Wormhole's `NttManager` contract that encapsules all the necessary cross-chain messaging functionality.
 
 ### M Token Transfer
 
-When a user transfers tokens from the Hub chain to a Spoke chain, the tokens are locked in the `HubPortal`, and a cross-chain message is sent to the Spoke chain via `WormholeTransceiver`. Upon receiving the message, an equivalent number of tokens is minted on the Spoke chain and transferred to the user. Similarly, when transferring M tokens from a Spoke chain back to the Hub, the tokens are burned on the Spoke chain, and an equivalent number of tokens is released on the Hub chain. Bridging M tokens between Spoke chains involves minting and burning operations on both chains, without affecting the total number of M tokens locked in HubPortal.
+When a user transfers tokens from the Hub chain to a Spoke chain, the tokens are locked in the `HubPortal`, and a cross-chain message is sent to the Spoke chain via `WormholeTransceiver`. Upon receiving the message, an equivalent number of tokens is minted on the Spoke chain and transferred to the user. Similarly, when transferring M tokens from a Spoke chain back to the Hub, the tokens are burned on the Spoke chain, and an equivalent number of tokens is released on the Hub chain. Bridging $M tokens between Spoke chains involves minting and burning operations on both chains, without affecting the total number of $M tokens locked in `HubPortal`.
 
 <img src="./assets/hub-and-spoke-diagram.png"/>
 
@@ -33,7 +29,7 @@ There are two ways to update the $M earning index on a Spoke chain:
 
 ### TTG Registrar Values Propagation
 
-M^0 system parameters approved by the governance are stored in `Registrar` contract on Ethereum. `HubPortal` is used to propagate system parameters to Spoke chains.
+M^0 system parameters approved by the governance are stored in `Registrar` contract on Ethereum. `HubPortal` propagates those parameters to Spoke chains.
 
 ## Development
 
