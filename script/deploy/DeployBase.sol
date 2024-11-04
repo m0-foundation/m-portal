@@ -4,6 +4,7 @@ pragma solidity 0.8.26;
 
 import { console } from "../../lib/forge-std/src/console.sol";
 import { Script } from "../../lib/forge-std/src/Script.sol";
+import { stdJson } from "../../lib/forge-std/src/StdJson.sol";
 
 import { ContractHelper } from "../../lib/common/src/libs/ContractHelper.sol";
 import { Proxy } from "../../lib/common/src/Proxy.sol";
@@ -26,78 +27,68 @@ import { SpokeVault } from "../../src/SpokeVault.sol";
 import { Utils } from "../helpers/Utils.sol";
 
 contract DeployBase is Script, Utils {
-    error DeployerNonceTooHigh(uint64 expected, uint64 actual);
+    using stdJson for string;
 
-    error ExpectedAddressMismatch(address expected, address actual);
+    /* ============ Config Structs ============ */
 
-    struct DeploymentParams {
-        address mToken;
-        address registrar;
-        uint16 wormholeChainId;
-        address wormholeCoreBridge;
-        address wormholeRelayerAddr;
-        address specialRelayerAddr;
+    struct WormholeConfiguration {
+        uint16 chainId;
+        address coreBridge;
+        address relayer;
+        address specialRelayer;
         uint8 consistencyLevel;
         uint256 gasLimit;
     }
 
+    struct HubConfiguration {
+        address mToken;
+        address registrar;
+        WormholeConfiguration wormhole;
+    }
+
+    struct SpokeConfiguration {
+        address hubVault;
+        uint16 hubVaultWormholechainId;
+        WormholeConfiguration wormhole;
+    }
+
+    /* ============ Custom Errors ============ */
+
+    error DeployerNonceTooHigh(uint64 expected, uint64 actual);
+    error ExpectedAddressMismatch(address expected, address actual);
+
+    /* ============ Deploy Functions ============ */
+
     /**
      * @dev    Deploys Hub components.
-     * @param  deployer_            The address of the deployer.
-     * @param  registrar_           The address of the Registrar.
-     * @param  mToken_              The address of the M Token contract.
-     * @param  wormholeChainId_     The Wormhole chain ID on which the contracts will be deployed.
-     * @param  wormholeCoreBridge_  The address of the Wormhole Core Bridge.
-     * @param  wormholeRelayerAddr_ The address of the Wormhole Standard Relayer.
-     * @param  specialRelayerAddr_  The address of the Specialized Relayer.
-     * @return hubPortal_           The address of the deployed Hub Portal.
-     * @return hubTransceiver_      The address of the deployed Hub WormholeTransceiver.
+     * @param  deployer_       The address of the deployer.
+     * @param  config_         The Hub configuration.
+     * @return hubPortal_      The address of the deployed Hub Portal.
+     * @return hubTransceiver_ The address of the deployed Hub WormholeTransceiver.
      */
     function _deployHubComponents(
         address deployer_,
-        address registrar_,
-        address mToken_,
-        uint16 wormholeChainId_,
-        address wormholeCoreBridge_,
-        address wormholeRelayerAddr_,
-        address specialRelayerAddr_
+        HubConfiguration memory config_
     ) internal returns (address hubPortal_, address hubTransceiver_) {
-        DeploymentParams memory params_ = DeploymentParams({
-            mToken: mToken_,
-            registrar: registrar_,
-            wormholeChainId: wormholeChainId_,
-            wormholeCoreBridge: wormholeCoreBridge_,
-            wormholeRelayerAddr: wormholeRelayerAddr_,
-            specialRelayerAddr: specialRelayerAddr_,
-            consistencyLevel: _INSTANT_CONSISTENCY_LEVEL,
-            gasLimit: _WORMHOLE_GAS_LIMIT
-        });
-
-        hubPortal_ = _deployHubPortal(deployer_, params_);
-        hubTransceiver_ = _deployWormholeTransceiver(deployer_, params_, hubPortal_);
+        hubPortal_ = _deployHubPortal(deployer_, config_);
+        hubTransceiver_ = _deployWormholeTransceiver(deployer_, config_.wormhole, hubPortal_);
 
         _configurePortal(hubPortal_, hubTransceiver_);
     }
 
     /**
      * @dev    Deploys Spoke components.
-     * @param  deployer_                       The address of the deployer.
-     * @param  wormholeChainId_                The Wormhole chain ID on which the contracts will be deployed.
-     * @param  wormholeCoreBridge_             The address of the Wormhole Core Bridge.
-     * @param  wormholeRelayerAddr_            The address of the Wormhole Standard Relayer.
-     * @param  specialRelayerAddr_             The address of the Specialized Relayer.
-     * @param  burnNonces_                     The function to burn nonces.
-     * @return spokePortal_                    The address of the deployed Spoke Portal.
-     * @return spokeTransceiver_               The address of the deployed Spoke WormholeTransceiver.
-     * @return spokeRegistrar_                 The address of the deployed Spoke Registrar.
-     * @return spokeMToken_                    The address of the deployed Spoke MToken.
+     * @param  deployer_         The address of the deployer.
+     * @param  config_           The Spoke configuration.
+     * @param  burnNonces_       The function to burn nonces.
+     * @return spokePortal_      The address of the deployed Spoke Portal.
+     * @return spokeTransceiver_ The address of the deployed Spoke WormholeTransceiver.
+     * @return spokeRegistrar_   The address of the deployed Spoke Registrar.
+     * @return spokeMToken_      The address of the deployed Spoke MToken.
      */
     function _deploySpokeComponents(
         address deployer_,
-        uint16 wormholeChainId_,
-        address wormholeCoreBridge_,
-        address wormholeRelayerAddr_,
-        address specialRelayerAddr_,
+        SpokeConfiguration memory config_,
         function(address, uint64, uint64) internal burnNonces_
     )
         internal
@@ -106,19 +97,8 @@ contract DeployBase is Script, Utils {
     {
         (spokeRegistrar_, spokeMToken_) = _deploySpokeProtocol(deployer_, burnNonces_);
 
-        DeploymentParams memory params_ = DeploymentParams({
-            mToken: spokeMToken_,
-            registrar: spokeRegistrar_,
-            wormholeChainId: wormholeChainId_,
-            wormholeCoreBridge: wormholeCoreBridge_,
-            wormholeRelayerAddr: wormholeRelayerAddr_,
-            specialRelayerAddr: specialRelayerAddr_,
-            consistencyLevel: _INSTANT_CONSISTENCY_LEVEL,
-            gasLimit: _WORMHOLE_GAS_LIMIT
-        });
-
-        spokePortal_ = _deploySpokePortal(deployer_, params_);
-        spokeTransceiver_ = _deployWormholeTransceiver(deployer_, params_, spokePortal_);
+        spokePortal_ = _deploySpokePortal(deployer_, spokeMToken_, spokeRegistrar_, config_.wormhole.chainId);
+        spokeTransceiver_ = _deployWormholeTransceiver(deployer_, config_.wormhole, spokePortal_);
 
         _configurePortal(spokePortal_, spokeTransceiver_);
     }
@@ -151,8 +131,8 @@ contract DeployBase is Script, Utils {
         spokeMToken_ = _deploySpokeMToken(spokeRegistrar_);
     }
 
-    function _deployHubPortal(address deployer_, DeploymentParams memory params_) internal returns (address) {
-        HubPortal implementation_ = new HubPortal(params_.mToken, params_.registrar, params_.wormholeChainId);
+    function _deployHubPortal(address deployer_, HubConfiguration memory config_) internal returns (address) {
+        HubPortal implementation_ = new HubPortal(config_.mToken, config_.registrar, config_.wormhole.chainId);
         HubPortal hubPortalProxy_ = HubPortal(
             _deployCreate3Proxy(address(implementation_), _computeSalt(deployer_, "Portal"))
         );
@@ -164,8 +144,13 @@ contract DeployBase is Script, Utils {
         return address(hubPortalProxy_);
     }
 
-    function _deploySpokePortal(address deployer_, DeploymentParams memory params_) internal returns (address) {
-        SpokePortal implementation_ = new SpokePortal(params_.mToken, params_.registrar, params_.wormholeChainId);
+    function _deploySpokePortal(
+        address deployer_,
+        address mToken_,
+        address registrar_,
+        uint16 wormholeChainId_
+    ) internal returns (address) {
+        SpokePortal implementation_ = new SpokePortal(mToken_, registrar_, wormholeChainId_);
         SpokePortal spokePortalProxy_ = SpokePortal(
             _deployCreate3Proxy(address(implementation_), _computeSalt(deployer_, "Portal"))
         );
@@ -179,16 +164,16 @@ contract DeployBase is Script, Utils {
 
     function _deployWormholeTransceiver(
         address deployer_,
-        DeploymentParams memory params_,
+        WormholeConfiguration memory config_,
         address nttManager_
     ) internal returns (address) {
         WormholeTransceiver implementation_ = new WormholeTransceiver(
             nttManager_,
-            params_.wormholeCoreBridge,
-            params_.wormholeRelayerAddr,
-            params_.specialRelayerAddr,
-            params_.consistencyLevel,
-            params_.gasLimit
+            config_.coreBridge,
+            config_.relayer,
+            config_.specialRelayer,
+            config_.consistencyLevel,
+            config_.gasLimit
         );
 
         WormholeTransceiver transceiverProxy_ = WormholeTransceiver(
@@ -341,5 +326,69 @@ contract DeployBase is Script, Utils {
 
         INttManager(portal_).setThreshold(1);
         console.log("Threshold set: ", uint256(1));
+    }
+
+    /* ============ JSON Config loading functions ============ */
+
+    function _loadHubConfig(
+        string memory filepath_,
+        uint256 chainId_
+    ) internal view returns (HubConfiguration memory hubConfig_) {
+        string memory file_ = vm.readFile(filepath_);
+        string memory hub_ = string.concat("$.hub.", vm.toString(chainId_), ".");
+
+        console.log("Hub configuration for chain ID %s loaded:", chainId_);
+
+        hubConfig_.mToken = file_.readAddress(_readKey(hub_, "m_token"));
+        hubConfig_.registrar = file_.readAddress(_readKey(hub_, "registrar"));
+
+        console.log("M Token:", hubConfig_.mToken);
+        console.log("Registrar:", hubConfig_.registrar);
+
+        hubConfig_.wormhole = _loadWormholeConfig(file_, hub_);
+    }
+
+    function _loadSpokeConfig(
+        string memory filepath_,
+        uint256 chainId_
+    ) internal view returns (SpokeConfiguration memory spokeConfig_) {
+        string memory file_ = vm.readFile(filepath_);
+        string memory spoke_ = string.concat("$.spoke.", vm.toString(chainId_), ".");
+        string memory hubVault_ = string.concat(spoke_, "hub_vault.");
+
+        console.log("Spoke configuration for chain ID %s loaded:", chainId_);
+
+        spokeConfig_.hubVault = file_.readAddress(_readKey(hubVault_, "address"));
+        spokeConfig_.hubVaultWormholechainId = uint16(file_.readUint(_readKey(hubVault_, "wormhole_chain_id")));
+
+        console.log("Hub Vault:", spokeConfig_.hubVault);
+        console.log("Hub Vault Wormhole Chain ID:", spokeConfig_.hubVaultWormholechainId);
+
+        spokeConfig_.wormhole = _loadWormholeConfig(file_, spoke_);
+    }
+
+    function _loadWormholeConfig(
+        string memory file_,
+        string memory parentNode_
+    ) internal view returns (WormholeConfiguration memory wormholeConfig_) {
+        string memory wormhole_ = string.concat(parentNode_, "wormhole.");
+
+        wormholeConfig_.chainId = uint16(file_.readUint(_readKey(wormhole_, "chain_id")));
+        wormholeConfig_.coreBridge = file_.readAddress(_readKey(wormhole_, "core_bridge"));
+        wormholeConfig_.relayer = file_.readAddress(_readKey(wormhole_, "relayer"));
+        wormholeConfig_.specialRelayer = file_.readAddress(_readKey(wormhole_, "special_relayer"));
+        wormholeConfig_.consistencyLevel = uint8(file_.readUint(_readKey(wormhole_, "consistency_level")));
+        wormholeConfig_.gasLimit = file_.readUint(_readKey(wormhole_, "gas_limit"));
+
+        console.log("Wormhole chain ID:", wormholeConfig_.chainId);
+        console.log("Wormhole Core Bridge:", wormholeConfig_.coreBridge);
+        console.log("Wormhole Relayer:", wormholeConfig_.relayer);
+        console.log("Wormhole Special Relayer:", wormholeConfig_.specialRelayer);
+        console.log("Wormhole Consistency Level:", wormholeConfig_.consistencyLevel);
+        console.log("Wormhole Gas Limit:", wormholeConfig_.gasLimit);
+    }
+
+    function _readKey(string memory parentNode_, string memory key_) internal view returns (string memory) {
+        return string.concat(parentNode_, key_);
     }
 }
