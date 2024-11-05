@@ -135,4 +135,8 @@ contract Utils {
             revert("Unsupported chain id.");
         }
     }
+
+    function _readKey(string memory parentNode_, string memory key_) internal view returns (string memory) {
+        return string.concat(parentNode_, key_);
+    }
 }

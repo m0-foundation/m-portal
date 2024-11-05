@@ -23,16 +23,16 @@ deploy-dev-optimism-sepolia:
 
 # Configuration helpers
 configure-local:
-	forge script script/configure/dev/configureDev.s.sol:ConfigureDev --private-key $(DEV_PRIVATE_KEY) --rpc-url localhost --skip test --broadcast -v
+	CONFIG="config/configure/sepolia.json" PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/configure/Configure.s.sol:Configure --rpc-url localhost --skip test --broadcast -v
 
 configure-dev-sepolia:
-	forge script script/configure/dev/configureDev.s.sol:ConfigureDev --private-key $(DEV_PRIVATE_KEY) --rpc-url $(SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+	CONFIG="config/configure/sepolia.json" PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/configure/Configure.s.sol:Configure --rpc-url $(SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
 
 configure-dev-base-sepolia:
-	forge script script/configure/dev/configureDev.s.sol:ConfigureDev --private-key $(DEV_PRIVATE_KEY) --rpc-url $(BASE_SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+	CONFIG="config/configure/sepolia.json" PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/configure/Configure.s.sol:Configure --rpc-url $(BASE_SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
 
 configure-dev-optimism-sepolia:
-	forge script script/configure/dev/configureDev.s.sol:ConfigureDev --private-key $(DEV_PRIVATE_KEY) --rpc-url $(OPTIMISM_SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+	CONFIG="config/configure/sepolia.json" PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/configure/Configure.s.sol:Configure --rpc-url $(OPTIMISM_SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
 
 # Upgrade helpers
 upgrade-transceiver-local:

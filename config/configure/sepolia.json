@@ -1,0 +1,28 @@
+{
+  "config": {
+    "11155111": {
+      "wormhole_chain_id": "10002",
+      "is_evm_chain": true,
+      "is_special_relaying_enabled": false,
+      "is_wormhole_relaying_enabled": true,
+      "portal": "0x4491C6e8E6C44cB60E431890D486fC81Bdb97F46",
+      "wormhole_transceiver": "0x57200eC04B79bedAFeA7aC93701D7C1BBEfE1706"
+    },
+    "84532": {
+      "wormhole_chain_id": "10004",
+      "is_evm_chain": true,
+      "is_special_relaying_enabled": false,
+      "is_wormhole_relaying_enabled": true,
+      "portal": "0x4491C6e8E6C44cB60E431890D486fC81Bdb97F46",
+      "wormhole_transceiver": "0x57200eC04B79bedAFeA7aC93701D7C1BBEfE1706"
+    },
+    "11155420": {
+      "wormhole_chain_id": "10005",
+      "is_evm_chain": true,
+      "is_special_relaying_enabled": false,
+      "is_wormhole_relaying_enabled": true,
+      "portal": "0x4491C6e8E6C44cB60E431890D486fC81Bdb97F46",
+      "wormhole_transceiver": "0x57200eC04B79bedAFeA7aC93701D7C1BBEfE1706"
+    }
+  }
+}
