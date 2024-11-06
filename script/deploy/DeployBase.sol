@@ -370,7 +370,7 @@ contract DeployBase is Script, Utils {
     function _loadWormholeConfig(
         string memory file_,
         string memory parentNode_
-    ) internal view returns (WormholeConfiguration memory wormholeConfig_) {
+    ) internal pure returns (WormholeConfiguration memory wormholeConfig_) {
         string memory wormhole_ = string.concat(parentNode_, "wormhole.");
 
         wormholeConfig_.chainId = uint16(file_.readUint(_readKey(wormhole_, "chain_id")));

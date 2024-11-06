@@ -136,7 +136,7 @@ contract Utils {
         }
     }
 
-    function _readKey(string memory parentNode_, string memory key_) internal view returns (string memory) {
+    function _readKey(string memory parentNode_, string memory key_) internal pure returns (string memory) {
         return string.concat(parentNode_, key_);
     }
 }

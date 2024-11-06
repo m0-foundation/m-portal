@@ -2,11 +2,11 @@
 
 pragma solidity 0.8.26;
 
-import { console } from "../../../lib/forge-std/src/console.sol";
+import { console } from "../../lib/forge-std/src/console.sol";
 
 import { CastBase } from "./CastBase.sol";
 
-contract CastSendRegistrarListStatusDev is CastBase {
+contract CastSendRegistrarListStatus is CastBase {
     function run() public {
         address signer_ = vm.rememberKey(vm.envUint("PRIVATE_KEY"));
 
