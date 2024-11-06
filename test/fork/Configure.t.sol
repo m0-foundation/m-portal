@@ -83,6 +83,7 @@ contract Configure is ConfigureBase, Test {
             "test/fork/fixtures/configure-config.json",
             block.chainid
         );
+
         uint256 chainsConfigLength_ = chainsConfig_.length;
 
         for (uint256 i_; i_ < chainsConfigLength_; ++i_) {

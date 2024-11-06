@@ -36,28 +36,31 @@ configure-dev-optimism-sepolia:
 
 # Upgrade helpers
 upgrade-transceiver-local:
-	FOUNDRY_PROFILE=production forge script script/upgrade/dev/UpgradeWormholeTransceiverDev.s.sol:UpgradeWormholeTransceiverDev --private-key $(DEV_PRIVATE_KEY) --rpc-url localhost --skip test --broadcast -v
+	FOUNDRY_PROFILE=production CONFIG="config/upgrade/sepolia.json" PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/upgrade/UpgradeWormholeTransceiver.s.sol:UpgradeWormholeTransceiver --rpc-url localhost --skip test --broadcast -v
 
 upgrade-transceiver-dev-sepolia:
-	FOUNDRY_PROFILE=production forge script script/upgrade/dev/UpgradeWormholeTransceiverDev.s.sol:UpgradeWormholeTransceiverDev --private-key $(DEV_PRIVATE_KEY) --rpc-url $(SEPOLIA_RPC_URL) --etherscan-api-key $(ETHERSCAN_API_KEY) --skip test --broadcast --slow -v --verify
+	FOUNDRY_PROFILE=production CONFIG="config/upgrade/sepolia.json" PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/upgrade/UpgradeWormholeTransceiver.s.sol:UpgradeWormholeTransceiver --rpc-url $(SEPOLIA_RPC_URL) --etherscan-api-key $(ETHERSCAN_API_KEY) --skip test --broadcast --slow -v --verify
 
 upgrade-transceiver-dev-base-sepolia:
-	FOUNDRY_PROFILE=production forge script script/upgrade/dev/UpgradeWormholeTransceiverDev.s.sol:UpgradeWormholeTransceiverDev --private-key $(DEV_PRIVATE_KEY) --rpc-url $(BASE_SEPOLIA_RPC_URL) --etherscan-api-key $(BASE_ETHERSCAN_API_KEY) --skip test --broadcast --slow -v --verify
+	FOUNDRY_PROFILE=production CONFIG="config/upgrade/sepolia.json" PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/upgrade/UpgradeWormholeTransceiver.s.sol:UpgradeWormholeTransceiver --rpc-url $(BASE_SEPOLIA_RPC_URL) --etherscan-api-key $(BASE_ETHERSCAN_API_KEY) --skip test --broadcast --slow -v --verify
 
 upgrade-transceiver-dev-optimism-sepolia:
-	FOUNDRY_PROFILE=production forge script script/upgrade/dev/UpgradeWormholeTransceiverDev.s.sol:UpgradeWormholeTransceiverDev --private-key $(DEV_PRIVATE_KEY) --rpc-url $(OPTIMISM_SEPOLIA_RPC_URL) --etherscan-api-key $(OPTIMISM_ETHERSCAN_API_KEY) --skip test --broadcast --slow -v --verify
+	FOUNDRY_PROFILE=production CONFIG="config/upgrade/sepolia.json" PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/upgrade/UpgradeWormholeTransceiver.s.sol:UpgradeWormholeTransceiver --rpc-url $(OPTIMISM_SEPOLIA_RPC_URL) --etherscan-api-key $(OPTIMISM_ETHERSCAN_API_KEY) --skip test --broadcast --slow -v --verify
 
-upgrade-portal-local:
-	FOUNDRY_PROFILE=production forge script script/upgrade/dev/UpgradePortalDev.s.sol:UpgradePortalDev --private-key $(DEV_PRIVATE_KEY) --rpc-url localhost --skip test --broadcast -v
+upgrade-hub-portal-local:
+	FOUNDRY_PROFILE=production CONFIG="config/upgrade/sepolia.json" PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/upgrade/UpgradeHubPortal.s.sol:UpgradeHubPortal --rpc-url localhost --skip test --broadcast -v
+
+upgrade-spoke-portal-local:
+	FOUNDRY_PROFILE=production CONFIG="config/upgrade/sepolia.json" PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/upgrade/UpgradeSpokePortal.s.sol:UpgradeSpokePortal --rpc-url localhost --skip test --broadcast -v
 
 upgrade-portal-dev-sepolia:
-	FOUNDRY_PROFILE=production forge script script/upgrade/dev/UpgradePortalDev.s.sol:UpgradePortalDev --private-key $(DEV_PRIVATE_KEY) --rpc-url $(SEPOLIA_RPC_URL) --etherscan-api-key $(ETHERSCAN_API_KEY) --skip test --broadcast --slow -v --verify
+	FOUNDRY_PROFILE=production CONFIG="config/upgrade/sepolia.json" PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/upgrade/UpgradeHubPortal.s.sol:UpgradeHubPortal --rpc-url $(SEPOLIA_RPC_URL) --etherscan-api-key $(ETHERSCAN_API_KEY) --skip test --broadcast --slow -v --verify
 
 upgrade-portal-dev-base-sepolia:
-	FOUNDRY_PROFILE=production forge script script/upgrade/dev/UpgradePortalDev.s.sol:UpgradePortalDev --private-key $(DEV_PRIVATE_KEY) --rpc-url $(BASE_SEPOLIA_RPC_URL) --etherscan-api-key $(BASE_ETHERSCAN_API_KEY) --skip test --broadcast --slow -v --verify
+	FOUNDRY_PROFILE=production CONFIG="config/upgrade/sepolia.json" PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/upgrade/UpgradeSpokePortal.s.sol:UpgradeSpokePortal --rpc-url $(BASE_SEPOLIA_RPC_URL) --etherscan-api-key $(BASE_ETHERSCAN_API_KEY) --skip test --broadcast --slow -v --verify
 
 upgrade-portal-dev-optimism-sepolia:
-	FOUNDRY_PROFILE=production forge script script/upgrade/dev/UpgradePortalDev.s.sol:UpgradePortalDev --private-key $(DEV_PRIVATE_KEY) --rpc-url $(OPTIMISM_SEPOLIA_RPC_URL) --etherscan-api-key $(OPTIMISM_ETHERSCAN_API_KEY) --skip test --broadcast --slow -v --verify
+	FOUNDRY_PROFILE=production CONFIG="config/upgrade/sepolia.json" PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/upgrade/UpgradeSpokePortal.s.sol:UpgradeSpokePortal --rpc-url $(OPTIMISM_SEPOLIA_RPC_URL) --etherscan-api-key $(OPTIMISM_ETHERSCAN_API_KEY) --skip test --broadcast --slow -v --verify
 
 # Cast helpers
 cast-send-m-token-index-local:

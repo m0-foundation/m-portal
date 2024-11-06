@@ -2,6 +2,7 @@
 
 pragma solidity 0.8.26;
 
+import { console } from "../../lib/forge-std/src/console.sol";
 import { Test } from "../../lib/forge-std/src/Test.sol";
 
 import { ContractHelper } from "../../lib/common/src/libs/ContractHelper.sol";
@@ -33,7 +34,8 @@ contract Deploy is DeployBase, Test {
 
         address expectedHubPortal_ = _getCreate3Address(_DEPLOYER, _computeSalt(_DEPLOYER, "Portal"));
         assertEq(hubPortal_, expectedHubPortal_);
-
+        console.log("WormholeTransceiver salt");
+        console.logBytes32(_computeSalt(_DEPLOYER, "WormholeTransceiver"));
         address expectedWormholeTransceiver_ = _getCreate3Address(
             _DEPLOYER,
             _computeSalt(_DEPLOYER, "WormholeTransceiver")

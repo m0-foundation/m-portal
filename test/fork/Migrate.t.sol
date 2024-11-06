@@ -80,28 +80,12 @@ contract Migrate is UpgradeBase, Test {
 
         assertEq(wormholeTransceiver_.gasLimit(), _WORMHOLE_GAS_LIMIT);
 
-        _upgradeWormholeTransceiver(
-            _DEPLOYER,
-            WormholeTransceiverUpgradeParams({
-                wormholeChainId: _MAINNET_WORMHOLE_CHAIN_ID,
-                wormholeCoreBridge: _MAINNET_WORMHOLE_CORE_BRIDGE,
-                wormholeRelayerAddr: _MAINNET_WORMHOLE_RELAYER,
-                specialRelayerAddr: address(0),
-                consistencyLevel: _FINALIZED_CONSISTENCY_LEVEL,
-                gasLimit: 250_000
-            })
-        );
+        string memory config_ = "test/fork/fixtures/upgrade-config.json";
+        _upgradeWormholeTransceiver(_loadWormholeConfig(config_, block.chainid));
 
         assertEq(wormholeTransceiver_.gasLimit(), 250_000);
 
-        _upgradeHubPortal(
-            _DEPLOYER,
-            PortalUpgradeParams({
-                mToken: _MAINNET_M_TOKEN,
-                registrar: _MAINNET_REGISTRAR,
-                wormholeChainId: _MAINNET_WORMHOLE_CHAIN_ID
-            })
-        );
+        _upgradeHubPortal(_loadPortalConfig(config_, block.chainid));
 
         vm.stopPrank();
     }
