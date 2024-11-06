@@ -64,22 +64,22 @@ upgrade-portal-dev-optimism-sepolia:
 
 # Cast helpers
 cast-send-m-token-index-local:
-	forge script script/cast/dev/CastSendMTokenIndexDev.s.sol:CastSendMTokenIndexDev --private-key $(DEV_PRIVATE_KEY) --rpc-url localhost --skip test --broadcast -v
+	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/cast/CastSendMTokenIndex.s.sol:CastSendMTokenIndex --rpc-url localhost --skip test --broadcast -v
 
 cast-send-m-token-index-dev-sepolia:
-	forge script script/cast/dev/CastSendMTokenIndexDev.s.sol:CastSendMTokenIndexDev --private-key $(DEV_PRIVATE_KEY) --rpc-url $(SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/cast/CastSendMTokenIndex.s.sol:CastSendMTokenIndex --rpc-url $(SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
 
 cast-send-registrar-key-local:
-	forge script script/cast/dev/CastSendRegistrarKeyDev.s.sol:CastSendRegistrarKeyDev --private-key $(DEV_PRIVATE_KEY) --rpc-url localhost --skip test --broadcast -v
+	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/cast/CastSendRegistrarKey.s.sol:CastSendRegistrarKey --rpc-url localhost --skip test --broadcast -v
 
 cast-send-registrar-key-dev-sepolia:
-	forge script script/cast/dev/CastSendRegistrarKeyDev.s.sol:CastSendRegistrarKeyDev --private-key $(DEV_PRIVATE_KEY) --rpc-url $(SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/cast/CastSendRegistrarKey.s.sol:CastSendRegistrarKey --rpc-url $(SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
 
 cast-send-registrar-list-status-local:
-	forge script script/cast/dev/CastSendRegistrarListStatusDev.s.sol:CastSendRegistrarListStatusDev --private-key $(DEV_PRIVATE_KEY) --rpc-url localhost --skip test --broadcast -v
+	test PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/cast/CastSendRegistrarListStatus.s.sol:CastSendRegistrarListStatus --rpc-url localhost --skip test --broadcast -v
 
 cast-send-registrar-list-status-dev-sepolia:
-	forge script script/cast/dev/CastSendRegistrarListStatusDev.s.sol:CastSendRegistrarListStatusDev --private-key $(DEV_PRIVATE_KEY) --rpc-url $(SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+	test PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/cast/CastSendRegistrarListStatus.s.sol:CastSendRegistrarListStatus --rpc-url $(SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
 
 # Run slither
 slither :; FOUNDRY_PROFILE=production forge build --build-info --skip '*/test/**' --skip '*/script/**' --force && slither --compile-force-framework foundry --ignore-compile --sarif results.sarif --config-file slither.config.json .

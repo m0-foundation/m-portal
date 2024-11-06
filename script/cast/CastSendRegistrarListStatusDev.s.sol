@@ -2,13 +2,13 @@
 
 pragma solidity 0.8.26;
 
-import { console2 } from "../../../lib/forge-std/src/Script.sol";
+import { console } from "../../../lib/forge-std/src/console.sol";
 
-import { CastBase } from "../CastBase.sol";
+import { CastBase } from "./CastBase.sol";
 
 contract CastSendRegistrarListStatusDev is CastBase {
     function run() public {
-        address signer_ = vm.rememberKey(vm.envUint("DEV_PRIVATE_KEY"));
+        address signer_ = vm.rememberKey(vm.envUint("PRIVATE_KEY"));
 
         address hubPortal_ = vm.parseAddress(vm.prompt("Enter HubPortal address"));
         uint16 destinationChainId_ = _getWormholeChainId(vm.parseUint(vm.prompt("Enter destination chain ID")));
@@ -16,7 +16,7 @@ contract CastSendRegistrarListStatusDev is CastBase {
         address account_ = vm.parseAddress(vm.prompt("Enter account address"));
 
         uint256 deliveryPrice_ = _quoteDeliveryPrice(hubPortal_, destinationChainId_);
-        console2.log("Delivery price: {}", deliveryPrice_);
+        console.log("Delivery price: {}", deliveryPrice_);
 
         vm.startBroadcast(signer_);
 
@@ -29,7 +29,7 @@ contract CastSendRegistrarListStatusDev is CastBase {
             deliveryPrice_
         );
 
-        console2.log("Registrar key sent to Wormhole chain ID {}", destinationChainId_);
+        console.log("Registrar key sent to Wormhole chain ID {}", destinationChainId_);
 
         vm.stopBroadcast();
     }
