@@ -24,8 +24,7 @@ contract CastBase is Script, Utils {
         bytes32 refundAddress_,
         uint256 value_
     ) internal returns (bytes32 messageId_) {
-        return
-            IHubPortal(hubPortal_).sendMTokenIndex{ value: value_ }(destinationChainId_, refundAddress_, new bytes(1));
+        return IHubPortal(hubPortal_).sendMTokenIndex{ value: value_ }(destinationChainId_, refundAddress_);
     }
 
     function _sendRegistrarKey(
@@ -35,13 +34,7 @@ contract CastBase is Script, Utils {
         bytes32 refundAddress_,
         uint256 value_
     ) internal returns (bytes32 messageId_) {
-        return
-            IHubPortal(hubPortal_).sendRegistrarKey{ value: value_ }(
-                destinationChainId_,
-                key_,
-                refundAddress_,
-                new bytes(1)
-            );
+        return IHubPortal(hubPortal_).sendRegistrarKey{ value: value_ }(destinationChainId_, key_, refundAddress_);
     }
 
     function _sendRegistrarListStatus(
@@ -57,8 +50,7 @@ contract CastBase is Script, Utils {
                 destinationChainId_,
                 listName_,
                 account_,
-                refundAddress_,
-                new bytes(1)
+                refundAddress_
             );
     }
 }

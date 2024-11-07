@@ -79,28 +79,21 @@ interface IHubPortal is IPortal {
      * @notice Sends the M token index to the destination chain.
      * @param  destinationChainId      The Wormhole destination chain ID.
      * @param  refundAddress           Refund address to receive excess native gas.
-     * @param  transceiverInstructions Additional instructions to be forwarded to the destination chain.
      * @return ID uniquely identifying the message
      */
-    function sendMTokenIndex(
-        uint16 destinationChainId,
-        bytes32 refundAddress,
-        bytes memory transceiverInstructions
-    ) external payable returns (bytes32);
+    function sendMTokenIndex(uint16 destinationChainId, bytes32 refundAddress) external payable returns (bytes32);
 
     /**
      * @notice Sends the Registrar key to the destination chain.
      * @param  destinationChainId      The Wormhole destination chain ID.
      * @param  key                     The key to dispatch.
      * @param  refundAddress           Refund address to receive excess native gas.
-     * @param  transceiverInstructions Additional instructions to be forwarded to the destination chain.
      * @return ID uniquely identifying the message
      */
     function sendRegistrarKey(
         uint16 destinationChainId,
         bytes32 key,
-        bytes32 refundAddress,
-        bytes memory transceiverInstructions
+        bytes32 refundAddress
     ) external payable returns (bytes32);
 
     /**
@@ -109,15 +102,13 @@ interface IHubPortal is IPortal {
      * @param  listName                The name of the list.
      * @param  account                 The account.
      * @param  refundAddress           Refund address to receive excess native gas.
-     * @param  transceiverInstructions Additional instructions to be forwarded to the destination chain.
      * @return ID uniquely identifying the message
      */
     function sendRegistrarListStatus(
         uint16 destinationChainId,
         bytes32 listName,
         address account,
-        bytes32 refundAddress,
-        bytes memory transceiverInstructions
+        bytes32 refundAddress
     ) external payable returns (bytes32);
 
     /// @notice Enables earning for the Hub Portal if allowed by TTG.

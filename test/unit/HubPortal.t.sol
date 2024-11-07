@@ -188,7 +188,7 @@ contract HubPortalTests is UnitTestBase {
         emit IHubPortal.MTokenIndexSent(_REMOTE_CHAIN_ID, messageId_, index_);
 
         vm.prank(_alice);
-        _portal.sendMTokenIndex{ value: fee_ }(_REMOTE_CHAIN_ID, refundAddress_, _encodedEmptyTransceiverInstructions);
+        _portal.sendMTokenIndex{ value: fee_ }(_REMOTE_CHAIN_ID, refundAddress_);
     }
 
     /* ============ sendRegistrarKey ============ */
@@ -226,12 +226,7 @@ contract HubPortalTests is UnitTestBase {
         emit IHubPortal.RegistrarKeySent(_REMOTE_CHAIN_ID, messageId_, key_, value_);
 
         vm.prank(_alice);
-        _portal.sendRegistrarKey{ value: fee_ }(
-            _REMOTE_CHAIN_ID,
-            key_,
-            refundAddress_,
-            _encodedEmptyTransceiverInstructions
-        );
+        _portal.sendRegistrarKey{ value: fee_ }(_REMOTE_CHAIN_ID, key_, refundAddress_);
     }
 
     /* ============ sendRegistrarListStatus ============ */
@@ -270,13 +265,7 @@ contract HubPortalTests is UnitTestBase {
         emit IHubPortal.RegistrarListStatusSent(_REMOTE_CHAIN_ID, messageId_, listName_, account_, status_);
 
         vm.prank(_alice);
-        _portal.sendRegistrarListStatus{ value: fee_ }(
-            _REMOTE_CHAIN_ID,
-            listName_,
-            account_,
-            refundAddress_,
-            _encodedEmptyTransceiverInstructions
-        );
+        _portal.sendRegistrarListStatus{ value: fee_ }(_REMOTE_CHAIN_ID, listName_, account_, refundAddress_);
     }
 
     /* ============ transfer ============ */
