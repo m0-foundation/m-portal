@@ -40,10 +40,11 @@ contract SpokePortal is ISpokePortal, Portal {
 
     /// @inheritdoc ISpokePortal
     function excess() external view returns (uint240 excess_) {
+        uint240 presentAmount_ = IndexingMath.getPresentAmountRoundedDown(outstandingPrincipal, _currentIndex());
+        uint240 totalSupply_ = IERC20(mToken()).totalSupply().safe240();
+
         unchecked {
-            return
-                IndexingMath.getPresentAmountRoundedDown(outstandingPrincipal, _currentIndex()) -
-                IERC20(mToken()).totalSupply().safe240();
+            return presentAmount_ > totalSupply_ ? presentAmount_ - totalSupply_ : 0;
         }
     }
 
