@@ -56,6 +56,49 @@ contract SpokePortalTests is UnitTestBase {
         assertEq(_portal.currentIndex(), index_);
     }
 
+    /* ============ excess ============ */
+
+    function test_excess() external {
+        uint256 amount_ = 1_000e6;
+        uint128 localIndex_ = _EXP_SCALED_ONE;
+        uint128 remoteIndex_ = _EXP_SCALED_ONE;
+
+        _mToken.setCurrentIndex(localIndex_);
+
+        (TransceiverStructs.NttManagerMessage memory message_, ) = _createTransferMessage(
+            amount_,
+            remoteIndex_,
+            _alice.toBytes32(),
+            _REMOTE_CHAIN_ID,
+            _LOCAL_CHAIN_ID
+        );
+
+        vm.prank(address(_transceiver));
+        _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
+
+        assertEq(_portal.excess(), 0);
+
+        // update index
+        remoteIndex_ = 1_100000068703;
+
+        (message_, ) = _createMessage(PayloadEncoder.encodeIndex(remoteIndex_, _LOCAL_CHAIN_ID), _REMOTE_CHAIN_ID);
+
+        vm.prank(address(_transceiver));
+        _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
+
+        assertEq(_portal.excess(), 100_000_068);
+
+        // update index
+        remoteIndex_ = 1_200000068703;
+
+        (message_, ) = _createMessage(PayloadEncoder.encodeIndex(remoteIndex_, _LOCAL_CHAIN_ID), _REMOTE_CHAIN_ID);
+
+        vm.prank(address(_transceiver));
+        _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
+
+        assertEq(_portal.excess(), 200_000_068);
+    }
+
     /* ============ _updateMTokenIndex ============ */
 
     function test_updateMTokenIndex() external {
