@@ -19,6 +19,10 @@ import { TypeConverter } from "./libs/TypeConverter.sol";
  */
 contract HubPortal is IHubPortal, Portal {
     using TypeConverter for address;
+
+    /// @dev Use only standard WormholeTransceiver with relaying enabled
+    bytes public constant DEFAULT_TRANSCEIVER_INSTRUCTIONS = new bytes(1);
+
     /* ============ Variables ============ */
 
     /// @dev Registrar key holding value of whether the earners list can be ignored or not.
@@ -49,12 +53,11 @@ contract HubPortal is IHubPortal, Portal {
     /// @inheritdoc IHubPortal
     function sendMTokenIndex(
         uint16 destinationChainId_,
-        bytes32 refundAddress_,
-        bytes memory transceiverInstructions_
+        bytes32 refundAddress_
     ) external payable returns (bytes32 messageId_) {
         uint128 index_ = _currentIndex();
         bytes memory payload_ = PayloadEncoder.encodeIndex(index_, destinationChainId_);
-        messageId_ = _sendMessage(destinationChainId_, refundAddress_, payload_, transceiverInstructions_);
+        messageId_ = _sendMessage(destinationChainId_, refundAddress_, payload_);
 
         emit MTokenIndexSent(destinationChainId_, messageId_, index_);
     }
@@ -63,12 +66,11 @@ contract HubPortal is IHubPortal, Portal {
     function sendRegistrarKey(
         uint16 destinationChainId_,
         bytes32 key_,
-        bytes32 refundAddress_,
-        bytes memory transceiverInstructions_
+        bytes32 refundAddress_
     ) external payable returns (bytes32 messageId_) {
         bytes32 value_ = IRegistrarLike(registrar).get(key_);
         bytes memory payload_ = PayloadEncoder.encodeKey(key_, value_, destinationChainId_);
-        messageId_ = _sendMessage(destinationChainId_, refundAddress_, payload_, transceiverInstructions_);
+        messageId_ = _sendMessage(destinationChainId_, refundAddress_, payload_);
 
         emit RegistrarKeySent(destinationChainId_, messageId_, key_, value_);
     }
@@ -78,12 +80,11 @@ contract HubPortal is IHubPortal, Portal {
         uint16 destinationChainId_,
         bytes32 listName_,
         address account_,
-        bytes32 refundAddress_,
-        bytes memory transceiverInstructions_
+        bytes32 refundAddress_
     ) external payable returns (bytes32 messageId_) {
         bool status_ = IRegistrarLike(registrar).listContains(listName_, account_);
         bytes memory payload_ = PayloadEncoder.encodeListUpdate(listName_, account_, status_, destinationChainId_);
-        messageId_ = _sendMessage(destinationChainId_, refundAddress_, payload_, transceiverInstructions_);
+        messageId_ = _sendMessage(destinationChainId_, refundAddress_, payload_);
 
         emit RegistrarListStatusSent(destinationChainId_, messageId_, listName_, account_, status_);
     }
@@ -136,8 +137,7 @@ contract HubPortal is IHubPortal, Portal {
     function _sendMessage(
         uint16 destinationChainId_,
         bytes32 refundAddress_,
-        bytes memory payload_,
-        bytes memory transceiverInstructions_
+        bytes memory payload_
     ) private returns (bytes32 messageId_) {
         if (refundAddress_ == bytes32(0)) revert InvalidRefundAddress();
 
@@ -146,7 +146,7 @@ contract HubPortal is IHubPortal, Portal {
             TransceiverStructs.TransceiverInstruction[] memory instructions_,
             uint256[] memory priceQuotes_,
 
-        ) = _prepareForTransfer(destinationChainId_, transceiverInstructions_);
+        ) = _prepareForTransfer(destinationChainId_, DEFAULT_TRANSCEIVER_INSTRUCTIONS);
 
         TransceiverStructs.NttManagerMessage memory message_ = TransceiverStructs.NttManagerMessage(
             bytes32(uint256(_useMessageSequence())),
