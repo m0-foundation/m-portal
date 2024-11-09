@@ -2,6 +2,7 @@
 
 pragma solidity 0.8.26;
 
+import { console } from "../../lib/forge-std/src/console.sol";
 import { Test } from "../../lib/forge-std/src/Test.sol";
 
 import {
@@ -78,44 +79,31 @@ contract Configure is ConfigureBase, Test {
         IManagerBase(hubPortal_).setTransceiver(address(wormholeTransceiver_));
         INttManager(hubPortal_).setThreshold(1);
 
+        ChainConfig[] memory chainsConfig_ = _loadChainConfig(
+            "test/fork/fixtures/configure-config.json",
+            block.chainid
+        );
+
+        uint256 chainsConfigLength_ = chainsConfig_.length;
+
+        for (uint256 i_; i_ < chainsConfigLength_; ++i_) {
+            ChainConfig memory chainConfig_ = chainsConfig_[i_];
+
+            console.log("block.chainid: %s", block.chainid);
+
+            if (chainConfig_.chainId == block.chainid) {
+                _configureWormholeTransceiver(
+                    IWormholeTransceiver(chainConfig_.wormholeTransceiver),
+                    chainsConfig_,
+                    chainConfig_.wormholeChainId
+                );
+
+                _configurePortal(INttManager(chainConfig_.portal), chainsConfig_, chainConfig_.wormholeChainId);
+            }
+        }
+
         bytes32 portalUniversalAddress_ = _toUniversalAddress(address(hubPortal_));
         bytes32 wormholeTransceiverUniversalAddress_ = _toUniversalAddress(address(wormholeTransceiver_));
-
-        ChainConfig[] memory config_ = new ChainConfig[](3);
-        ChainConfig memory mainnetConfig_ = ChainConfig({
-            chainId: _MAINNET_WORMHOLE_CHAIN_ID,
-            isEvmChain: true,
-            isSpecialRelayingEnabled: false,
-            isWormholeRelayingEnabled: true,
-            portal: portalUniversalAddress_,
-            wormholeTransceiver: wormholeTransceiverUniversalAddress_
-        });
-
-        config_[0] = mainnetConfig_;
-
-        ChainConfig memory baseConfig_ = ChainConfig({
-            chainId: _BASE_WORMHOLE_CHAIN_ID,
-            isEvmChain: true,
-            isSpecialRelayingEnabled: false,
-            isWormholeRelayingEnabled: true,
-            portal: portalUniversalAddress_,
-            wormholeTransceiver: wormholeTransceiverUniversalAddress_
-        });
-
-        config_[1] = baseConfig_;
-
-        ChainConfig memory optimismConfig_ = ChainConfig({
-            chainId: _OPTIMISM_WORMHOLE_CHAIN_ID,
-            isEvmChain: true,
-            isSpecialRelayingEnabled: false,
-            isWormholeRelayingEnabled: true,
-            portal: portalUniversalAddress_,
-            wormholeTransceiver: wormholeTransceiverUniversalAddress_
-        });
-
-        config_[2] = optimismConfig_;
-
-        _configureWormholeTransceiver(IWormholeTransceiver(wormholeTransceiver_), config_, _MAINNET_WORMHOLE_CHAIN_ID);
 
         assertEq(wormholeTransceiver_.isWormholeRelayingEnabled(_BASE_WORMHOLE_CHAIN_ID), true);
         assertEq(wormholeTransceiver_.isWormholeRelayingEnabled(_OPTIMISM_WORMHOLE_CHAIN_ID), true);
@@ -130,8 +118,6 @@ contract Configure is ConfigureBase, Test {
 
         assertEq(wormholeTransceiver_.isWormholeEvmChain(_BASE_WORMHOLE_CHAIN_ID), true);
         assertEq(wormholeTransceiver_.isWormholeEvmChain(_OPTIMISM_WORMHOLE_CHAIN_ID), true);
-
-        _configurePortal(INttManager(hubPortal_), config_, _MAINNET_WORMHOLE_CHAIN_ID);
 
         assertEq(hubPortal_.getPeer(_BASE_WORMHOLE_CHAIN_ID).peerAddress, portalUniversalAddress_);
         assertEq(hubPortal_.getPeer(_BASE_WORMHOLE_CHAIN_ID).tokenDecimals, _M_TOKEN_DECIMALS);
@@ -189,40 +175,6 @@ contract Configure is ConfigureBase, Test {
 
         bytes32 portalUniversalAddress_ = _toUniversalAddress(address(hubPortal_));
         bytes32 wormholeTransceiverUniversalAddress_ = _toUniversalAddress(address(wormholeTransceiver_));
-
-        ChainConfig[] memory config_ = new ChainConfig[](3);
-        ChainConfig memory mainnetConfig_ = ChainConfig({
-            chainId: _MAINNET_WORMHOLE_CHAIN_ID,
-            isEvmChain: true,
-            isSpecialRelayingEnabled: false,
-            isWormholeRelayingEnabled: true,
-            portal: portalUniversalAddress_,
-            wormholeTransceiver: wormholeTransceiverUniversalAddress_
-        });
-
-        config_[0] = mainnetConfig_;
-
-        ChainConfig memory baseConfig_ = ChainConfig({
-            chainId: _BASE_WORMHOLE_CHAIN_ID,
-            isEvmChain: true,
-            isSpecialRelayingEnabled: false,
-            isWormholeRelayingEnabled: true,
-            portal: portalUniversalAddress_,
-            wormholeTransceiver: wormholeTransceiverUniversalAddress_
-        });
-
-        config_[1] = baseConfig_;
-
-        ChainConfig memory optimismConfig_ = ChainConfig({
-            chainId: _OPTIMISM_WORMHOLE_CHAIN_ID,
-            isEvmChain: true,
-            isSpecialRelayingEnabled: false,
-            isWormholeRelayingEnabled: true,
-            portal: portalUniversalAddress_,
-            wormholeTransceiver: wormholeTransceiverUniversalAddress_
-        });
-
-        config_[2] = optimismConfig_;
 
         Governor governor_ = new Governor(address(hubPortal_), _governorAdmin);
         address configurator_ = address(new MainnetConfigurator(address(hubPortal_), address(wormholeTransceiver_)));

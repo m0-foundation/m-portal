@@ -2,6 +2,7 @@
 
 pragma solidity 0.8.26;
 
+import { console } from "../../lib/forge-std/src/console.sol";
 import { Test } from "../../lib/forge-std/src/Test.sol";
 
 import { ContractHelper } from "../../lib/common/src/libs/ContractHelper.sol";
@@ -26,19 +27,15 @@ contract Deploy is DeployBase, Test {
 
         (address hubPortal_, address hubWormholeTransceiver_) = _deployHubComponents(
             _DEPLOYER,
-            _MAINNET_REGISTRAR,
-            _MAINNET_M_TOKEN,
-            _MAINNET_WORMHOLE_CHAIN_ID,
-            _MAINNET_WORMHOLE_CORE_BRIDGE,
-            _MAINNET_WORMHOLE_RELAYER,
-            address(0)
+            _loadHubConfig("test/fork/fixtures/deploy-config.json", block.chainid)
         );
 
         vm.stopPrank();
 
         address expectedHubPortal_ = _getCreate3Address(_DEPLOYER, _computeSalt(_DEPLOYER, "Portal"));
         assertEq(hubPortal_, expectedHubPortal_);
-
+        console.log("WormholeTransceiver salt");
+        console.logBytes32(_computeSalt(_DEPLOYER, "WormholeTransceiver"));
         address expectedWormholeTransceiver_ = _getCreate3Address(
             _DEPLOYER,
             _computeSalt(_DEPLOYER, "WormholeTransceiver")
@@ -54,25 +51,23 @@ contract Deploy is DeployBase, Test {
 
         vm.startPrank(_DEPLOYER);
 
+        SpokeConfiguration memory spokeConfig_ = _loadSpokeConfig(
+            "test/fork/fixtures/deploy-config.json",
+            block.chainid
+        );
+
         (
             address baseSpokePortal_,
             address baseSpokeWormholeTransceiver_,
             address baseSpokeRegistrar_,
             address baseSpokeMToken_
-        ) = _deploySpokeComponents(
-                _DEPLOYER,
-                _BASE_WORMHOLE_CHAIN_ID,
-                _BASE_WORMHOLE_CORE_BRIDGE,
-                _BASE_WORMHOLE_RELAYER,
-                address(0),
-                _burnNonces
-            );
+        ) = _deploySpokeComponents(_DEPLOYER, spokeConfig_, _burnNonces);
 
         (, address baseSpokeVault_) = _deploySpokeVault(
             _DEPLOYER,
             baseSpokePortal_,
-            _MAINNET_VAULT,
-            _MAINNET_WORMHOLE_CHAIN_ID,
+            spokeConfig_.hubVault,
+            spokeConfig_.hubVaultWormholechainId,
             _MIGRATION_ADMIN
         );
 
