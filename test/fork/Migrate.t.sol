@@ -23,9 +23,9 @@ import { HubPortal } from "../../src/HubPortal.sol";
 
 import { MainnetMigrator } from "./fixtures/migrator/MainnetMigrator.sol";
 
-contract Migrate is UpgradeBase, Test {
-    address internal constant _DEPLOYER = 0xF2f1ACbe0BA726fEE8d75f3E32900526874740BB;
+import { ForkTestBase } from "./ForkTestBase.t.sol";
 
+contract Migrate is ForkTestBase, UpgradeBase {
     // TODO: replace by the actual multisig address.
     address internal _governorAdmin = makeAddr("governor-admin");
 

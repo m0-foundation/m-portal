@@ -27,9 +27,9 @@ import { HubPortal } from "../../src/HubPortal.sol";
 
 import { MainnetConfigurator } from "./fixtures/configurator/MainnetConfigurator.sol";
 
-contract Configure is ConfigureBase, Test {
-    address internal constant _DEPLOYER = 0xF2f1ACbe0BA726fEE8d75f3E32900526874740BB;
+import { ForkTestBase } from "./ForkTestBase.t.sol";
 
+contract Configure is ForkTestBase {
     // TODO: replace by the actual multisig address.
     address internal _governorAdmin = makeAddr("governor-admin");
 
