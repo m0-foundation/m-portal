@@ -16,12 +16,12 @@ contract Configure is ConfigureBase {
         ChainConfig[] memory chainsConfig_ = _loadChainConfig(vm.envString("CONFIG"), block.chainid);
         uint256 chainsConfigLength_ = chainsConfig_.length;
 
+        vm.startBroadcast(caller_);
+
         for (uint256 i_; i_ < chainsConfigLength_; ++i_) {
             ChainConfig memory chainConfig_ = chainsConfig_[i_];
 
             if (chainConfig_.chainId == block.chainid) {
-                vm.startBroadcast(caller_);
-
                 _configureWormholeTransceiver(
                     IWormholeTransceiver(chainConfig_.wormholeTransceiver),
                     chainsConfig_,
@@ -29,9 +29,9 @@ contract Configure is ConfigureBase {
                 );
 
                 _configurePortal(INttManager(chainConfig_.portal), chainsConfig_, chainConfig_.wormholeChainId);
-
-                vm.stopBroadcast();
             }
         }
+
+        vm.stopBroadcast();
     }
 }
