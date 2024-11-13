@@ -129,6 +129,9 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
 
         emit MTokenReceived(sourceChainId_, messageId_, sender_, recipient_, amount_, index_);
 
+        // Emitting `INttManager.TransferRedeemed` to comply with Wormhole NTT specification.
+        emit TransferRedeemed(messageId_);
+
         _mintOrUnlock(recipient_, amount_, index_);
     }
 
