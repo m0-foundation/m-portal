@@ -29,7 +29,7 @@ contract MainnetMigrator is Migrator {
     uint8 internal constant _FINALIZED_CONSISTENCY_LEVEL = 15;
 
     /// @dev Gas limit for Wormhole messages.
-    uint256 internal constant _WORMHOLE_GAS_LIMIT = 200_000;
+    uint256 internal constant _HIGH_WORMHOLE_GAS_LIMIT = 300_000;
 
     /**
      * @dev    Constructs the MainnetMigrator contract.
@@ -61,7 +61,7 @@ contract MainnetMigrator is Migrator {
                     wormholeRelayerAddr: 0x27428DD2d3DD32A4D7f7C497eAaa23130d894911,
                     specialRelayerAddr: address(0),
                     consistencyLevel: _FINALIZED_CONSISTENCY_LEVEL,
-                    gasLimit: _WORMHOLE_GAS_LIMIT
+                    gasLimit: _HIGH_WORMHOLE_GAS_LIMIT
                 })
             );
         } else if (block.chainid == 8453) {
@@ -80,7 +80,7 @@ contract MainnetMigrator is Migrator {
                     wormholeRelayerAddr: 0x706F82e9bb5b0813501714Ab5974216704980e31,
                     specialRelayerAddr: address(0),
                     consistencyLevel: _FINALIZED_CONSISTENCY_LEVEL,
-                    gasLimit: _WORMHOLE_GAS_LIMIT
+                    gasLimit: _HIGH_WORMHOLE_GAS_LIMIT
                 })
             );
         } else if (block.chainid == 10) {
@@ -99,7 +99,7 @@ contract MainnetMigrator is Migrator {
                     wormholeRelayerAddr: 0x27428DD2d3DD32A4D7f7C497eAaa23130d894911,
                     specialRelayerAddr: address(0),
                     consistencyLevel: _FINALIZED_CONSISTENCY_LEVEL,
-                    gasLimit: _WORMHOLE_GAS_LIMIT
+                    gasLimit: _HIGH_WORMHOLE_GAS_LIMIT
                 })
             );
         }

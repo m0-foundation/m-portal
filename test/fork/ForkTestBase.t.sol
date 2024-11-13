@@ -94,6 +94,7 @@ contract ForkTestBase is CastBase, ConfigureBase, DeployBase, Test {
 
         deal(_DEPLOYER, 10 ether);
         deal(_alice, 10 ether);
+        deal(_mHolder, 10 ether);
 
         vm.startPrank(_DEPLOYER);
 
@@ -123,6 +124,7 @@ contract ForkTestBase is CastBase, ConfigureBase, DeployBase, Test {
 
         deal(_DEPLOYER, 10 ether);
         deal(_alice, 10 ether);
+        deal(_mHolder, 10 ether);
 
         vm.startPrank(_DEPLOYER);
 
@@ -168,6 +170,7 @@ contract ForkTestBase is CastBase, ConfigureBase, DeployBase, Test {
 
         deal(_DEPLOYER, 10 ether);
         deal(_alice, 10 ether);
+        deal(_mHolder, 10 ether);
 
         vm.startPrank(_DEPLOYER);
 

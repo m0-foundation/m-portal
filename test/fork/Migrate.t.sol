@@ -33,6 +33,25 @@ contract Migrate is ForkTestBase, UpgradeBase {
     address internal _spokeVault = makeAddr("spoke-vault");
 
     function testFork_migrate() external {
+        vm.selectFork(_mainnetForkId);
+
+        deal(_DEPLOYER, 10 ether);
+
+        vm.startPrank(_DEPLOYER);
+
+        assertEq(WormholeTransceiver(_hubWormholeTransceiver).gasLimit(), 250_000);
+
+        string memory config_ = "test/fork/fixtures/upgrade-config.json";
+        _upgradeWormholeTransceiver(_loadWormholeConfig(config_, block.chainid));
+
+        assertEq(WormholeTransceiver(_hubWormholeTransceiver).gasLimit(), 300_000);
+
+        _upgradeHubPortal(_loadPortalConfig(config_, block.chainid));
+
+        vm.stopPrank();
+    }
+
+    function testFork_migrateViaGovernance() external {
         vm.createSelectFork(vm.rpcUrl("mainnet"));
 
         deal(_DEPLOYER, 10 ether);
@@ -78,64 +97,6 @@ contract Migrate is ForkTestBase, UpgradeBase {
         IManagerBase(hubPortal_).setTransceiver(address(wormholeTransceiver_));
         INttManager(hubPortal_).setThreshold(1);
 
-        assertEq(wormholeTransceiver_.gasLimit(), _WORMHOLE_GAS_LIMIT);
-
-        string memory config_ = "test/fork/fixtures/upgrade-config.json";
-        _upgradeWormholeTransceiver(_loadWormholeConfig(config_, block.chainid));
-
-        assertEq(wormholeTransceiver_.gasLimit(), 250_000);
-
-        _upgradeHubPortal(_loadPortalConfig(config_, block.chainid));
-
-        vm.stopPrank();
-    }
-
-    function testFork_migrateViaGovernance() external {
-        vm.createSelectFork(vm.rpcUrl("mainnet"));
-
-        deal(_DEPLOYER, 10 ether);
-
-        vm.startPrank(_DEPLOYER);
-
-        HubPortal hubPortalImplementation_ = new HubPortal(
-            _MAINNET_M_TOKEN,
-            _MAINNET_REGISTRAR,
-            _MAINNET_WORMHOLE_CHAIN_ID
-        );
-
-        HubPortal hubPortal_ = HubPortal(
-            ICreateXLike(_CREATE_X_FACTORY).deployCreate3(
-                _computeSalt(_DEPLOYER, "Portal"),
-                abi.encodePacked(type(ERC1967Proxy).creationCode, abi.encode(address(hubPortalImplementation_), ""))
-            )
-        );
-
-        hubPortal_.initialize();
-
-        WormholeTransceiver wormholeTransceiverImplementation_ = new WormholeTransceiver(
-            address(hubPortal_),
-            _MAINNET_WORMHOLE_CORE_BRIDGE,
-            _MAINNET_WORMHOLE_RELAYER,
-            address(0),
-            _FINALIZED_CONSISTENCY_LEVEL,
-            _MIN_WORMHOLE_GAS_LIMIT
-        );
-
-        WormholeTransceiver wormholeTransceiver_ = WormholeTransceiver(
-            ICreateXLike(_CREATE_X_FACTORY).deployCreate3(
-                _computeSalt(_DEPLOYER, "WormholeTransceiver"),
-                abi.encodePacked(
-                    type(ERC1967Proxy).creationCode,
-                    abi.encode(address(wormholeTransceiverImplementation_), "")
-                )
-            )
-        );
-
-        wormholeTransceiver_.initialize();
-
-        IManagerBase(hubPortal_).setTransceiver(address(wormholeTransceiver_));
-        INttManager(hubPortal_).setThreshold(1);
-
         Governor governor_ = new Governor(address(hubPortal_), _governorAdmin);
         address migrator_ = address(
             new MainnetMigrator(address(hubPortal_), address(wormholeTransceiver_), address(_spokeVault))
@@ -145,7 +106,7 @@ contract Migrate is ForkTestBase, UpgradeBase {
 
         vm.stopPrank();
 
-        assertEq(wormholeTransceiver_.gasLimit(), _MIN_WORMHOLE_GAS_LIMIT);
+        assertEq(WormholeTransceiver(_hubWormholeTransceiver).gasLimit(), 250_000);
 
         vm.mockCall(
             _MAINNET_REGISTRAR,
@@ -156,6 +117,6 @@ contract Migrate is ForkTestBase, UpgradeBase {
         // Anyone can call migrate().
         governor_.migrate();
 
-        assertEq(wormholeTransceiver_.gasLimit(), _WORMHOLE_GAS_LIMIT);
+        assertEq(WormholeTransceiver(_hubWormholeTransceiver).gasLimit(), 300_000);
     }
 }

@@ -48,7 +48,7 @@ contract HubPortalForkTests is ForkTestBase {
 
         vm.stopPrank();
 
-        assertEq(IERC20(_MAINNET_M_TOKEN).balanceOf(_hubPortal), amount_ - 1);
+        assertEq(IERC20(_MAINNET_M_TOKEN).balanceOf(_hubPortal), amount_ = amount_ - 1);
 
         bytes memory signedMessage_ = _signMessage(_hubGuardian, _MAINNET_WORMHOLE_CHAIN_ID);
 
@@ -56,7 +56,7 @@ contract HubPortalForkTests is ForkTestBase {
 
         _deliverMessage(_BASE_WORMHOLE_RELAYER, signedMessage_);
 
-        assertEq(IERC20(_baseSpokeMToken).balanceOf(_mHolder), amount_ - 1);
+        assertEq(IERC20(_baseSpokeMToken).balanceOf(_mHolder), amount_);
         assertEq(IContinuousIndexing(_baseSpokeMToken).currentIndex(), mainnetIndex_);
     }
 
