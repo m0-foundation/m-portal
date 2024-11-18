@@ -27,5 +27,7 @@ contract MockSpokePortal {
         if (msg.value > 1) {
             msg.sender.call{ value: msg.value - 1 }("");
         }
+
+        return uint64(1);
     }
 }

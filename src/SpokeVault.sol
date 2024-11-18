@@ -73,8 +73,6 @@ contract SpokeVault is ISpokeVault, Migratable {
 
         bytes32 hubVault_ = hubVault.toBytes32();
 
-        emit ExcessMTokenSent(destinationChainId, messageSequence_, msg.sender.toBytes32(), hubVault_, amount_);
-
         IERC20(mToken).approve(spokePortal, amount_);
         messageSequence_ = INttManager(spokePortal).transfer{ value: msg.value }(
             amount_,
@@ -84,6 +82,8 @@ contract SpokeVault is ISpokeVault, Migratable {
             false,
             new bytes(1)
         );
+
+        emit ExcessMTokenSent(destinationChainId, messageSequence_, msg.sender.toBytes32(), hubVault_, amount_);
 
         uint256 ethBalance_ = address(this).balance;
 

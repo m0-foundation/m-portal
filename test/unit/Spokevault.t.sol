@@ -147,7 +147,7 @@ contract SpokeVaultTests is UnitTestBase {
         );
 
         vm.expectEmit();
-        emit ISpokeVault.ExcessMTokenSent(_REMOTE_CHAIN_ID, 0, _alice.toBytes32(), _hubVault.toBytes32(), amount_);
+        emit ISpokeVault.ExcessMTokenSent(_REMOTE_CHAIN_ID, 1, _alice.toBytes32(), _hubVault.toBytes32(), amount_);
 
         vm.prank(_alice);
         _vault.transferExcessM{ value: fee_ }(amount_, _alice.toBytes32());
