@@ -54,7 +54,7 @@ interface ISpokeVault is IMigratable {
 
     /**
      * @notice Transfers the total excess amount of M in the SpokeVault to the HubVault on Ethereum Mainnet.
-     * @param  refundAddress   The address to which a refund for unussed gas is issued on the destination chain.
+     * @param  refundAddress   The address to which a refund for unused gas is issued on the destination chain.
      * @return messageSequence The message sequence ID of the transfer.
      */
     function transferExcessM(bytes32 refundAddress) external payable returns (uint64 messageSequence);
