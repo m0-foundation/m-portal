@@ -96,11 +96,6 @@ contract SpokeVaultTests is UnitTestBase {
         new SpokeVault(address(_portal), _hubVault, _REMOTE_CHAIN_ID, address(0));
     }
 
-    function test_constructor_mTokenApproval() external {
-        vm.expectCall(address(_mToken), abi.encodeCall(_mToken.approve, (address(_portal), type(uint256).max)));
-        new SpokeVault(address(_portal), _hubVault, _REMOTE_CHAIN_ID, _migrationAdmin);
-    }
-
     /* ============ transferExcessM ============ */
 
     function test_transferExcessM_insufficientBalance() external {
@@ -119,7 +114,7 @@ contract SpokeVaultTests is UnitTestBase {
 
         vm.deal(_alice, fee_);
 
-        vm.mockCall(address(_mToken), abi.encodeCall(_mToken.balanceOf, (address(_vault))), abi.encode(balance_));
+        _mToken.mint(address(_vault), balance_, _EXP_SCALED_ONE);
 
         vm.expectCall(
             address(_portal),

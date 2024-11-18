@@ -59,9 +59,6 @@ contract SpokeVault is ISpokeVault, Migratable {
 
         mToken = IPortal(spokePortal).mToken();
         registrar = IPortal(spokePortal).registrar();
-
-        // Approve the SpokePortal to transfer M tokens.
-        IERC20(mToken).approve(spokePortal_, type(uint256).max);
     }
 
     /* ============ Interactive Functions ============ */
@@ -78,6 +75,7 @@ contract SpokeVault is ISpokeVault, Migratable {
 
         emit ExcessMTokenSent(destinationChainId, messageSequence_, msg.sender.toBytes32(), hubVault_, amount_);
 
+        IERC20(mToken).approve(spokePortal, amount_);
         messageSequence_ = INttManager(spokePortal).transfer{ value: msg.value }(
             amount_,
             destinationChainId,

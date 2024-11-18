@@ -2,6 +2,8 @@
 
 pragma solidity 0.8.26;
 
+import { IERC20 } from "../../lib/common/src/interfaces/IERC20.sol";
+
 contract MockSpokePortal {
     address public immutable mToken;
     address public immutable registrar;
@@ -18,5 +20,7 @@ contract MockSpokePortal {
         bytes32 refundAddress,
         bool shouldQueue,
         bytes memory transceiverInstructions
-    ) external payable returns (uint64) {}
+    ) external payable returns (uint64) {
+        IERC20(mToken).transferFrom(msg.sender, address(this), amount);
+    }
 }
