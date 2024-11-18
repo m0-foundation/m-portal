@@ -106,36 +106,29 @@ contract SpokeVaultTests is UnitTestBase {
 
     /* ============ transferExcessM ============ */
 
-    function test_transferExcessM_insufficientBalance() external {
-        uint256 amount_ = 1_000e6;
-
-        vm.expectRevert(abi.encodeWithSelector(ISpokeVault.InsufficientMTokenBalance.selector, 0, amount_));
-
-        vm.prank(_alice);
-        _vault.transferExcessM(amount_, _alice.toBytes32());
+    function test_transferExcessM_earlyReturn() external {
+        assertEq(_vault.transferExcessM(_alice.toBytes32()), 0);
     }
 
     function test_transferExcessM_failedEthRefund() external {
         uint256 amount_ = 1_000e6;
-        uint256 balance_ = 10_000e6;
         uint256 fee_ = 2;
 
         vm.deal(address(_noFallbackContract), fee_);
-        _mToken.mint(address(_vault), balance_, _EXP_SCALED_ONE);
+        _mToken.mint(address(_vault), amount_, _EXP_SCALED_ONE);
 
         vm.expectRevert(abi.encodeWithSelector(ISpokeVault.FailedEthRefund.selector, 1));
 
         vm.prank(address(_noFallbackContract));
-        _vault.transferExcessM{ value: fee_ }(amount_, address(_noFallbackContract).toBytes32());
+        _vault.transferExcessM{ value: fee_ }(address(_noFallbackContract).toBytes32());
     }
 
     function test_transferExcessM() external {
-        uint256 amount_ = 1_000e6;
-        uint256 balance_ = 10_000e6;
+        uint256 amount_ = 10_000e6;
         uint256 fee_ = 2;
 
         vm.deal(_alice, fee_);
-        _mToken.mint(address(_vault), balance_, _EXP_SCALED_ONE);
+        _mToken.mint(address(_vault), amount_, _EXP_SCALED_ONE);
 
         vm.expectCall(
             address(_portal),
@@ -150,7 +143,7 @@ contract SpokeVaultTests is UnitTestBase {
         emit ISpokeVault.ExcessMTokenSent(_REMOTE_CHAIN_ID, 1, _alice.toBytes32(), _hubVault.toBytes32(), amount_);
 
         vm.prank(_alice);
-        _vault.transferExcessM{ value: fee_ }(amount_, _alice.toBytes32());
+        _vault.transferExcessM{ value: fee_ }(_alice.toBytes32());
 
         assertEq(_alice.balance, fee_ - 1);
     }
