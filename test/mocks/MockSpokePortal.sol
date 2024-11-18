@@ -22,5 +22,10 @@ contract MockSpokePortal {
         bytes memory transceiverInstructions
     ) external payable returns (uint64) {
         IERC20(mToken).transferFrom(msg.sender, address(this), amount);
+
+        // Simulate ETH refund
+        if (msg.value > 1) {
+            msg.sender.call{ value: msg.value - 1 }("");
+        }
     }
 }

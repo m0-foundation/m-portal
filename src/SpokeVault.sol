@@ -84,6 +84,14 @@ contract SpokeVault is ISpokeVault, Migratable {
             false,
             new bytes(1)
         );
+
+        uint256 ethBalance_ = address(this).balance;
+
+        /// Refund any excess ETH back to the caller.
+        if (ethBalance_ != 0) {
+            (bool sent_, ) = msg.sender.call{ value: ethBalance_ }("");
+            if (!sent_) revert FailedEthRefund(ethBalance_);
+        }
     }
 
     /* ============ Temporary Admin Migration ============ */
@@ -107,4 +115,9 @@ contract SpokeVault is ISpokeVault, Migratable {
                 )
             );
     }
+
+    /* ============ Fallback Function ============ */
+
+    /// @dev Fallback function to receive ETH.
+    receive() external payable {}
 }

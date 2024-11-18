@@ -30,6 +30,12 @@ interface ISpokeVault is IMigratable {
     /* ============ Custom Errors ============ */
 
     /**
+     * @notice Emitted when `transferExcessM` fails to refund the excess ETH to the caller.
+     * @param  refund The amount of ETH that failed to be refunded.
+     */
+    error FailedEthRefund(uint256 refund);
+
+    /**
      * @notice Emitted when the amount of M token being sent is greater than the balance of the Vault.
      * @param balance The M token balance of the Vault.
      * @param amount  The amount of M token being sent.
