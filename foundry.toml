@@ -4,6 +4,7 @@ fs_permissions = [
   { access = "read", path = "./config" },
   { access = "read", path = "./test/fork/fixtures/" },
 ]
+fork_block_number = 21_146_367
 gas_reports = ["HubPortal", "SpokePortal"]
 gas_reports_ignore = []
 ignored_error_codes = []

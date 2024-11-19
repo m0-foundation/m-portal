@@ -10,13 +10,13 @@ import { ContractHelper } from "../../lib/common/src/libs/ContractHelper.sol";
 import { MToken as SpokeMToken } from "../../lib/protocol/src/MToken.sol";
 import { Registrar as SpokeRegistrar } from "../../lib/ttg/src/Registrar.sol";
 
-import { DeployBase } from "../../script/deploy/DeployBase.sol";
+import { ForkTestBase } from "./ForkTestBase.t.sol";
 
-contract Deploy is DeployBase, Test {
-    address internal constant _DEPLOYER = 0xF2f1ACbe0BA726fEE8d75f3E32900526874740BB;
-
-    // TODO: confirm that this is the correct address.
-    address internal constant _MIGRATION_ADMIN = 0x431169728D75bd02f4053435b87D15c8d1FB2C72;
+contract Deploy is ForkTestBase {
+    function setUp() public override {
+        super.setUp();
+        _configurePortals();
+    }
 
     function testFork_deployHub() external {
         vm.createSelectFork(vm.rpcUrl("mainnet"));
@@ -110,9 +110,5 @@ contract Deploy is DeployBase, Test {
         assertEq(SpokeMToken(baseSpokeMToken_).portal(), baseSpokePortal_);
         assertEq(SpokeMToken(baseSpokeMToken_).registrar(), baseSpokeRegistrar_);
         assertEq(SpokeRegistrar(baseSpokeRegistrar_).portal(), baseSpokePortal_);
-    }
-
-    function _burnNonces(address account_, uint64 startingNonce_, uint64 targetNonce_) internal {
-        vm.setNonce(account_, targetNonce_);
     }
 }

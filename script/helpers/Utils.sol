@@ -61,7 +61,7 @@ contract Utils {
     address internal constant _OPTIMISM_SEPOLIA_WORMHOLE_RELAYER = 0x93BAD53DDfB6132b0aC8E37f6029163E63372cEE;
 
     uint256 internal constant _MIN_WORMHOLE_GAS_LIMIT = 150_000;
-    uint256 internal constant _WORMHOLE_GAS_LIMIT = 200_000;
+    uint256 internal constant _WORMHOLE_GAS_LIMIT = 250_000;
 
     // Instant confirmation. Guardians signs the VAA once the transaction has been included in a block.
     uint8 internal constant _INSTANT_CONSISTENCY_LEVEL = 200;

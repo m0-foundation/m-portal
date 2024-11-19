@@ -11,7 +11,7 @@
         "special_relayer": "0x0000000000000000000000000000000000000000",
         "transceiver": "0x0763196A091575adF99e2306E5e90E0Be5154841",
         "consistency_level": "15",
-        "gas_limit": "250000"
+        "gas_limit": "300000"
       }
     },
     "8453": {
@@ -25,7 +25,7 @@
         "special_relayer": "0x0000000000000000000000000000000000000000",
         "transceiver": "0x0763196A091575adF99e2306E5e90E0Be5154841",
         "consistency_level": "15",
-        "gas_limit": "250000"
+        "gas_limit": "300000"
       }
     },
     "10": {
@@ -39,7 +39,7 @@
         "special_relayer": "0x0000000000000000000000000000000000000000",
         "transceiver": "0x0763196A091575adF99e2306E5e90E0Be5154841",
         "consistency_level": "15",
-        "gas_limit": "250000"
+        "gas_limit": "300000"
       }
     }
   }
