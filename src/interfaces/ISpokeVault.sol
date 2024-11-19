@@ -30,11 +30,10 @@ interface ISpokeVault is IMigratable {
     /* ============ Custom Errors ============ */
 
     /**
-     * @notice Emitted when the amount of M token being sent is greater than the balance of the Vault.
-     * @param balance The M token balance of the Vault.
-     * @param amount  The amount of M token being sent.
+     * @notice Emitted when `transferExcessM` fails to refund the excess ETH to the caller.
+     * @param  refund The amount of ETH that failed to be refunded.
      */
-    error InsufficientMTokenBalance(uint256 balance, uint256 amount);
+    error FailedEthRefund(uint256 refund);
 
     /// @notice Emitted when the non-governance migrate function is called by an account other than the migration admin.
     error UnauthorizedMigration();
@@ -54,12 +53,11 @@ interface ISpokeVault is IMigratable {
     /* ============ Interactive Functions ============ */
 
     /**
-     * @notice Transfers excess `amount` of M to the HubVault on Ethereum Mainnet.
-     * @param  amount          The excess amount of M to transfer.
-     * @param  refundAddress   The address to which a refund for unussed gas is issued on the destination chain.
+     * @notice Transfers the total excess amount of M in the SpokeVault to the HubVault on Ethereum Mainnet.
+     * @param  refundAddress   The address to which a refund for unused gas is issued on the destination chain.
      * @return messageSequence The message sequence ID of the transfer.
      */
-    function transferExcessM(uint256 amount, bytes32 refundAddress) external payable returns (uint64 messageSequence);
+    function transferExcessM(bytes32 refundAddress) external payable returns (uint64 messageSequence);
 
     /* ============ Temporary Admin Migration ============ */
 

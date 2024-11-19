@@ -59,26 +59,22 @@ contract SpokeVault is ISpokeVault, Migratable {
 
         mToken = IPortal(spokePortal).mToken();
         registrar = IPortal(spokePortal).registrar();
-
-        // Approve the SpokePortal to transfer M tokens.
-        IERC20(mToken).approve(spokePortal_, type(uint256).max);
     }
 
     /* ============ Interactive Functions ============ */
 
     /// @inheritdoc ISpokeVault
-    function transferExcessM(
-        uint256 amount_,
-        bytes32 refundAddress_
-    ) external payable returns (uint64 messageSequence_) {
-        uint256 mTokenBalance_ = IERC20(mToken).balanceOf(address(this));
-        if (mTokenBalance_ < amount_) revert InsufficientMTokenBalance(mTokenBalance_, amount_);
+    function transferExcessM(bytes32 refundAddress_) external payable returns (uint64 messageSequence_) {
+        uint256 amount_ = IERC20(mToken).balanceOf(address(this));
+
+        if (amount_ == 0) return messageSequence_;
 
         bytes32 hubVault_ = hubVault.toBytes32();
 
-        emit ExcessMTokenSent(destinationChainId, messageSequence_, msg.sender.toBytes32(), hubVault_, amount_);
+        address spokePortal_ = spokePortal;
+        IERC20(mToken).approve(spokePortal_, amount_);
 
-        messageSequence_ = INttManager(spokePortal).transfer{ value: msg.value }(
+        messageSequence_ = INttManager(spokePortal_).transfer{ value: msg.value }(
             amount_,
             destinationChainId,
             hubVault_,
@@ -86,6 +82,16 @@ contract SpokeVault is ISpokeVault, Migratable {
             false,
             new bytes(1)
         );
+
+        emit ExcessMTokenSent(destinationChainId, messageSequence_, msg.sender.toBytes32(), hubVault_, amount_);
+
+        uint256 ethBalance_ = address(this).balance;
+
+        /// Refund any excess ETH back to the caller.
+        if (ethBalance_ != 0) {
+            (bool sent_, ) = msg.sender.call{ value: ethBalance_ }("");
+            if (!sent_) revert FailedEthRefund(ethBalance_);
+        }
     }
 
     /* ============ Temporary Admin Migration ============ */
@@ -109,4 +115,9 @@ contract SpokeVault is ISpokeVault, Migratable {
                 )
             );
     }
+
+    /* ============ Fallback Function ============ */
+
+    /// @dev Fallback function to receive ETH.
+    receive() external payable {}
 }

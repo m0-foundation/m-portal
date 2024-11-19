@@ -2,6 +2,8 @@
 
 pragma solidity 0.8.26;
 
+import { INttManager } from "../../lib/example-native-token-transfers/evm/src/interfaces/INttManager.sol";
+
 import { ISpokeVault } from "../../src/interfaces/ISpokeVault.sol";
 import { SpokeVault } from "../../src/SpokeVault.sol";
 
@@ -12,6 +14,8 @@ import { MockSpokePortal } from "../mocks/MockSpokePortal.sol";
 import { MockSpokeRegistrar } from "../mocks/MockSpokeRegistrar.sol";
 
 import { UnitTestBase } from "./UnitTestBase.t.sol";
+
+contract MockNoFallbackContract {}
 
 contract SpokeVaultV2 {
     function foo() external pure returns (uint256) {
@@ -45,6 +49,7 @@ contract SpokeVaultTests is UnitTestBase {
 
     bytes32 internal constant _MIGRATOR_KEY_PREFIX = "spoke_vault_migrator_v1";
 
+    MockNoFallbackContract internal _noFallbackContract;
     MockSpokeMToken internal _mToken;
     MockSpokePortal internal _portal;
     MockSpokeRegistrar internal _registrar;
@@ -52,12 +57,15 @@ contract SpokeVaultTests is UnitTestBase {
     SpokeVault internal _vault;
 
     function setUp() external {
+        _noFallbackContract = new MockNoFallbackContract();
         _mToken = new MockSpokeMToken();
         _registrar = new MockSpokeRegistrar();
         _portal = new MockSpokePortal(address(_mToken), address(_registrar));
 
         _vault = SpokeVault(
-            _createProxy(address(new SpokeVault(address(_portal), _hubVault, _REMOTE_CHAIN_ID, _migrationAdmin)))
+            payable(
+                _createProxy(address(new SpokeVault(address(_portal), _hubVault, _REMOTE_CHAIN_ID, _migrationAdmin)))
+            )
         );
     }
 
@@ -96,30 +104,31 @@ contract SpokeVaultTests is UnitTestBase {
         new SpokeVault(address(_portal), _hubVault, _REMOTE_CHAIN_ID, address(0));
     }
 
-    function test_constructor_mTokenApproval() external {
-        vm.expectCall(address(_mToken), abi.encodeCall(_mToken.approve, (address(_portal), type(uint256).max)));
-        new SpokeVault(address(_portal), _hubVault, _REMOTE_CHAIN_ID, _migrationAdmin);
-    }
-
     /* ============ transferExcessM ============ */
 
-    function test_transferExcessM_insufficientBalance() external {
+    function test_transferExcessM_earlyReturn() external {
+        assertEq(_vault.transferExcessM(_alice.toBytes32()), 0);
+    }
+
+    function test_transferExcessM_failedEthRefund() external {
         uint256 amount_ = 1_000e6;
+        uint256 fee_ = 2;
 
-        vm.expectRevert(abi.encodeWithSelector(ISpokeVault.InsufficientMTokenBalance.selector, 0, amount_));
+        vm.deal(address(_noFallbackContract), fee_);
+        _mToken.mint(address(_vault), amount_, _EXP_SCALED_ONE);
 
-        vm.prank(_alice);
-        _vault.transferExcessM(amount_, _alice.toBytes32());
+        vm.expectRevert(abi.encodeWithSelector(ISpokeVault.FailedEthRefund.selector, 1));
+
+        vm.prank(address(_noFallbackContract));
+        _vault.transferExcessM{ value: fee_ }(address(_noFallbackContract).toBytes32());
     }
 
     function test_transferExcessM() external {
-        uint256 amount_ = 1_000e6;
-        uint256 balance_ = 10_000e6;
-        uint256 fee_ = 1;
+        uint256 amount_ = 10_000e6;
+        uint256 fee_ = 2;
 
         vm.deal(_alice, fee_);
-
-        vm.mockCall(address(_mToken), abi.encodeCall(_mToken.balanceOf, (address(_vault))), abi.encode(balance_));
+        _mToken.mint(address(_vault), amount_, _EXP_SCALED_ONE);
 
         vm.expectCall(
             address(_portal),
@@ -131,10 +140,12 @@ contract SpokeVaultTests is UnitTestBase {
         );
 
         vm.expectEmit();
-        emit ISpokeVault.ExcessMTokenSent(_REMOTE_CHAIN_ID, 0, _alice.toBytes32(), _hubVault.toBytes32(), amount_);
+        emit ISpokeVault.ExcessMTokenSent(_REMOTE_CHAIN_ID, 1, _alice.toBytes32(), _hubVault.toBytes32(), amount_);
 
         vm.prank(_alice);
-        _vault.transferExcessM{ value: fee_ }(amount_, _alice.toBytes32());
+        _vault.transferExcessM{ value: fee_ }(_alice.toBytes32());
+
+        assertEq(_alice.balance, fee_ - 1);
     }
 
     /* ============ migrate ============ */
