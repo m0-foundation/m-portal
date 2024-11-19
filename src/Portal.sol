@@ -108,6 +108,8 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         bytes memory payload_ = message_.payload;
         PayloadType payloadType_ = message_.payload.getPayloadType();
 
+        _verifyIfChainForked();
+
         if (payloadType_ == PayloadType.Token) {
             _receiveMToken(sourceChainId_, messageId_, message_.sender, payload_);
             return;
@@ -127,6 +129,9 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
 
         emit MTokenReceived(sourceChainId_, messageId_, sender_, recipient_, amount_, index_);
 
+        // Emitting `INttManager.TransferRedeemed` to comply with Wormhole NTT specification.
+        emit TransferRedeemed(messageId_);
+
         _mintOrUnlock(recipient_, amount_, index_);
     }
 
@@ -139,6 +144,12 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
     function _verifyDestinationChain(uint16 destinationChainId_) internal view {
         // Verify that the destination chain is the current chain.
         if (destinationChainId_ != chainId) revert InvalidTargetChain(destinationChainId_, chainId);
+    }
+
+    function _verifyIfChainForked() internal view {
+        // Verify that the destination chain isn't forked
+        uint256 evmChainId_ = evmChainId;
+        if (evmChainId_ != block.chainid) revert InvalidFork(evmChainId_, block.chainid);
     }
 
     /**

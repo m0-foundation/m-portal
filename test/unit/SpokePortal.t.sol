@@ -3,8 +3,10 @@
 pragma solidity 0.8.26;
 
 import { IManagerBase } from "../../lib/example-native-token-transfers/evm/src/interfaces/IManagerBase.sol";
+import { INttManager } from "../../lib/example-native-token-transfers/evm/src/interfaces/INttManager.sol";
 import { TransceiverStructs } from "../../lib/example-native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
 
+import { IPortal } from "../../src/interfaces/IPortal.sol";
 import { ISpokePortal } from "../../src/interfaces/ISpokePortal.sol";
 import { SpokePortal } from "../../src/SpokePortal.sol";
 import { PayloadEncoder } from "../../src/libs/PayloadEncoder.sol";
@@ -208,7 +210,7 @@ contract SpokePortalTests is UnitTestBase {
 
         assertEq(_portal.outstandingPrincipal(), 0);
 
-        (TransceiverStructs.NttManagerMessage memory message_, ) = _createTransferMessage(
+        (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) = _createTransferMessage(
             amount_,
             remoteIndex_,
             _alice.toBytes32(),
@@ -217,6 +219,12 @@ contract SpokePortalTests is UnitTestBase {
         );
 
         vm.expectCall(address(_mToken), abi.encodeWithSignature("mint(address,uint256)", _alice, amount_));
+
+        vm.expectEmit();
+        emit IPortal.MTokenReceived(_REMOTE_CHAIN_ID, messageId_, _alice.toBytes32(), _alice, amount_, remoteIndex_);
+
+        vm.expectEmit();
+        emit INttManager.TransferRedeemed(messageId_);
 
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);

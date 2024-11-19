@@ -3,8 +3,10 @@
 pragma solidity 0.8.26;
 
 import { IManagerBase } from "../../lib/example-native-token-transfers/evm/src/interfaces/IManagerBase.sol";
+import { INttManager } from "../../lib/example-native-token-transfers/evm/src/interfaces/INttManager.sol";
 import { TransceiverStructs } from "../../lib/example-native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
 
+import { IPortal } from "../../src/interfaces/IPortal.sol";
 import { IHubPortal } from "../../src/interfaces/IHubPortal.sol";
 import { HubPortal } from "../../src/HubPortal.sol";
 import { PayloadEncoder } from "../../src/libs/PayloadEncoder.sol";
@@ -293,7 +295,7 @@ contract HubPortalTests is UnitTestBase {
 
         _mToken.mint(address(_portal), amount_);
 
-        (TransceiverStructs.NttManagerMessage memory message_, ) = _createTransferMessage(
+        (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) = _createTransferMessage(
             amount_,
             remoteIndex_,
             _alice.toBytes32(),
@@ -302,6 +304,12 @@ contract HubPortalTests is UnitTestBase {
         );
 
         vm.expectCall(address(_mToken), abi.encodeCall(_mToken.transfer, (_alice, amount_)));
+
+        vm.expectEmit();
+        emit IPortal.MTokenReceived(_REMOTE_CHAIN_ID, messageId_, _alice.toBytes32(), _alice, amount_, remoteIndex_);
+
+        vm.expectEmit();
+        emit INttManager.TransferRedeemed(messageId_);
 
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);

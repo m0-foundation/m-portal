@@ -116,6 +116,27 @@ contract PortalTests is UnitTestBase {
 
     /* ============ _handleMsg ============ */
 
+    function test_handleMsg_invalidFork() external {
+        uint256 amount_ = 1_000e6;
+        uint128 index_ = 0;
+        uint256 msgValue_ = 2;
+        bytes32 recipient_ = _alice.toBytes32();
+
+        (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) = _createTransferMessage(
+            amount_,
+            index_,
+            recipient_,
+            _LOCAL_CHAIN_ID,
+            _REMOTE_CHAIN_ID
+        );
+
+        vm.expectRevert(abi.encodeWithSelector(IPortal.InvalidFork.selector, 31337, 1));
+
+        vm.chainId(1);
+        vm.prank(address(_transceiver));
+        _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
+    }
+
     function test_handleMsg_invalidPayloadLength() external {
         TransceiverStructs.NttManagerMessage memory message_ = TransceiverStructs.NttManagerMessage(
             bytes32(0),

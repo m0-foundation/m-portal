@@ -53,6 +53,10 @@ interface IPortal {
     /// @notice Emitted when the Registrar address is 0x0.
     error ZeroRegistrar();
 
+    /// @notice Emitted when a message received if the block.chainId
+    ///         isn't equal to EVM chainId set in the constructor.
+    error InvalidFork(uint256 evmChainId, uint256 blockChainId);
+
     /* ============ View/Pure Functions ============ */
 
     /// @notice The current index of the Portal's earning mechanism.
