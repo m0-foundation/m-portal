@@ -52,7 +52,9 @@ library PayloadEncoder {
         TransceiverStructs.NativeTokenTransfer memory nativeTokenTransfer_ = TransceiverStructs
             .parseNativeTokenTransfer(payload_);
 
-        (index_, ) = nativeTokenTransfer_.additionalPayload.asUint64(0);
+        uint256 offset_ = 0;
+        (index_, offset_) = nativeTokenTransfer_.additionalPayload.asUint64Unchecked(offset_);
+        nativeTokenTransfer_.additionalPayload.checkLength(offset_);
 
         trimmedAmount_ = nativeTokenTransfer_.amount;
         recipient_ = nativeTokenTransfer_.to.toAddress();
