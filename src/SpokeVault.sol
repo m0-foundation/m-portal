@@ -71,8 +71,10 @@ contract SpokeVault is ISpokeVault, Migratable {
 
         bytes32 hubVault_ = hubVault.toBytes32();
 
-        IERC20(mToken).approve(spokePortal, amount_);
-        messageSequence_ = INttManager(spokePortal).transfer{ value: msg.value }(
+        address spokePortal_ = spokePortal;
+        IERC20(mToken).approve(spokePortal_, amount_);
+
+        messageSequence_ = INttManager(spokePortal_).transfer{ value: msg.value }(
             amount_,
             destinationChainId,
             hubVault_,
