@@ -26,17 +26,11 @@ contract HubPortal is IHubPortal, Portal {
 
     /* ============ Variables ============ */
 
-    /// @dev Registrar key holding value of whether the earners list can be ignored or not.
-    bytes32 internal constant _EARNERS_LIST_IGNORED = "earners_list_ignored";
-
-    /// @dev Registrar key of earners list.
-    bytes32 internal constant _EARNERS_LIST = "earners";
-
     /// @dev The Hub Portal's index when earning was most recently disabled
-    uint128 public _disablePortalIndex;
+    uint128 private _disablePortalIndex;
 
-    // The M token's index when earning was most recently enabled
-    uint128 public _enableMTokenIndex;
+    /// @dev The M token's index when earning was most recently enabled
+    uint128 private _enableMTokenIndex;
 
     /* ============ Constructor ============ */
 
@@ -180,7 +174,7 @@ contract HubPortal is IHubPortal, Portal {
     function _currentIndex() internal view override returns (uint128) {
         return
             _isEarningEnabled()
-                ? (_disablePortalIndex * _currentMTokenIndex()) / _enableMTokenIndex
+                ? uint128(uint256(_disablePortalIndex) * _currentMTokenIndex()) / _enableMTokenIndex
                 : _disablePortalIndex;
     }
 
@@ -189,7 +183,7 @@ contract HubPortal is IHubPortal, Portal {
     }
 
     /// @dev Returns whether earning was enabled for HubPortal or not.
-    function _isEarningEnabled() public view returns (bool) {
+    function _isEarningEnabled() private view returns (bool) {
         return _enableMTokenIndex != 0;
     }
 }
