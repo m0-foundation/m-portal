@@ -31,8 +31,10 @@ contract HubPortal is IHubPortal, Portal {
     /// @dev Registrar key of earners list.
     bytes32 internal constant _EARNERS_LIST = "earners";
 
+    /// @inheritdoc IHubPortal
     bool public wasEarningEnabled;
 
+    /// @inheritdoc IHubPortal
     uint128 public disableEarningIndex;
 
     /* ============ Constructor ============ */
