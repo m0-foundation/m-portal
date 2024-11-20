@@ -3,6 +3,7 @@
 pragma solidity 0.8.26;
 
 import { IERC20 } from "../lib/common/src/interfaces/IERC20.sol";
+import { UIntMath } from "../lib/common/src/libs/UIntMath.sol";
 import { IndexingMath } from "../lib/common/src/libs/IndexingMath.sol";
 import { TransceiverStructs } from "../lib/example-native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
 
@@ -174,11 +175,12 @@ contract HubPortal is IHubPortal, Portal {
     function _currentIndex() internal view override returns (uint128) {
         return
             _isEarningEnabled()
-                ? uint128(uint256(_disablePortalIndex) * _currentMTokenIndex()) / _enableMTokenIndex
+                ? UIntMath.bound128((uint256(_disablePortalIndex) * _currentMTokenIndex()) / _enableMTokenIndex)
                 : _disablePortalIndex;
     }
 
-    function _currentMTokenIndex() private view returns (uint128 index_) {
+    /// @dev Returns the current M Token index
+    function _currentMTokenIndex() private view returns (uint128) {
         return IMTokenLike(mToken()).currentIndex();
     }
 
