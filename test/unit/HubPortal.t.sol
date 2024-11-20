@@ -157,6 +157,13 @@ contract HubPortalTests is UnitTestBase {
 
     /* ============ sendMTokenIndex ============ */
 
+    function test_sendMTokenIndex_zeroRefundAddress() external {
+        vm.expectRevert(INttManager.InvalidRefundAddress.selector);
+
+        vm.prank(_alice);
+        _portal.sendMTokenIndex(_REMOTE_CHAIN_ID, address(0).toBytes32());
+    }
+
     function test_sendMTokenIndex() external {
         uint128 index_ = 1_100000068703;
         uint256 fee_ = 1;
@@ -195,6 +202,13 @@ contract HubPortalTests is UnitTestBase {
 
     /* ============ sendRegistrarKey ============ */
 
+    function test_sendRegistrarKey_zeroRefundAddress() external {
+        vm.expectRevert(INttManager.InvalidRefundAddress.selector);
+
+        vm.prank(_alice);
+        _portal.sendRegistrarKey(_REMOTE_CHAIN_ID, bytes32("key"), address(0).toBytes32());
+    }
+
     function test_sendRegistrarKey() external {
         bytes32 key_ = bytes32("key");
         bytes32 value_ = bytes32("value");
@@ -232,6 +246,13 @@ contract HubPortalTests is UnitTestBase {
     }
 
     /* ============ sendRegistrarListStatus ============ */
+
+    function test_sendRegistrarListStatus_zeroRefundAddress() external {
+        vm.expectRevert(INttManager.InvalidRefundAddress.selector);
+
+        vm.prank(_alice);
+        _portal.sendRegistrarListStatus(_REMOTE_CHAIN_ID, bytes32("listName"), _bob, address(0).toBytes32());
+    }
 
     function test_sendRegistrarListStatus() external {
         bytes32 listName_ = bytes32("listName");
