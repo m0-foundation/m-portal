@@ -73,6 +73,18 @@ contract PortalTests is UnitTestBase {
         _portal.transfer(1_000e6, _REMOTE_CHAIN_ID, bytes32(0));
     }
 
+    function test_transfer_indexOverflow() external {
+        vm.expectRevert(TypeConverter.Uint64Overflow.selector);
+
+        _createTransferMessage(
+            1_000e6,
+            uint128(type(uint64).max) + 1,
+            _alice.toBytes32(),
+            _LOCAL_CHAIN_ID,
+            _REMOTE_CHAIN_ID
+        );
+    }
+
     function test_transfer() external {
         uint256 amount_ = 1_000e6;
         uint128 index_ = 0;
