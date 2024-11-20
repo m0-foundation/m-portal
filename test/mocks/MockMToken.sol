@@ -19,7 +19,11 @@ contract MockMToken is MockERC20 {
         isEarning[account_] = isEarning_;
     }
 
-    function startEarning() external {}
+    function startEarning() external {
+        isEarning[msg.sender] = true;
+    }
 
-    function stopEarning() external {}
+    function stopEarning(address account_) external {
+        isEarning[account_] = false;
+    }
 }

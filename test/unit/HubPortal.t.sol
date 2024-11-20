@@ -52,66 +52,74 @@ contract HubPortalTests is UnitTestBase {
     /* ============ currentIndex ============ */
 
     function test_currentIndex_initialState() external {
-        assertEq(_portal.currentIndex(), 0);
+        assertEq(_portal.currentIndex(), _EXP_SCALED_ONE);
     }
 
     function test_currentIndex_earningEnabled() external {
-        uint128 index_ = 1_100000068703;
+        _mToken.setCurrentIndex(1.1e12);
 
-        _mToken.setCurrentIndex(index_);
-        _mToken.setIsEarning(address(_portal), true);
+        assertEq(_portal.currentIndex(), _EXP_SCALED_ONE);
 
-        assertEq(_portal.currentIndex(), index_);
+        _portal.enableEarning();
+
+        // HubPortal index doesn't change
+        assertEq(_portal.currentIndex(), _EXP_SCALED_ONE);
+
+        _mToken.setCurrentIndex(2.2e12);
+
+        // HubPortal index updated proportionally to M Token index update
+        assertEq(_portal.currentIndex(), 2e12);
     }
 
-    function test_currentIndex_earningEnabledInThePast() external {
-        uint128 index_ = 1_100000068703;
-        uint128 latestIndex_ = 1_200000068703;
+    function test_currentIndex_earningDisabled() external {
+        _mToken.setCurrentIndex(1.1e12);
 
-        _mToken.setCurrentIndex(index_);
-        _mToken.setIsEarning(address(_portal), true);
+        _portal.enableEarning();
 
-        assertEq(_portal.currentIndex(), index_);
+        _mToken.setCurrentIndex(2.2e12);
 
-        _mToken.setCurrentIndex(latestIndex_);
+        // HubPortal index updated proportionally to M Token index update
+        assertEq(_portal.currentIndex(), 2e12);
 
         _portal.disableEarning();
+        _mToken.setCurrentIndex(3.3e12);
 
-        _mToken.setIsEarning(address(_portal), false);
-        _mToken.setCurrentIndex(1_300000068703);
+        // HubPortal index doesn't change
+        assertEq(_portal.currentIndex(), 2e12);
+    }
 
-        assertEq(_portal.currentIndex(), latestIndex_);
+    function test_currentIndex_earningReenabled() external {
+        _mToken.setCurrentIndex(1.1e12);
+        _portal.enableEarning();
+
+        _mToken.setCurrentIndex(2.2e12);
+
+        // HubPortal index updated proportionally to M Token index update
+        assertEq(_portal.currentIndex(), 2e12);
+
+        _portal.disableEarning();
+        _mToken.setCurrentIndex(3.3e12);
+
+        // HubPortal index doesn't change
+        assertEq(_portal.currentIndex(), 2e12);
+
+        _portal.enableEarning();
+
+        // HubPortal index doesn't change
+        assertEq(_portal.currentIndex(), 2e12);
+
+        _mToken.setCurrentIndex(6.6e12);
+        // HubPortal index updated proportionally to M Token index update
+        assertEq(_portal.currentIndex(), 4e12);
     }
 
     /* ============ enableEarning ============ */
 
-    function test_enableEarning_notApprovedEarner() external {
-        vm.expectRevert(abi.encodeWithSelector(IHubPortal.NotApprovedEarner.selector));
-        _portal.enableEarning();
-    }
-
     function test_enableEarning_earningIsEnabled() external {
-        _registrar.setListContains(_EARNERS_LIST, address(_portal), true);
-        _mToken.setIsEarning(address(_portal), true);
+        _mToken.setCurrentIndex(1.1e12);
+        _portal.enableEarning();
 
         vm.expectRevert(IHubPortal.EarningIsEnabled.selector);
-        _portal.enableEarning();
-    }
-
-    function test_enableEarning_earningCannotBeReenabled() external {
-        _registrar.setListContains(_EARNERS_LIST, address(_portal), true);
-
-        _portal.enableEarning();
-
-        _mToken.setIsEarning(address(_portal), true);
-        _registrar.setListContains(_EARNERS_LIST, address(_portal), false);
-
-        _portal.disableEarning();
-
-        _mToken.setIsEarning(address(_portal), false);
-        _registrar.setListContains(_EARNERS_LIST, address(_portal), true);
-
-        vm.expectRevert(IHubPortal.EarningCannotBeReenabled.selector);
         _portal.enableEarning();
     }
 
@@ -119,7 +127,6 @@ contract HubPortalTests is UnitTestBase {
         uint128 currentMIndex_ = 1_100000068703;
 
         _mToken.setCurrentIndex(currentMIndex_);
-        _registrar.set(_EARNERS_LIST_IGNORED, bytes32("1"));
 
         vm.expectEmit();
         emit IHubPortal.EarningEnabled(currentMIndex_);
@@ -130,13 +137,6 @@ contract HubPortalTests is UnitTestBase {
 
     /* ============ disableEarning ============ */
 
-    function test_disableEarning_approvedEarner() external {
-        _registrar.set(_EARNERS_LIST_IGNORED, bytes32("1"));
-
-        vm.expectRevert(IHubPortal.IsApprovedEarner.selector);
-        _portal.disableEarning();
-    }
-
     function test_disableEarning_earningIsDisabled() external {
         vm.expectRevert(IHubPortal.EarningIsDisabled.selector);
         _portal.disableEarning();
@@ -146,12 +146,12 @@ contract HubPortalTests is UnitTestBase {
         uint128 currentMIndex_ = 1_100000068703;
 
         _mToken.setCurrentIndex(currentMIndex_);
-        _mToken.setIsEarning(address(_portal), true);
+        _portal.enableEarning();
 
         vm.expectEmit();
-        emit IHubPortal.EarningDisabled(currentMIndex_);
+        emit IHubPortal.EarningDisabled(_EXP_SCALED_ONE);
 
-        vm.expectCall(address(_mToken), abi.encodeCall(_mToken.stopEarning, ()));
+        vm.expectCall(address(_mToken), abi.encodeCall(_mToken.stopEarning, (address(_portal))));
         _portal.disableEarning();
     }
 
@@ -162,8 +162,9 @@ contract HubPortalTests is UnitTestBase {
         uint256 fee_ = 1;
         bytes32 refundAddress_ = _alice.toBytes32();
 
+        _mToken.setCurrentIndex(_EXP_SCALED_ONE);
+        _portal.enableEarning();
         _mToken.setCurrentIndex(index_);
-        _mToken.setIsEarning(address(_portal), true);
         vm.deal(_alice, fee_);
 
         (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) = _createMessage(

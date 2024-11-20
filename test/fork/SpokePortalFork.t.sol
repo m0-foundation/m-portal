@@ -81,7 +81,7 @@ contract SpokePortalForkTests is ForkTestBase {
         _deliverMessage(_OPTIMISM_WORMHOLE_RELAYER, spokeSignedMessage_);
 
         assertEq(IERC20(_optimismSpokeMToken).balanceOf(_mHolder), _amount);
-        assertEq(IContinuousIndexing(_optimismSpokeMToken).currentIndex(), _mainnetIndex);
+        assertEq(IContinuousIndexing(_optimismSpokeMToken).currentIndex(), _EXP_SCALED_ONE);
     }
 
     function _beforeTest() internal {
@@ -117,7 +117,7 @@ contract SpokePortalForkTests is ForkTestBase {
         _deliverMessage(_BASE_WORMHOLE_RELAYER, hubSignedMessage_);
 
         assertEq(IERC20(_baseSpokeMToken).balanceOf(_mHolder), _amount);
-        assertEq(IContinuousIndexing(_baseSpokeMToken).currentIndex(), _mainnetIndex);
+        assertEq(IContinuousIndexing(_baseSpokeMToken).currentIndex(), _EXP_SCALED_ONE);
 
         // TODO: add excess test once underflow has been fixed
         // ISpokePortal(_baseSpokePortal).excess();
