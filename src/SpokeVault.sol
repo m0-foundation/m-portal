@@ -9,7 +9,6 @@ import { INttManager } from "../lib/example-native-token-transfers/evm/src/inter
 import { TypeConverter } from "./libs/TypeConverter.sol";
 
 import { IPortal } from "./interfaces/IPortal.sol";
-import { IRegistrarLike } from "./interfaces/IRegistrarLike.sol";
 import { ISpokeVault } from "./interfaces/ISpokeVault.sol";
 
 /**
@@ -37,9 +36,6 @@ contract SpokeVault is ISpokeVault, Migratable {
     address public immutable hubVault;
 
     /// @inheritdoc ISpokeVault
-    address public immutable registrar;
-
-    /// @inheritdoc ISpokeVault
     address public immutable spokePortal;
 
     /* ============ Constructor ============ */
@@ -58,7 +54,6 @@ contract SpokeVault is ISpokeVault, Migratable {
         if ((migrationAdmin = migrationAdmin_) == address(0)) revert ZeroMigrationAdmin();
 
         mToken = IPortal(spokePortal).mToken();
-        registrar = IPortal(spokePortal).registrar();
     }
 
     /* ============ Interactive Functions ============ */
@@ -106,14 +101,9 @@ contract SpokeVault is ISpokeVault, Migratable {
     /* ============ Internal View/Pure Functions ============ */
 
     /// @dev Returns the address of the contract to use as a migrator, if any.
+    ///      Migration via Registrar key disabled for the first version.
     function _getMigrator() internal view override returns (address migrator_) {
-        return
-            address(
-                uint160(
-                    // NOTE: A subsequent implementation should use a unique migrator prefix.
-                    uint256(IRegistrarLike(registrar).get(keccak256(abi.encode(MIGRATOR_KEY_PREFIX, address(this)))))
-                )
-            );
+        return address(0);
     }
 
     /* ============ Fallback Function ============ */

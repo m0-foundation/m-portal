@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.26;
 
-import { INttManager } from "../../lib/example-native-token-transfers/evm/src/interfaces/INttManager.sol";
+import { IMigratable } from "../../lib/common/src/interfaces/IMigratable.sol";
 
 import { ISpokeVault } from "../../src/interfaces/ISpokeVault.sol";
 import { SpokeVault } from "../../src/SpokeVault.sol";
@@ -11,7 +11,6 @@ import { TypeConverter } from "../../src/libs/TypeConverter.sol";
 
 import { MockSpokeMToken } from "../mocks/MockSpokeMToken.sol";
 import { MockSpokePortal } from "../mocks/MockSpokePortal.sol";
-import { MockSpokeRegistrar } from "../mocks/MockSpokeRegistrar.sol";
 
 import { UnitTestBase } from "./UnitTestBase.t.sol";
 
@@ -52,15 +51,13 @@ contract SpokeVaultTests is UnitTestBase {
     MockNoFallbackContract internal _noFallbackContract;
     MockSpokeMToken internal _mToken;
     MockSpokePortal internal _portal;
-    MockSpokeRegistrar internal _registrar;
 
     SpokeVault internal _vault;
 
     function setUp() external {
         _noFallbackContract = new MockNoFallbackContract();
         _mToken = new MockSpokeMToken();
-        _registrar = new MockSpokeRegistrar();
-        _portal = new MockSpokePortal(address(_mToken), address(_registrar));
+        _portal = new MockSpokePortal(address(_mToken), makeAddr("registrar"));
 
         _vault = SpokeVault(
             payable(
@@ -78,7 +75,6 @@ contract SpokeVaultTests is UnitTestBase {
         assertEq(_vault.migrationAdmin(), _migrationAdmin);
         assertEq(_vault.mToken(), address(_mToken));
         assertEq(_vault.hubVault(), _hubVault);
-        assertEq(_vault.registrar(), address(_registrar));
         assertEq(_vault.spokePortal(), address(_portal));
     }
 
@@ -157,20 +153,8 @@ contract SpokeVaultTests is UnitTestBase {
     }
 
     function test_migrate() external {
-        SpokeVaultV2 implementationV2_ = new SpokeVaultV2();
-        address migrator_ = address(new SpokeVaultMigratorV1(address(implementationV2_)));
-
-        _registrar.setKey(
-            keccak256(abi.encode(_MIGRATOR_KEY_PREFIX, address(_vault))),
-            bytes32(uint256(uint160(migrator_)))
-        );
-
-        vm.expectRevert();
-        SpokeVaultV2(address(_vault)).foo();
-
+        vm.expectRevert(IMigratable.ZeroMigrator.selector);
         _vault.migrate();
-
-        assertEq(SpokeVaultV2(address(_vault)).foo(), 1);
     }
 
     function test_migrate_byAdmin() external {

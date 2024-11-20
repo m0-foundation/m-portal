@@ -84,9 +84,6 @@ interface ISpokeVault is IMigratable {
     /// @notice Address of the Vault on Ethereum Mainnet that will receive the excess M.
     function hubVault() external view returns (address hubVault);
 
-    /// @notice The address of the Registrar contract.
-    function registrar() external view returns (address registrar);
-
     /// @notice Address of the SpokePortal being used to bridge M back to Ethereum Mainnet.
     function spokePortal() external view returns (address spokePortal);
 }
