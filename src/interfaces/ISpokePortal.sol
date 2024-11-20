@@ -23,8 +23,9 @@ interface ISpokePortal is IPortal {
      * @param  messageId The unique identifier of the received message.
      * @param  key       The Registrar key of some value.
      * @param  value     The value.
+     * @param  sequence  The sequence of the message on the Hub.
      */
-    event RegistrarKeyReceived(bytes32 indexed messageId, bytes32 indexed key, bytes32 value);
+    event RegistrarKeyReceived(bytes32 indexed messageId, bytes32 indexed key, bytes32 value, uint64 sequence);
 
     /**
      * @notice Emitted when the Registrar list status is received from Mainnet.
@@ -32,12 +33,14 @@ interface ISpokePortal is IPortal {
      * @param  listName  The name of the list.
      * @param  account   The account.
      * @param  status    Indicates if the account is added or removed from the list.
+     * @param  sequence  The sequence of the message on the Hub.
      */
     event RegistrarListStatusReceived(
         bytes32 indexed messageId,
         bytes32 indexed listName,
         address indexed account,
-        bool status
+        bool status,
+        uint64 sequence
     );
 
     /* ============ View/Pure Functions ============ */

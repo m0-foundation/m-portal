@@ -57,7 +57,7 @@ contract HubPortal is IHubPortal, Portal {
     ) external payable returns (bytes32 messageId_) {
         uint128 index_ = _currentIndex();
         bytes memory payload_ = PayloadEncoder.encodeIndex(index_, destinationChainId_);
-        messageId_ = _sendMessage(destinationChainId_, refundAddress_, payload_);
+        messageId_ = _sendMessage(destinationChainId_, refundAddress_, _useMessageSequence(), payload_);
 
         emit MTokenIndexSent(destinationChainId_, messageId_, index_);
     }
@@ -69,8 +69,9 @@ contract HubPortal is IHubPortal, Portal {
         bytes32 refundAddress_
     ) external payable returns (bytes32 messageId_) {
         bytes32 value_ = IRegistrarLike(registrar).get(key_);
-        bytes memory payload_ = PayloadEncoder.encodeKey(key_, value_, destinationChainId_);
-        messageId_ = _sendMessage(destinationChainId_, refundAddress_, payload_);
+        uint64 sequence_ = _useMessageSequence();
+        bytes memory payload_ = PayloadEncoder.encodeKey(key_, value_, sequence_, destinationChainId_);
+        messageId_ = _sendMessage(destinationChainId_, refundAddress_, sequence_, payload_);
 
         emit RegistrarKeySent(destinationChainId_, messageId_, key_, value_);
     }
@@ -83,8 +84,15 @@ contract HubPortal is IHubPortal, Portal {
         bytes32 refundAddress_
     ) external payable returns (bytes32 messageId_) {
         bool status_ = IRegistrarLike(registrar).listContains(listName_, account_);
-        bytes memory payload_ = PayloadEncoder.encodeListUpdate(listName_, account_, status_, destinationChainId_);
-        messageId_ = _sendMessage(destinationChainId_, refundAddress_, payload_);
+        uint64 sequence_ = _useMessageSequence();
+        bytes memory payload_ = PayloadEncoder.encodeListUpdate(
+            listName_,
+            account_,
+            status_,
+            sequence_,
+            destinationChainId_
+        );
+        messageId_ = _sendMessage(destinationChainId_, refundAddress_, sequence_, payload_);
 
         emit RegistrarListStatusSent(destinationChainId_, messageId_, listName_, account_, status_);
     }
@@ -137,6 +145,7 @@ contract HubPortal is IHubPortal, Portal {
     function _sendMessage(
         uint16 destinationChainId_,
         bytes32 refundAddress_,
+        uint64 _sequence,
         bytes memory payload_
     ) private returns (bytes32 messageId_) {
         if (refundAddress_ == bytes32(0)) revert InvalidRefundAddress();
@@ -149,7 +158,7 @@ contract HubPortal is IHubPortal, Portal {
         ) = _prepareForTransfer(destinationChainId_, DEFAULT_TRANSCEIVER_INSTRUCTIONS);
 
         TransceiverStructs.NttManagerMessage memory message_ = TransceiverStructs.NttManagerMessage(
-            bytes32(uint256(_useMessageSequence())),
+            bytes32(uint256(_sequence)),
             msg.sender.toBytes32(),
             payload_
         );

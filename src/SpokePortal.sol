@@ -24,6 +24,12 @@ contract SpokePortal is ISpokePortal, Portal {
     /// @inheritdoc ISpokePortal
     uint112 public outstandingPrincipal;
 
+    /// @dev The message sequence of the latest Set Registrar Key message received from the Hub
+    uint64 public lastSetKeySequence;
+
+    /// @dev The message sequence of the latest Update List Status message received from the Hub
+    uint64 public lastUpdateListSequence;
+
     /**
      * @notice Constructs the contract.
      * @param  mToken_    The address of the M token to bridge.
@@ -79,27 +85,42 @@ contract SpokePortal is ISpokePortal, Portal {
 
     /// @notice Sets a Registrar key received from the Hub chain.
     function _setRegistrarKey(bytes32 messageId_, bytes memory payload_) private {
-        (bytes32 key_, bytes32 value_, uint16 destinationChainId_) = payload_.decodeKey();
+        (bytes32 key_, bytes32 value_, uint64 sequence_, uint16 destinationChainId_) = payload_.decodeKey();
 
         _verifyDestinationChain(destinationChainId_);
 
-        emit RegistrarKeyReceived(messageId_, key_, value_);
+        emit RegistrarKeyReceived(messageId_, key_, value_, sequence_);
 
-        IRegistrarLike(registrar).setKey(key_, value_);
+        uint64 lastSetKeySequence_ = lastSetKeySequence;
+
+        // Update the key only if the incoming message has the higher sequence or is the fist message
+        // to prevent the race condition
+        if (lastSetKeySequence_ == 0 || sequence_ > lastSetKeySequence_) {
+            IRegistrarLike(registrar).setKey(key_, value_);
+            lastSetKeySequence = sequence_;
+        }
     }
 
     /// @notice Adds or removes an account from the Registrar List based on the message from the Hub chain.
     function _updateRegistrarList(bytes32 messageId_, bytes memory payload_) private {
-        (bytes32 listName_, address account_, bool add_, uint16 destinationChainId_) = payload_.decodeListUpdate();
+        (bytes32 listName_, address account_, bool add_, uint64 sequence_, uint16 destinationChainId_) = payload_
+            .decodeListUpdate();
 
         _verifyDestinationChain(destinationChainId_);
 
-        emit RegistrarListStatusReceived(messageId_, listName_, account_, add_);
+        emit RegistrarListStatusReceived(messageId_, listName_, account_, add_, sequence_);
 
-        if (add_) {
-            IRegistrarLike(registrar).addToList(listName_, account_);
-        } else {
-            IRegistrarLike(registrar).removeFromList(listName_, account_);
+        uint64 lastUpdateListSequence_ = lastUpdateListSequence;
+        // Update the status only if the incoming message has the higher sequence or is the fist message
+        // to prevent the race condition
+        if (lastUpdateListSequence_ == 0 || sequence_ > lastUpdateListSequence_) {
+            if (add_) {
+                IRegistrarLike(registrar).addToList(listName_, account_);
+            } else {
+                IRegistrarLike(registrar).removeFromList(listName_, account_);
+            }
+
+            lastUpdateListSequence = sequence_;
         }
     }
 

@@ -122,60 +122,170 @@ contract SpokePortalTests is UnitTestBase {
 
     /* ============ _setRegistrarKey ============ */
 
-    function test_setRegistrarKey() external {
+    function test_setRegistrarKey_sequenceZero() external {
         bytes32 key_ = bytes32("key");
         bytes32 value_ = bytes32("value");
+        uint64 sequence_ = 0;
+
+        assertEq(_portal.lastSetKeySequence(), 0);
 
         (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) = _createMessage(
-            PayloadEncoder.encodeKey(key_, value_, _LOCAL_CHAIN_ID),
+            PayloadEncoder.encodeKey(key_, value_, sequence_, _LOCAL_CHAIN_ID),
             _REMOTE_CHAIN_ID
         );
 
         vm.expectEmit();
-        emit ISpokePortal.RegistrarKeyReceived(messageId_, key_, value_);
+        emit ISpokePortal.RegistrarKeyReceived(messageId_, key_, value_, sequence_);
 
         vm.expectCall(address(_registrar), abi.encodeCall(_registrar.setKey, (key_, value_)));
 
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
+
+        assertEq(_portal.lastSetKeySequence(), sequence_);
     }
 
-    /* ============ setRegistrarListStatus ============ */
+    function test_setRegistrarKey_sequenceHigher() external {
+        bytes32 key_ = bytes32("key");
+        bytes32 value_ = bytes32("value");
+        uint64 sequence_ = 1;
 
-    function test_setRegistrarListStatus_addToList() external {
-        bytes32 listName_ = bytes32("listName");
-        bool status_ = true;
+        assertEq(_portal.lastSetKeySequence(), 0);
 
         (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) = _createMessage(
-            PayloadEncoder.encodeListUpdate(listName_, _bob, status_, _LOCAL_CHAIN_ID),
+            PayloadEncoder.encodeKey(key_, value_, sequence_, _LOCAL_CHAIN_ID),
             _REMOTE_CHAIN_ID
         );
 
         vm.expectEmit();
-        emit ISpokePortal.RegistrarListStatusReceived(messageId_, listName_, _bob, status_);
+        emit ISpokePortal.RegistrarKeyReceived(messageId_, key_, value_, sequence_);
+
+        vm.expectCall(address(_registrar), abi.encodeCall(_registrar.setKey, (key_, value_)));
+
+        vm.prank(address(_transceiver));
+        _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
+
+        assertEq(_portal.lastSetKeySequence(), sequence_);
+    }
+
+    function test_setRegistrarKey_sequenceLower() external {
+        bytes32 key_ = bytes32("key");
+        bytes32 value_ = bytes32("value");
+        uint64 sequence_ = 1;
+
+        (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) = _createMessage(
+            PayloadEncoder.encodeKey(key_, value_, sequence_, _LOCAL_CHAIN_ID),
+            _REMOTE_CHAIN_ID
+        );
+
+        vm.prank(address(_transceiver));
+        _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
+
+        assertEq(_portal.lastSetKeySequence(), sequence_);
+
+        // sequence < lastSetKeySequence
+        sequence_ = 0;
+        value_ = bytes32("old_value");
+
+        (message_, messageId_) = _createMessage(
+            PayloadEncoder.encodeKey(key_, value_, sequence_, _LOCAL_CHAIN_ID),
+            _REMOTE_CHAIN_ID
+        );
+
+        // registrar.setKey isn't called
+        vm.expectCall(address(_registrar), abi.encodeCall(_registrar.setKey, (key_, value_)), 0);
+
+        vm.prank(address(_transceiver));
+        _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
+
+        // lastKeySequence doesn't change
+        assertEq(_portal.lastSetKeySequence(), 1);
+    }
+
+    /* ============ setRegistrarListStatus ============ */
+
+    function test_setRegistrarListStatus_addToList_sequenceZero() external {
+        bytes32 listName_ = bytes32("listName");
+        bool status_ = true;
+        uint64 sequence_ = 0;
+
+        assertEq(_portal.lastUpdateListSequence(), 0);
+
+        (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) = _createMessage(
+            PayloadEncoder.encodeListUpdate(listName_, _bob, status_, sequence_, _LOCAL_CHAIN_ID),
+            _REMOTE_CHAIN_ID
+        );
+
+        vm.expectEmit();
+        emit ISpokePortal.RegistrarListStatusReceived(messageId_, listName_, _bob, status_, sequence_);
 
         vm.expectCall(address(_registrar), abi.encodeCall(_registrar.addToList, (listName_, _bob)));
 
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
+
+        assertEq(_portal.lastUpdateListSequence(), 0);
     }
 
-    function test_setRegistrarListStatus_removeFromList() external {
+    function test_setRegistrarListStatus_removeFromList_sequenceHigher() external {
         bytes32 listName_ = bytes32("listName");
         bool status_ = false;
+        uint64 sequence_ = 1;
+
+        assertEq(_portal.lastUpdateListSequence(), 0);
 
         (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) = _createMessage(
-            PayloadEncoder.encodeListUpdate(listName_, _bob, status_, _LOCAL_CHAIN_ID),
+            PayloadEncoder.encodeListUpdate(listName_, _bob, status_, sequence_, _LOCAL_CHAIN_ID),
             _REMOTE_CHAIN_ID
         );
 
         vm.expectEmit();
-        emit ISpokePortal.RegistrarListStatusReceived(messageId_, listName_, _bob, status_);
+        emit ISpokePortal.RegistrarListStatusReceived(messageId_, listName_, _bob, status_, sequence_);
 
         vm.expectCall(address(_registrar), abi.encodeCall(_registrar.removeFromList, (listName_, _bob)));
 
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
+
+        assertEq(_portal.lastUpdateListSequence(), sequence_);
+    }
+
+    function test_setRegistrarListStatus_removeFromList_sequenceLower() external {
+        bytes32 listName_ = bytes32("listName");
+        bool status_ = true;
+        uint64 sequence_ = 1;
+
+        // sequence > lastUpdateListSequence
+        assertEq(_portal.lastUpdateListSequence(), 0);
+
+        (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) = _createMessage(
+            PayloadEncoder.encodeListUpdate(listName_, _bob, status_, sequence_, _LOCAL_CHAIN_ID),
+            _REMOTE_CHAIN_ID
+        );
+
+        vm.prank(address(_transceiver));
+        _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
+
+        // lastUpdateListSequence updated
+        assertEq(_portal.lastUpdateListSequence(), 1);
+
+        // sequence < lastUpdateListSequence
+        status_ = false;
+        sequence_ = 0;
+
+        (message_, messageId_) = _createMessage(
+            PayloadEncoder.encodeListUpdate(listName_, _bob, status_, sequence_, _LOCAL_CHAIN_ID),
+            _REMOTE_CHAIN_ID
+        );
+
+        // removeFromList isn't called
+        vm.expectCall(address(_registrar), abi.encodeCall(_registrar.removeFromList, (listName_, _bob)), 0);
+
+        vm.prank(address(_transceiver));
+        _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
+
+        // lastUpdateListSequence doesn't change
+        assertEq(_portal.lastUpdateListSequence(), 1);
     }
 
     /* ============ transfer ============ */
