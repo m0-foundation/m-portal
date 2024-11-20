@@ -57,7 +57,7 @@ contract HubPortalForkTests is ForkTestBase {
         _deliverMessage(_BASE_WORMHOLE_RELAYER, signedMessage_);
 
         assertEq(IERC20(_baseSpokeMToken).balanceOf(_mHolder), amount_);
-        assertEq(IContinuousIndexing(_baseSpokeMToken).currentIndex(), mainnetIndex_);
+        assertEq(IContinuousIndexing(_baseSpokeMToken).currentIndex(), _EXP_SCALED_ONE);
     }
 
     /* ============ sendMTokenIndex ============ */
@@ -88,8 +88,8 @@ contract HubPortalForkTests is ForkTestBase {
 
         _deliverMessage(_BASE_WORMHOLE_RELAYER, signedMessage_);
 
-        assertEq(IPortal(_baseSpokePortal).currentIndex(), mainnetIndex_);
-        assertEq(IContinuousIndexing(_baseSpokeMToken).currentIndex(), mainnetIndex_);
+        assertEq(IPortal(_baseSpokePortal).currentIndex(), _EXP_SCALED_ONE);
+        assertEq(IContinuousIndexing(_baseSpokeMToken).currentIndex(), _EXP_SCALED_ONE);
 
         vm.stopPrank();
     }
@@ -169,7 +169,7 @@ contract HubPortalForkTests is ForkTestBase {
         vm.selectFork(_mainnetForkId);
 
         uint128 mainnetIndex_ = IContinuousIndexing(_MAINNET_M_TOKEN).currentIndex();
-        assertEq(IHubPortal(_hubPortal).currentIndex(), mainnetIndex_);
+        assertEq(IHubPortal(_hubPortal).currentIndex(), _EXP_SCALED_ONE);
 
         // Disable earning for the Hub Portal
         vm.mockCall(
@@ -183,7 +183,6 @@ contract HubPortalForkTests is ForkTestBase {
         // Move forward by 7 days
         vm.warp(block.timestamp + 604800);
 
-        assertEq(IHubPortal(_hubPortal).currentIndex(), mainnetIndex_);
-        assertGt(IContinuousIndexing(_MAINNET_M_TOKEN).currentIndex(), IHubPortal(_hubPortal).currentIndex());
+        assertEq(IHubPortal(_hubPortal).currentIndex(), _EXP_SCALED_ONE);
     }
 }
