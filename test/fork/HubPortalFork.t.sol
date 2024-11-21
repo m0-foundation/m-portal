@@ -4,6 +4,7 @@ pragma solidity 0.8.26;
 
 import { IERC20 } from "../../lib/common/src/interfaces/IERC20.sol";
 import { IContinuousIndexing } from "../../lib/protocol/src/interfaces/IContinuousIndexing.sol";
+import { IMToken } from "../../lib/protocol/src/interfaces/IMToken.sol";
 
 import { IHubPortal } from "../../src/interfaces/IHubPortal.sol";
 import { IPortal } from "../../src/interfaces/IPortal.sol";
@@ -185,5 +186,13 @@ contract HubPortalForkTests is ForkTestBase {
 
         assertEq(IHubPortal(_hubPortal).currentIndex(), mainnetIndex_);
         assertGt(IContinuousIndexing(_MAINNET_M_TOKEN).currentIndex(), IHubPortal(_hubPortal).currentIndex());
+    }
+
+    function testFork_disableEarning_approvedEarner() external {
+        vm.selectFork(_mainnetForkId);
+
+        vm.expectRevert(abi.encodeWithSelector(IMToken.IsApprovedEarner.selector));
+
+        IHubPortal(_hubPortal).disableEarning();
     }
 }

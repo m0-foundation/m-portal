@@ -21,5 +21,5 @@ contract MockMToken is MockERC20 {
 
     function startEarning() external {}
 
-    function stopEarning() external {}
+    function stopEarning(address account_) external {}
 }

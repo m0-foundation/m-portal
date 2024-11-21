@@ -87,11 +87,6 @@ contract HubPortalTests is UnitTestBase {
 
     /* ============ enableEarning ============ */
 
-    function test_enableEarning_notApprovedEarner() external {
-        vm.expectRevert(abi.encodeWithSelector(IHubPortal.NotApprovedEarner.selector));
-        _portal.enableEarning();
-    }
-
     function test_enableEarning_earningIsEnabled() external {
         _registrar.setListContains(_EARNERS_LIST, address(_portal), true);
         _portal.enableEarning();
@@ -132,13 +127,6 @@ contract HubPortalTests is UnitTestBase {
 
     /* ============ disableEarning ============ */
 
-    function test_disableEarning_approvedEarner() external {
-        _registrar.set(_EARNERS_LIST_IGNORED, bytes32("1"));
-
-        vm.expectRevert(IHubPortal.IsApprovedEarner.selector);
-        _portal.disableEarning();
-    }
-
     function test_disableEarning_earningIsDisabled() external {
         vm.expectRevert(IHubPortal.EarningIsDisabled.selector);
         _portal.disableEarning();
@@ -159,7 +147,7 @@ contract HubPortalTests is UnitTestBase {
         vm.expectEmit();
         emit IHubPortal.EarningDisabled(currentMIndex_);
 
-        vm.expectCall(address(_mToken), abi.encodeCall(_mToken.stopEarning, ()));
+        vm.expectCall(address(_mToken), abi.encodeCall(_mToken.stopEarning, (address(_portal))));
 
         _portal.disableEarning();
     }

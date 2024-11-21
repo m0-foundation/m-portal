@@ -25,12 +25,6 @@ contract HubPortal is IHubPortal, Portal {
 
     /* ============ Variables ============ */
 
-    /// @dev Registrar key holding value of whether the earners list can be ignored or not.
-    bytes32 internal constant _EARNERS_LIST_IGNORED = "earners_list_ignored";
-
-    /// @dev Registrar key of earners list.
-    bytes32 internal constant _EARNERS_LIST = "earners";
-
     /// @inheritdoc IHubPortal
     bool public wasEarningEnabled;
 
@@ -102,7 +96,6 @@ contract HubPortal is IHubPortal, Portal {
 
     /// @inheritdoc IHubPortal
     function enableEarning() external {
-        if (!_isApprovedEarner()) revert NotApprovedEarner();
         if (_isEarningEnabled()) revert EarningIsEnabled();
         if (wasEarningEnabled) revert EarningCannotBeReenabled();
 
@@ -115,13 +108,12 @@ contract HubPortal is IHubPortal, Portal {
 
     /// @inheritdoc IHubPortal
     function disableEarning() external {
-        if (_isApprovedEarner()) revert IsApprovedEarner();
         if (!_isEarningEnabled()) revert EarningIsDisabled();
 
         uint128 currentMIndex_ = IMTokenLike(mToken()).currentIndex();
         disableEarningIndex = currentMIndex_;
 
-        IMTokenLike(mToken()).stopEarning();
+        IMTokenLike(mToken()).stopEarning(address(this));
 
         emit EarningDisabled(currentMIndex_);
     }
@@ -184,15 +176,6 @@ contract HubPortal is IHubPortal, Portal {
 
         // If earning has been disabled, return the M index at this moment.
         return disableEarningIndex;
-    }
-
-    /// @dev Returns whether the Hub Portal is a TTG-approved earner or not.
-    function _isApprovedEarner() internal view returns (bool) {
-        IRegistrarLike registrar_ = IRegistrarLike(registrar);
-
-        return
-            registrar_.get(_EARNERS_LIST_IGNORED) != bytes32(0) ||
-            registrar_.listContains(_EARNERS_LIST, address(this));
     }
 
     /// @dev Returns whether earning was enabled for HubPortal or not.

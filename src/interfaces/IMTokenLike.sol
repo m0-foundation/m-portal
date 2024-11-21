@@ -20,6 +20,6 @@ interface IMTokenLike {
     /// @notice Starts earning for caller if allowed by TTG.
     function startEarning() external;
 
-    /// @notice Stops earning for caller.
-    function stopEarning() external;
+    /// @notice Stops earning for the account.
+    function stopEarning(address account_) external;
 }
