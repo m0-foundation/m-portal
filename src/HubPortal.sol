@@ -134,7 +134,7 @@ contract HubPortal is IHubPortal, Portal {
     function _sendMessage(
         uint16 destinationChainId_,
         bytes32 refundAddress_,
-        uint64 _sequence,
+        uint64 sequence_,
         bytes memory payload_
     ) private returns (bytes32 messageId_) {
         if (refundAddress_ == bytes32(0)) revert InvalidRefundAddress();
@@ -147,7 +147,7 @@ contract HubPortal is IHubPortal, Portal {
         ) = _prepareForTransfer(destinationChainId_, DEFAULT_TRANSCEIVER_INSTRUCTIONS);
 
         TransceiverStructs.NttManagerMessage memory message_ = TransceiverStructs.NttManagerMessage(
-            bytes32(uint256(_sequence)),
+            bytes32(uint256(sequence_)),
             msg.sender.toBytes32(),
             payload_
         );
