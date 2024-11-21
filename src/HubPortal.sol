@@ -168,14 +168,10 @@ contract HubPortal is IHubPortal, Portal {
 
     /* ============ Internal View/Pure Functions ============ */
 
-    /// @dev Returns the current M token index used by the Hub Portal.
+    /// @dev If earning is enabled returns the current M token index,
+    ///      otherwise, returns the index at the time when earning was disabled.
     function _currentIndex() internal view override returns (uint128) {
-        if (_isEarningEnabled()) {
-            return IMTokenLike(mToken()).currentIndex();
-        }
-
-        // If earning has been disabled, return the M index at this moment.
-        return disableEarningIndex;
+        return _isEarningEnabled() ? IMTokenLike(mToken()).currentIndex() : disableEarningIndex;
     }
 
     /// @dev Returns whether earning was enabled for HubPortal or not.
