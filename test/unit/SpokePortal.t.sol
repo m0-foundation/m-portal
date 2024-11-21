@@ -127,7 +127,7 @@ contract SpokePortalTests is UnitTestBase {
         bytes32 value_ = bytes32("value");
         uint64 sequence_ = 0;
 
-        assertEq(_portal.lastSetKeySequence(), 0);
+        assertEq(_portal.lastProcessedSequence(), 0);
 
         (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) = _createMessage(
             PayloadEncoder.encodeKey(key_, value_, sequence_, _LOCAL_CHAIN_ID),
@@ -142,7 +142,7 @@ contract SpokePortalTests is UnitTestBase {
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
 
-        assertEq(_portal.lastSetKeySequence(), sequence_);
+        assertEq(_portal.lastProcessedSequence(), sequence_);
     }
 
     function test_setRegistrarKey_sequenceHigher() external {
@@ -150,7 +150,7 @@ contract SpokePortalTests is UnitTestBase {
         bytes32 value_ = bytes32("value");
         uint64 sequence_ = 1;
 
-        assertEq(_portal.lastSetKeySequence(), 0);
+        assertEq(_portal.lastProcessedSequence(), 0);
 
         (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) = _createMessage(
             PayloadEncoder.encodeKey(key_, value_, sequence_, _LOCAL_CHAIN_ID),
@@ -165,7 +165,7 @@ contract SpokePortalTests is UnitTestBase {
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
 
-        assertEq(_portal.lastSetKeySequence(), sequence_);
+        assertEq(_portal.lastProcessedSequence(), sequence_);
     }
 
     function test_setRegistrarKey_sequenceLower() external {
@@ -181,9 +181,9 @@ contract SpokePortalTests is UnitTestBase {
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
 
-        assertEq(_portal.lastSetKeySequence(), sequence_);
+        assertEq(_portal.lastProcessedSequence(), sequence_);
 
-        // sequence < lastSetKeySequence
+        // sequence < lastProcessedSequence
         sequence_ = 0;
         value_ = bytes32("old_value");
 
@@ -192,14 +192,16 @@ contract SpokePortalTests is UnitTestBase {
             _REMOTE_CHAIN_ID
         );
 
-        // registrar.setKey isn't called
-        vm.expectCall(address(_registrar), abi.encodeCall(_registrar.setKey, (key_, value_)), 0);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                ISpokePortal.ObsoleteMessageSequence.selector,
+                sequence_,
+                _portal.lastProcessedSequence()
+            )
+        );
 
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
-
-        // lastKeySequence doesn't change
-        assertEq(_portal.lastSetKeySequence(), 1);
     }
 
     /* ============ setRegistrarListStatus ============ */
@@ -209,7 +211,7 @@ contract SpokePortalTests is UnitTestBase {
         bool status_ = true;
         uint64 sequence_ = 0;
 
-        assertEq(_portal.lastUpdateListSequence(), 0);
+        assertEq(_portal.lastProcessedSequence(), 0);
 
         (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) = _createMessage(
             PayloadEncoder.encodeListUpdate(listName_, _bob, status_, sequence_, _LOCAL_CHAIN_ID),
@@ -224,7 +226,7 @@ contract SpokePortalTests is UnitTestBase {
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
 
-        assertEq(_portal.lastUpdateListSequence(), 0);
+        assertEq(_portal.lastProcessedSequence(), 0);
     }
 
     function test_setRegistrarListStatus_removeFromList_sequenceHigher() external {
@@ -232,7 +234,7 @@ contract SpokePortalTests is UnitTestBase {
         bool status_ = false;
         uint64 sequence_ = 1;
 
-        assertEq(_portal.lastUpdateListSequence(), 0);
+        assertEq(_portal.lastProcessedSequence(), 0);
 
         (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) = _createMessage(
             PayloadEncoder.encodeListUpdate(listName_, _bob, status_, sequence_, _LOCAL_CHAIN_ID),
@@ -247,7 +249,7 @@ contract SpokePortalTests is UnitTestBase {
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
 
-        assertEq(_portal.lastUpdateListSequence(), sequence_);
+        assertEq(_portal.lastProcessedSequence(), sequence_);
     }
 
     function test_setRegistrarListStatus_removeFromList_sequenceLower() external {
@@ -255,8 +257,8 @@ contract SpokePortalTests is UnitTestBase {
         bool status_ = true;
         uint64 sequence_ = 1;
 
-        // sequence > lastUpdateListSequence
-        assertEq(_portal.lastUpdateListSequence(), 0);
+        // sequence > lastProcessedSequence
+        assertEq(_portal.lastProcessedSequence(), 0);
 
         (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) = _createMessage(
             PayloadEncoder.encodeListUpdate(listName_, _bob, status_, sequence_, _LOCAL_CHAIN_ID),
@@ -266,10 +268,10 @@ contract SpokePortalTests is UnitTestBase {
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
 
-        // lastUpdateListSequence updated
-        assertEq(_portal.lastUpdateListSequence(), 1);
+        // lastProcessedSequence updated
+        assertEq(_portal.lastProcessedSequence(), 1);
 
-        // sequence < lastUpdateListSequence
+        // sequence < lastProcessedSequence
         status_ = false;
         sequence_ = 0;
 
@@ -278,14 +280,16 @@ contract SpokePortalTests is UnitTestBase {
             _REMOTE_CHAIN_ID
         );
 
-        // removeFromList isn't called
-        vm.expectCall(address(_registrar), abi.encodeCall(_registrar.removeFromList, (listName_, _bob)), 0);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                ISpokePortal.ObsoleteMessageSequence.selector,
+                sequence_,
+                _portal.lastProcessedSequence()
+            )
+        );
 
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
-
-        // lastUpdateListSequence doesn't change
-        assertEq(_portal.lastUpdateListSequence(), 1);
     }
 
     /* ============ transfer ============ */

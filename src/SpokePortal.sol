@@ -24,11 +24,8 @@ contract SpokePortal is ISpokePortal, Portal {
     /// @inheritdoc ISpokePortal
     uint112 public outstandingPrincipal;
 
-    /// @dev The message sequence of the latest Set Registrar Key message received from the Hub
-    uint64 public lastSetKeySequence;
-
-    /// @dev The message sequence of the latest Update List Status message received from the Hub
-    uint64 public lastUpdateListSequence;
+    /// @inheritdoc ISpokePortal
+    uint64 public lastProcessedSequence;
 
     /**
      * @notice Constructs the contract.
@@ -54,7 +51,7 @@ contract SpokePortal is ISpokePortal, Portal {
         }
     }
 
-    /* ============ Internal Interactive Functions ============ */
+    /* ============ Internal/Private Interactive Functions ============ */
 
     function _receiveCustomPayload(
         bytes32 messageId_,
@@ -91,14 +88,11 @@ contract SpokePortal is ISpokePortal, Portal {
 
         emit RegistrarKeyReceived(messageId_, key_, value_, sequence_);
 
-        uint64 lastSetKeySequence_ = lastSetKeySequence;
+        _verifyMessageSequence(sequence_);
 
-        // Update the key only if the incoming message has the higher sequence or is the fist message
-        // to prevent the race condition
-        if (lastSetKeySequence_ == 0 || sequence_ > lastSetKeySequence_) {
-            IRegistrarLike(registrar).setKey(key_, value_);
-            lastSetKeySequence = sequence_;
-        }
+        lastProcessedSequence = sequence_;
+
+        IRegistrarLike(registrar).setKey(key_, value_);
     }
 
     /// @notice Adds or removes an account from the Registrar List based on the message from the Hub chain.
@@ -110,17 +104,14 @@ contract SpokePortal is ISpokePortal, Portal {
 
         emit RegistrarListStatusReceived(messageId_, listName_, account_, add_, sequence_);
 
-        uint64 lastUpdateListSequence_ = lastUpdateListSequence;
-        // Update the status only if the incoming message has the higher sequence or is the fist message
-        // to prevent the race condition
-        if (lastUpdateListSequence_ == 0 || sequence_ > lastUpdateListSequence_) {
-            if (add_) {
-                IRegistrarLike(registrar).addToList(listName_, account_);
-            } else {
-                IRegistrarLike(registrar).removeFromList(listName_, account_);
-            }
+        _verifyMessageSequence(sequence_);
 
-            lastUpdateListSequence = sequence_;
+        lastProcessedSequence = sequence_;
+
+        if (add_) {
+            IRegistrarLike(registrar).addToList(listName_, account_);
+        } else {
+            IRegistrarLike(registrar).removeFromList(listName_, account_);
         }
     }
 
@@ -152,6 +143,14 @@ contract SpokePortal is ISpokePortal, Portal {
         unchecked {
             outstandingPrincipal += IndexingMath.getPrincipalAmountRoundedDown(amount_.safe240(), currentIndex_);
         }
+    }
+
+    /// @dev Checks if the incoming message sequence is greater than the last processed one to prevent
+    ///      Registrar data from being overwritten due to message reordering.
+    function _verifyMessageSequence(uint64 sequence_) private view {
+        uint64 lastProcessedSequence_ = lastProcessedSequence;
+        if (lastProcessedSequence_ != 0 && sequence_ < lastProcessedSequence_)
+            revert ObsoleteMessageSequence(sequence_, lastProcessedSequence_);
     }
 
     /// @dev Returns the current M token index used by the Spoke Portal.

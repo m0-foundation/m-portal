@@ -43,13 +43,22 @@ interface ISpokePortal is IPortal {
         uint64 sequence
     );
 
+    /* ============ Custom Errors ============ */
+
+    /// @notice Emitted when processing Registrar Key and Registrar List Update messages
+    ///         if an incoming message sequence is less than the last processed message sequence.
+    error ObsoleteMessageSequence(uint64 sequence, uint64 lastProcessedSequence);
+
     /* ============ View/Pure Functions ============ */
 
     /// @notice The maximum possible principal of the total bridged-in M tokens,
-    ///          it will be used for calculations of excess of M yield in the Hub Portal.
+    ///         it will be used for calculations of excess of M yield in the Hub Portal.
     function outstandingPrincipal() external view returns (uint112);
 
     /// @notice The excess of M yield in the Hub Portal contributed by the Spoke Portal,
     ///         total Hub Portal M yield excess equals to sum of all Spoke Portal M excesses.
     function excess() external view returns (uint240);
+
+    /// @notice The message sequence of the last Set Registrar Key or Update List Status message received from the Hub.
+    function lastProcessedSequence() external view returns (uint64);
 }
