@@ -4,7 +4,6 @@ pragma solidity 0.8.26;
 
 import { IERC20 } from "../lib/common/src/interfaces/IERC20.sol";
 import { UIntMath } from "../lib/common/src/libs/UIntMath.sol";
-import { IndexingMath } from "../lib/common/src/libs/IndexingMath.sol";
 
 import { ISpokeMTokenLike } from "./interfaces/ISpokeMTokenLike.sol";
 import { IRegistrarLike } from "./interfaces/IRegistrarLike.sol";
@@ -22,9 +21,6 @@ contract SpokePortal is ISpokePortal, Portal {
     using UIntMath for uint256;
 
     /// @inheritdoc ISpokePortal
-    uint112 public outstandingPrincipal;
-
-    /// @inheritdoc ISpokePortal
     uint64 public lastProcessedSequence;
 
     /**
@@ -38,18 +34,6 @@ contract SpokePortal is ISpokePortal, Portal {
         address registrar_,
         uint16 chainId_
     ) Portal(mToken_, registrar_, Mode.BURNING, chainId_) {}
-
-    /* ============ View/Pure Functions ============ */
-
-    /// @inheritdoc ISpokePortal
-    function excess() external view returns (uint240 excess_) {
-        uint240 presentAmount_ = IndexingMath.getPresentAmountRoundedDown(outstandingPrincipal, _currentIndex());
-        uint240 totalSupply_ = IERC20(mToken()).totalSupply().safe240();
-
-        unchecked {
-            return presentAmount_ > totalSupply_ ? presentAmount_ - totalSupply_ : 0;
-        }
-    }
 
     /* ============ Internal/Private Interactive Functions ============ */
 
@@ -115,14 +99,6 @@ contract SpokePortal is ISpokePortal, Portal {
         }
     }
 
-    /// @dev Decreases `outstandingPrincipal` after M tokens are transferred out,
-    ///      tracks maximum possible M principal of the Spoke Portal.
-    function _beforeTokenSent(uint256 amount_) internal override {
-        unchecked {
-            outstandingPrincipal -= IndexingMath.getPrincipalAmountRoundedDown(amount_.safe240(), _currentIndex());
-        }
-    }
-
     /**
      * @dev Mints M Token to the `recipient_`.
      * @param recipient_ The account to mint M tokens to.
@@ -138,10 +114,6 @@ contract SpokePortal is ISpokePortal, Portal {
             ISpokeMTokenLike(mToken()).mint(recipient_, amount_, index_);
         } else {
             ISpokeMTokenLike(mToken()).mint(recipient_, amount_);
-        }
-
-        unchecked {
-            outstandingPrincipal += IndexingMath.getPrincipalAmountRoundedDown(amount_.safe240(), currentIndex_);
         }
     }
 

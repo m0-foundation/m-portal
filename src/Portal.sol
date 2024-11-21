@@ -89,10 +89,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
             )
         );
 
-        uint256 untrimmedAmount_ = amount_.untrim(tokenDecimals());
-        _beforeTokenSent(untrimmedAmount_);
-
-        emit MTokenSent(destinationChainId_, messageId_, sender_, recipient_, untrimmedAmount_, index_);
+        emit MTokenSent(destinationChainId_, messageId_, sender_, recipient_, amount_.untrim(tokenDecimals()), index_);
     }
 
     /// @dev Hook that is called before sending out M tokens via cross-chain transfer.
