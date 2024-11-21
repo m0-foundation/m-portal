@@ -8,6 +8,7 @@ import { IManagerBase } from "../../lib/example-native-token-transfers/evm/src/i
 import { INttManager } from "../../lib/example-native-token-transfers/evm/src/interfaces/INttManager.sol";
 
 import { IHubPortal } from "../../src/interfaces/IHubPortal.sol";
+import { ISpokeVault } from "../../src/interfaces/ISpokeVault.sol";
 
 import { Utils } from "../helpers/Utils.sol";
 
@@ -72,5 +73,13 @@ contract CastBase is Script, Utils {
                 false,
                 new bytes(1)
             );
+    }
+
+    function _transferExcessM(
+        address spokeVault_,
+        bytes32 refundAddress_,
+        uint256 value_
+    ) internal returns (uint64 messageSequence_) {
+        return ISpokeVault(spokeVault_).transferExcessM{ value: value_ }(refundAddress_);
     }
 }

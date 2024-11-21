@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.26;
 
-import { console2 } from "../../lib/forge-std/src/Script.sol";
+import { console } from "../../lib/forge-std/src/console.sol";
 
 import {
     ERC1967Proxy
@@ -131,7 +131,7 @@ contract Utils {
         } else if (chainId_ == _OPTIMISM_SEPOLIA_CHAIN_ID) {
             return _OPTIMISM_SEPOLIA_WORMHOLE_CHAIN_ID;
         } else {
-            console2.log("Chain id: {}", chainId_);
+            console.log("Chain id: {}", chainId_);
             revert("Unsupported chain id.");
         }
     }
