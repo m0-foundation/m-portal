@@ -315,6 +315,23 @@ contract SpokePortalTests is UnitTestBase {
 
     /* ============ _receiveMToken ============ */
 
+    function test_receiveMToken_invalidTargetChain() external {
+        (TransceiverStructs.NttManagerMessage memory message_, ) = _createTransferMessage(
+            1_000e6,
+            _EXP_SCALED_ONE,
+            _alice.toBytes32(),
+            _REMOTE_CHAIN_ID,
+            _REMOTE_CHAIN_ID
+        );
+
+        vm.expectRevert(
+            abi.encodeWithSelector(INttManager.InvalidTargetChain.selector, _REMOTE_CHAIN_ID, _LOCAL_CHAIN_ID)
+        );
+
+        vm.prank(address(_transceiver));
+        _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
+    }
+
     function test_receiveMToken_nonEarner() external {
         uint256 amount_ = 1_000e6;
         uint128 localIndex_ = 1_100000068703;

@@ -157,6 +157,13 @@ contract HubPortalTests is UnitTestBase {
 
     /* ============ sendMTokenIndex ============ */
 
+    function test_sendMTokenIndex_zeroRefundAddress() external {
+        vm.expectRevert(INttManager.InvalidRefundAddress.selector);
+
+        vm.prank(_alice);
+        _portal.sendMTokenIndex(_REMOTE_CHAIN_ID, address(0).toBytes32());
+    }
+
     function test_sendMTokenIndex() external {
         uint128 index_ = 1_100000068703;
         uint256 fee_ = 1;
@@ -194,6 +201,13 @@ contract HubPortalTests is UnitTestBase {
     }
 
     /* ============ sendRegistrarKey ============ */
+
+    function test_sendRegistrarKey_zeroRefundAddress() external {
+        vm.expectRevert(INttManager.InvalidRefundAddress.selector);
+
+        vm.prank(_alice);
+        _portal.sendRegistrarKey(_REMOTE_CHAIN_ID, bytes32("key"), address(0).toBytes32());
+    }
 
     function test_sendRegistrarKey() external {
         bytes32 key_ = bytes32("key");
@@ -233,6 +247,13 @@ contract HubPortalTests is UnitTestBase {
     }
 
     /* ============ sendRegistrarListStatus ============ */
+
+    function test_sendRegistrarListStatus_zeroRefundAddress() external {
+        vm.expectRevert(INttManager.InvalidRefundAddress.selector);
+
+        vm.prank(_alice);
+        _portal.sendRegistrarListStatus(_REMOTE_CHAIN_ID, bytes32("listName"), _bob, address(0).toBytes32());
+    }
 
     function test_sendRegistrarListStatus() external {
         bytes32 listName_ = bytes32("listName");
@@ -290,6 +311,23 @@ contract HubPortalTests is UnitTestBase {
     }
 
     /* ============ receiveMToken ============ */
+
+    function test_receiveMToken_invalidTargetChain() external {
+        (TransceiverStructs.NttManagerMessage memory message_, ) = _createTransferMessage(
+            1_000e6,
+            _EXP_SCALED_ONE,
+            _alice.toBytes32(),
+            _REMOTE_CHAIN_ID,
+            _REMOTE_CHAIN_ID
+        );
+
+        vm.expectRevert(
+            abi.encodeWithSelector(INttManager.InvalidTargetChain.selector, _REMOTE_CHAIN_ID, _LOCAL_CHAIN_ID)
+        );
+
+        vm.prank(address(_transceiver));
+        _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
+    }
 
     function test_receiveMToken_nonEarner() external {
         uint256 amount_ = 1_000e6;
