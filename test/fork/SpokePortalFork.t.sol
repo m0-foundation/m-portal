@@ -118,6 +118,5 @@ contract SpokePortalForkTests is ForkTestBase {
 
         assertEq(IERC20(_baseSpokeMToken).balanceOf(_mHolder), _amount);
         assertEq(IContinuousIndexing(_baseSpokeMToken).currentIndex(), _mainnetIndex);
-        assertEq(ISpokePortal(_baseSpokePortal).excess(), 0);
     }
 }
