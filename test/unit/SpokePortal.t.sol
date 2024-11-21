@@ -12,8 +12,6 @@ import { SpokePortal } from "../../src/SpokePortal.sol";
 import { PayloadEncoder } from "../../src/libs/PayloadEncoder.sol";
 import { TypeConverter } from "../../src/libs/TypeConverter.sol";
 
-import { SpokePortalHarness } from "../harnesses/SpokePortalHarness.sol";
-
 import { UnitTestBase } from "./UnitTestBase.t.sol";
 import { MockSpokeMToken } from "../mocks/MockSpokeMToken.sol";
 import { MockSpokeRegistrar } from "../mocks/MockSpokeRegistrar.sol";
@@ -25,7 +23,7 @@ contract SpokePortalTests is UnitTestBase {
     MockSpokeMToken internal _mToken;
     MockSpokeRegistrar internal _registrar;
 
-    SpokePortalHarness internal _portal;
+    SpokePortal internal _portal;
 
     function setUp() external {
         _mToken = new MockSpokeMToken();
@@ -36,8 +34,8 @@ contract SpokePortalTests is UnitTestBase {
         _registrar = new MockSpokeRegistrar();
         _transceiver = new MockTransceiver();
 
-        SpokePortal implementation_ = new SpokePortalHarness(address(_mToken), address(_registrar), _LOCAL_CHAIN_ID);
-        _portal = SpokePortalHarness(_createProxy(address(implementation_)));
+        SpokePortal implementation_ = new SpokePortal(address(_mToken), address(_registrar), _LOCAL_CHAIN_ID);
+        _portal = SpokePortal(_createProxy(address(implementation_)));
 
         _initializePortal(_portal);
     }
