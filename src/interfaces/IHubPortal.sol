@@ -73,6 +73,14 @@ interface IHubPortal is IPortal {
     /// @notice Emitted when calling `enableEarning` if the Hub Portal is not approved as earner by TTG.
     error NotApprovedEarner();
 
+    /* ============ View/Pure Functions ============ */
+
+    /// @notice Indicates whether earning for HubPortal was ever enabled.
+    function wasEarningEnabled() external returns (bool);
+
+    /// @notice Returns the value of M Token index when earning for HubPortal was disabled.
+    function disableEarningIndex() external returns (uint128);
+
     /* ============ Interactive Functions ============ */
 
     /**

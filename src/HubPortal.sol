@@ -25,14 +25,11 @@ contract HubPortal is IHubPortal, Portal {
 
     /* ============ Variables ============ */
 
-    /// @dev Registrar key holding value of whether the earners list can be ignored or not.
-    bytes32 internal constant _EARNERS_LIST_IGNORED = "earners_list_ignored";
+    /// @inheritdoc IHubPortal
+    bool public wasEarningEnabled;
 
-    /// @dev Registrar key of earners list.
-    bytes32 internal constant _EARNERS_LIST = "earners";
-
-    /// @dev Array of indices at which earning was enabled or disabled.
-    uint128[] internal _enableDisableEarningIndices;
+    /// @inheritdoc IHubPortal
+    uint128 public disableEarningIndex;
 
     /* ============ Constructor ============ */
 
@@ -99,32 +96,24 @@ contract HubPortal is IHubPortal, Portal {
 
     /// @inheritdoc IHubPortal
     function enableEarning() external {
-        if (!_isApprovedEarner()) revert NotApprovedEarner();
         if (_isEarningEnabled()) revert EarningIsEnabled();
+        if (wasEarningEnabled) revert EarningCannotBeReenabled();
 
-        // NOTE: This is a temporary measure to prevent re-enabling earning after it has been disabled.
-        //       This line will be removed in the future.
-        if (_enableDisableEarningIndices.length != 0) revert EarningCannotBeReenabled();
+        wasEarningEnabled = true;
 
-        IMTokenLike mToken_ = IMTokenLike(mToken());
-        uint128 currentMIndex_ = mToken_.currentIndex();
-        _enableDisableEarningIndices.push(currentMIndex_);
+        IMTokenLike(mToken()).startEarning();
 
-        mToken_.startEarning();
-
-        emit EarningEnabled(currentMIndex_);
+        emit EarningEnabled(IMTokenLike(mToken()).currentIndex());
     }
 
     /// @inheritdoc IHubPortal
     function disableEarning() external {
-        if (_isApprovedEarner()) revert IsApprovedEarner();
         if (!_isEarningEnabled()) revert EarningIsDisabled();
 
-        IMTokenLike mToken_ = IMTokenLike(mToken());
-        uint128 currentMIndex_ = mToken_.currentIndex();
-        _enableDisableEarningIndices.push(currentMIndex_);
+        uint128 currentMIndex_ = IMTokenLike(mToken()).currentIndex();
+        disableEarningIndex = currentMIndex_;
 
-        mToken_.stopEarning();
+        IMTokenLike(mToken()).stopEarning(address(this));
 
         emit EarningDisabled(currentMIndex_);
     }
@@ -179,31 +168,14 @@ contract HubPortal is IHubPortal, Portal {
 
     /* ============ Internal View/Pure Functions ============ */
 
-    /// @dev Returns the current M token index used by the Hub Portal.
+    /// @dev If earning is enabled returns the current M token index,
+    ///      otherwise, returns the index at the time when earning was disabled.
     function _currentIndex() internal view override returns (uint128) {
-        if (_isEarningEnabled()) {
-            return IMTokenLike(mToken()).currentIndex();
-        }
-
-        // If earning has been enabled in the past, return the latest recorded index when it was disabled.
-        // Otherwise, return the starting index.
-        return
-            _enableDisableEarningIndices.length != 0
-                ? _enableDisableEarningIndices[_enableDisableEarningIndices.length - 1]
-                : 0;
-    }
-
-    /// @dev Returns whether the Hub Portal is a TTG-approved earner or not.
-    function _isApprovedEarner() internal view returns (bool) {
-        IRegistrarLike registrar_ = IRegistrarLike(registrar);
-
-        return
-            registrar_.get(_EARNERS_LIST_IGNORED) != bytes32(0) ||
-            registrar_.listContains(_EARNERS_LIST, address(this));
+        return _isEarningEnabled() ? IMTokenLike(mToken()).currentIndex() : disableEarningIndex;
     }
 
     /// @dev Returns whether earning was enabled for HubPortal or not.
     function _isEarningEnabled() internal view returns (bool) {
-        return IMTokenLike(mToken()).isEarning(address(this));
+        return wasEarningEnabled && disableEarningIndex == 0;
     }
 }
