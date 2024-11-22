@@ -5,24 +5,24 @@
       "is_evm_chain": true,
       "is_special_relaying_enabled": false,
       "is_wormhole_relaying_enabled": true,
-      "portal": "0x4491C6e8E6C44cB60E431890D486fC81Bdb97F46",
-      "wormhole_transceiver": "0x57200eC04B79bedAFeA7aC93701D7C1BBEfE1706"
+      "portal": "0x1B7aE194B20C555B9d999c835F74cDCE36A67a74",
+      "wormhole_transceiver": "0x29CbF1e07166D31446307aE07999fa6d16223990"
     },
     "84532": {
       "wormhole_chain_id": "10004",
       "is_evm_chain": true,
       "is_special_relaying_enabled": false,
       "is_wormhole_relaying_enabled": true,
-      "portal": "0x4491C6e8E6C44cB60E431890D486fC81Bdb97F46",
-      "wormhole_transceiver": "0x57200eC04B79bedAFeA7aC93701D7C1BBEfE1706"
+      "portal": "0x1B7aE194B20C555B9d999c835F74cDCE36A67a74",
+      "wormhole_transceiver": "0x29CbF1e07166D31446307aE07999fa6d16223990"
     },
     "11155420": {
       "wormhole_chain_id": "10005",
       "is_evm_chain": true,
       "is_special_relaying_enabled": false,
       "is_wormhole_relaying_enabled": true,
-      "portal": "0x4491C6e8E6C44cB60E431890D486fC81Bdb97F46",
-      "wormhole_transceiver": "0x57200eC04B79bedAFeA7aC93701D7C1BBEfE1706"
+      "portal": "0x1B7aE194B20C555B9d999c835F74cDCE36A67a74",
+      "wormhole_transceiver": "0x29CbF1e07166D31446307aE07999fa6d16223990"
     }
   }
 }

@@ -16,7 +16,7 @@ contract CastSendRegistrarListStatus is CastBase {
         address account_ = vm.parseAddress(vm.prompt("Enter account address"));
 
         uint256 deliveryPrice_ = _quoteDeliveryPrice(hubPortal_, destinationChainId_);
-        console.log("Delivery price: {}", deliveryPrice_);
+        console.log("Delivery price:", deliveryPrice_);
 
         vm.startBroadcast(signer_);
 
@@ -29,7 +29,7 @@ contract CastSendRegistrarListStatus is CastBase {
             deliveryPrice_
         );
 
-        console.log("Registrar key sent to Wormhole chain ID {}", destinationChainId_);
+        console.log("Registrar key sent to Wormhole chain ID:", destinationChainId_);
 
         vm.stopBroadcast();
     }

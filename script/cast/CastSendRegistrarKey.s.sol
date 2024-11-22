@@ -15,12 +15,12 @@ contract CastSendRegistrarKey is CastBase {
         bytes32 key_ = vm.parseBytes32(vm.prompt("Enter Registrar key"));
 
         uint256 deliveryPrice_ = _quoteDeliveryPrice(hubPortal_, destinationChainId_);
-        console.log("Delivery price: {}", deliveryPrice_);
+        console.log("Delivery price:", deliveryPrice_);
 
         vm.startBroadcast(signer_);
 
         _sendRegistrarKey(hubPortal_, destinationChainId_, key_, _toUniversalAddress(signer_), deliveryPrice_);
-        console.log("Registrar key sent to Wormhole chain ID {}", destinationChainId_);
+        console.log("Registrar key sent to Wormhole chain ID:", destinationChainId_);
 
         vm.stopBroadcast();
     }

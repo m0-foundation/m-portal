@@ -14,12 +14,12 @@ contract CastSendMTokenIndex is CastBase {
         uint16 destinationChainId_ = _getWormholeChainId(vm.parseUint(vm.prompt("Enter destination chain ID")));
 
         uint256 deliveryPrice_ = _quoteDeliveryPrice(hubPortal_, destinationChainId_);
-        console.log("Delivery price: {}", deliveryPrice_);
+        console.log("Delivery price:", deliveryPrice_);
 
         vm.startBroadcast(signer_);
 
         _sendMTokenIndex(hubPortal_, destinationChainId_, _toUniversalAddress(signer_), deliveryPrice_);
-        console.log("M token index sent to Wormhole chain ID {}", destinationChainId_);
+        console.log("M token index sent to Wormhole chain ID:", destinationChainId_);
 
         vm.stopBroadcast();
     }
