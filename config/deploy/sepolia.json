@@ -9,7 +9,7 @@
         "relayer": "0x7B1bD7a6b4E61c2a123AC6BC2cbfC614437D0470",
         "special_relayer": "0x0000000000000000000000000000000000000000",
         "consistency_level": "200",
-        "gas_limit": "200000"
+        "gas_limit": "250000"
       }
     }
   },
@@ -25,7 +25,7 @@
         "relayer": "0x93BAD53DDfB6132b0aC8E37f6029163E63372cEE",
         "special_relayer": "0x0000000000000000000000000000000000000000",
         "consistency_level": "200",
-        "gas_limit": "200000"
+        "gas_limit": "250000"
       }
     },
     "11155420": {
@@ -39,7 +39,7 @@
         "relayer": "0x93BAD53DDfB6132b0aC8E37f6029163E63372cEE",
         "special_relayer": "0x0000000000000000000000000000000000000000",
         "consistency_level": "200",
-        "gas_limit": "200000"
+        "gas_limit": "250000"
       }
     }
   }
