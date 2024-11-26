@@ -22,6 +22,9 @@ contract MainnetMigrator is Migrator {
     /// @dev Mainnet MToken address.
     address internal constant _MAINNET_M_TOKEN = 0x866A2BF4E572CbcF37D5071A7a58503Bfb36be1b;
 
+    /// @dev Mainnet Smart MToken address.
+    address internal constant _MAINNET_SMART_M_TOKEN = 0x437cc33344a0B27A429f795ff6B469C72698B291;
+
     /// @dev Mainnet Registrar address.
     address internal constant _MAINNET_REGISTRAR = 0x975Bf5f212367D09CB7f69D3dc4BA8C9B440aD3A;
 
@@ -49,6 +52,7 @@ contract MainnetMigrator is Migrator {
             _migrateHubPortal(
                 PortalMigrateParams({
                     mToken: _MAINNET_M_TOKEN,
+                    smartMToken: _MAINNET_SMART_M_TOKEN,
                     registrar: _MAINNET_REGISTRAR,
                     wormholeChainId: _MAINNET_WORMHOLE_CHAIN_ID
                 })
@@ -68,6 +72,7 @@ contract MainnetMigrator is Migrator {
             _migrateSpokePortal(
                 PortalMigrateParams({
                     mToken: _MAINNET_M_TOKEN,
+                    smartMToken: _MAINNET_SMART_M_TOKEN,
                     registrar: _MAINNET_REGISTRAR,
                     wormholeChainId: _BASE_WORMHOLE_CHAIN_ID
                 })
@@ -87,6 +92,7 @@ contract MainnetMigrator is Migrator {
             _migrateSpokePortal(
                 PortalMigrateParams({
                     mToken: _MAINNET_M_TOKEN,
+                    smartMToken: _MAINNET_SMART_M_TOKEN,
                     registrar: _MAINNET_REGISTRAR,
                     wormholeChainId: _OPTIMISM_WORMHOLE_CHAIN_ID
                 })

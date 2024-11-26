@@ -78,7 +78,7 @@ contract UnitTestBase is Test {
             _tokenAddress.toBytes32(),
             recipient_,
             destinationChainId_,
-            abi.encodePacked(index_.toUint64())
+            abi.encodePacked(index_.toUint64(), bytes32(0))
         );
         bytes memory payload_ = TransceiverStructs.encodeNativeTokenTransfer(nativeTokenTransfer_);
         message_ = TransceiverStructs.NttManagerMessage(bytes32(0), _alice.toBytes32(), payload_);

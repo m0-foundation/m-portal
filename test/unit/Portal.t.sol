@@ -12,6 +12,7 @@ import { TypeConverter } from "../../src/libs/TypeConverter.sol";
 import { PayloadEncoder } from "../../src/libs/PayloadEncoder.sol";
 
 import { UnitTestBase } from "./UnitTestBase.t.sol";
+import { MockWrappedMToken } from "../mocks/MockWrappedMToken.sol";
 import { MockSpokeMToken } from "../mocks/MockSpokeMToken.sol";
 import { MockTransceiver } from "../mocks/MockTransceiver.sol";
 import { MockSpokeRegistrar } from "../mocks/MockSpokeRegistrar.sol";
@@ -22,12 +23,14 @@ contract PortalTests is UnitTestBase {
     using TrimmedAmountLib for *;
 
     MockSpokeMToken internal _mToken;
+    MockWrappedMToken internal _smartMToken;
     MockSpokeRegistrar internal _registrar;
 
     PortalHarness internal _portal;
 
     function setUp() external {
         _mToken = new MockSpokeMToken();
+        _smartMToken = new MockWrappedMToken(address(_mToken));
 
         _tokenDecimals = _mToken.decimals();
         _tokenAddress = address(_mToken);
@@ -37,6 +40,7 @@ contract PortalTests is UnitTestBase {
 
         PortalHarness implementation_ = new PortalHarness(
             address(_mToken),
+            address(_smartMToken),
             address(_registrar),
             IManagerBase.Mode.BURNING,
             _LOCAL_CHAIN_ID
@@ -49,12 +53,24 @@ contract PortalTests is UnitTestBase {
 
     function test_constructor_zeroMToken() external {
         vm.expectRevert(IPortal.ZeroMToken.selector);
-        new PortalHarness(address(0), address(_registrar), IManagerBase.Mode.BURNING, _LOCAL_CHAIN_ID);
+        new PortalHarness(
+            address(0),
+            address(_smartMToken),
+            address(_registrar),
+            IManagerBase.Mode.BURNING,
+            _LOCAL_CHAIN_ID
+        );
     }
 
     function test_constructor_zeroRegistrar() external {
         vm.expectRevert(IPortal.ZeroRegistrar.selector);
-        new PortalHarness(address(_mToken), address(0), IManagerBase.Mode.BURNING, _LOCAL_CHAIN_ID);
+        new PortalHarness(
+            address(_mToken),
+            address(_smartMToken),
+            address(0),
+            IManagerBase.Mode.BURNING,
+            _LOCAL_CHAIN_ID
+        );
     }
 
     /* ============ transfer ============ */

@@ -70,33 +70,54 @@ contract PayloadEncoderTest is Test {
         assertEq(uint8(PayloadEncoder.getPayloadType(payload_)), uint8(PayloadType.List));
     }
 
-    function test_decodeTokenTransfer_invalidAdditionalPayloadLength() external {
-        uint256 amount_ = 1000;
-        uint8 index_ = 1;
+    function test_encodeAdditionalPayload() external {
+        uint128 index_ = 1e12;
+        bytes32 wrappedToken_ = makeAddr("wrapped").toBytes32();
+        bytes memory payload_ = abi.encodePacked(uint64(index_), wrappedToken_);
 
-        bytes memory payload_ = TransceiverStructs.encodeNativeTokenTransfer(
-            TransceiverStructs.NativeTokenTransfer(
-                amount_.trim(_TOKEN_DECIMALS, _TOKEN_DECIMALS),
-                _token.toBytes32(),
-                _recipient.toBytes32(),
-                _DESTINATION_CHAIN_ID,
-                abi.encodePacked(index_) // index isn't converted to uint64
-            )
-        );
+        assertEq(PayloadEncoder.encodeAdditionalPayload(index_, wrappedToken_), payload_);
+    }
 
-        vm.expectRevert(abi.encodeWithSelector(BytesParsing.LengthMismatch.selector, 1, 8));
-        this.decodeTransfer(payload_);
+    function test_decodeAdditionalPayload() external {
+        uint128 encodedIndex_ = 1e12;
+        address encodedWrappedToken_ = makeAddr("wrapped");
+
+        bytes memory payload_ = abi.encodePacked(uint64(encodedIndex_), encodedWrappedToken_.toBytes32());
+
+        (uint128 decodedIndex_, address decodedWrappedToken_) = PayloadEncoder.decodeAdditionalPayload(payload_);
+
+        assertEq(decodedIndex_, encodedIndex_);
+        assertEq(decodedWrappedToken_, encodedWrappedToken_);
+    }
+
+    function testFuzz_decodeAdditionalPayload(uint64 encodedIndex_, address encodedWrappedToken_) external {
+        bytes memory payload_ = abi.encodePacked(encodedIndex_, encodedWrappedToken_.toBytes32());
+
+        (uint128 decodedIndex_, address decodedWrappedToken_) = PayloadEncoder.decodeAdditionalPayload(payload_);
+
+        assertEq(decodedIndex_, encodedIndex_);
+        assertEq(decodedWrappedToken_, encodedWrappedToken_);
+    }
+
+    function test_decodeAdditionalPayload_invalidLength() external {
+        uint128 index_ = 1e12;
+        // wrapped token isn't added to the payload
+        bytes memory payload_ = abi.encodePacked(uint64(index_));
+
+        vm.expectRevert(abi.encodeWithSelector(BytesParsing.LengthMismatch.selector, 8, 40));
+        this.decodeAdditionalPayload(payload_);
     }
 
     /// @dev a wrapper to prevent internal library functions from getting inlined
     ///      https://github.com/foundry-rs/foundry/issues/7757
-    function decodeTransfer(bytes memory payload_) public pure {
-        PayloadEncoder.decodeTokenTransfer(payload_);
+    function decodeAdditionalPayload(bytes memory payload_) public pure {
+        PayloadEncoder.decodeAdditionalPayload(payload_);
     }
 
     function test_decodeTokenTransfer() external {
         uint256 encodedAmount_ = 1000;
         uint128 encodedIndex_ = 1e12;
+        address encodedWrappedToken_ = makeAddr("wrapped");
 
         bytes memory payload_ = TransceiverStructs.encodeNativeTokenTransfer(
             TransceiverStructs.NativeTokenTransfer(
@@ -104,13 +125,14 @@ contract PayloadEncoderTest is Test {
                 _token.toBytes32(),
                 _recipient.toBytes32(),
                 _DESTINATION_CHAIN_ID,
-                abi.encodePacked(uint64(encodedIndex_))
+                abi.encodePacked(uint64(encodedIndex_), encodedWrappedToken_.toBytes32())
             )
         );
 
         (
             TrimmedAmount decodedTrimmedAmount_,
             uint128 decodedIndex_,
+            address decodedWrappedToken_,
             address decodedRecipient_,
             uint16 decodedDestinationChainId_
         ) = PayloadEncoder.decodeTokenTransfer(payload_);
@@ -119,6 +141,7 @@ contract PayloadEncoderTest is Test {
 
         assertEq(decodedAmount_, encodedAmount_);
         assertEq(decodedIndex_, encodedIndex_);
+        assertEq(decodedWrappedToken_, encodedWrappedToken_);
         assertEq(decodedRecipient_, _recipient);
         assertEq(decodedDestinationChainId_, _DESTINATION_CHAIN_ID);
     }
