@@ -23,6 +23,7 @@ abstract contract Migrator is IMigrator {
     /// @dev Portal migration parameters.
     struct PortalMigrateParams {
         address mToken;
+        address smartMToken;
         address registrar;
         uint16 wormholeChainId;
     }
@@ -66,7 +67,12 @@ abstract contract Migrator is IMigrator {
      * @param  params_ The parameters for the migrate.
      */
     function _migrateHubPortal(PortalMigrateParams memory params_) internal {
-        HubPortal implementation_ = new HubPortal(params_.mToken, params_.registrar, params_.wormholeChainId);
+        HubPortal implementation_ = new HubPortal(
+            params_.mToken,
+            params_.smartMToken,
+            params_.registrar,
+            params_.wormholeChainId
+        );
         IManagerBase(portal).upgrade(address(implementation_));
     }
 
@@ -75,7 +81,12 @@ abstract contract Migrator is IMigrator {
      * @param  params_ The parameters for the migrate.
      */
     function _migrateSpokePortal(PortalMigrateParams memory params_) internal {
-        SpokePortal implementation_ = new SpokePortal(params_.mToken, params_.registrar, params_.wormholeChainId);
+        SpokePortal implementation_ = new SpokePortal(
+            params_.mToken,
+            params_.smartMToken,
+            params_.registrar,
+            params_.wormholeChainId
+        );
         IManagerBase(portal).upgrade(address(implementation_));
     }
 

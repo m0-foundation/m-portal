@@ -13,6 +13,7 @@ import { PayloadEncoder } from "../../src/libs/PayloadEncoder.sol";
 import { TypeConverter } from "../../src/libs/TypeConverter.sol";
 
 import { UnitTestBase } from "./UnitTestBase.t.sol";
+import { MockWrappedMToken } from "../mocks/MockWrappedMToken.sol";
 import { MockSpokeMToken } from "../mocks/MockSpokeMToken.sol";
 import { MockSpokeRegistrar } from "../mocks/MockSpokeRegistrar.sol";
 import { MockTransceiver } from "../mocks/MockTransceiver.sol";
@@ -21,12 +22,14 @@ contract SpokePortalTests is UnitTestBase {
     using TypeConverter for *;
 
     MockSpokeMToken internal _mToken;
+    MockWrappedMToken internal _smartMToken;
     MockSpokeRegistrar internal _registrar;
 
     SpokePortal internal _portal;
 
     function setUp() external {
         _mToken = new MockSpokeMToken();
+        _smartMToken = new MockWrappedMToken(address(_mToken));
 
         _tokenDecimals = _mToken.decimals();
         _tokenAddress = address(_mToken);
@@ -34,7 +37,12 @@ contract SpokePortalTests is UnitTestBase {
         _registrar = new MockSpokeRegistrar();
         _transceiver = new MockTransceiver();
 
-        SpokePortal implementation_ = new SpokePortal(address(_mToken), address(_registrar), _LOCAL_CHAIN_ID);
+        SpokePortal implementation_ = new SpokePortal(
+            address(_mToken),
+            address(_smartMToken),
+            address(_registrar),
+            _LOCAL_CHAIN_ID
+        );
         _portal = SpokePortal(_createProxy(address(implementation_)));
 
         _initializePortal(_portal);
