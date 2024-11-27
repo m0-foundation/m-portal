@@ -211,14 +211,13 @@ contract HubPortalTests is UnitTestBase {
         bytes32 key_ = bytes32("key");
         bytes32 value_ = bytes32("value");
         bytes32 refundAddress_ = _alice.toBytes32();
-        uint64 sequence_ = _portal.nextMessageSequence();
         uint256 fee_ = 1;
 
         _registrar.set(key_, value_);
         vm.deal(_alice, fee_);
 
         (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) = _createMessage(
-            PayloadEncoder.encodeKey(key_, value_, sequence_, _REMOTE_CHAIN_ID),
+            PayloadEncoder.encodeKey(key_, value_, _REMOTE_CHAIN_ID),
             _LOCAL_CHAIN_ID
         );
 
@@ -258,14 +257,13 @@ contract HubPortalTests is UnitTestBase {
         bool status_ = true;
         address account_ = _bob;
         bytes32 refundAddress_ = _alice.toBytes32();
-        uint64 sequence_ = _portal.nextMessageSequence();
         uint256 fee_ = 1;
 
         vm.deal(_alice, fee_);
         _registrar.setListContains(listName_, account_, status_);
 
         (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) = _createMessage(
-            PayloadEncoder.encodeListUpdate(listName_, account_, status_, sequence_, _REMOTE_CHAIN_ID),
+            PayloadEncoder.encodeListUpdate(listName_, account_, status_, _REMOTE_CHAIN_ID),
             _LOCAL_CHAIN_ID
         );
 

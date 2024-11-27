@@ -77,20 +77,18 @@ library PayloadEncoder {
     function encodeKey(
         bytes32 key_,
         bytes32 value_,
-        uint64 sequence_,
         uint16 destinationChainId_
     ) internal pure returns (bytes memory encoded_) {
-        return abi.encodePacked(KEY_TRANSFER_PREFIX, key_, value_, sequence_, destinationChainId_);
+        return abi.encodePacked(KEY_TRANSFER_PREFIX, key_, value_, destinationChainId_);
     }
 
     function decodeKey(
         bytes memory payload_
-    ) internal pure returns (bytes32 key_, bytes32 value_, uint64 sequence_, uint16 destinationChainId_) {
+    ) internal pure returns (bytes32 key_, bytes32 value_, uint16 destinationChainId_) {
         uint256 offset_ = PAYLOAD_PREFIX_LENGTH;
 
         (key_, offset_) = payload_.asBytes32Unchecked(offset_);
         (value_, offset_) = payload_.asBytes32Unchecked(offset_);
-        (sequence_, offset_) = payload_.asUint64Unchecked(offset_);
         (destinationChainId_, offset_) = payload_.asUint16Unchecked(offset_);
 
         payload_.checkLength(offset_);
@@ -100,25 +98,19 @@ library PayloadEncoder {
         bytes32 listName_,
         address account_,
         bool add_,
-        uint64 sequence_,
         uint16 destinationChainId_
     ) internal pure returns (bytes memory encoded_) {
-        return abi.encodePacked(LIST_UPDATE_PREFIX, listName_, account_, add_, sequence_, destinationChainId_);
+        return abi.encodePacked(LIST_UPDATE_PREFIX, listName_, account_, add_, destinationChainId_);
     }
 
     function decodeListUpdate(
         bytes memory payload_
-    )
-        internal
-        pure
-        returns (bytes32 listName_, address account_, bool add_, uint64 sequence_, uint16 destinationChainId_)
-    {
+    ) internal pure returns (bytes32 listName_, address account_, bool add_, uint16 destinationChainId_) {
         uint256 offset_ = PAYLOAD_PREFIX_LENGTH;
 
         (listName_, offset_) = payload_.asBytes32Unchecked(offset_);
         (account_, offset_) = payload_.asAddressUnchecked(offset_);
         (add_, offset_) = payload_.asBoolUnchecked(offset_);
-        (sequence_, offset_) = payload_.asUint64Unchecked(offset_);
         (destinationChainId_, offset_) = payload_.asUint16Unchecked(offset_);
 
         payload_.checkLength(offset_);

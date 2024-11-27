@@ -66,9 +66,8 @@ contract HubPortal is IHubPortal, Portal {
         bytes32 refundAddress_
     ) external payable returns (bytes32 messageId_) {
         bytes32 value_ = IRegistrarLike(registrar).get(key_);
-        uint64 sequence_ = _useMessageSequence();
-        bytes memory payload_ = PayloadEncoder.encodeKey(key_, value_, sequence_, destinationChainId_);
-        messageId_ = _sendMessage(destinationChainId_, refundAddress_, sequence_, payload_);
+        bytes memory payload_ = PayloadEncoder.encodeKey(key_, value_, destinationChainId_);
+        messageId_ = _sendMessage(destinationChainId_, refundAddress_, _useMessageSequence(), payload_);
 
         emit RegistrarKeySent(destinationChainId_, messageId_, key_, value_);
     }
@@ -81,15 +80,8 @@ contract HubPortal is IHubPortal, Portal {
         bytes32 refundAddress_
     ) external payable returns (bytes32 messageId_) {
         bool status_ = IRegistrarLike(registrar).listContains(listName_, account_);
-        uint64 sequence_ = _useMessageSequence();
-        bytes memory payload_ = PayloadEncoder.encodeListUpdate(
-            listName_,
-            account_,
-            status_,
-            sequence_,
-            destinationChainId_
-        );
-        messageId_ = _sendMessage(destinationChainId_, refundAddress_, sequence_, payload_);
+        bytes memory payload_ = PayloadEncoder.encodeListUpdate(listName_, account_, status_, destinationChainId_);
+        messageId_ = _sendMessage(destinationChainId_, refundAddress_, _useMessageSequence(), payload_);
 
         emit RegistrarListStatusSent(destinationChainId_, messageId_, listName_, account_, status_);
     }

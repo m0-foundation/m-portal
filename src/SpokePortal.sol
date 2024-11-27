@@ -19,9 +19,6 @@ contract SpokePortal is ISpokePortal, Portal {
     using PayloadEncoder for bytes;
     using UIntMath for uint256;
 
-    /// @inheritdoc ISpokePortal
-    uint64 public lastProcessedSequence;
-
     /**
      * @notice Constructs the contract.
      * @param  mToken_    The address of the M token to bridge.
@@ -65,31 +62,22 @@ contract SpokePortal is ISpokePortal, Portal {
 
     /// @notice Sets a Registrar key received from the Hub chain.
     function _setRegistrarKey(bytes32 messageId_, bytes memory payload_) private {
-        (bytes32 key_, bytes32 value_, uint64 sequence_, uint16 destinationChainId_) = payload_.decodeKey();
+        (bytes32 key_, bytes32 value_, uint16 destinationChainId_) = payload_.decodeKey();
 
         _verifyDestinationChain(destinationChainId_);
 
-        emit RegistrarKeyReceived(messageId_, key_, value_, sequence_);
-
-        _verifyMessageSequence(sequence_);
-
-        lastProcessedSequence = sequence_;
+        emit RegistrarKeyReceived(messageId_, key_, value_);
 
         IRegistrarLike(registrar).setKey(key_, value_);
     }
 
     /// @notice Adds or removes an account from the Registrar List based on the message from the Hub chain.
     function _updateRegistrarList(bytes32 messageId_, bytes memory payload_) private {
-        (bytes32 listName_, address account_, bool add_, uint64 sequence_, uint16 destinationChainId_) = payload_
-            .decodeListUpdate();
+        (bytes32 listName_, address account_, bool add_, uint16 destinationChainId_) = payload_.decodeListUpdate();
 
         _verifyDestinationChain(destinationChainId_);
 
-        emit RegistrarListStatusReceived(messageId_, listName_, account_, add_, sequence_);
-
-        _verifyMessageSequence(sequence_);
-
-        lastProcessedSequence = sequence_;
+        emit RegistrarListStatusReceived(messageId_, listName_, account_, add_);
 
         if (add_) {
             IRegistrarLike(registrar).addToList(listName_, account_);
@@ -114,14 +102,6 @@ contract SpokePortal is ISpokePortal, Portal {
         } else {
             ISpokeMTokenLike(mToken()).mint(recipient_, amount_);
         }
-    }
-
-    /// @dev Checks if the incoming message sequence is greater than the last processed one to prevent
-    ///      Registrar data from being overwritten due to message reordering.
-    function _verifyMessageSequence(uint64 sequence_) private view {
-        uint64 lastProcessedSequence_ = lastProcessedSequence;
-        if (lastProcessedSequence_ != 0 && sequence_ < lastProcessedSequence_)
-            revert ObsoleteMessageSequence(sequence_, lastProcessedSequence_);
     }
 
     /// @dev Returns the current M token index used by the Spoke Portal.
