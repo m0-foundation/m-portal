@@ -73,12 +73,30 @@ contract UnitTestBase is Test {
         uint16 sourceChainId_,
         uint16 destinationChainId_
     ) internal view returns (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) {
+        (message_, messageId_) = _createWrappedMTransferMessage(
+            amount_,
+            index_,
+            recipient_,
+            sourceChainId_,
+            destinationChainId_,
+            bytes32(0)
+        );
+    }
+
+    function _createWrappedMTransferMessage(
+        uint256 amount_,
+        uint128 index_,
+        bytes32 recipient_,
+        uint16 sourceChainId_,
+        uint16 destinationChainId_,
+        bytes32 destinationToken_
+    ) internal view returns (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) {
         TransceiverStructs.NativeTokenTransfer memory nativeTokenTransfer_ = TransceiverStructs.NativeTokenTransfer(
             amount_.trim(_tokenDecimals, _tokenDecimals),
             _tokenAddress.toBytes32(),
             recipient_,
             destinationChainId_,
-            abi.encodePacked(index_.toUint64(), bytes32(0))
+            abi.encodePacked(index_.toUint64(), destinationToken_)
         );
         bytes memory payload_ = TransceiverStructs.encodeNativeTokenTransfer(nativeTokenTransfer_);
         message_ = TransceiverStructs.NttManagerMessage(bytes32(0), _alice.toBytes32(), payload_);

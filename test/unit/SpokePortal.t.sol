@@ -323,4 +323,66 @@ contract SpokePortalTests is UnitTestBase {
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
     }
+
+    function test_receiveWrappedMToken() external {
+        uint256 amount_ = 1_000e6;
+        uint128 localIndex_ = 1_100000068703;
+        uint128 remoteIndex_ = _EXP_SCALED_ONE;
+
+        _mToken.setCurrentIndex(localIndex_);
+
+        (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) = _createWrappedMTransferMessage(
+            amount_,
+            remoteIndex_,
+            _alice.toBytes32(),
+            _REMOTE_CHAIN_ID,
+            _LOCAL_CHAIN_ID,
+            address(_smartMToken).toBytes32()
+        );
+
+        vm.expectCall(address(_mToken), abi.encodeWithSignature("mint(address,uint256)", address(_portal), amount_));
+        vm.expectCall(address(_smartMToken), abi.encodeWithSignature("wrap(address,uint256)", _alice, amount_));
+
+        vm.expectEmit();
+        emit IPortal.MTokenReceived(_REMOTE_CHAIN_ID, messageId_, _alice.toBytes32(), _alice, amount_, remoteIndex_);
+
+        vm.expectEmit();
+        emit INttManager.TransferRedeemed(messageId_);
+
+        vm.prank(address(_transceiver));
+        _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
+    }
+
+    function test_receiveWrappedMToken_unwrapFails() external {
+        uint256 amount_ = 1_000e6;
+        uint128 localIndex_ = 1_100000068703;
+        uint128 remoteIndex_ = _EXP_SCALED_ONE;
+        address destinationWrappedToken_ = makeAddr("invalid");
+
+        _mToken.setCurrentIndex(localIndex_);
+
+        (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) = _createWrappedMTransferMessage(
+            amount_,
+            remoteIndex_,
+            _alice.toBytes32(),
+            _REMOTE_CHAIN_ID,
+            _LOCAL_CHAIN_ID,
+            destinationWrappedToken_.toBytes32()
+        );
+
+        vm.expectCall(address(_mToken), abi.encodeWithSignature("mint(address,uint256)", address(_portal), amount_));
+        vm.expectCall(address(_mToken), abi.encodeWithSignature("transfer(address,uint256)", _alice, amount_));
+
+        vm.expectEmit();
+        emit IPortal.MTokenReceived(_REMOTE_CHAIN_ID, messageId_, _alice.toBytes32(), _alice, amount_, remoteIndex_);
+
+        vm.expectEmit();
+        emit INttManager.TransferRedeemed(messageId_);
+
+        vm.expectEmit();
+        emit IPortal.WrapFailed(destinationWrappedToken_, _alice, amount_);
+
+        vm.prank(address(_transceiver));
+        _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
+    }
 }
