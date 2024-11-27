@@ -15,6 +15,7 @@ import {
 import { IPortal } from "./interfaces/IPortal.sol";
 import { IWrappedMTokenLike } from "./interfaces/IWrappedMTokenLike.sol";
 import { TypeConverter } from "./libs/TypeConverter.sol";
+import { SafeCall } from "./libs/SafeCall.sol";
 import { PayloadType, PayloadEncoder } from "./libs/PayloadEncoder.sol";
 
 /**
@@ -25,6 +26,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
     using TypeConverter for *;
     using PayloadEncoder for bytes;
     using TrimmedAmountLib for *;
+    using SafeCall for address;
 
     /// @dev Use only standard WormholeTransceiver with relaying enabled
     bytes public constant DEFAULT_TRANSCEIVER_INSTRUCTIONS = new bytes(1);
@@ -186,6 +188,10 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         bytes32 recipient_,
         bytes32 refundAddress_
     ) private returns (bytes32 messageId_) {
+        if (amount_ == 0) revert ZeroAmount();
+        if (recipient_ == bytes32(0)) revert InvalidRecipient();
+        if (refundAddress_ == bytes32(0)) revert InvalidRefundAddress();
+
         // transfer Wrapped M from the sender
         IERC20(sourceWrappedToken_).transferFrom(msg.sender, address(this), amount_);
 
@@ -195,11 +201,6 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         // NOTE: the following code has been adapted from NTT manager `transfer` or `_transferEntryPoint` functions.
         // We cannot call those functions directly here as they attempt to transfer M Token from the msg.sender.
 
-        if (amount_ == 0) revert ZeroAmount();
-        if (recipient_ == bytes32(0)) revert InvalidRecipient();
-        if (refundAddress_ == bytes32(0)) revert InvalidRefundAddress();
-
-        // get the sequence for this transfer
         uint64 sequence_ = _useMessageSequence();
         uint128 index_ = _currentIndex();
 
@@ -307,7 +308,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
     /// @dev Wraps M token to the token specified by `destinationWrappedToken_`.
     ///      If wrapping fails transfers M token to `recipient_`.
     function _wrap(address destinationWrappedToken_, address recipient_, uint256 amount_) private {
-        (bool success, ) = destinationWrappedToken_.call(
+        bool success = destinationWrappedToken_.safeCall(
             abi.encodeCall(IWrappedMTokenLike.wrap, (recipient_, amount_))
         );
 
