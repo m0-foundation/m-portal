@@ -151,40 +151,32 @@ contract PayloadEncoderTest is Test {
     function test_encodeKey() external {
         bytes32 key_ = "key";
         bytes32 value_ = "value";
-        uint64 sequence_ = 2;
         bytes memory payload_ = abi.encodePacked(
             PayloadEncoder.KEY_TRANSFER_PREFIX,
             key_,
             value_,
-            sequence_,
             _DESTINATION_CHAIN_ID
         );
 
-        assertEq(PayloadEncoder.encodeKey(key_, value_, sequence_, _DESTINATION_CHAIN_ID), payload_);
+        assertEq(PayloadEncoder.encodeKey(key_, value_, _DESTINATION_CHAIN_ID), payload_);
     }
 
     function test_decodeKey() external {
         bytes32 encodedKey_ = "key";
         bytes32 encodedValue_ = "value";
-        uint64 encodedSequence_ = 2;
         bytes memory payload_ = abi.encodePacked(
             PayloadEncoder.KEY_TRANSFER_PREFIX,
             encodedKey_,
             encodedValue_,
-            encodedSequence_,
             _DESTINATION_CHAIN_ID
         );
 
-        (
-            bytes32 decodedKey_,
-            bytes32 decodedValue_,
-            uint64 decodedSequence_,
-            uint16 decodedDestinationChainId_
-        ) = PayloadEncoder.decodeKey(payload_);
+        (bytes32 decodedKey_, bytes32 decodedValue_, uint16 decodedDestinationChainId_) = PayloadEncoder.decodeKey(
+            payload_
+        );
 
         assertEq(decodedKey_, encodedKey_);
         assertEq(decodedValue_, encodedValue_);
-        assertEq(decodedSequence_, encodedSequence_);
         assertEq(decodedDestinationChainId_, _DESTINATION_CHAIN_ID);
     }
 
@@ -192,33 +184,26 @@ contract PayloadEncoderTest is Test {
         bytes32 listName_ = "list";
         address account_ = makeAddr("account");
         bool add_ = true;
-        uint64 sequence_ = 3;
         bytes memory payload_ = abi.encodePacked(
             PayloadEncoder.LIST_UPDATE_PREFIX,
             listName_,
             account_,
             add_,
-            sequence_,
             _DESTINATION_CHAIN_ID
         );
 
-        assertEq(
-            PayloadEncoder.encodeListUpdate(listName_, account_, add_, sequence_, _DESTINATION_CHAIN_ID),
-            payload_
-        );
+        assertEq(PayloadEncoder.encodeListUpdate(listName_, account_, add_, _DESTINATION_CHAIN_ID), payload_);
     }
 
     function test_decodeListUpdate() external {
         bytes32 encodedListName_ = "list";
         address encodedAccount_ = makeAddr("account");
         bool encodedStatus_ = true;
-        uint64 encodedSequence_ = 3;
         bytes memory payload_ = abi.encodePacked(
             PayloadEncoder.LIST_UPDATE_PREFIX,
             encodedListName_,
             encodedAccount_,
             encodedStatus_,
-            encodedSequence_,
             _DESTINATION_CHAIN_ID
         );
 
@@ -226,14 +211,12 @@ contract PayloadEncoderTest is Test {
             bytes32 decodedListName_,
             address decodedAccount_,
             bool decodedStatus_,
-            uint64 decodedSequence_,
             uint16 decodedDestinationChainId_
         ) = PayloadEncoder.decodeListUpdate(payload_);
 
         assertEq(decodedListName_, encodedListName_);
         assertEq(decodedAccount_, encodedAccount_);
         assertEq(decodedStatus_, encodedStatus_);
-        assertEq(decodedSequence_, encodedSequence_);
         assertEq(decodedDestinationChainId_, _DESTINATION_CHAIN_ID);
     }
 }
