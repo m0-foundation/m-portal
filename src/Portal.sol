@@ -80,6 +80,8 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
 
     /// @inheritdoc IPortal
     function setRemoteSmartMToken(uint16 remoteChainId_, bytes32 smartMToken_) external onlyOwner {
+        if (remoteChainId_ == chainId) revert InvalidRemoteChain(remoteChainId_);
+
         remoteSmartMToken[remoteChainId_] = smartMToken_;
         emit RemoteSmartMTokenSet(remoteChainId_, smartMToken_);
     }
