@@ -117,6 +117,10 @@ interface IPortal {
     ///         isn't equal to EVM chainId set in the constructor.
     error InvalidFork(uint256 evmChainId, uint256 blockChainId);
 
+    /// @notice Emitted in `setRemoteSmartMToken` when the remote chain id
+    ///         is equal to the local one.
+    error InvalidRemoteChain(uint16 remoteChainId);
+
     /* ============ View/Pure Functions ============ */
 
     /// @notice The current index of the Portal's earning mechanism.
