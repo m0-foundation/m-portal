@@ -81,6 +81,15 @@ cast-send-registrar-list-status-local:
 cast-send-registrar-list-status-dev-sepolia:
 	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/cast/CastSendRegistrarListStatus.s.sol:CastSendRegistrarListStatus --rpc-url $(SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
 
+cast-transfer-excess-m-local:
+	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/cast/CastTransferExcessM.s.sol:CastTransferExcessM --rpc-url localhost --skip test --broadcast -v
+
+cast-transfer-excess-m-base-sepolia:
+	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/cast/CastTransferExcessM.s.sol:CastTransferExcessM --rpc-url $(BASE_SEPOLIA_RPC_URL) --skip test --broadcast -v
+
+cast-transfer-excess-m-optimism-sepolia:
+	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/cast/CastTransferExcessM.s.sol:CastTransferExcessM --rpc-url $(OPTIMISM_SEPOLIA_RPC_URL) --skip test --broadcast -v
+
 # Run slither
 slither :; FOUNDRY_PROFILE=production forge build --build-info --skip '*/test/**' --skip '*/script/**' --force && slither --compile-force-framework foundry --ignore-compile --sarif results.sarif --config-file slither.config.json .
 
