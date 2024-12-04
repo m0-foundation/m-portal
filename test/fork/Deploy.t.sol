@@ -34,8 +34,7 @@ contract Deploy is ForkTestBase {
 
         address expectedHubPortal_ = _getCreate3Address(_DEPLOYER, _computeSalt(_DEPLOYER, "Portal"));
         assertEq(hubPortal_, expectedHubPortal_);
-        console.log("WormholeTransceiver salt");
-        console.logBytes32(_computeSalt(_DEPLOYER, "WormholeTransceiver"));
+
         address expectedWormholeTransceiver_ = _getCreate3Address(
             _DEPLOYER,
             _computeSalt(_DEPLOYER, "WormholeTransceiver")
