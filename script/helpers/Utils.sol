@@ -31,18 +31,22 @@ contract Utils {
     uint256 internal constant _MAINNET_CHAIN_ID = 1;
     uint256 internal constant _BASE_CHAIN_ID = 8453;
     uint256 internal constant _OPTIMISM_CHAIN_ID = 10;
+    uint256 internal constant _WORLDCHAIN_CHAIN_ID = 480;
 
     uint256 internal constant _SEPOLIA_CHAIN_ID = 11155111;
     uint256 internal constant _BASE_SEPOLIA_CHAIN_ID = 84532;
     uint256 internal constant _OPTIMISM_SEPOLIA_CHAIN_ID = 11155420;
+    uint256 internal constant _WORLDCHAIN_SEPOLIA_CHAIN_ID = 4801;
 
     uint16 internal constant _MAINNET_WORMHOLE_CHAIN_ID = 2;
     uint16 internal constant _BASE_WORMHOLE_CHAIN_ID = 30;
     uint16 internal constant _OPTIMISM_WORMHOLE_CHAIN_ID = 24;
+    uint16 internal constant _WORLDCHAIN_WORMHOLE_CHAIN_ID = 45;
 
     uint16 internal constant _SEPOLIA_WORMHOLE_CHAIN_ID = 10002;
     uint16 internal constant _BASE_SEPOLIA_WORMHOLE_CHAIN_ID = 10004;
     uint16 internal constant _OPTIMISM_SEPOLIA_WORMHOLE_CHAIN_ID = 10005;
+    uint16 internal constant _WORLDCHAIN_SEPOLIA_WORMHOLE_CHAIN_ID = 45;
 
     address internal constant _MAINNET_WORMHOLE_CORE_BRIDGE = 0x98f3c9e6E3fAce36bAAd05FE09d375Ef1464288B;
     address internal constant _BASE_WORMHOLE_CORE_BRIDGE = 0xbebdb6C8ddC678FfA9f8748f85C815C556Dd8ac6;
@@ -51,6 +55,7 @@ contract Utils {
     address internal constant _SEPOLIA_WORMHOLE_CORE_BRIDGE = 0x4a8bc80Ed5a4067f1CCf107057b8270E0cC11A78;
     address internal constant _BASE_SEPOLIA_WORMHOLE_CORE_BRIDGE = 0x79A1027a6A159502049F10906D333EC57E95F083;
     address internal constant _OPTIMISM_SEPOLIA_WORMHOLE_CORE_BRIDGE = 0x31377888146f3253211EFEf5c676D41ECe7D58Fe;
+    address internal constant _WORLDCHAIN_SEPOLIA_WORMHOLE_CORE_BRIDGE = 0xe5E02cD12B6FcA153b0d7fF4bF55730AE7B3C93A;
 
     address internal constant _MAINNET_WORMHOLE_RELAYER = 0x27428DD2d3DD32A4D7f7C497eAaa23130d894911;
     address internal constant _BASE_WORMHOLE_RELAYER = 0x706F82e9bb5b0813501714Ab5974216704980e31;
@@ -130,6 +135,8 @@ contract Utils {
             return _BASE_SEPOLIA_WORMHOLE_CHAIN_ID;
         } else if (chainId_ == _OPTIMISM_SEPOLIA_CHAIN_ID) {
             return _OPTIMISM_SEPOLIA_WORMHOLE_CHAIN_ID;
+        } else if (chainId_ == _WORLDCHAIN_SEPOLIA_CHAIN_ID) {
+            return _WORLDCHAIN_SEPOLIA_WORMHOLE_CHAIN_ID;
         } else {
             console.log("Chain id: {}", chainId_);
             revert("Unsupported chain id.");

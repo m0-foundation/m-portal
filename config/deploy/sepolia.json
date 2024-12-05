@@ -41,6 +41,20 @@
         "consistency_level": "200",
         "gas_limit": "250000"
       }
+    },
+    "4801": {
+      "hub_vault": {
+        "address": "0x3dc71Be52d6D687e21FC0d4FFc196F32cacbc26d",
+        "wormhole_chain_id": "10002"
+      },
+      "wormhole": {
+        "chain_id": "45",
+        "core_bridge": "0xe5E02cD12B6FcA153b0d7fF4bF55730AE7B3C93A",
+        "relayer": "0x93BAD53DDfB6132b0aC8E37f6029163E63372cEE",
+        "special_relayer": "0x0000000000000000000000000000000000000000",
+        "consistency_level": "200",
+        "gas_limit": "250000"
+      }
     }
   }
 }
