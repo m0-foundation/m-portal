@@ -1,6 +1,6 @@
 # M^0 M Portal Security Review
 
-Date: **12.11.24**
+Date: **06.12.24**
 
 Produced by **Kirill Fedoseev** (telegram: [kfedoseev](http://t.me/kfedoseev),
 twitter: [@k1rill_fedoseev](http://twitter.com/k1rill_fedoseev))
@@ -8,7 +8,8 @@ twitter: [@k1rill_fedoseev](http://twitter.com/k1rill_fedoseev))
 ## Introduction
 
 An independent security review of the M^0 M Portal contracts was conducted by **kfedoseev** from 07.11.24 to 12.11.24.
-The following methods were used for conducting a security review:
+The fixes review was conducted on 22.11.24 and on 06.12.24. The following methods were used for conducting a security
+review:
 
 - Manual source code review
 
@@ -25,22 +26,20 @@ facilitate bridging of M token between Ethereum Mainnet and various other chains
 
 ## Observations and Limitations
 
-* `HubPortal`, `SpokePortal` and `SpokeVault` contracts are upgradeable via the TTG governance. Registrar key-value
+- `HubPortal`, `SpokePortal` and `SpokeVault` contracts are upgradeable via the TTG governance. Registrar key-value
   pairs controlling the upgrade process can be directly altered through **StandardGovernor** or **EmergencyGovernor**,
   or indirectly through the **ZeroGovernor**. For `SpokeVault` and `SpokePortal`, registrar key values need to be
   additionally pushed through the Wormhole bridge using the `HubPortal`. Additionally, contracts can be upgraded by a
   migration admin (multi-sig), bypassing the governance upgradability flow. Upgradability is controlled by the
   implementation contract and can be forfeited in the future as part of one of the upgrades.
-* Security of all funds stored in `HubPortal` is based on the underlying Wormhole bridge, whose security hasn't been
-  evaluated as part of this review. In the worst case scenario, if the Wormhole bridge is compromised for one or more
-  connected chains, all funds in the `HubPortal` are at risk, regardless of the total M supply on the given L2.
-* While Wormhole bridge supports non-EVM chains, the current M Portal version targets only EVM-based chains. Forward
+
+- While Wormhole bridge supports non-EVM chains, the current M Portal version targets only EVM-based chains. Forward
   compatibility with any non-EVM chains has not been assessed as part of the review.
 
 ## Severity classification
 
 | **Severity**           | **Impact: High** | **Impact: Medium** | **Impact: Low** |
-|------------------------|------------------|--------------------|-----------------|
+| ---------------------- | ---------------- | ------------------ | --------------- |
 | **Likelihood: High**   | Critical         | High               | Medium          |
 | **Likelihood: Medium** | High             | Medium             | Low             |
 | **Likelihood: Low**    | Medium           | Low                | Low             |
@@ -55,14 +54,21 @@ facilitate bridging of M token between Ethereum Mainnet and various other chains
 
 Reviewed commits:
 
-* M Portal -
+- M Portal -
   [fd059a9f2a02d4c7522df19b1cf32f3d5ee45290](https://github.com/m0-foundation/m-portal/commit/fd059a9f2a02d4c7522df19b1cf32f3d5ee45290)
-* Common -
+- Common -
   [3692db150ad90b21d7c213ea535f34792ad8873f](https://github.com/m0-foundation/common/commit/3692db150ad90b21d7c213ea535f34792ad8873f)
-* Protocol (`spoke` branch) -
+- Protocol (`spoke` branch) -
   [9661cce9b3562a7c17afc8b60dddf216c59de1f3](https://github.com/m0-foundation/protocol/commit/9661cce9b3562a7c17afc8b60dddf216c59de1f3)
-* TTG (`spoke` branch) -
+- TTG (`spoke` branch) -
   [2a11c24f88f4b0b31e376dc61b73ab8a9a67190a](https://github.com/m0-foundation/ttg/commit/2a11c24f88f4b0b31e376dc61b73ab8a9a67190a)
+
+Reviewed fixes commits:
+
+- M Portal -
+  [ddf583b9bef971752ec1360f9b089e6fefa9c526](https://github.com/m0-foundation/m-portal/tree/ddf583b9bef971752ec1360f9b089e6fefa9c526)
+- Protocol (`spoke` branch) -
+  [c8d6ac8244bf31a301e5744fa4ffa8ee8f1d5d7b](https://github.com/m0-foundation/protocol/tree/c8d6ac8244bf31a301e5744fa4ffa8ee8f1d5d7b)
 
 Reviewed contracts:
 
@@ -75,20 +81,20 @@ Reviewed contracts:
 
 # Findings Summary
 
-| ID     | Title                                                                                                      | Severity      | Status |
-|--------|------------------------------------------------------------------------------------------------------------|---------------|--------|
-| [M-01] | Accrual of unbacked yield when enabling earning for `HubPortal`                                            | Medium        |        |
-| [M-02] | Unchecked underflow in `outstandingPrincipal` calculation                                                  | Medium        |        |
-| [L-01] | Missing `additionalPayload` length validation                                                              | Low           |        |
-| [L-02] | Missing `TransferRedeemed` event emittance in `_receiveMToken`                                             | Low           |        |
-| [L-03] | Race condition in messages sent via `sendRegistrarListStatus` and `sendRegistrarKey`                       | Low           |        |
-| [L-04] | Missing fee refund in `transferExcessM`                                                                    | Low           |        |
-| [I-01] | Incorrect NatSpec comment for `currentIndex`                                                               | Informational |        |
-| [I-02] | Unused function `toAddress`                                                                                | Informational |        |
-| [I-03] | Use empty bytes for `DEFAULT_TRANSCEIVER_INSTRUCTIONS`                                                     | Informational |        |
-| [I-04] | Function `_receiveCustomPayload` in `SpokePortal` does not reject messages not coming from the `HubPortal` | Informational |        |
-| [I-05] | Typos in NatSpec comments                                                                                  | Informational |        |
-| [I-06] | Whitelisting smart contracts based on chain-agnostic addresses is error-prone                              | Informational |        |
+| ID     | Title                                                                                                      | Severity      | Status       |
+| ------ | ---------------------------------------------------------------------------------------------------------- | ------------- | ------------ |
+| [M-01] | Accrual of unbacked yield when enabling earning for `HubPortal`                                            | Medium        | Fixed        |
+| [M-02] | Unchecked underflow in `outstandingPrincipal` calculation                                                  | Medium        | Fixed        |
+| [L-01] | Missing `additionalPayload` length validation                                                              | Low           | Fixed        |
+| [L-02] | Missing `TransferRedeemed` event emittance in `_receiveMToken`                                             | Low           | Fixed        |
+| [L-03] | Race condition in messages sent via `sendRegistrarListStatus` and `sendRegistrarKey`                       | Low           | Acknowledged |
+| [L-04] | Missing fee refund in `transferExcessM`                                                                    | Low           | Fixed        |
+| [I-01] | Incorrect NatSpec comment for `currentIndex`                                                               | Informational | Fixed        |
+| [I-02] | Unused function `toAddress`                                                                                | Informational | Fixed        |
+| [I-03] | Use empty bytes for `DEFAULT_TRANSCEIVER_INSTRUCTIONS`                                                     | Informational | Acknowledged |
+| [I-04] | Function `_receiveCustomPayload` in `SpokePortal` does not reject messages not coming from the `HubPortal` | Informational | Acknowledged |
+| [I-05] | Typos in NatSpec comments                                                                                  | Informational | Fixed        |
+| [I-06] | Whitelisting smart contracts based on chain-agnostic addresses is error-prone                              | Informational | Acknowledged |
 
 # Security & Economic Findings
 
@@ -101,9 +107,9 @@ events:
 1. Portals are fully deployed and operational, however earning for `HubPortal` address hasn't been enabled yet (e.g. due
    to TTG governance delay).
 2. A user who is already an earner on L1 bridges their M token to L2 through `HubPortal`
-    1. Index 0 is sent along with the M-minting message (since `_currentIndex()` returns 0)
-    2. `SpokePortal` ignores received index 0, since it's lower than `_currentIndex()` initialized as `EXP_SCALED_ONE`
-       during M token deployment
+   1. Index 0 is sent along with the M-minting message (since `_currentIndex()` returns 0)
+   2. `SpokePortal` ignores received index 0, since it's lower than `_currentIndex()` initialized as `EXP_SCALED_ONE`
+      during M token deployment
 3. User enables earning for their bridged M with contract assuming that the index is `EXP_SCALED_ONE`
 4. TTG governance fully enables earning for `HubPortal`
 5. Actual `index` is pushed to the L2 through the `HubPortal`
@@ -125,8 +131,8 @@ twice, then 6 wei is bridged back (`floor(3 / 1.1) + floor(3 / 1.1) < floor(6 / 
 
 Adopt one of the following:
 
-* Round amounts that are bridged in upwards
-* Remove `outstandingPrincipal` and count `excess` in Spoke M instead of `SpokePortal`, based on the
+- Round amounts that are bridged in upwards
+- Remove `outstandingPrincipal` and count `excess` in Spoke M instead of `SpokePortal`, based on the
   `totalNonEarningSupply` and change in the index as part of `updateIndex`
 
 ## [L-01] Missing `additionalPayload` length validation
@@ -230,7 +236,7 @@ Add the following or similar refund forwarding logic to the `transferExcessM` fu
 
 ## [I-01] Incorrect NatSpec comment for `currentIndex`
 
-The NatSpec comment for `currentIndex` in `IContinuousIndexing` references `updateIndex`, which no longer exists in the
+The NatSpec comment for `currentIndex` in `IContinuousIndexing` references `updateIndex`, which works differently in the
 spoke M version. Consider updating the NatSpec comment to reflect the current implementation.
 
 ```solidity
