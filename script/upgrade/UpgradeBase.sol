@@ -24,6 +24,7 @@ contract UpgradeBase is Script, Utils {
 
     struct PortalConfiguration {
         address mToken;
+        address smartMToken;
         address registrar;
         address portal;
         uint16 wormholeChainId;
@@ -57,7 +58,12 @@ contract UpgradeBase is Script, Utils {
     }
 
     function _upgradeHubPortal(PortalConfiguration memory config_) internal {
-        HubPortal implementation_ = new HubPortal(config_.mToken, config_.registrar, config_.wormholeChainId);
+        HubPortal implementation_ = new HubPortal(
+            config_.mToken,
+            config_.smartMToken,
+            config_.registrar,
+            config_.wormholeChainId
+        );
 
         console.log("HubPortal implementation deployed at: ", address(implementation_));
 
@@ -65,7 +71,12 @@ contract UpgradeBase is Script, Utils {
     }
 
     function _upgradeSpokePortal(PortalConfiguration memory config_) internal {
-        SpokePortal implementation_ = new SpokePortal(config_.mToken, config_.registrar, config_.wormholeChainId);
+        SpokePortal implementation_ = new SpokePortal(
+            config_.mToken,
+            config_.smartMToken,
+            config_.registrar,
+            config_.wormholeChainId
+        );
 
         console.log("SpokePortal implementation deployed at: ", address(implementation_));
 
@@ -84,11 +95,13 @@ contract UpgradeBase is Script, Utils {
         console.log("Portal configuration for chain ID %s loaded:", chainId_);
 
         portalConfig_.mToken = file_.readAddress(_readKey(config_, "m_token"));
+        portalConfig_.smartMToken = file_.readAddress(_readKey(config_, "smart_m_token"));
         portalConfig_.registrar = file_.readAddress(_readKey(config_, "registrar"));
         portalConfig_.portal = file_.readAddress(_readKey(config_, "portal"));
         portalConfig_.wormholeChainId = uint16(file_.readUint(_readKey(config_, "wormhole.chain_id")));
 
         console.log("M Token:", portalConfig_.mToken);
+        console.log("Smart M Token:", portalConfig_.smartMToken);
         console.log("Registrar:", portalConfig_.registrar);
         console.log("Portal:", portalConfig_.portal);
         console.log("Wormhole chain ID:", portalConfig_.wormholeChainId);

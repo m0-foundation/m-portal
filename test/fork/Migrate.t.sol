@@ -60,6 +60,7 @@ contract Migrate is ForkTestBase, UpgradeBase {
 
         HubPortal hubPortalImplementation_ = new HubPortal(
             _MAINNET_M_TOKEN,
+            _MAINNET_SMART_M_TOKEN,
             _MAINNET_REGISTRAR,
             _MAINNET_WORMHOLE_CHAIN_ID
         );

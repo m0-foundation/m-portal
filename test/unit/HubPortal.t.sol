@@ -14,6 +14,7 @@ import { TypeConverter } from "../../src/libs/TypeConverter.sol";
 
 import { UnitTestBase } from "./UnitTestBase.t.sol";
 import { MockHubMToken } from "../mocks/MockHubMToken.sol";
+import { MockWrappedMToken } from "../mocks/MockWrappedMToken.sol";
 import { MockHubRegistrar } from "../mocks/MockHubRegistrar.sol";
 import { MockTransceiver } from "../mocks/MockTransceiver.sol";
 
@@ -21,12 +22,14 @@ contract HubPortalTests is UnitTestBase {
     using TypeConverter for *;
 
     MockHubMToken internal _mToken;
+    MockWrappedMToken internal _smartMToken;
     MockHubRegistrar internal _registrar;
 
     HubPortal internal _portal;
 
     function setUp() external {
         _mToken = new MockHubMToken();
+        _smartMToken = new MockWrappedMToken(address(_mToken));
 
         _tokenDecimals = _mToken.decimals();
         _tokenAddress = address(_mToken);
@@ -34,7 +37,12 @@ contract HubPortalTests is UnitTestBase {
         _registrar = new MockHubRegistrar();
         _transceiver = new MockTransceiver();
 
-        HubPortal implementation_ = new HubPortal(address(_mToken), address(_registrar), _LOCAL_CHAIN_ID);
+        HubPortal implementation_ = new HubPortal(
+            address(_mToken),
+            address(_smartMToken),
+            address(_registrar),
+            _LOCAL_CHAIN_ID
+        );
         _portal = HubPortal(_createProxy(address(implementation_)));
 
         _initializePortal(_portal);

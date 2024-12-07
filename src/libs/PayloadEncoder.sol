@@ -47,18 +47,42 @@ library PayloadEncoder {
     )
         internal
         pure
-        returns (TrimmedAmount trimmedAmount_, uint128 index_, address recipient_, uint16 destinationChainId_)
+        returns (
+            TrimmedAmount trimmedAmount_,
+            uint128 index_,
+            address destinationWrappedToken_,
+            address recipient_,
+            uint16 destinationChainId_
+        )
     {
         TransceiverStructs.NativeTokenTransfer memory nativeTokenTransfer_ = TransceiverStructs
             .parseNativeTokenTransfer(payload_);
 
-        uint256 offset_ = 0;
-        (index_, offset_) = nativeTokenTransfer_.additionalPayload.asUint64Unchecked(offset_);
-        nativeTokenTransfer_.additionalPayload.checkLength(offset_);
+        (index_, destinationWrappedToken_) = decodeAdditionalPayload(nativeTokenTransfer_.additionalPayload);
 
         trimmedAmount_ = nativeTokenTransfer_.amount;
         recipient_ = nativeTokenTransfer_.to.toAddress();
         destinationChainId_ = nativeTokenTransfer_.toChain;
+    }
+
+    function encodeAdditionalPayload(
+        uint128 index_,
+        bytes32 destinationWrappedToken_
+    ) internal pure returns (bytes memory encoded_) {
+        return abi.encodePacked(index_.toUint64(), destinationWrappedToken_);
+    }
+
+    function decodeAdditionalPayload(
+        bytes memory payload_
+    ) internal pure returns (uint128 index_, address destinationWrappedToken_) {
+        uint256 offset_ = 0;
+        bytes32 token_;
+
+        (index_, offset_) = payload_.asUint64Unchecked(offset_);
+        (token_, offset_) = payload_.asBytes32Unchecked(offset_);
+        destinationWrappedToken_ = token_.toAddress();
+
+        payload_.checkLength(offset_);
     }
 
     function encodeIndex(uint128 index_, uint16 destinationChainId_) internal pure returns (bytes memory encoded_) {

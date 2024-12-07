@@ -42,6 +42,7 @@ contract DeployBase is Script, Utils {
 
     struct HubConfiguration {
         address mToken;
+        address smartMToken;
         address registrar;
         WormholeConfiguration wormhole;
     }
@@ -132,7 +133,12 @@ contract DeployBase is Script, Utils {
     }
 
     function _deployHubPortal(address deployer_, HubConfiguration memory config_) internal returns (address) {
-        HubPortal implementation_ = new HubPortal(config_.mToken, config_.registrar, config_.wormhole.chainId);
+        HubPortal implementation_ = new HubPortal(
+            config_.mToken,
+            config_.smartMToken,
+            config_.registrar,
+            config_.wormhole.chainId
+        );
         HubPortal hubPortalProxy_ = HubPortal(
             _deployCreate3Proxy(address(implementation_), _computeSalt(deployer_, "Portal"))
         );
@@ -150,7 +156,10 @@ contract DeployBase is Script, Utils {
         address registrar_,
         uint16 wormholeChainId_
     ) internal returns (address) {
-        SpokePortal implementation_ = new SpokePortal(mToken_, registrar_, wormholeChainId_);
+        // Pre-compute the expected SpokeSmartMToken proxy address.
+        address expectedSmartMTokenProxy_ = ContractHelper.getContractFrom(deployer_, _SPOKE_SMART_M_TOKEN_PROXY_NONCE);
+
+        SpokePortal implementation_ = new SpokePortal(mToken_, expectedSmartMTokenProxy_, registrar_, wormholeChainId_);
         SpokePortal spokePortalProxy_ = SpokePortal(
             _deployCreate3Proxy(address(implementation_), _computeSalt(deployer_, "Portal"))
         );
@@ -340,9 +349,11 @@ contract DeployBase is Script, Utils {
         console.log("Hub configuration for chain ID %s loaded:", chainId_);
 
         hubConfig_.mToken = file_.readAddress(_readKey(hub_, "m_token"));
+        hubConfig_.smartMToken = file_.readAddress(_readKey(hub_, "smart_m_token"));
         hubConfig_.registrar = file_.readAddress(_readKey(hub_, "registrar"));
 
         console.log("M Token:", hubConfig_.mToken);
+        console.log("Smart M Token:", hubConfig_.smartMToken);
         console.log("Registrar:", hubConfig_.registrar);
 
         hubConfig_.wormhole = _loadWormholeConfig(file_, hub_);

@@ -22,6 +22,9 @@ contract SepoliaMigrator is Migrator {
     /// @dev Sepolia Spoke M token address.
     address internal constant _SEPOLIA_SPOKE_M_TOKEN = 0xCEC6566b227a95C76a0E3dbFdC7794CA795C7F9e;
 
+    /// @dev Sepolia Spoke Smart M token address.
+    address internal constant _SEPOLIA_SPOKE_SMART_M_TOKEN = 0xCEC6566b227a95C76a0E3dbFdC7794CA795C7F9e;
+
     /// @dev Sepolia Spoke Registrar address.
     address internal constant _SEPOLIA_SPOKE_REGISTRAR = 0x39a5F8C5ADC500E1d30115c09A1016764D90bC94;
 
@@ -49,6 +52,7 @@ contract SepoliaMigrator is Migrator {
             _migrateHubPortal(
                 PortalMigrateParams({
                     mToken: 0x0c941AD94Ca4A52EDAeAbF203b61bdd1807CeEC0,
+                    smartMToken: 0x437cc33344a0B27A429f795ff6B469C72698B291,
                     registrar: 0x975Bf5f212367D09CB7f69D3dc4BA8C9B440aD3A,
                     wormholeChainId: _SEPOLIA_WORMHOLE_CHAIN_ID
                 })
@@ -68,6 +72,7 @@ contract SepoliaMigrator is Migrator {
             _migrateSpokePortal(
                 PortalMigrateParams({
                     mToken: _SEPOLIA_SPOKE_M_TOKEN,
+                    smartMToken: _SEPOLIA_SPOKE_SMART_M_TOKEN,
                     registrar: _SEPOLIA_SPOKE_REGISTRAR,
                     wormholeChainId: _BASE_SEPOLIA_WORMHOLE_CHAIN_ID
                 })
@@ -87,6 +92,7 @@ contract SepoliaMigrator is Migrator {
             _migrateSpokePortal(
                 PortalMigrateParams({
                     mToken: _SEPOLIA_SPOKE_M_TOKEN,
+                    smartMToken: _SEPOLIA_SPOKE_SMART_M_TOKEN,
                     registrar: _SEPOLIA_SPOKE_REGISTRAR,
                     wormholeChainId: _OPTIMISM_SEPOLIA_WORMHOLE_CHAIN_ID
                 })

@@ -2,6 +2,7 @@
   "config": {
     "1": {
       "m_token": "0x866A2BF4E572CbcF37D5071A7a58503Bfb36be1b",
+      "smart_m_token": "0x437cc33344a0B27A429f795ff6B469C72698B291",
       "registrar": "0x119FbeeDD4F4f4298Fb59B720d5654442b81ae2c",
       "portal": "0xD925C84b55E4e44a53749fF5F2a5A13F63D128fd",
       "wormhole": {

@@ -13,6 +13,7 @@ import { PayloadEncoder } from "../../src/libs/PayloadEncoder.sol";
 import { TypeConverter } from "../../src/libs/TypeConverter.sol";
 
 import { UnitTestBase } from "./UnitTestBase.t.sol";
+import { MockWrappedMToken } from "../mocks/MockWrappedMToken.sol";
 import { MockSpokeMToken } from "../mocks/MockSpokeMToken.sol";
 import { MockSpokeRegistrar } from "../mocks/MockSpokeRegistrar.sol";
 import { MockTransceiver } from "../mocks/MockTransceiver.sol";
@@ -21,12 +22,14 @@ contract SpokePortalTests is UnitTestBase {
     using TypeConverter for *;
 
     MockSpokeMToken internal _mToken;
+    MockWrappedMToken internal _smartMToken;
     MockSpokeRegistrar internal _registrar;
 
     SpokePortal internal _portal;
 
     function setUp() external {
         _mToken = new MockSpokeMToken();
+        _smartMToken = new MockWrappedMToken(address(_mToken));
 
         _tokenDecimals = _mToken.decimals();
         _tokenAddress = address(_mToken);
@@ -34,7 +37,12 @@ contract SpokePortalTests is UnitTestBase {
         _registrar = new MockSpokeRegistrar();
         _transceiver = new MockTransceiver();
 
-        SpokePortal implementation_ = new SpokePortal(address(_mToken), address(_registrar), _LOCAL_CHAIN_ID);
+        SpokePortal implementation_ = new SpokePortal(
+            address(_mToken),
+            address(_smartMToken),
+            address(_registrar),
+            _LOCAL_CHAIN_ID
+        );
         _portal = SpokePortal(_createProxy(address(implementation_)));
 
         _initializePortal(_portal);
@@ -311,6 +319,68 @@ contract SpokePortalTests is UnitTestBase {
             : abi.encodeWithSignature("mint(address,uint256)", _alice, amount_);
 
         vm.expectCall(address(_mToken), call);
+
+        vm.prank(address(_transceiver));
+        _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
+    }
+
+    function test_receiveWrappedMToken() external {
+        uint256 amount_ = 1_000e6;
+        uint128 localIndex_ = 1_100000068703;
+        uint128 remoteIndex_ = _EXP_SCALED_ONE;
+
+        _mToken.setCurrentIndex(localIndex_);
+
+        (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) = _createWrappedMTransferMessage(
+            amount_,
+            remoteIndex_,
+            _alice.toBytes32(),
+            _REMOTE_CHAIN_ID,
+            _LOCAL_CHAIN_ID,
+            address(_smartMToken).toBytes32()
+        );
+
+        vm.expectCall(address(_mToken), abi.encodeWithSignature("mint(address,uint256)", address(_portal), amount_));
+        vm.expectCall(address(_smartMToken), abi.encodeWithSignature("wrap(address,uint256)", _alice, amount_));
+
+        vm.expectEmit();
+        emit IPortal.MTokenReceived(_REMOTE_CHAIN_ID, messageId_, _alice.toBytes32(), _alice, amount_, remoteIndex_);
+
+        vm.expectEmit();
+        emit INttManager.TransferRedeemed(messageId_);
+
+        vm.prank(address(_transceiver));
+        _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
+    }
+
+    function test_receiveWrappedMToken_unwrapFails() external {
+        uint256 amount_ = 1_000e6;
+        uint128 localIndex_ = 1_100000068703;
+        uint128 remoteIndex_ = _EXP_SCALED_ONE;
+        address destinationWrappedToken_ = makeAddr("invalid");
+
+        _mToken.setCurrentIndex(localIndex_);
+
+        (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) = _createWrappedMTransferMessage(
+            amount_,
+            remoteIndex_,
+            _alice.toBytes32(),
+            _REMOTE_CHAIN_ID,
+            _LOCAL_CHAIN_ID,
+            destinationWrappedToken_.toBytes32()
+        );
+
+        vm.expectCall(address(_mToken), abi.encodeWithSignature("mint(address,uint256)", address(_portal), amount_));
+        vm.expectCall(address(_mToken), abi.encodeWithSignature("transfer(address,uint256)", _alice, amount_));
+
+        vm.expectEmit();
+        emit IPortal.MTokenReceived(_REMOTE_CHAIN_ID, messageId_, _alice.toBytes32(), _alice, amount_, remoteIndex_);
+
+        vm.expectEmit();
+        emit INttManager.TransferRedeemed(messageId_);
+
+        vm.expectEmit();
+        emit IPortal.WrapFailed(destinationWrappedToken_, _alice, amount_);
 
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
