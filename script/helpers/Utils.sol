@@ -20,7 +20,6 @@ contract Utils {
 
     address internal constant _MAINNET_REGISTRAR = 0x119FbeeDD4F4f4298Fb59B720d5654442b81ae2c;
     address internal constant _MAINNET_M_TOKEN = 0x866A2BF4E572CbcF37D5071A7a58503Bfb36be1b;
-    address internal constant _MAINNET_SMART_M_TOKEN = 0x437cc33344a0B27A429f795ff6B469C72698B291;
     address internal constant _MAINNET_VAULT = 0xd7298f620B0F752Cf41BD818a16C756d9dCAA34f;
 
     address internal constant _SEPOLIA_REGISTRAR = 0x975Bf5f212367D09CB7f69D3dc4BA8C9B440aD3A;

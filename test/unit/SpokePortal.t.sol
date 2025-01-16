@@ -22,14 +22,14 @@ contract SpokePortalTests is UnitTestBase {
     using TypeConverter for *;
 
     MockSpokeMToken internal _mToken;
-    MockWrappedMToken internal _smartMToken;
+    MockWrappedMToken internal _wrappedMToken;
     MockSpokeRegistrar internal _registrar;
 
     SpokePortal internal _portal;
 
     function setUp() external {
         _mToken = new MockSpokeMToken();
-        _smartMToken = new MockWrappedMToken(address(_mToken));
+        _wrappedMToken = new MockWrappedMToken(address(_mToken));
 
         _tokenDecimals = _mToken.decimals();
         _tokenAddress = address(_mToken);
@@ -332,11 +332,11 @@ contract SpokePortalTests is UnitTestBase {
             _alice.toBytes32(),
             _REMOTE_CHAIN_ID,
             _LOCAL_CHAIN_ID,
-            address(_smartMToken).toBytes32()
+            address(_wrappedMToken).toBytes32()
         );
 
         vm.expectCall(address(_mToken), abi.encodeWithSignature("mint(address,uint256)", address(_portal), amount_));
-        vm.expectCall(address(_smartMToken), abi.encodeWithSignature("wrap(address,uint256)", _alice, amount_));
+        vm.expectCall(address(_wrappedMToken), abi.encodeWithSignature("wrap(address,uint256)", _alice, amount_));
 
         vm.expectEmit();
         emit IPortal.MTokenReceived(_REMOTE_CHAIN_ID, messageId_, _alice.toBytes32(), _alice, amount_, remoteIndex_);

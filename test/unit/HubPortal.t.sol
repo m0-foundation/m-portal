@@ -22,14 +22,12 @@ contract HubPortalTests is UnitTestBase {
     using TypeConverter for *;
 
     MockHubMToken internal _mToken;
-    MockWrappedMToken internal _smartMToken;
     MockHubRegistrar internal _registrar;
 
     HubPortal internal _portal;
 
     function setUp() external {
         _mToken = new MockHubMToken();
-        _smartMToken = new MockWrappedMToken(address(_mToken));
 
         _tokenDecimals = _mToken.decimals();
         _tokenAddress = address(_mToken);
