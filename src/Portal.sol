@@ -44,10 +44,10 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
 
     /**
      * @notice Constructs the contract.
-     * @param  mToken_     The address of the M token to bridge.
-     * @param  registrar_  The address of the Registrar.
-     * @param  mode_       The NttManager token transfer mode - LOCKING or BURNING.
-     * @param  chainId_    The Wormhole chain id.
+     * @param  mToken_    The address of the M token to bridge.
+     * @param  registrar_ The address of the Registrar.
+     * @param  mode_      The NttManager token transfer mode - LOCKING or BURNING.
+     * @param  chainId_   The Wormhole chain id.
      */
     constructor(
         address mToken_,
