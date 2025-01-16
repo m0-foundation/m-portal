@@ -22,16 +22,14 @@ contract SpokePortal is ISpokePortal, Portal {
     /**
      * @notice Constructs the contract.
      * @param  mToken_      The address of the M token to bridge.
-     * @param  smartMToken_ The address of the Smart M token to bridge.
      * @param  registrar_   The address of the Registrar.
      * @param  chainId_     Wormhole chain id.
      */
     constructor(
         address mToken_,
-        address smartMToken_,
         address registrar_,
         uint16 chainId_
-    ) Portal(mToken_, smartMToken_, registrar_, Mode.BURNING, chainId_) {}
+    ) Portal(mToken_, registrar_, Mode.BURNING, chainId_) {}
 
     /* ============ Internal/Private Interactive Functions ============ */
 

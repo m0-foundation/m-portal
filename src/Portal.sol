@@ -37,30 +37,25 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
     address public immutable registrar;
 
     /// @inheritdoc IPortal
-    address public immutable smartMToken;
-
-    /// @inheritdoc IPortal
-    mapping(uint16 remoteChainId => bytes32 smartMToken) public remoteSmartMToken;
+    mapping(address sourceWrappedToken => mapping(uint16 destinationChainId => bytes32 destinationWrappedToken))
+        public destinationWrappedMToken;
 
     /* ============ Constructor ============ */
 
     /**
      * @notice Constructs the contract.
      * @param  mToken_      The address of the M token to bridge.
-     * @param  smartMToken_ The address of the Smart M token to bridge.
      * @param  registrar_   The address of the Registrar.
      * @param  mode_        The NttManager token transfer mode - LOCKING or BURNING.
      * @param  chainId_     The Wormhole chain id.
      */
     constructor(
         address mToken_,
-        address smartMToken_,
         address registrar_,
         Mode mode_,
         uint16 chainId_
     ) NttManagerNoRateLimiting(mToken_, mode_, chainId_) {
         if (mToken_ == address(0)) revert ZeroMToken();
-        if ((smartMToken = smartMToken_) == address(0)) revert ZeroSmartMToken();
         if ((registrar = registrar_) == address(0)) revert ZeroRegistrar();
     }
 
@@ -79,47 +74,64 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
     /* ============ External Interactive Functions ============ */
 
     /// @inheritdoc IPortal
-    function setRemoteSmartMToken(uint16 remoteChainId_, bytes32 smartMToken_) external onlyOwner {
-        if (remoteChainId_ == chainId) revert InvalidRemoteChain(remoteChainId_);
-
-        remoteSmartMToken[remoteChainId_] = smartMToken_;
-        emit RemoteSmartMTokenSet(remoteChainId_, smartMToken_);
-    }
-
-    /// @inheritdoc IPortal
-    function transferSmartMToken(
-        uint256 amount_,
+    function setDestinationWrappedMToken(
+        address sourceWrappedToken_,
         uint16 destinationChainId_,
-        bytes32 recipient_,
-        bytes32 refundAddress_
-    ) external payable returns (bytes32 messageId_) {
-        messageId_ = _transferWrappedMToken(
-            amount_,
-            smartMToken,
-            remoteSmartMToken[destinationChainId_],
-            destinationChainId_,
-            recipient_,
-            refundAddress_
-        );
+        bytes32 destinationWrappedToken_
+    ) external onlyOwner {
+        if (destinationChainId_ == chainId) revert InvalidDestinationChain(destinationChainId_);
+
+        destinationWrappedMToken[sourceWrappedToken_][destinationChainId_] = destinationWrappedToken_;
+        emit DestinationWrappedMTokenSet(sourceWrappedToken_, destinationChainId_, destinationWrappedToken_);
     }
 
     /// @inheritdoc IPortal
     function transferWrappedMToken(
         uint256 amount_,
         address sourceWrappedToken_,
-        bytes32 destinationWrappedToken_,
         uint16 destinationChainId_,
         bytes32 recipient_,
         bytes32 refundAddress_
     ) external payable returns (bytes32 messageId_) {
-        messageId_ = _transferWrappedMToken(
-            amount_,
-            sourceWrappedToken_,
+        if (amount_ == 0) revert ZeroAmount();
+        if (recipient_ == bytes32(0)) revert InvalidRecipient();
+        if (refundAddress_ == bytes32(0)) revert InvalidRefundAddress();
+
+        bytes32 destinationWrappedToken_ = destinationWrappedMToken[sourceWrappedToken_][destinationChainId_];
+
+        if (destinationWrappedToken_ == bytes32(0))
+            revert UnsupportedDestinationToken(sourceWrappedToken_, destinationChainId_);
+
+        // transfer Wrapped M from the sender
+        IERC20(sourceWrappedToken_).transferFrom(msg.sender, address(this), amount_);
+
+        // unwrap Wrapped M token to M Token
+        amount_ = IWrappedMTokenLike(sourceWrappedToken_).unwrap(address(this), amount_);
+
+        // NOTE: the following code has been adapted from NTT manager `transfer` or `_transferEntryPoint` functions.
+        // We cannot call those functions directly here as they attempt to transfer M Token from the msg.sender.
+
+        uint64 sequence_ = _useMessageSequence();
+        uint128 index_ = _currentIndex();
+
+        TransceiverStructs.NttManagerMessage memory message_;
+        (, message_, messageId_) = _encodeTokenTransfer(
+            _trimTransferAmount(amount_, destinationChainId_),
+            index_,
+            recipient_,
             destinationWrappedToken_,
             destinationChainId_,
-            recipient_,
-            refundAddress_
+            sequence_,
+            msg.sender
         );
+
+        uint256 totalPriceQuote_ = _sendMessage(destinationChainId_, refundAddress_, message_);
+
+        emit MTokenSent(destinationChainId_, messageId_, msg.sender, recipient_, amount_, index_);
+
+        // Emit NTT events
+        emit TransferSent(recipient_, refundAddress_, amount_, totalPriceQuote_, destinationChainId_, sequence_);
+        emit TransferSent(messageId_);
     }
     /* ============ Internal/Private Interactive Functions ============ */
 
@@ -179,51 +191,6 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         );
 
         messageId_ = TransceiverStructs.nttManagerMessageDigest(chainId, message_);
-    }
-
-    /// @dev Transfers a Wrapped M token to the destination chain by unwrapping it to M Token
-    function _transferWrappedMToken(
-        uint256 amount_,
-        address sourceWrappedToken_,
-        bytes32 destinationWrappedToken_,
-        uint16 destinationChainId_,
-        bytes32 recipient_,
-        bytes32 refundAddress_
-    ) private returns (bytes32 messageId_) {
-        if (amount_ == 0) revert ZeroAmount();
-        if (recipient_ == bytes32(0)) revert InvalidRecipient();
-        if (refundAddress_ == bytes32(0)) revert InvalidRefundAddress();
-
-        // transfer Wrapped M from the sender
-        IERC20(sourceWrappedToken_).transferFrom(msg.sender, address(this), amount_);
-
-        // unwrap Wrapped M token to M Token
-        amount_ = IWrappedMTokenLike(sourceWrappedToken_).unwrap(address(this), amount_);
-
-        // NOTE: the following code has been adapted from NTT manager `transfer` or `_transferEntryPoint` functions.
-        // We cannot call those functions directly here as they attempt to transfer M Token from the msg.sender.
-
-        uint64 sequence_ = _useMessageSequence();
-        uint128 index_ = _currentIndex();
-
-        TransceiverStructs.NttManagerMessage memory message_;
-        (, message_, messageId_) = _encodeTokenTransfer(
-            _trimTransferAmount(amount_, destinationChainId_),
-            index_,
-            recipient_,
-            destinationWrappedToken_,
-            destinationChainId_,
-            sequence_,
-            msg.sender
-        );
-
-        uint256 totalPriceQuote_ = _sendMessage(destinationChainId_, refundAddress_, message_);
-
-        emit MTokenSent(destinationChainId_, messageId_, msg.sender, recipient_, amount_, index_);
-
-        // Emit NTT events
-        emit TransferSent(recipient_, refundAddress_, amount_, totalPriceQuote_, destinationChainId_, sequence_);
-        emit TransferSent(messageId_);
     }
 
     /// @notice Sends a generic message to the destination chain.

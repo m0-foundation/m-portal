@@ -96,11 +96,16 @@ interface IPortal {
     event WrapFailed(address indexed destinationWrappedToken, address indexed recipient, uint256 amount);
 
     /**
-     * @notice Emitted when Smart M token is set for the remote chain.
-     * @param  remoteChainId  The Wormhole remote chain ID.
-     * @param  smartMToken    The address of the Smart M Token on the remote chain.
+     * @notice Emitted when Wrapped M token is set for the remote chain.
+     * @param  sourceWrappedToken       The address of Wrapped M token on the source chain.
+     * @param  destinationChainId       The Wormhole destination chain ID.
+     * @param destinationWrappedToken   The address of Wrapped M token on the destination chain.
      */
-    event RemoteSmartMTokenSet(uint16 remoteChainId, bytes32 smartMToken);
+    event DestinationWrappedMTokenSet(
+        address indexed sourceWrappedToken,
+        uint16 indexed destinationChainId,
+        bytes32 destinationWrappedToken
+    );
 
     /* ============ Custom Errors ============ */
 
@@ -117,9 +122,13 @@ interface IPortal {
     ///         isn't equal to EVM chainId set in the constructor.
     error InvalidFork(uint256 evmChainId, uint256 blockChainId);
 
-    /// @notice Emitted in `setRemoteSmartMToken` when the remote chain id
-    ///         is equal to the local one.
-    error InvalidRemoteChain(uint16 remoteChainId);
+    /// @notice Emitted in `setDestinationWrappedMToken` function when the destination chain id
+    ///         is equal to the source one.
+    error InvalidDestinationChain(uint16 destinationChainId);
+
+    /// @notice Emitted in `transferWrappedMToken` function when the destination Wrapped token is not registered
+    ///         for the given `sourceWrappedToken` and `destinationChainId`.
+    error UnsupportedDestinationToken(address sourceWrappedToken, uint16 destinationChainId);
 
     /* ============ View/Pure Functions ============ */
 
@@ -132,52 +141,43 @@ interface IPortal {
     /// @notice The address of the Registrar contract.
     function registrar() external view returns (address);
 
-    /// @notice The address of the Smart M token.
-    function smartMToken() external view returns (address);
-
     /**
-     * @notice Returns the address of the Smart M Token on the remote chain.
-     * @param  remoteChainId  The Wormhole remote chain ID.
-     * @return smartMToken address on the remote chain.
+     * @notice Returns the address of the Wrapped M token on the remote chain.
+     * @param  sourceWrappedToken       The address of Wrapped M token on the source chain.
+     * @param  destinationChainId       The Wormhole destination chain ID.
+     * @return destinationWrappedToken  The address of Wrapped M token on the destination chain.
      */
-    function remoteSmartMToken(uint16 remoteChainId) external view returns (bytes32 smartMToken);
+    function destinationWrappedMToken(
+        address sourceWrappedToken,
+        uint16 destinationChainId
+    ) external view returns (bytes32 destinationWrappedToken);
 
     /* ============ Interactive Functions ============ */
 
-    /// @notice Sets the address of Smart M Token on the remote chain.
-    function setRemoteSmartMToken(uint16 remoteChainId, bytes32 smartMToken) external;
-
     /**
-     * @notice Transfers Smart M Token to the destination chain.
-     * @param  amount               The amount of tokens to transfer.
-     * @param  destinationChainId   The Wormhole destination chain ID.
-     * @param  recipient            The account to receive tokens.
-     * @param  refundAddress        The address to receive excess native gas on the destination chain.
-     * @return messageId            The ID uniquely identifying the message.
+     * @notice Sets the address of Wrapped M Token on the remote chain.
+     * @param  sourceWrappedToken       The address of Wrapped M token on the source chain.
+     * @param  destinationChainId       The Wormhole destination chain ID.
+     * @param destinationWrappedToken   The address of Wrapped M token on the destination chain.
      */
-    function transferSmartMToken(
-        uint256 amount,
+    function setDestinationWrappedMToken(
+        address sourceWrappedToken,
         uint16 destinationChainId,
-        bytes32 recipient,
-        bytes32 refundAddress
-    ) external payable returns (bytes32 messageId);
+        bytes32 destinationWrappedToken
+    ) external;
 
     /**
      * @notice Transfers Wrapped M Token to the destination chain.
-     * @dev    Can be used for transferring M Token Extensions and converting between different Wrappers.
-     * @param  amount                   The amount of tokens to transfer.
-     * @param  sourceWrappedToken       The address of the Wrapped M Token of the source chain.
-     * @param  destinationWrappedToken  The address of the Wrapped M Token of the destination chain.
-     * @param  amount                   The amount of tokens to transfer.
-     * @param  destinationChainId       The Wormhole destination chain ID.
-     * @param  recipient                The account to receive tokens.
-     * @param  refundAddress            The address to receive excess native gas on the destination chain.
-     * @return messageId                The ID uniquely identifying the message.
+     * @param  amount              The amount of tokens to transfer.
+     * @param  sourceWrappedToken  The address of the Wrapped M Token of the source chain.
+     * @param  destinationChainId  The Wormhole destination chain ID.
+     * @param  recipient           The account to receive tokens.
+     * @param  refundAddress       The address to receive excess native gas on the destination chain.
+     * @return messageId           The ID uniquely identifying the message.
      */
     function transferWrappedMToken(
         uint256 amount,
         address sourceWrappedToken,
-        bytes32 destinationWrappedToken,
         uint16 destinationChainId,
         bytes32 recipient,
         bytes32 refundAddress

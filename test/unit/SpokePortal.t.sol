@@ -37,12 +37,7 @@ contract SpokePortalTests is UnitTestBase {
         _registrar = new MockSpokeRegistrar();
         _transceiver = new MockTransceiver();
 
-        SpokePortal implementation_ = new SpokePortal(
-            address(_mToken),
-            address(_smartMToken),
-            address(_registrar),
-            _LOCAL_CHAIN_ID
-        );
+        SpokePortal implementation_ = new SpokePortal(address(_mToken), address(_registrar), _LOCAL_CHAIN_ID);
         _portal = SpokePortal(_createProxy(address(implementation_)));
 
         _initializePortal(_portal);
