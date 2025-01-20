@@ -71,23 +71,6 @@ contract UnitTestBase is Test {
         uint128 index_,
         bytes32 recipient_,
         uint16 sourceChainId_,
-        uint16 destinationChainId_
-    ) internal view returns (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) {
-        (message_, messageId_) = _createWrappedMTransferMessage(
-            amount_,
-            index_,
-            recipient_,
-            sourceChainId_,
-            destinationChainId_,
-            bytes32(0)
-        );
-    }
-
-    function _createWrappedMTransferMessage(
-        uint256 amount_,
-        uint128 index_,
-        bytes32 recipient_,
-        uint16 sourceChainId_,
         uint16 destinationChainId_,
         bytes32 destinationToken_
     ) internal view returns (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) {

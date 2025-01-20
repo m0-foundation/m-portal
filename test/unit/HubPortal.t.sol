@@ -310,16 +310,19 @@ contract HubPortalTests is UnitTestBase {
     /* ============ receiveMToken ============ */
 
     function test_receiveMToken_invalidTargetChain() external {
+        uint16 invalidChainId = 1111;
+
         (TransceiverStructs.NttManagerMessage memory message_, ) = _createTransferMessage(
             1_000e6,
             _EXP_SCALED_ONE,
             _alice.toBytes32(),
             _REMOTE_CHAIN_ID,
-            _REMOTE_CHAIN_ID
+            invalidChainId,
+            address(_mToken).toBytes32()
         );
 
         vm.expectRevert(
-            abi.encodeWithSelector(INttManager.InvalidTargetChain.selector, _REMOTE_CHAIN_ID, _LOCAL_CHAIN_ID)
+            abi.encodeWithSelector(INttManager.InvalidTargetChain.selector, invalidChainId, _LOCAL_CHAIN_ID)
         );
 
         vm.prank(address(_transceiver));
@@ -337,16 +340,17 @@ contract HubPortalTests is UnitTestBase {
             remoteIndex_,
             _alice.toBytes32(),
             _REMOTE_CHAIN_ID,
-            _LOCAL_CHAIN_ID
+            _LOCAL_CHAIN_ID,
+            address(_mToken).toBytes32()
         );
 
         vm.expectCall(address(_mToken), abi.encodeCall(_mToken.transfer, (_alice, amount_)));
 
         vm.expectEmit();
-        emit IPortal.MTokenReceived(_REMOTE_CHAIN_ID, messageId_, _alice.toBytes32(), _alice, amount_, remoteIndex_);
+        emit INttManager.TransferRedeemed(messageId_);
 
         vm.expectEmit();
-        emit INttManager.TransferRedeemed(messageId_);
+        emit IPortal.MTokenReceived(_REMOTE_CHAIN_ID, messageId_, _alice.toBytes32(), _alice, amount_, remoteIndex_);
 
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
@@ -366,7 +370,8 @@ contract HubPortalTests is UnitTestBase {
             remoteIndex_,
             _alice.toBytes32(),
             _REMOTE_CHAIN_ID,
-            _LOCAL_CHAIN_ID
+            _LOCAL_CHAIN_ID,
+            address(_mToken).toBytes32()
         );
 
         vm.expectCall(address(_mToken), abi.encodeCall(_mToken.transfer, (_alice, amount_)));
@@ -390,7 +395,8 @@ contract HubPortalTests is UnitTestBase {
             remoteIndex_,
             _alice.toBytes32(),
             _REMOTE_CHAIN_ID,
-            _LOCAL_CHAIN_ID
+            _LOCAL_CHAIN_ID,
+            address(_mToken).toBytes32()
         );
 
         vm.expectCall(address(_mToken), abi.encodeCall(_mToken.transfer, (_alice, amount_)));
@@ -414,7 +420,8 @@ contract HubPortalTests is UnitTestBase {
             remoteIndex_,
             _alice.toBytes32(),
             _REMOTE_CHAIN_ID,
-            _LOCAL_CHAIN_ID
+            _LOCAL_CHAIN_ID,
+            address(_mToken).toBytes32()
         );
 
         vm.expectCall(address(_mToken), abi.encodeCall(_mToken.transfer, (_alice, amount_)));
@@ -439,7 +446,8 @@ contract HubPortalTests is UnitTestBase {
             remoteIndex_,
             _alice.toBytes32(),
             _REMOTE_CHAIN_ID,
-            _LOCAL_CHAIN_ID
+            _LOCAL_CHAIN_ID,
+            address(_mToken).toBytes32()
         );
 
         vm.expectCall(address(_mToken), abi.encodeCall(_mToken.transfer, (_alice, amount_)));

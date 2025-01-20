@@ -31,14 +31,12 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
     /// @dev Use only standard WormholeTransceiver with relaying enabled
     bytes public constant DEFAULT_TRANSCEIVER_INSTRUCTIONS = new bytes(1);
 
-    bytes32 constant EMPTY_WRAPPER_ADDRESS = bytes32(0);
-
     /// @inheritdoc IPortal
     address public immutable registrar;
 
     /// @inheritdoc IPortal
-    mapping(address sourceWrappedToken => mapping(uint16 destinationChainId => bytes32 destinationWrappedToken))
-        public destinationWrappedMToken;
+    mapping(uint16 destinationChainId => mapping(bytes32 destinationToken => bool supported))
+        public supportedDestinationToken;
 
     /* ============ Constructor ============ */
 
@@ -74,39 +72,42 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
     /* ============ External Interactive Functions ============ */
 
     /// @inheritdoc IPortal
-    function setDestinationWrappedMToken(
-        address sourceWrappedToken_,
+    function setSupportedDestinationToken(
         uint16 destinationChainId_,
-        bytes32 destinationWrappedToken_
+        bytes32 destinationToken_,
+        bool supported_
     ) external onlyOwner {
         if (destinationChainId_ == chainId) revert InvalidDestinationChain(destinationChainId_);
+        if (destinationToken_ == bytes32(0)) revert ZeroDestinationToken();
 
-        destinationWrappedMToken[sourceWrappedToken_][destinationChainId_] = destinationWrappedToken_;
-        emit DestinationWrappedMTokenSet(sourceWrappedToken_, destinationChainId_, destinationWrappedToken_);
+        supportedDestinationToken[destinationChainId_][destinationToken_] = supported_;
+        emit SupportedDestinationTokenSet(destinationChainId_, destinationToken_, supported_);
     }
 
     /// @inheritdoc IPortal
     function transferWrappedMToken(
         uint256 amount_,
-        address sourceWrappedToken_,
+        address sourceToken_,
+        bytes32 destinationToken_,
         uint16 destinationChainId_,
         bytes32 recipient_,
         bytes32 refundAddress_
     ) external payable returns (bytes32 messageId_) {
         if (amount_ == 0) revert ZeroAmount();
+        if (sourceToken_ == address(0)) revert ZeroSourceToken();
+        if (destinationToken_ == bytes32(0)) revert ZeroDestinationToken();
         if (recipient_ == bytes32(0)) revert InvalidRecipient();
         if (refundAddress_ == bytes32(0)) revert InvalidRefundAddress();
+        if (!supportedDestinationToken[destinationChainId_][destinationToken_])
+            revert UnsupportedDestinationToken(destinationChainId_, destinationToken_);
 
-        bytes32 destinationWrappedToken_ = destinationWrappedMToken[sourceWrappedToken_][destinationChainId_];
+        // transfer source token from the sender
+        IERC20(sourceToken_).transferFrom(msg.sender, address(this), amount_);
 
-        if (destinationWrappedToken_ == bytes32(0))
-            revert UnsupportedDestinationToken(sourceWrappedToken_, destinationChainId_);
-
-        // transfer Wrapped M from the sender
-        IERC20(sourceWrappedToken_).transferFrom(msg.sender, address(this), amount_);
-
-        // unwrap Wrapped M token to M Token
-        amount_ = IWrappedMTokenLike(sourceWrappedToken_).unwrap(address(this), amount_);
+        // if the source token isn't M token, unwrap it
+        if (sourceToken_ != token) {
+            amount_ = IWrappedMTokenLike(sourceToken_).unwrap(address(this), amount_);
+        }
 
         // NOTE: the following code has been adapted from NTT manager `transfer` or `_transferEntryPoint` functions.
         // We cannot call those functions directly here as they attempt to transfer M Token from the msg.sender.
@@ -119,7 +120,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
             _trimTransferAmount(amount_, destinationChainId_),
             index_,
             recipient_,
-            destinationWrappedToken_,
+            destinationToken_,
             destinationChainId_,
             sequence_,
             msg.sender
@@ -127,10 +128,29 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
 
         uint256 totalPriceQuote_ = _sendMessage(destinationChainId_, refundAddress_, message_);
 
-        emit MTokenSent(destinationChainId_, messageId_, msg.sender, recipient_, amount_, index_);
+        // Stack too deep
+        uint256 transferAmount_ = amount_;
+
+        emit WrappedMTokenSent(
+            destinationChainId_,
+            sourceToken_,
+            destinationToken_,
+            messageId_,
+            msg.sender,
+            recipient_,
+            transferAmount_,
+            index_
+        );
 
         // Emit NTT events
-        emit TransferSent(recipient_, refundAddress_, amount_, totalPriceQuote_, destinationChainId_, sequence_);
+        emit TransferSent(
+            recipient_,
+            refundAddress_,
+            transferAmount_,
+            totalPriceQuote_,
+            destinationChainId_,
+            sequence_
+        );
         emit TransferSent(messageId_);
     }
     /* ============ Internal/Private Interactive Functions ============ */
@@ -151,7 +171,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
             amount_,
             index_,
             recipient_,
-            EMPTY_WRAPPER_ADDRESS,
+            token.toBytes32(),
             destinationChainId_,
             sequence_,
             sender_
@@ -247,7 +267,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         (
             TrimmedAmount trimmedAmount_,
             uint128 index_,
-            address destinationWrappedToken_,
+            address destinationToken_,
             address recipient_,
             uint16 destinationChainId_
         ) = payload_.decodeTokenTransfer();
@@ -257,20 +277,28 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         // NOTE: Assumes that token.decimals() are the same on all chains.
         uint256 amount_ = trimmedAmount_.untrim(tokenDecimals());
 
-        emit MTokenReceived(sourceChainId_, messageId_, sender_, recipient_, amount_, index_);
-
         // Emitting `INttManager.TransferRedeemed` to comply with Wormhole NTT specification.
         emit TransferRedeemed(messageId_);
 
-        if (destinationWrappedToken_ == address(0)) {
+        if (destinationToken_ == token) {
+            emit MTokenReceived(sourceChainId_, messageId_, sender_, recipient_, amount_, index_);
             // mints or unlocks M Token to the recipient
             _mintOrUnlock(recipient_, amount_, index_);
         } else {
+            emit WrappedMTokenReceived(
+                sourceChainId_,
+                destinationToken_,
+                messageId_,
+                sender_,
+                recipient_,
+                amount_,
+                index_
+            );
             // mints or unlocks M Token to the Portal
             _mintOrUnlock(address(this), amount_, index_);
 
             // wraps M token and transfers it to the recipient
-            _wrap(destinationWrappedToken_, recipient_, amount_);
+            _wrap(destinationToken_, recipient_, amount_);
         }
     }
 
