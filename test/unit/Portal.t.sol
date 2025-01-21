@@ -25,6 +25,7 @@ contract PortalTests is UnitTestBase {
     MockSpokeMToken internal _mToken;
     MockWrappedMToken internal _wrappedMToken;
     MockSpokeRegistrar internal _registrar;
+    bytes32 internal _remoteMToken;
     bytes32 internal _remoteWrappedMToken;
 
     PortalHarness internal _portal;
@@ -32,6 +33,7 @@ contract PortalTests is UnitTestBase {
     function setUp() external {
         _mToken = new MockSpokeMToken();
         _wrappedMToken = new MockWrappedMToken(address(_mToken));
+        _remoteMToken = address(_wrappedMToken).toBytes32();
         _remoteWrappedMToken = address(_wrappedMToken).toBytes32();
 
         _tokenDecimals = _mToken.decimals();
@@ -97,13 +99,15 @@ contract PortalTests is UnitTestBase {
         uint256 msgValue_ = 2;
         bytes32 recipient_ = _alice.toBytes32();
 
+        _portal.setDestinationMToken(_REMOTE_CHAIN_ID, _remoteMToken);
+
         (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) = _createTransferMessage(
             amount_,
             index_,
             recipient_,
             _LOCAL_CHAIN_ID,
             _REMOTE_CHAIN_ID,
-            address(_mToken).toBytes32()
+            _remoteMToken
         );
 
         vm.deal(_alice, msgValue_);
@@ -128,7 +132,16 @@ contract PortalTests is UnitTestBase {
         );
 
         vm.expectEmit();
-        emit IPortal.MTokenSent(_REMOTE_CHAIN_ID, messageId_, _alice, recipient_, amount_, index_);
+        emit IPortal.MTokenSent(
+            _REMOTE_CHAIN_ID,
+            address(_mToken),
+            _remoteMToken,
+            messageId_,
+            _alice,
+            recipient_,
+            amount_,
+            index_
+        );
 
         _portal.transfer{ value: msgValue_ }(amount_, _REMOTE_CHAIN_ID, recipient_);
     }
@@ -191,71 +204,6 @@ contract PortalTests is UnitTestBase {
         vm.expectRevert(
             abi.encodeWithSelector(IPortal.UnsupportedDestinationToken.selector, _REMOTE_CHAIN_ID, _remoteWrappedMToken)
         );
-
-        _portal.transferWrappedMToken(
-            amount_,
-            address(_wrappedMToken),
-            _remoteWrappedMToken,
-            _REMOTE_CHAIN_ID,
-            recipient_,
-            refundAddress_
-        );
-    }
-
-    function test_transferWrappedMToken() external {
-        uint256 amount_ = 1_000e6;
-        uint128 index_ = 0;
-        bytes32 recipient_ = _alice.toBytes32();
-        bytes32 refundAddress_ = recipient_;
-
-        _portal.setSupportedDestinationToken(_REMOTE_CHAIN_ID, _remoteWrappedMToken, true);
-
-        (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) = _createTransferMessage(
-            amount_,
-            index_,
-            recipient_,
-            _LOCAL_CHAIN_ID,
-            _REMOTE_CHAIN_ID,
-            _remoteWrappedMToken
-        );
-
-        _mToken.mint(_alice, amount_);
-
-        vm.startPrank(_alice);
-        _mToken.approve(address(_wrappedMToken), amount_);
-        amount_ = _wrappedMToken.wrap(_alice, amount_);
-        _wrappedMToken.approve(address(_portal), amount_);
-
-        // expect to call sendMessage in Transceiver
-        vm.expectCall(
-            address(_transceiver),
-            0,
-            abi.encodeCall(
-                _transceiver.sendMessage,
-                (
-                    _REMOTE_CHAIN_ID,
-                    _emptyTransceiverInstruction,
-                    TransceiverStructs.encodeNttManagerMessage(message_),
-                    _PEER,
-                    recipient_
-                )
-            )
-        );
-
-        vm.expectEmit();
-        emit IPortal.WrappedMTokenSent(
-            _REMOTE_CHAIN_ID,
-            address(_wrappedMToken),
-            _remoteWrappedMToken,
-            messageId_,
-            _alice,
-            recipient_,
-            amount_,
-            index_
-        );
-
-        vm.expectEmit();
-        emit INttManager.TransferSent(messageId_);
 
         _portal.transferWrappedMToken(
             amount_,

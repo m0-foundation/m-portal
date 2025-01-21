@@ -104,6 +104,14 @@ contract SpokePortal is ISpokePortal, Portal {
         }
     }
 
+    /**
+     * @dev Burns M Token.
+     * @param amount_ The amount of M Token to mint to the recipient.
+     */
+    function _burnOrLock(uint256 amount_) internal override {
+        ISpokeMTokenLike(token).burn(amount_);
+    }
+
     /// @dev Returns the current M token index used by the Spoke Portal.
     function _currentIndex() internal view override returns (uint128) {
         return ISpokeMTokenLike(mToken()).currentIndex();

@@ -38,6 +38,9 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
     mapping(uint16 destinationChainId => mapping(bytes32 destinationToken => bool supported))
         public supportedDestinationToken;
 
+    /// @inheritdoc IPortal
+    mapping(uint16 destinationChainId => bytes32 mToken) public destinationMToken;
+
     /* ============ Constructor ============ */
 
     /**
@@ -70,6 +73,15 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
     }
 
     /* ============ External Interactive Functions ============ */
+
+    /// @inheritdoc IPortal
+    function setDestinationMToken(uint16 destinationChainId_, bytes32 mToken_) external onlyOwner {
+        if (destinationChainId_ == chainId) revert InvalidDestinationChain(destinationChainId_);
+        if (mToken_ == bytes32(0)) revert ZeroMToken();
+
+        destinationMToken[destinationChainId_] = mToken_;
+        emit DestinationMTokenSet(destinationChainId_, mToken_);
+    }
 
     /// @inheritdoc IPortal
     function setSupportedDestinationToken(
@@ -112,6 +124,8 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         // NOTE: the following code has been adapted from NTT manager `transfer` or `_transferEntryPoint` functions.
         // We cannot call those functions directly here as they attempt to transfer M Token from the msg.sender.
 
+        _burnOrLock(amount_);
+
         uint64 sequence_ = _useMessageSequence();
         uint128 index_ = _currentIndex();
 
@@ -128,10 +142,10 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
 
         uint256 totalPriceQuote_ = _sendMessage(destinationChainId_, refundAddress_, message_);
 
-        // Stack too deep
+        // Prevent stack too deep
         uint256 transferAmount_ = amount_;
 
-        emit WrappedMTokenSent(
+        emit MTokenSent(
             destinationChainId_,
             sourceToken_,
             destinationToken_,
@@ -166,18 +180,29 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         bytes32 // refundAddress
     ) internal override returns (TransceiverStructs.NativeTokenTransfer memory nativeTokenTransfer_) {
         uint128 index_ = _currentIndex();
+        bytes32 destinationMToken_ = destinationMToken[destinationChainId_];
         bytes32 messageId_;
         (nativeTokenTransfer_, , messageId_) = _encodeTokenTransfer(
             amount_,
             index_,
             recipient_,
-            token.toBytes32(),
+            destinationMToken_,
             destinationChainId_,
             sequence_,
             sender_
         );
 
-        emit MTokenSent(destinationChainId_, messageId_, sender_, recipient_, amount_.untrim(tokenDecimals()), index_);
+        uint256 untrimmedAmount_ = amount_.untrim(tokenDecimals());
+        emit MTokenSent(
+            destinationChainId_,
+            token,
+            destinationMToken_,
+            messageId_,
+            sender_,
+            recipient_,
+            untrimmedAmount_,
+            index_
+        );
     }
 
     function _encodeTokenTransfer(
@@ -277,23 +302,15 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         // NOTE: Assumes that token.decimals() are the same on all chains.
         uint256 amount_ = trimmedAmount_.untrim(tokenDecimals());
 
+        emit MTokenReceived(sourceChainId_, destinationToken_, messageId_, sender_, recipient_, amount_, index_);
+
         // Emitting `INttManager.TransferRedeemed` to comply with Wormhole NTT specification.
         emit TransferRedeemed(messageId_);
 
         if (destinationToken_ == token) {
-            emit MTokenReceived(sourceChainId_, messageId_, sender_, recipient_, amount_, index_);
             // mints or unlocks M Token to the recipient
             _mintOrUnlock(recipient_, amount_, index_);
         } else {
-            emit WrappedMTokenReceived(
-                sourceChainId_,
-                destinationToken_,
-                messageId_,
-                sender_,
-                recipient_,
-                amount_,
-                index_
-            );
             // mints or unlocks M Token to the Portal
             _mintOrUnlock(address(this), amount_, index_);
 
@@ -340,6 +357,13 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
      * @param index_     The index from the source chain.
      */
     function _mintOrUnlock(address recipient_, uint256 amount_, uint128 index_) internal virtual {}
+
+    /**
+     * @dev   HubPortal:   locks amount_` M tokens.
+     *        SpokePortal: burns `amount_` M tokens.
+     * @param amount_ The amount of M tokens to lock/burn.
+     */
+    function _burnOrLock(uint256 amount_) internal virtual {}
 
     /// @dev Returns the current M token index used by the Portal.
     function _currentIndex() internal view virtual returns (uint128) {}

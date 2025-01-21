@@ -12,24 +12,6 @@ interface IPortal {
     /**
      * @notice Emitted when M token is sent to a destination chain.
      * @param  destinationChainId The Wormhole destination chain ID.
-     * @param  messageId          The unique identifier for the sent message.
-     * @param  sender             The address that bridged the M tokens via the Portal.
-     * @param  recipient          The account receiving tokens on destination chain.
-     * @param  amount             The amount of tokens.
-     * @param  index              The M token index.
-     */
-    event MTokenSent(
-        uint16 indexed destinationChainId,
-        bytes32 messageId,
-        address indexed sender,
-        bytes32 indexed recipient,
-        uint256 amount,
-        uint128 index
-    );
-
-    /**
-     * @notice Emitted when Wrapped M token is sent to a destination chain.
-     * @param  destinationChainId The Wormhole destination chain ID.
      * @param  sourceToken        The address of the token on the source chain.
      * @param  destinationToken   The address of the token on the destination chain.
      * @param  messageId          The unique identifier for the sent message.
@@ -38,7 +20,7 @@ interface IPortal {
      * @param  amount             The amount of tokens.
      * @param  index              The M token index.
      */
-    event WrappedMTokenSent(
+    event MTokenSent(
         uint16 destinationChainId,
         address indexed sourceToken,
         bytes32 destinationToken,
@@ -51,24 +33,6 @@ interface IPortal {
 
     /**
      * @notice Emitted when M token is received from a source chain.
-     * @param  sourceChainId The Wormhole source chain ID.
-     * @param  messageId     The unique identifier for the received message.
-     * @param  sender        The account sending tokens.
-     * @param  recipient     The account receiving tokens.
-     * @param  amount        The amount of tokens.
-     * @param  index         The M token index.
-     */
-    event MTokenReceived(
-        uint16 indexed sourceChainId,
-        bytes32 messageId,
-        bytes32 indexed sender,
-        address indexed recipient,
-        uint256 amount,
-        uint128 index
-    );
-
-    /**
-     * @notice Emitted when Wrapped M token is received from a source chain.
      * @param  sourceChainId    The Wormhole source chain ID.
      * @param  destinationToken The address of the token on the destination chain.
      * @param  messageId        The unique identifier for the received message.
@@ -77,7 +41,7 @@ interface IPortal {
      * @param  amount           The amount of tokens.
      * @param  index            The M token index.
      */
-    event WrappedMTokenReceived(
+    event MTokenReceived(
         uint16 sourceChainId,
         address indexed destinationToken,
         bytes32 messageId,
@@ -94,6 +58,13 @@ interface IPortal {
      * @param  amount                  The amount of tokens.
      */
     event WrapFailed(address indexed destinationWrappedToken, address indexed recipient, uint256 amount);
+
+    /**
+     * @notice Emitted when M token is set for the remote chain.
+     * @param  destinationChainId The Wormhole destination chain ID.
+     * @param  mToken             The address of M token on the destination chain.
+     */
+    event DestinationMTokenSet(uint16 indexed destinationChainId, bytes32 mToken);
 
     /**
      * @notice Emitted when a supported token is set for the remote chain.
@@ -144,6 +115,13 @@ interface IPortal {
     function registrar() external view returns (address);
 
     /**
+     * @notice Returns the address of M token the destination chain.
+     * @param  destinationChainId The Wormhole destination chain ID.
+     * @return mToken             The address of M token the destination chain.
+     */
+    function destinationMToken(uint16 destinationChainId) external view returns (bytes32 mToken);
+
+    /**
      * @notice Indicates whether the provided token is supported on the destination chain.
      * @param  destinationChainId The Wormhole destination chain ID.
      * @param  destinationToken   The address of the token on the destination chain.
@@ -157,6 +135,13 @@ interface IPortal {
     /* ============ Interactive Functions ============ */
 
     /**
+     * @notice Sets M token address on the remote chain.
+     * @param  destinationChainId The Wormhole destination chain ID.
+     * @param  mToken             The address of M token on the destination chain.
+     */
+    function setDestinationMToken(uint16 destinationChainId, bytes32 mToken) external;
+
+    /**
      * @notice Sets whether the token is supported on the remote chain.
      * @param  destinationChainId The Wormhole destination chain ID.
      * @param  destinationToken   The address of the token on the destination chain.
@@ -165,7 +150,7 @@ interface IPortal {
     function setSupportedDestinationToken(uint16 destinationChainId, bytes32 destinationToken, bool supported) external;
 
     /**
-     * @notice Transfers Wrapped M Token to the destination chain.
+     * @notice Transfers M or Wrapped M Token to the destination chain.
      * @param  amount             The amount of tokens to transfer.
      * @param  sourceToken        The address of the token (M or Wrapped M) on the source chain.
      * @param  destinationToken   The address of the token (M or Wrapped M) on the destination chain.
