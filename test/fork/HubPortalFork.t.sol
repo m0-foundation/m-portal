@@ -9,10 +9,13 @@ import { IMToken } from "../../lib/protocol/src/interfaces/IMToken.sol";
 import { IHubPortal } from "../../src/interfaces/IHubPortal.sol";
 import { IPortal } from "../../src/interfaces/IPortal.sol";
 import { IRegistrarLike } from "../../src/interfaces/IRegistrarLike.sol";
+import { TypeConverter } from "../../src/libs/TypeConverter.sol";
 
 import { ForkTestBase } from "./ForkTestBase.t.sol";
 
 contract HubPortalForkTests is ForkTestBase {
+    using TypeConverter for *;
+
     function setUp() public override {
         super.setUp();
         _configurePortals();
@@ -30,6 +33,9 @@ contract HubPortalForkTests is ForkTestBase {
         assertEq(IERC20(_MAINNET_M_TOKEN).balanceOf(_hubPortal), 0);
 
         uint128 mainnetIndex_ = IContinuousIndexing(_MAINNET_M_TOKEN).currentIndex();
+
+        vm.prank(_DEPLOYER);
+        IPortal(_hubPortal).setDestinationMToken(_BASE_WORMHOLE_CHAIN_ID, _baseSpokeMToken.toBytes32());
 
         vm.startPrank(_mHolder);
         vm.recordLogs();

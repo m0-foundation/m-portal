@@ -50,6 +50,7 @@ contract PortalTests is UnitTestBase {
         );
         _portal = PortalHarness(_createProxy(address(implementation_)));
         _initializePortal(_portal);
+        _portal.setDestinationMToken(_REMOTE_CHAIN_ID, _remoteMToken);
     }
 
     /* ============ constructor ============ */
@@ -68,15 +69,11 @@ contract PortalTests is UnitTestBase {
 
     function test_transfer_zeroAmount() external {
         vm.expectRevert(INttManager.ZeroAmount.selector);
-
-        vm.prank(_alice);
         _portal.transfer(0, _REMOTE_CHAIN_ID, _alice.toBytes32());
     }
 
     function test_transfer_zeroRecipient() external {
         vm.expectRevert(INttManager.InvalidRecipient.selector);
-
-        vm.prank(_alice);
         _portal.transfer(1_000e6, _REMOTE_CHAIN_ID, bytes32(0));
     }
 

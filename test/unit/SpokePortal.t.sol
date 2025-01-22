@@ -45,6 +45,8 @@ contract SpokePortalTests is UnitTestBase {
         _portal = SpokePortal(_createProxy(address(implementation_)));
 
         _initializePortal(_portal);
+
+        _portal.setDestinationMToken(_REMOTE_CHAIN_ID, _remoteMToken);
     }
 
     /* ============ initialState ============ */

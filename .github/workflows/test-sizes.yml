@@ -17,6 +17,11 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Apply patch
+        run: |
+          cd lib/example-native-token-transfers
+          git apply ../../.github/example-native-token-transfers.diff
+
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
 

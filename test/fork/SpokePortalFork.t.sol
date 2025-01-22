@@ -5,11 +5,14 @@ pragma solidity 0.8.26;
 import { IERC20 } from "../../lib/common/src/interfaces/IERC20.sol";
 import { IContinuousIndexing } from "../../lib/protocol/src/interfaces/IContinuousIndexing.sol";
 
+import { IPortal } from "../../src/interfaces/IPortal.sol";
 import { ISpokePortal } from "../../src/interfaces/ISpokePortal.sol";
+import { TypeConverter } from "../../src/libs/TypeConverter.sol";
 
 import { ForkTestBase } from "./ForkTestBase.t.sol";
 
 contract SpokePortalForkTests is ForkTestBase {
+    using TypeConverter for *;
     uint256 internal _amount;
     uint128 internal _mainnetIndex;
 
@@ -22,6 +25,9 @@ contract SpokePortalForkTests is ForkTestBase {
 
     function testFork_transferToHubPortal() external {
         _beforeTest();
+
+        vm.prank(_DEPLOYER);
+        IPortal(_baseSpokePortal).setDestinationMToken(_MAINNET_WORMHOLE_CHAIN_ID, _MAINNET_M_TOKEN.toBytes32());
 
         vm.startPrank(_mHolder);
 
@@ -56,6 +62,9 @@ contract SpokePortalForkTests is ForkTestBase {
     function testFork_transferBetweenSpokePortals() external {
         _beforeTest();
 
+        vm.prank(_DEPLOYER);
+        IPortal(_baseSpokePortal).setDestinationMToken(_OPTIMISM_WORMHOLE_CHAIN_ID, _optimismSpokeMToken.toBytes32());
+
         vm.startPrank(_mHolder);
 
         IERC20(_baseSpokeMToken).approve(_baseSpokePortal, _amount);
@@ -89,6 +98,9 @@ contract SpokePortalForkTests is ForkTestBase {
 
         // First, transfer M tokens to the Spoke chain.
         vm.selectFork(_mainnetForkId);
+
+        vm.prank(_DEPLOYER);
+        IPortal(_hubPortal).setDestinationMToken(_BASE_WORMHOLE_CHAIN_ID, _baseSpokeMToken.toBytes32());
 
         _mainnetIndex = IContinuousIndexing(_MAINNET_M_TOKEN).currentIndex();
 
