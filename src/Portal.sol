@@ -116,7 +116,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
 
         // if the source token isn't M token, unwrap it
         if (sourceToken_ != address(mToken_)) {
-            amount_ = IWrappedMTokenLike(sourceToken_).unwrap(address(this), amount_);
+            IWrappedMTokenLike(sourceToken_).unwrap(address(this), amount_);
         }
 
         // account for potential rounding errors when transferring between earners and non-earners
