@@ -17,11 +17,6 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Apply patch
-        run: |
-          cd lib/example-native-token-transfers
-          git apply ../../.github/example-native-token-transfers.diff
-
       - name: Setup Node
         uses: actions/setup-node@v4
 
