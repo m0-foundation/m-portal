@@ -67,6 +67,13 @@ interface IPortal {
     event DestinationMTokenSet(uint16 indexed destinationChainId, bytes32 mToken);
 
     /**
+     * @notice Emitted when a supported token is set for the current chain.
+     * @param  sourceToken The address of the token on the current chain.
+     * @param  supported   `True` if the token is supported, `false` otherwise.
+     */
+    event SupportedSourceTokenSet(address indexed sourceToken, bool supported);
+
+    /**
      * @notice Emitted when a supported token is set for the remote chain.
      * @param  destinationChainId The Wormhole destination chain ID.
      * @param  destinationToken   The address of the token on the destination chain.
@@ -100,6 +107,9 @@ interface IPortal {
     ///         is equal to the source one.
     error InvalidDestinationChain(uint16 destinationChainId);
 
+    /// @notice Emitted in `transferWrappedMToken` function when the token is not supported on the current chain.
+    error UnsupportedSourceToken(address sourceToken);
+
     /// @notice Emitted in `transferWrappedMToken` function when the token is not supported on the destination chain.
     error UnsupportedDestinationToken(uint16 destinationChainId, bytes32 destinationToken);
 
@@ -122,6 +132,13 @@ interface IPortal {
     function destinationMToken(uint16 destinationChainId) external view returns (bytes32 mToken);
 
     /**
+     * @notice Indicates whether the provided token is supported on the current chain.
+     * @param  sourceToken The address of the token on the current chain.
+     * @return supported   `True` if the token is supported, `false` otherwise.
+     */
+    function supportedSourceToken(address sourceToken) external view returns (bool supported);
+
+    /**
      * @notice Indicates whether the provided token is supported on the destination chain.
      * @param  destinationChainId The Wormhole destination chain ID.
      * @param  destinationToken   The address of the token on the destination chain.
@@ -140,6 +157,13 @@ interface IPortal {
      * @param  mToken             The address of M token on the destination chain.
      */
     function setDestinationMToken(uint16 destinationChainId, bytes32 mToken) external;
+
+    /**
+     * @notice Sets whether the token is supported on the current chain.
+     * @param  sourceToken The address of the token on the current chain.
+     * @param  supported   `True` if the token is supported, `false` otherwise.
+     */
+    function setSupportedSourceToken(address sourceToken, bool supported) external;
 
     /**
      * @notice Sets whether the token is supported on the remote chain.

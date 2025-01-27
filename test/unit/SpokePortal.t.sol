@@ -47,6 +47,8 @@ contract SpokePortalTests is UnitTestBase {
         _initializePortal(_portal);
 
         _portal.setDestinationMToken(_REMOTE_CHAIN_ID, _remoteMToken);
+        _portal.setSupportedSourceToken(address(_mToken), true);
+        _portal.setSupportedSourceToken(address(_wrappedMToken), true);
     }
 
     /* ============ initialState ============ */

@@ -45,6 +45,8 @@ contract HubPortalTests is UnitTestBase {
         _portal = HubPortal(_createProxy(address(implementation_)));
 
         _initializePortal(_portal);
+        _portal.setSupportedSourceToken(address(_mToken), true);
+        _portal.setSupportedSourceToken(address(_wrappedMToken), true);
         _portal.setDestinationMToken(_REMOTE_CHAIN_ID, _remoteMToken);
     }
 

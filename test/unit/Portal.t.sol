@@ -193,10 +193,28 @@ contract PortalTests is UnitTestBase {
         );
     }
 
+    function test_transferWrappedMToken_unsupportedSourceToken() external {
+        uint256 amount_ = 1_000e6;
+        bytes32 recipient_ = _alice.toBytes32();
+        bytes32 refundAddress_ = recipient_;
+
+        vm.expectRevert(abi.encodeWithSelector(IPortal.UnsupportedSourceToken.selector, address(_wrappedMToken)));
+
+        _portal.transferWrappedMToken(
+            amount_,
+            address(_wrappedMToken),
+            _remoteWrappedMToken,
+            _REMOTE_CHAIN_ID,
+            recipient_,
+            refundAddress_
+        );
+    }
+
     function test_transferWrappedMToken_unsupportedDestinationToken() external {
         uint256 amount_ = 1_000e6;
         bytes32 recipient_ = _alice.toBytes32();
         bytes32 refundAddress_ = recipient_;
+        _portal.setSupportedSourceToken(address(_wrappedMToken), true);
 
         vm.expectRevert(
             abi.encodeWithSelector(IPortal.UnsupportedDestinationToken.selector, _REMOTE_CHAIN_ID, _remoteWrappedMToken)
