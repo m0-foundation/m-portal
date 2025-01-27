@@ -6,9 +6,9 @@ import { Test } from "../../lib/forge-std/src/Test.sol";
 
 import {
     ERC1967Proxy
-} from "../../lib/example-native-token-transfers/evm/lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol";
-import { TrimmedAmountLib } from "../../lib/example-native-token-transfers/evm/src/libraries/TrimmedAmount.sol";
-import { TransceiverStructs } from "../../lib/example-native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
+} from "../../lib/native-token-transfers/evm/lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import { TrimmedAmountLib } from "../../lib/native-token-transfers/evm/src/libraries/TrimmedAmount.sol";
+import { TransceiverStructs } from "../../lib/native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
 
 import { TypeConverter } from "../../src/libs/TypeConverter.sol";
 import { Portal } from "../../src/Portal.sol";

@@ -6,7 +6,7 @@ import { console } from "../../lib/forge-std/src/console.sol";
 
 import {
     ERC1967Proxy
-} from "../../lib/example-native-token-transfers/evm/lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+} from "../../lib/native-token-transfers/evm/lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
 import { ICreateXLike } from "../deploy/interfaces/ICreateXLike.sol";
 

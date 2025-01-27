@@ -4,8 +4,8 @@ pragma solidity 0.8.26;
 
 import { Script } from "../../lib/forge-std/src/Script.sol";
 
-import { IManagerBase } from "../../lib/example-native-token-transfers/evm/src/interfaces/IManagerBase.sol";
-import { INttManager } from "../../lib/example-native-token-transfers/evm/src/interfaces/INttManager.sol";
+import { IManagerBase } from "../../lib/native-token-transfers/evm/src/interfaces/IManagerBase.sol";
+import { INttManager } from "../../lib/native-token-transfers/evm/src/interfaces/INttManager.sol";
 
 import { IHubPortal } from "../../src/interfaces/IHubPortal.sol";
 import { ISpokeVault } from "../../src/interfaces/ISpokeVault.sol";

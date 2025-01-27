@@ -6,11 +6,11 @@ import { IERC20 } from "../lib/common/src/interfaces/IERC20.sol";
 import {
     TrimmedAmount,
     TrimmedAmountLib
-} from "../lib/example-native-token-transfers/evm/src/libraries/TrimmedAmount.sol";
-import { TransceiverStructs } from "../lib/example-native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
+} from "../lib/native-token-transfers/evm/src/libraries/TrimmedAmount.sol";
+import { TransceiverStructs } from "../lib/native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
 import {
     NttManagerNoRateLimiting
-} from "../lib/example-native-token-transfers/evm/src/NttManager/NttManagerNoRateLimiting.sol";
+} from "../lib/native-token-transfers/evm/src/NttManager/NttManagerNoRateLimiting.sol";
 
 import { IPortal } from "./interfaces/IPortal.sol";
 import { IWrappedMTokenLike } from "./interfaces/IWrappedMTokenLike.sol";

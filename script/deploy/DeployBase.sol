@@ -11,14 +11,14 @@ import { Proxy } from "../../lib/common/src/Proxy.sol";
 
 import { MToken as SpokeMToken } from "../../lib/protocol/src/MToken.sol";
 import { Registrar as SpokeRegistrar } from "../../lib/ttg/src/Registrar.sol";
-import { EarnerManager as SpokeSmartMTokenEarnerManager } from "../../lib/smart-m-token/src/EarnerManager.sol";
-import { SmartMToken as SpokeSmartMToken } from "../../lib/smart-m-token/src/SmartMToken.sol";
+import { EarnerManager as SpokeWrappedMTokenEarnerManager } from "../../lib/wrapped-m-token/src/EarnerManager.sol";
+import { WrappedMToken as SpokeWrappedMToken } from "../../lib/wrapped-m-token/src/WrappedMToken.sol";
 
-import { IManagerBase } from "../../lib/example-native-token-transfers/evm/src/interfaces/IManagerBase.sol";
-import { INttManager } from "../../lib/example-native-token-transfers/evm/src/interfaces/INttManager.sol";
+import { IManagerBase } from "../../lib/native-token-transfers/evm/src/interfaces/IManagerBase.sol";
+import { INttManager } from "../../lib/native-token-transfers/evm/src/interfaces/INttManager.sol";
 import {
     WormholeTransceiver
-} from "../../lib/example-native-token-transfers/evm/src/Transceiver/WormholeTransceiver/WormholeTransceiver.sol";
+} from "../../lib/native-token-transfers/evm/src/Transceiver/WormholeTransceiver/WormholeTransceiver.sol";
 
 import { HubPortal } from "../../src/HubPortal.sol";
 import { SpokePortal } from "../../src/SpokePortal.sol";
@@ -248,14 +248,14 @@ contract DeployBase is Script, Utils {
             revert DeployerNonceTooHigh(_SPOKE_SMART_M_TOKEN_EARNER_MANAGER_NONCE, deployerNonce_);
         }
 
-        // Pre-compute the expected SpokeSmartMTokenEarnerManager implementation address.
+        // Pre-compute the expected SpokeWrappedMTokenEarnerManager implementation address.
         address expectedSmartMTokenEarnerManagerImplementation_ = ContractHelper.getContractFrom(
             deployer_,
             _SPOKE_SMART_M_TOKEN_EARNER_MANAGER_NONCE
         );
 
         spokeSmartMTokenEarnerManagerImplementation_ = address(
-            new SpokeSmartMTokenEarnerManager(registrar_, migrationAdmin_)
+            new SpokeWrappedMTokenEarnerManager(registrar_, migrationAdmin_)
         );
 
         if (expectedSmartMTokenEarnerManagerImplementation_ != spokeSmartMTokenEarnerManagerImplementation_) {
@@ -267,7 +267,7 @@ contract DeployBase is Script, Utils {
 
         console.log("SpokeSmartMTokenEarnerManagerImplementation:", spokeSmartMTokenEarnerManagerImplementation_);
 
-        // Pre-compute the expected SpokeSmartMTokenEarnerManager proxy address.
+        // Pre-compute the expected SpokeWrappedMTokenEarnerManager proxy address.
         address expectedSmartMTokenEarnerManagerProxy_ = ContractHelper.getContractFrom(
             deployer_,
             _SPOKE_SMART_M_TOKEN_EARNER_MANAGER_PROXY_NONCE
@@ -281,14 +281,14 @@ contract DeployBase is Script, Utils {
 
         console.log("SpokeSmartMTokenEarnerManagerProxy:", spokeSmartMTokenEarnerManagerProxy_);
 
-        // Pre-compute the expected SpokeSmartMToken implementation address.
+        // Pre-compute the expected SpokeWrappedMToken implementation address.
         address expectedSmartMTokenImplementation_ = ContractHelper.getContractFrom(
             deployer_,
             _SPOKE_SMART_M_TOKEN_NONCE
         );
 
         spokeSmartMTokenImplementation_ = address(
-            new SpokeSmartMToken(
+            new SpokeWrappedMToken(
                 spokeMToken_,
                 registrar_,
                 spokeSmartMTokenEarnerManagerProxy_,
@@ -308,7 +308,7 @@ contract DeployBase is Script, Utils {
             revert DeployerNonceTooHigh(_SPOKE_SMART_M_TOKEN_PROXY_NONCE, deployerNonce_);
         }
 
-        // Pre-compute the expected SpokeSmartMToken proxy address.
+        // Pre-compute the expected SpokeWrappedMToken proxy address.
         address expectedSmartMTokenProxy_ = ContractHelper.getContractFrom(deployer_, _SPOKE_SMART_M_TOKEN_PROXY_NONCE);
 
         spokeSmartMTokenProxy_ = address(new Proxy(spokeSmartMTokenImplementation_));

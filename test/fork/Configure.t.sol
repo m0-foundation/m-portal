@@ -7,16 +7,16 @@ import { Test } from "../../lib/forge-std/src/Test.sol";
 
 import {
     ERC1967Proxy
-} from "../../lib/example-native-token-transfers/evm/lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+} from "../../lib/native-token-transfers/evm/lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
-import { IManagerBase } from "../../lib/example-native-token-transfers/evm/src/interfaces/IManagerBase.sol";
-import { INttManager } from "../../lib/example-native-token-transfers/evm/src/interfaces/INttManager.sol";
+import { IManagerBase } from "../../lib/native-token-transfers/evm/src/interfaces/IManagerBase.sol";
+import { INttManager } from "../../lib/native-token-transfers/evm/src/interfaces/INttManager.sol";
 import {
     IWormholeTransceiver
-} from "../../lib/example-native-token-transfers/evm/src/interfaces/IWormholeTransceiver.sol";
+} from "../../lib/native-token-transfers/evm/src/interfaces/IWormholeTransceiver.sol";
 import {
     WormholeTransceiver
-} from "../../lib/example-native-token-transfers/evm/src/Transceiver/WormholeTransceiver/WormholeTransceiver.sol";
+} from "../../lib/native-token-transfers/evm/src/Transceiver/WormholeTransceiver/WormholeTransceiver.sol";
 
 import { ConfigureBase } from "../../script/configure/ConfigureBase.sol";
 import { ICreateXLike } from "../../script/deploy/interfaces/ICreateXLike.sol";

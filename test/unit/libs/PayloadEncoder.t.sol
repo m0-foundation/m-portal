@@ -6,14 +6,14 @@ import { Test } from "../../../lib/forge-std/src/Test.sol";
 
 import {
     BytesParsing
-} from "../../../lib/example-native-token-transfers/evm/lib/wormhole-solidity-sdk/src/libraries/BytesParsing.sol";
+} from "../../../lib/native-token-transfers/evm/lib/wormhole-solidity-sdk/src/libraries/BytesParsing.sol";
 import {
     TransceiverStructs
-} from "../../../lib/example-native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
+} from "../../../lib/native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
 import {
     TrimmedAmount,
     TrimmedAmountLib
-} from "../../../lib/example-native-token-transfers/evm/src/libraries/TrimmedAmount.sol";
+} from "../../../lib/native-token-transfers/evm/src/libraries/TrimmedAmount.sol";
 
 import { TypeConverter } from "../../../src/libs/TypeConverter.sol";
 import { PayloadType, PayloadEncoder } from "../../../src/libs/PayloadEncoder.sol";

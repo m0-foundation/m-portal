@@ -7,16 +7,16 @@ import { Vm } from "../../lib/forge-std/src/Test.sol";
 
 import {
     IWormholeRelayer
-} from "../../lib/example-native-token-transfers/evm/lib/wormhole-solidity-sdk/src/interfaces/IWormholeRelayer.sol";
+} from "../../lib/native-token-transfers/evm/lib/wormhole-solidity-sdk/src/interfaces/IWormholeRelayer.sol";
 import {
     WormholeSimulator
-} from "../../lib/example-native-token-transfers/evm/lib/wormhole-solidity-sdk/src/testing/helpers/WormholeSimulator.sol";
+} from "../../lib/native-token-transfers/evm/lib/wormhole-solidity-sdk/src/testing/helpers/WormholeSimulator.sol";
 
-import { INttManager } from "../../lib/example-native-token-transfers/evm/src/interfaces/INttManager.sol";
+import { INttManager } from "../../lib/native-token-transfers/evm/src/interfaces/INttManager.sol";
 import {
     IWormholeTransceiver
-} from "../../lib/example-native-token-transfers/evm/src/interfaces/IWormholeTransceiver.sol";
-import { TransceiverStructs } from "../../lib/example-native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
+} from "../../lib/native-token-transfers/evm/src/interfaces/IWormholeTransceiver.sol";
+import { TransceiverStructs } from "../../lib/native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
 
 import { CastBase } from "../../script/cast/CastBase.sol";
 import { ConfigureBase } from "../../script/configure/ConfigureBase.sol";

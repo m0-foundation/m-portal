@@ -6,10 +6,10 @@ import { console } from "../../lib/forge-std/src/console.sol";
 import { Script } from "../../lib/forge-std/src/Script.sol";
 import { stdJson } from "../../lib/forge-std/src/StdJson.sol";
 
-import { INttManager } from "../../lib/example-native-token-transfers/evm/src/interfaces/INttManager.sol";
+import { INttManager } from "../../lib/native-token-transfers/evm/src/interfaces/INttManager.sol";
 import {
     IWormholeTransceiver
-} from "../../lib/example-native-token-transfers/evm/src/interfaces/IWormholeTransceiver.sol";
+} from "../../lib/native-token-transfers/evm/src/interfaces/IWormholeTransceiver.sol";
 
 import { Utils } from "../helpers/Utils.sol";
 
