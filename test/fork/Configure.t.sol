@@ -11,9 +11,7 @@ import {
 
 import { IManagerBase } from "../../lib/native-token-transfers/evm/src/interfaces/IManagerBase.sol";
 import { INttManager } from "../../lib/native-token-transfers/evm/src/interfaces/INttManager.sol";
-import {
-    IWormholeTransceiver
-} from "../../lib/native-token-transfers/evm/src/interfaces/IWormholeTransceiver.sol";
+import { IWormholeTransceiver } from "../../lib/native-token-transfers/evm/src/interfaces/IWormholeTransceiver.sol";
 import {
     WormholeTransceiver
 } from "../../lib/native-token-transfers/evm/src/Transceiver/WormholeTransceiver/WormholeTransceiver.sol";

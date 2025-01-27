@@ -3,9 +3,7 @@
 pragma solidity 0.8.26;
 
 import { INttManager } from "../../lib/native-token-transfers/evm/src/interfaces/INttManager.sol";
-import {
-    IWormholeTransceiver
-} from "../../lib/native-token-transfers/evm/src/interfaces/IWormholeTransceiver.sol";
+import { IWormholeTransceiver } from "../../lib/native-token-transfers/evm/src/interfaces/IWormholeTransceiver.sol";
 
 import { IConfigurator } from "./interfaces/IConfigurator.sol";
 

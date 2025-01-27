@@ -7,9 +7,7 @@ import { Test } from "../../../lib/forge-std/src/Test.sol";
 import {
     BytesParsing
 } from "../../../lib/native-token-transfers/evm/lib/wormhole-solidity-sdk/src/libraries/BytesParsing.sol";
-import {
-    TransceiverStructs
-} from "../../../lib/native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
+import { TransceiverStructs } from "../../../lib/native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
 import {
     TrimmedAmount,
     TrimmedAmountLib

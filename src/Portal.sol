@@ -3,10 +3,7 @@
 pragma solidity 0.8.26;
 
 import { IERC20 } from "../lib/common/src/interfaces/IERC20.sol";
-import {
-    TrimmedAmount,
-    TrimmedAmountLib
-} from "../lib/native-token-transfers/evm/src/libraries/TrimmedAmount.sol";
+import { TrimmedAmount, TrimmedAmountLib } from "../lib/native-token-transfers/evm/src/libraries/TrimmedAmount.sol";
 import { TransceiverStructs } from "../lib/native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
 import {
     NttManagerNoRateLimiting

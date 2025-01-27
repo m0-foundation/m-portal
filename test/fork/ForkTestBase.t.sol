@@ -66,8 +66,8 @@ contract ForkTestBase is CastBase, ConfigureBase, DeployBase, Test {
 
     address internal _baseSpokeVault;
 
-    address internal _baseSpokeSmartMTokenImplementation;
-    address internal _baseSpokeSmartMTokenProxy;
+    address internal _baseSpokeWrappedMTokenImplementation;
+    address internal _baseSpokeWrappedMTokenProxy;
 
     // Optimism - Spoke
     address internal _optimismSpokePortal;
@@ -78,8 +78,8 @@ contract ForkTestBase is CastBase, ConfigureBase, DeployBase, Test {
 
     address internal _optimismSpokeVault;
 
-    address internal _optimismSpokeSmartMTokenImplementation;
-    address internal _optimismSpokeSmartMTokenProxy;
+    address internal _optimismSpokeWrappedMTokenImplementation;
+    address internal _optimismSpokeWrappedMTokenProxy;
 
     function setUp() public virtual {
         // Deploy Mainnet - Hub
@@ -142,7 +142,7 @@ contract ForkTestBase is CastBase, ConfigureBase, DeployBase, Test {
             _MIGRATION_ADMIN
         );
 
-        (_baseSpokeSmartMTokenImplementation, _baseSpokeSmartMTokenProxy) = _deploySpokeSmartMToken(
+        (_baseSpokeWrappedMTokenImplementation, _baseSpokeWrappedMTokenProxy) = _deploySpokeWrappedMToken(
             _DEPLOYER,
             _baseSpokeMToken,
             _baseSpokeRegistrar,
@@ -183,7 +183,7 @@ contract ForkTestBase is CastBase, ConfigureBase, DeployBase, Test {
             _MIGRATION_ADMIN
         );
 
-        (_optimismSpokeSmartMTokenImplementation, _optimismSpokeSmartMTokenProxy) = _deploySpokeSmartMToken(
+        (_optimismSpokeWrappedMTokenImplementation, _optimismSpokeWrappedMTokenProxy) = _deploySpokeWrappedMToken(
             _DEPLOYER,
             _optimismSpokeMToken,
             _optimismSpokeRegistrar,

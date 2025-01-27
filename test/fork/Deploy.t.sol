@@ -39,8 +39,8 @@ contract Deploy is ForkTestBase {
             _computeSalt(_DEPLOYER, "WormholeTransceiver")
         );
 
-        address _expectedSpokeSmartMTokenImplementation = ContractHelper.getContractFrom(_DEPLOYER, 37);
-        address _expectedSpokeSmartMTokenProxy = ContractHelper.getContractFrom(_DEPLOYER, 38);
+        address _expectedSpokeWrappedMTokenImplementation = ContractHelper.getContractFrom(_DEPLOYER, 37);
+        address _expectedSpokeWrappedMTokenProxy = ContractHelper.getContractFrom(_DEPLOYER, 38);
 
         assertEq(_baseSpokePortal, expectedSpokePortal_);
         assertEq(_baseSpokeWormholeTransceiver, expectedSpokeWormholeTransceiver_);
@@ -48,7 +48,7 @@ contract Deploy is ForkTestBase {
         assertEq(_baseSpokeMToken, _MAINNET_M_TOKEN);
         assertEq(_baseSpokeVault, expectedSpokeVault_);
 
-        assertEq(_baseSpokeSmartMTokenProxy, _expectedSpokeSmartMTokenProxy);
+        assertEq(_baseSpokeWrappedMTokenProxy, _expectedSpokeWrappedMTokenProxy);
 
         assertEq(SpokeMToken(_baseSpokeMToken).portal(), _baseSpokePortal);
         assertEq(SpokeMToken(_baseSpokeMToken).registrar(), _baseSpokeRegistrar);
@@ -62,8 +62,8 @@ contract Deploy is ForkTestBase {
         assertEq(_optimismSpokeMToken, _MAINNET_M_TOKEN);
         assertEq(_optimismSpokeVault, expectedSpokeVault_);
 
-        assertEq(_optimismSpokeSmartMTokenImplementation, _expectedSpokeSmartMTokenImplementation);
-        assertEq(_optimismSpokeSmartMTokenProxy, _expectedSpokeSmartMTokenProxy);
+        assertEq(_optimismSpokeWrappedMTokenImplementation, _expectedSpokeWrappedMTokenImplementation);
+        assertEq(_optimismSpokeWrappedMTokenProxy, _expectedSpokeWrappedMTokenProxy);
 
         assertEq(SpokeMToken(_optimismSpokeMToken).portal(), _optimismSpokePortal);
         assertEq(SpokeMToken(_optimismSpokeMToken).registrar(), _optimismSpokeRegistrar);
