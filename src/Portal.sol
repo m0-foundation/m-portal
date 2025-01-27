@@ -324,13 +324,15 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         // Emitting `INttManager.TransferRedeemed` to comply with Wormhole NTT specification.
         emit TransferRedeemed(messageId_);
 
-        if (destinationToken_ == token) {
+        address mToken_ = token;
+        if (destinationToken_ == mToken_) {
             // mints or unlocks M Token to the recipient
             _mintOrUnlock(recipient_, amount_, index_);
         } else {
             // mints or unlocks M Token to the Portal
             _mintOrUnlock(address(this), amount_, index_);
 
+            IERC20(mToken_).approve(destinationToken_, amount_);
             // wraps M token and transfers it to the recipient
             _wrap(destinationToken_, recipient_, amount_);
         }

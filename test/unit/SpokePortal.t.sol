@@ -523,6 +523,9 @@ contract SpokePortalTests is UnitTestBase {
 
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
+
+        assertEq(_mToken.balanceOf(_alice), 0);
+        assertEq(_wrappedMToken.balanceOf(_alice), amount_);
     }
 
     function test_receiveWrappedMToken_unwrapFails() external {
@@ -564,5 +567,8 @@ contract SpokePortalTests is UnitTestBase {
 
         vm.prank(address(_transceiver));
         _portal.attestationReceived(_REMOTE_CHAIN_ID, _PEER, message_);
+
+        assertEq(_mToken.balanceOf(_alice), amount_);
+        assertEq(_wrappedMToken.balanceOf(_alice), 0);
     }
 }
