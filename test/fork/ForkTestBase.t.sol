@@ -13,9 +13,7 @@ import {
 } from "../../lib/native-token-transfers/evm/lib/wormhole-solidity-sdk/src/testing/helpers/WormholeSimulator.sol";
 
 import { INttManager } from "../../lib/native-token-transfers/evm/src/interfaces/INttManager.sol";
-import {
-    IWormholeTransceiver
-} from "../../lib/native-token-transfers/evm/src/interfaces/IWormholeTransceiver.sol";
+import { IWormholeTransceiver } from "../../lib/native-token-transfers/evm/src/interfaces/IWormholeTransceiver.sol";
 import { TransceiverStructs } from "../../lib/native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
 
 import { CastBase } from "../../script/cast/CastBase.sol";
@@ -68,8 +66,6 @@ contract ForkTestBase is CastBase, ConfigureBase, DeployBase, Test {
 
     address internal _baseSpokeVault;
 
-    address internal _baseSpokeSmartMTokenEarnerManagerImplementation;
-    address internal _baseSpokeSmartMTokenEarnerManagerProxy;
     address internal _baseSpokeSmartMTokenImplementation;
     address internal _baseSpokeSmartMTokenProxy;
 
@@ -82,8 +78,6 @@ contract ForkTestBase is CastBase, ConfigureBase, DeployBase, Test {
 
     address internal _optimismSpokeVault;
 
-    address internal _optimismSpokeSmartMTokenEarnerManagerImplementation;
-    address internal _optimismSpokeSmartMTokenEarnerManagerProxy;
     address internal _optimismSpokeSmartMTokenImplementation;
     address internal _optimismSpokeSmartMTokenProxy;
 
@@ -148,12 +142,7 @@ contract ForkTestBase is CastBase, ConfigureBase, DeployBase, Test {
             _MIGRATION_ADMIN
         );
 
-        (
-            _baseSpokeSmartMTokenEarnerManagerImplementation,
-            _baseSpokeSmartMTokenEarnerManagerProxy,
-            _baseSpokeSmartMTokenImplementation,
-            _baseSpokeSmartMTokenProxy
-        ) = _deploySpokeSmartMToken(
+        (_baseSpokeSmartMTokenImplementation, _baseSpokeSmartMTokenProxy) = _deploySpokeSmartMToken(
             _DEPLOYER,
             _baseSpokeMToken,
             _baseSpokeRegistrar,
@@ -194,12 +183,7 @@ contract ForkTestBase is CastBase, ConfigureBase, DeployBase, Test {
             _MIGRATION_ADMIN
         );
 
-        (
-            _optimismSpokeSmartMTokenEarnerManagerImplementation,
-            _optimismSpokeSmartMTokenEarnerManagerProxy,
-            _optimismSpokeSmartMTokenImplementation,
-            _optimismSpokeSmartMTokenProxy
-        ) = _deploySpokeSmartMToken(
+        (_optimismSpokeSmartMTokenImplementation, _optimismSpokeSmartMTokenProxy) = _deploySpokeSmartMToken(
             _DEPLOYER,
             _optimismSpokeMToken,
             _optimismSpokeRegistrar,

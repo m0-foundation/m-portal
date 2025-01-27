@@ -11,7 +11,6 @@ import { Proxy } from "../../lib/common/src/Proxy.sol";
 
 import { MToken as SpokeMToken } from "../../lib/protocol/src/MToken.sol";
 import { Registrar as SpokeRegistrar } from "../../lib/ttg/src/Registrar.sol";
-import { EarnerManager as SpokeWrappedMTokenEarnerManager } from "../../lib/wrapped-m-token/src/EarnerManager.sol";
 import { WrappedMToken as SpokeWrappedMToken } from "../../lib/wrapped-m-token/src/WrappedMToken.sol";
 
 import { IManagerBase } from "../../lib/native-token-transfers/evm/src/interfaces/IManagerBase.sol";
@@ -226,60 +225,19 @@ contract DeployBase is Script, Utils {
         address spokeVault_,
         address migrationAdmin_,
         function(address, uint64, uint64) internal burnNonces_
-    )
-        internal
-        returns (
-            address spokeSmartMTokenEarnerManagerImplementation_,
-            address spokeSmartMTokenEarnerManagerProxy_,
-            address spokeSmartMTokenImplementation_,
-            address spokeSmartMTokenProxy_
-        )
-    {
+    ) internal returns (address spokeSmartMTokenImplementation_, address spokeSmartMTokenProxy_) {
         uint64 deployerNonce_ = vm.getNonce(deployer_);
 
-        if (deployerNonce_ > _SPOKE_SMART_M_TOKEN_EARNER_MANAGER_NONCE) {
-            revert DeployerNonceTooHigh(_SPOKE_SMART_M_TOKEN_EARNER_MANAGER_NONCE, deployerNonce_);
+        if (deployerNonce_ > _SPOKE_SMART_M_TOKEN_NONCE) {
+            revert DeployerNonceTooHigh(_SPOKE_SMART_M_TOKEN_NONCE, deployerNonce_);
         }
 
-        burnNonces_(deployer_, deployerNonce_, _SPOKE_SMART_M_TOKEN_EARNER_MANAGER_NONCE);
+        burnNonces_(deployer_, deployerNonce_, _SPOKE_SMART_M_TOKEN_NONCE);
 
         deployerNonce_ = vm.getNonce(deployer_);
-        if (deployerNonce_ != _SPOKE_SMART_M_TOKEN_EARNER_MANAGER_NONCE) {
-            revert DeployerNonceTooHigh(_SPOKE_SMART_M_TOKEN_EARNER_MANAGER_NONCE, deployerNonce_);
+        if (deployerNonce_ != _SPOKE_SMART_M_TOKEN_NONCE) {
+            revert DeployerNonceTooHigh(_SPOKE_SMART_M_TOKEN_NONCE, deployerNonce_);
         }
-
-        // Pre-compute the expected SpokeWrappedMTokenEarnerManager implementation address.
-        address expectedSmartMTokenEarnerManagerImplementation_ = ContractHelper.getContractFrom(
-            deployer_,
-            _SPOKE_SMART_M_TOKEN_EARNER_MANAGER_NONCE
-        );
-
-        spokeSmartMTokenEarnerManagerImplementation_ = address(
-            new SpokeWrappedMTokenEarnerManager(registrar_, migrationAdmin_)
-        );
-
-        if (expectedSmartMTokenEarnerManagerImplementation_ != spokeSmartMTokenEarnerManagerImplementation_) {
-            revert ExpectedAddressMismatch(
-                expectedSmartMTokenEarnerManagerImplementation_,
-                spokeSmartMTokenEarnerManagerImplementation_
-            );
-        }
-
-        console.log("SpokeSmartMTokenEarnerManagerImplementation:", spokeSmartMTokenEarnerManagerImplementation_);
-
-        // Pre-compute the expected SpokeWrappedMTokenEarnerManager proxy address.
-        address expectedSmartMTokenEarnerManagerProxy_ = ContractHelper.getContractFrom(
-            deployer_,
-            _SPOKE_SMART_M_TOKEN_EARNER_MANAGER_PROXY_NONCE
-        );
-
-        spokeSmartMTokenEarnerManagerProxy_ = address(new Proxy(spokeSmartMTokenEarnerManagerImplementation_));
-
-        if (expectedSmartMTokenEarnerManagerProxy_ != spokeSmartMTokenEarnerManagerProxy_) {
-            revert ExpectedAddressMismatch(expectedSmartMTokenEarnerManagerProxy_, spokeSmartMTokenEarnerManagerProxy_);
-        }
-
-        console.log("SpokeSmartMTokenEarnerManagerProxy:", spokeSmartMTokenEarnerManagerProxy_);
 
         // Pre-compute the expected SpokeWrappedMToken implementation address.
         address expectedSmartMTokenImplementation_ = ContractHelper.getContractFrom(
@@ -288,13 +246,7 @@ contract DeployBase is Script, Utils {
         );
 
         spokeSmartMTokenImplementation_ = address(
-            new SpokeWrappedMToken(
-                spokeMToken_,
-                registrar_,
-                spokeSmartMTokenEarnerManagerProxy_,
-                spokeVault_,
-                migrationAdmin_
-            )
+            new SpokeWrappedMToken(spokeMToken_, registrar_, spokeVault_, migrationAdmin_)
         );
 
         if (expectedSmartMTokenImplementation_ != spokeSmartMTokenImplementation_) {

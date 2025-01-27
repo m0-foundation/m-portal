@@ -39,10 +39,8 @@ contract Deploy is ForkTestBase {
             _computeSalt(_DEPLOYER, "WormholeTransceiver")
         );
 
-        address _expectedSpokeSmartMTokenEarnerManagerImplementation = ContractHelper.getContractFrom(_DEPLOYER, 37);
-        address _expectedSpokeSmartMTokenEarnerManagerProxy = ContractHelper.getContractFrom(_DEPLOYER, 38);
-        address _expectedSpokeSmartMTokenImplementation = ContractHelper.getContractFrom(_DEPLOYER, 39);
-        address _expectedSpokeSmartMTokenProxy = ContractHelper.getContractFrom(_DEPLOYER, 40);
+        address _expectedSpokeSmartMTokenImplementation = ContractHelper.getContractFrom(_DEPLOYER, 37);
+        address _expectedSpokeSmartMTokenProxy = ContractHelper.getContractFrom(_DEPLOYER, 38);
 
         assertEq(_baseSpokePortal, expectedSpokePortal_);
         assertEq(_baseSpokeWormholeTransceiver, expectedSpokeWormholeTransceiver_);
@@ -50,12 +48,6 @@ contract Deploy is ForkTestBase {
         assertEq(_baseSpokeMToken, _MAINNET_M_TOKEN);
         assertEq(_baseSpokeVault, expectedSpokeVault_);
 
-        assertEq(
-            _baseSpokeSmartMTokenEarnerManagerImplementation,
-            _expectedSpokeSmartMTokenEarnerManagerImplementation
-        );
-        assertEq(_baseSpokeSmartMTokenEarnerManagerProxy, _expectedSpokeSmartMTokenEarnerManagerProxy);
-        assertEq(_baseSpokeSmartMTokenImplementation, _expectedSpokeSmartMTokenImplementation);
         assertEq(_baseSpokeSmartMTokenProxy, _expectedSpokeSmartMTokenProxy);
 
         assertEq(SpokeMToken(_baseSpokeMToken).portal(), _baseSpokePortal);
@@ -70,11 +62,6 @@ contract Deploy is ForkTestBase {
         assertEq(_optimismSpokeMToken, _MAINNET_M_TOKEN);
         assertEq(_optimismSpokeVault, expectedSpokeVault_);
 
-        assertEq(
-            _optimismSpokeSmartMTokenEarnerManagerImplementation,
-            _expectedSpokeSmartMTokenEarnerManagerImplementation
-        );
-        assertEq(_optimismSpokeSmartMTokenEarnerManagerProxy, _expectedSpokeSmartMTokenEarnerManagerProxy);
         assertEq(_optimismSpokeSmartMTokenImplementation, _expectedSpokeSmartMTokenImplementation);
         assertEq(_optimismSpokeSmartMTokenProxy, _expectedSpokeSmartMTokenProxy);
 
