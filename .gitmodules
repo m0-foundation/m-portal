@@ -18,3 +18,7 @@
 	path = lib/wrapped-m-token
 	url = git@github.com:m0-foundation/wrapped-m-token.git
 	branch = v2
+[submodule "lib/native-token-transfers"]
+	path = lib/native-token-transfers
+	url = git@github.com:m0-foundation/native-token-transfers.git
+	branch = m0
