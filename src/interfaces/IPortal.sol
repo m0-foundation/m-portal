@@ -67,19 +67,14 @@ interface IPortal {
     event DestinationMTokenSet(uint16 indexed destinationChainId, bytes32 mToken);
 
     /**
-     * @notice Emitted when a supported token is set for the current chain.
-     * @param  sourceToken The address of the token on the current chain.
-     * @param  supported   `True` if the token is supported, `false` otherwise.
-     */
-    event SupportedSourceTokenSet(address indexed sourceToken, bool supported);
-
-    /**
-     * @notice Emitted when a supported token is set for the remote chain.
+     * @notice Emitted when a bridging path support status is updated.
+     * @param  sourceToken        The address of the token on the current chain.
      * @param  destinationChainId The Wormhole destination chain ID.
      * @param  destinationToken   The address of the token on the destination chain.
      * @param  supported          `True` if the token is supported, `false` otherwise.
      */
-    event SupportedDestinationTokenSet(
+    event SupportedBridgingPathSet(
+        address indexed sourceToken,
         uint16 indexed destinationChainId,
         bytes32 indexed destinationToken,
         bool supported
@@ -107,11 +102,8 @@ interface IPortal {
     ///         is equal to the source one.
     error InvalidDestinationChain(uint16 destinationChainId);
 
-    /// @notice Emitted in `transferWrappedMToken` function when the token is not supported on the current chain.
-    error UnsupportedSourceToken(address sourceToken);
-
-    /// @notice Emitted in `transferWrappedMToken` function when the token is not supported on the destination chain.
-    error UnsupportedDestinationToken(uint16 destinationChainId, bytes32 destinationToken);
+    /// @notice Emitted in `transferWrappedMToken` function when bridging path is not supported
+    error UnsupportedBridgingPath(address sourceToken, uint16 destinationChainId, bytes32 destinationToken);
 
     /* ============ View/Pure Functions ============ */
 
@@ -132,19 +124,14 @@ interface IPortal {
     function destinationMToken(uint16 destinationChainId) external view returns (bytes32 mToken);
 
     /**
-     * @notice Indicates whether the provided token is supported on the current chain.
-     * @param  sourceToken The address of the token on the current chain.
-     * @return supported   `True` if the token is supported, `false` otherwise.
-     */
-    function supportedSourceToken(address sourceToken) external view returns (bool supported);
-
-    /**
-     * @notice Indicates whether the provided token is supported on the destination chain.
+     * @notice Indicates whether the provided bridging path is supported.
+     * @param  sourceToken        The address of the token on the current chain.
      * @param  destinationChainId The Wormhole destination chain ID.
      * @param  destinationToken   The address of the token on the destination chain.
      * @return supported          `True` if the token is supported, `false` otherwise.
      */
-    function supportedDestinationToken(
+    function supportedBridgingPath(
+        address sourceToken,
         uint16 destinationChainId,
         bytes32 destinationToken
     ) external view returns (bool supported);
@@ -159,19 +146,18 @@ interface IPortal {
     function setDestinationMToken(uint16 destinationChainId, bytes32 mToken) external;
 
     /**
-     * @notice Sets whether the token is supported on the current chain.
-     * @param  sourceToken The address of the token on the current chain.
-     * @param  supported   `True` if the token is supported, `false` otherwise.
-     */
-    function setSupportedSourceToken(address sourceToken, bool supported) external;
-
-    /**
-     * @notice Sets whether the token is supported on the remote chain.
+     * @notice Sets a bridging path support status.
+     * @param  sourceToken        The address of the token on the current chain.
      * @param  destinationChainId The Wormhole destination chain ID.
      * @param  destinationToken   The address of the token on the destination chain.
      * @param  supported          `True` if the token is supported, `false` otherwise.
      */
-    function setSupportedDestinationToken(uint16 destinationChainId, bytes32 destinationToken, bool supported) external;
+    function setSupportedBridgingPath(
+        address sourceToken,
+        uint16 destinationChainId,
+        bytes32 destinationToken,
+        bool supported
+    ) external;
 
     /**
      * @notice Transfers M or Wrapped M Token to the destination chain.

@@ -47,8 +47,10 @@ contract SpokePortalTests is UnitTestBase {
         _initializePortal(_portal);
 
         _portal.setDestinationMToken(_REMOTE_CHAIN_ID, _remoteMToken);
-        _portal.setSupportedSourceToken(address(_mToken), true);
-        _portal.setSupportedSourceToken(address(_wrappedMToken), true);
+        _portal.setSupportedBridgingPath(address(_mToken), _REMOTE_CHAIN_ID, _remoteMToken, true);
+        _portal.setSupportedBridgingPath(address(_mToken), _REMOTE_CHAIN_ID, _remoteWrappedMToken, true);
+        _portal.setSupportedBridgingPath(address(_wrappedMToken), _REMOTE_CHAIN_ID, _remoteMToken, true);
+        _portal.setSupportedBridgingPath(address(_wrappedMToken), _REMOTE_CHAIN_ID, _remoteWrappedMToken, true);
     }
 
     /* ============ initialState ============ */
@@ -169,8 +171,6 @@ contract SpokePortalTests is UnitTestBase {
         bytes32 recipient_ = _alice.toBytes32();
         bytes32 refundAddress_ = recipient_;
 
-        _portal.setSupportedDestinationToken(_REMOTE_CHAIN_ID, _remoteWrappedMToken, true);
-
         (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) = _createTransferMessage(
             amount_,
             index_,
@@ -244,8 +244,6 @@ contract SpokePortalTests is UnitTestBase {
         uint128 index_ = 0;
         bytes32 recipient_ = _alice.toBytes32();
         bytes32 refundAddress_ = recipient_;
-
-        _portal.setSupportedDestinationToken(_REMOTE_CHAIN_ID, _remoteWrappedMToken, true);
 
         (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) = _createTransferMessage(
             amount_,

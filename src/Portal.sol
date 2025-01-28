@@ -32,11 +32,8 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
     address public immutable registrar;
 
     /// @inheritdoc IPortal
-    mapping(address sourceToken => bool supported) public supportedSourceToken;
-
-    /// @inheritdoc IPortal
-    mapping(uint16 destinationChainId => mapping(bytes32 destinationToken => bool supported))
-        public supportedDestinationToken;
+    mapping(address sourceToken => mapping(uint16 destinationChainId => mapping(bytes32 destinationToken => bool supported)))
+        public supportedBridgingPath;
 
     /// @inheritdoc IPortal
     mapping(uint16 destinationChainId => bytes32 mToken) public destinationMToken;
@@ -84,24 +81,18 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
     }
 
     /// @inheritdoc IPortal
-    function setSupportedSourceToken(address sourceToken_, bool supported_) external onlyOwner {
-        if (sourceToken_ == address(0)) revert ZeroSourceToken();
-
-        supportedSourceToken[sourceToken_] = supported_;
-        emit SupportedSourceTokenSet(sourceToken_, supported_);
-    }
-
-    /// @inheritdoc IPortal
-    function setSupportedDestinationToken(
+    function setSupportedBridgingPath(
+        address sourceToken_,
         uint16 destinationChainId_,
         bytes32 destinationToken_,
         bool supported_
     ) external onlyOwner {
+        if (sourceToken_ == address(0)) revert ZeroSourceToken();
         if (destinationChainId_ == chainId) revert InvalidDestinationChain(destinationChainId_);
         if (destinationToken_ == bytes32(0)) revert ZeroDestinationToken();
 
-        supportedDestinationToken[destinationChainId_][destinationToken_] = supported_;
-        emit SupportedDestinationTokenSet(destinationChainId_, destinationToken_, supported_);
+        supportedBridgingPath[sourceToken_][destinationChainId_][destinationToken_] = supported_;
+        emit SupportedBridgingPathSet(sourceToken_, destinationChainId_, destinationToken_, supported_);
     }
 
     /// @inheritdoc IPortal
@@ -115,11 +106,9 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
     ) external payable returns (bytes32 messageId_) {
         _verifyTransferArgs(amount_, destinationToken_, recipient_, refundAddress_);
 
-        if (!supportedSourceToken[sourceToken_]) revert UnsupportedSourceToken(sourceToken_);
-
-        if (!supportedDestinationToken[destinationChainId_][destinationToken_])
-            revert UnsupportedDestinationToken(destinationChainId_, destinationToken_);
-
+        if (!supportedBridgingPath[sourceToken_][destinationChainId_][destinationToken_]) {
+            revert UnsupportedBridgingPath(sourceToken_, destinationChainId_, destinationToken_);
+        }
         IERC20 mToken_ = IERC20(token);
         uint256 balanceBefore = mToken_.balanceOf(address(this));
 
