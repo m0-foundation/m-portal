@@ -2,6 +2,7 @@
 
 pragma solidity 0.8.26;
 
+import { OwnableUpgradeable } from "../../lib/native-token-transfers/evm/src/libraries/external/OwnableUpgradeable.sol";
 import { IManagerBase } from "../../lib/native-token-transfers/evm/src/interfaces/IManagerBase.sol";
 import { INttManager } from "../../lib/native-token-transfers/evm/src/interfaces/INttManager.sol";
 import { TransceiverStructs } from "../../lib/native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
@@ -65,6 +66,78 @@ contract PortalTests is UnitTestBase {
     function test_constructor_zeroRegistrar() external {
         vm.expectRevert(IPortal.ZeroRegistrar.selector);
         new PortalHarness(address(_mToken), address(0), IManagerBase.Mode.BURNING, _LOCAL_CHAIN_ID);
+    }
+
+    /* ============ setDestinationMToken ============ */
+
+    function test_setDestinationMToken() public {
+        bytes32 destinationMToken_ = makeAddr("mToken").toBytes32();
+
+        vm.expectEmit(true, true, true, true);
+        emit IPortal.DestinationMTokenSet(_REMOTE_CHAIN_ID, destinationMToken_);
+        _portal.setDestinationMToken(_REMOTE_CHAIN_ID, destinationMToken_);
+
+        assertEq(_portal.destinationMToken(_REMOTE_CHAIN_ID), destinationMToken_);
+    }
+
+    function test_setDestinationMToken_revertInvalidDestinationChain() public {
+        uint16 destinationChainId_ = _LOCAL_CHAIN_ID;
+
+        vm.expectRevert(abi.encodeWithSelector(IPortal.InvalidDestinationChain.selector, destinationChainId_));
+        _portal.setDestinationMToken(destinationChainId_, _remoteMToken);
+    }
+
+    function test_setDestinationMToken_revertZeroMToken() public {
+        vm.expectRevert(IPortal.ZeroMToken.selector);
+        _portal.setDestinationMToken(_REMOTE_CHAIN_ID, bytes32(0));
+    }
+
+    function test_setDestinationMToken_revertNotOwner() external {
+        vm.prank(_alice);
+        vm.expectRevert(abi.encodeWithSelector(OwnableUpgradeable.OwnableUnauthorizedAccount.selector, _alice));
+        _portal.setDestinationMToken(_REMOTE_CHAIN_ID, _remoteMToken);
+    }
+
+    /* ============ setSupportedBridgingPath ============ */
+
+    function test_setSupportedBridgingPath() external {
+        address sourceToken = address(_mToken);
+        bytes32 destinationToken = _remoteMToken;
+
+        // Support path
+        vm.expectEmit(true, true, true, true);
+        emit IPortal.SupportedBridgingPathSet(sourceToken, _REMOTE_CHAIN_ID, destinationToken, true);
+        _portal.setSupportedBridgingPath(sourceToken, _REMOTE_CHAIN_ID, destinationToken, true);
+
+        assertTrue(_portal.supportedBridgingPath(sourceToken, _REMOTE_CHAIN_ID, destinationToken));
+
+        // Don't support path
+        vm.expectEmit(true, true, true, true);
+        emit IPortal.SupportedBridgingPathSet(sourceToken, _REMOTE_CHAIN_ID, destinationToken, false);
+        _portal.setSupportedBridgingPath(sourceToken, _REMOTE_CHAIN_ID, destinationToken, false);
+
+        assertFalse(_portal.supportedBridgingPath(sourceToken, _REMOTE_CHAIN_ID, destinationToken));
+    }
+
+    function test_setSupportedBridgingPath_revertZeroSourceToken() external {
+        vm.expectRevert(IPortal.ZeroSourceToken.selector);
+        _portal.setSupportedBridgingPath(address(0), _REMOTE_CHAIN_ID, _remoteMToken, true);
+    }
+
+    function test_setSupportedBridgingPath_revertInvalidDestinationChain() external {
+        vm.expectRevert(abi.encodeWithSelector(IPortal.InvalidDestinationChain.selector, _LOCAL_CHAIN_ID));
+        _portal.setSupportedBridgingPath(address(_mToken), _LOCAL_CHAIN_ID, _remoteMToken, true);
+    }
+
+    function test_setSupportedBridgingPath_revertZeroDestinationToken() external {
+        vm.expectRevert(IPortal.ZeroDestinationToken.selector);
+        _portal.setSupportedBridgingPath(address(_mToken), _REMOTE_CHAIN_ID, bytes32(0), true);
+    }
+
+    function test_setSupportedBridgingPath_revertNotOwner() external {
+        vm.prank(_alice);
+        vm.expectRevert(abi.encodeWithSelector(OwnableUpgradeable.OwnableUnauthorizedAccount.selector, _alice));
+        _portal.setSupportedBridgingPath(address(_mToken), _REMOTE_CHAIN_ID, _remoteMToken, false);
     }
 
     /* ============ transfer ============ */
