@@ -167,7 +167,7 @@ interface IPortal {
      * @param  destinationChainId The Wormhole destination chain ID.
      * @param  recipient          The account to receive tokens.
      * @param  refundAddress      The address to receive excess native gas on the destination chain.
-     * @return messageId          The ID uniquely identifying the message.
+     * @return sequence           The message sequence.
      */
     function transferMLikeToken(
         uint256 amount,
@@ -176,5 +176,5 @@ interface IPortal {
         uint16 destinationChainId,
         bytes32 recipient,
         bytes32 refundAddress
-    ) external payable returns (bytes32 messageId);
+    ) external payable returns (uint64 sequence);
 }

@@ -103,7 +103,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         uint16 destinationChainId_,
         bytes32 recipient_,
         bytes32 refundAddress_
-    ) external payable returns (bytes32 messageId_) {
+    ) external payable returns (uint64 sequence_) {
         _verifyTransferArgs(amount_, destinationToken_, recipient_, refundAddress_);
 
         if (!supportedBridgingPath[sourceToken_][destinationChainId_][destinationToken_]) {
@@ -123,7 +123,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         // account for potential rounding errors when transferring between earners and non-earners
         amount_ = mToken_.balanceOf(address(this)) - balanceBefore;
 
-        (messageId_, ) = _transferMToken(
+        sequence_ = _transferMToken(
             amount_,
             sourceToken_,
             destinationToken_,
@@ -158,14 +158,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         // account for potential rounding errors when transferring between earners and non-earners
         amount_ = mToken_.balanceOf(address(this)) - balanceBefore;
 
-        (, sequence_) = _transferMToken(
-            amount_,
-            token,
-            destinationToken_,
-            destinationChainId_,
-            recipient_,
-            refundAddress_
-        );
+        sequence_ = _transferMToken(amount_, token, destinationToken_, destinationChainId_, recipient_, refundAddress_);
     }
 
     function _transferMToken(
@@ -175,7 +168,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         uint16 destinationChainId_,
         bytes32 recipient_,
         bytes32 refundAddress_
-    ) private returns (bytes32 messageId_, uint64 sequence_) {
+    ) private returns (uint64 sequence_) {
         // NOTE: the following code has been adapted from NTT manager `transfer` or `_transferEntryPoint` functions.
         // We cannot call those functions directly here as they attempt to transfer M Token from the msg.sender.
 
@@ -184,8 +177,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         sequence_ = _useMessageSequence();
         uint128 index_ = _currentIndex();
 
-        TransceiverStructs.NttManagerMessage memory message_;
-        (, message_, messageId_) = _encodeTokenTransfer(
+        (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) = _encodeTokenTransfer(
             _trimTransferAmount(amount_, destinationChainId_),
             index_,
             recipient_,
@@ -231,15 +223,8 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         uint16 destinationChainId_,
         uint64 sequence_,
         address sender_
-    )
-        internal
-        returns (
-            TransceiverStructs.NativeTokenTransfer memory nativeTokenTransfer_,
-            TransceiverStructs.NttManagerMessage memory message_,
-            bytes32 messageId_
-        )
-    {
-        nativeTokenTransfer_ = TransceiverStructs.NativeTokenTransfer(
+    ) internal returns (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) {
+        TransceiverStructs.NativeTokenTransfer memory nativeTokenTransfer_ = TransceiverStructs.NativeTokenTransfer(
             amount_,
             token.toBytes32(),
             recipient_,
