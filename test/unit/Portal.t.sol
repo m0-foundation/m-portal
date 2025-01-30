@@ -225,6 +225,8 @@ contract PortalTests is UnitTestBase {
         bytes32 recipient_ = _alice.toBytes32();
         bytes32 refundAddress_ = recipient_;
 
+        _portal.setSupportedBridgingPath(address(_wrappedMToken), _REMOTE_CHAIN_ID, _remoteWrappedMToken, true);
+
         vm.expectRevert(INttManager.ZeroAmount.selector);
         _portal.transferMLikeToken(
             amount_,
@@ -241,6 +243,8 @@ contract PortalTests is UnitTestBase {
         bytes32 recipient_ = bytes32(0);
         bytes32 refundAddress_ = _alice.toBytes32();
 
+        _portal.setSupportedBridgingPath(address(_wrappedMToken), _REMOTE_CHAIN_ID, _remoteWrappedMToken, true);
+
         vm.expectRevert(INttManager.InvalidRecipient.selector);
         _portal.transferMLikeToken(
             amount_,
@@ -256,6 +260,8 @@ contract PortalTests is UnitTestBase {
         uint256 amount_ = 1_000e6;
         bytes32 recipient_ = _alice.toBytes32();
         bytes32 refundAddress_ = bytes32(0);
+
+        _portal.setSupportedBridgingPath(address(_wrappedMToken), _REMOTE_CHAIN_ID, _remoteWrappedMToken, true);
 
         vm.expectRevert(INttManager.InvalidRefundAddress.selector);
         _portal.transferMLikeToken(

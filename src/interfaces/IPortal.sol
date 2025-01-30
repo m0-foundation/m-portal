@@ -167,7 +167,7 @@ interface IPortal {
      * @param  destinationToken   The address of the token (M or Wrapped M) on the destination chain.
      * @param  recipient          The account to receive tokens.
      * @param  refundAddress      The address to receive excess native gas on the destination chain.
-     * @return sequence           The ID uniquely identifying the message.
+     * @return sequence           The sequence ID.
      */
     function transferMLikeToken(
         uint256 amount,
