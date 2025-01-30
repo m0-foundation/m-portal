@@ -5,7 +5,6 @@ pragma solidity 0.8.26;
 import { IERC20 } from "../../lib/common/src/interfaces/IERC20.sol";
 
 import { MockERC20 } from "./MockERC20.sol";
-import { console } from "../../lib/forge-std/src/console.sol";
 
 contract MockWrappedMToken is MockERC20 {
     address public mToken;

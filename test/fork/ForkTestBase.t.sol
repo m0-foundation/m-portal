@@ -36,6 +36,7 @@ contract ForkTestBase is CastBase, ConfigureBase, DeployBase, Test {
     address internal immutable _alice = makeAddr("alice");
     address internal immutable _bob = makeAddr("bob");
     address internal immutable _mHolder = 0x3f0376da3Ae4313E7a5F1dA184BAFC716252d759;
+    address internal immutable _wrappedMHolder = 0x942AeF058cb15C9b8b89B57B4E607d464ed8Cd33;
 
     TransceiverStructs.TransceiverInstruction internal _emptyTransceiverInstruction =
         TransceiverStructs.TransceiverInstruction({ index: 0, payload: "" });

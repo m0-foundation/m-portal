@@ -60,10 +60,101 @@ contract HubPortalForkTests is ForkTestBase {
         bytes memory signedMessage_ = _signMessage(_hubGuardian, _MAINNET_WORMHOLE_CHAIN_ID);
 
         vm.selectFork(_baseForkId);
-
         _deliverMessage(_BASE_WORMHOLE_RELAYER, signedMessage_);
 
         assertEq(IERC20(_baseSpokeMToken).balanceOf(_mHolder), amount_);
+        assertEq(IContinuousIndexing(_baseSpokeMToken).currentIndex(), mainnetIndex_);
+    }
+
+    /* ============ transferWrappedMToken ============ */
+
+    function testFork_transferWrappedMToken_mTokenToMToken() external {
+        vm.selectFork(_baseForkId);
+        assertEq(IERC20(_baseSpokeMToken).balanceOf(_mHolder), 0);
+
+        vm.selectFork(_mainnetForkId);
+        assertEq(IERC20(_MAINNET_M_TOKEN).balanceOf(_hubPortal), 0);
+
+        uint128 mainnetIndex_ = IContinuousIndexing(_MAINNET_M_TOKEN).currentIndex();
+
+        vm.prank(_DEPLOYER);
+        IPortal(_hubPortal).setSupportedBridgingPath(
+            _MAINNET_M_TOKEN,
+            _BASE_WORMHOLE_CHAIN_ID,
+            _baseSpokeMToken.toBytes32(),
+            true
+        );
+
+        vm.startPrank(_mHolder);
+        vm.recordLogs();
+
+        uint256 amount_ = 1_000e6;
+
+        IERC20(_MAINNET_M_TOKEN).approve(_hubPortal, amount_);
+        IPortal(_hubPortal).transferWrappedMToken{ value: _quoteDeliveryPrice(_hubPortal, _BASE_WORMHOLE_CHAIN_ID) }(
+            amount_,
+            _MAINNET_M_TOKEN,
+            _baseSpokeMToken.toBytes32(),
+            _BASE_WORMHOLE_CHAIN_ID,
+            _mHolder.toBytes32(),
+            _mHolder.toBytes32()
+        );
+
+        vm.stopPrank();
+
+        assertEq(IERC20(_MAINNET_M_TOKEN).balanceOf(_hubPortal), amount_ = amount_ - 1);
+        bytes memory signedMessage_ = _signMessage(_hubGuardian, _MAINNET_WORMHOLE_CHAIN_ID);
+
+        vm.selectFork(_baseForkId);
+        _deliverMessage(_BASE_WORMHOLE_RELAYER, signedMessage_);
+
+        assertEq(IERC20(_baseSpokeMToken).balanceOf(_mHolder), amount_);
+        assertEq(IContinuousIndexing(_baseSpokeMToken).currentIndex(), mainnetIndex_);
+    }
+
+    function testFork_transferWrappedMToken_wrappedMTokenToMToken() external {
+        vm.selectFork(_baseForkId);
+        assertEq(IERC20(_baseSpokeMToken).balanceOf(_wrappedMHolder), 0);
+
+        vm.selectFork(_mainnetForkId);
+        assertEq(IERC20(_MAINNET_M_TOKEN).balanceOf(_hubPortal), 0);
+
+        uint128 mainnetIndex_ = IContinuousIndexing(_MAINNET_M_TOKEN).currentIndex();
+
+        vm.prank(_DEPLOYER);
+        IPortal(_hubPortal).setSupportedBridgingPath(
+            _MAINNET_WRAPPED_M_TOKEN,
+            _BASE_WORMHOLE_CHAIN_ID,
+            _baseSpokeMToken.toBytes32(),
+            true
+        );
+
+        vm.startPrank(_wrappedMHolder);
+        vm.recordLogs();
+
+        uint256 amount_ = 1e6;
+        uint256 balanceBefore_ = IERC20(_MAINNET_WRAPPED_M_TOKEN).balanceOf(_wrappedMHolder);
+
+        IERC20(_MAINNET_WRAPPED_M_TOKEN).approve(_hubPortal, amount_);
+        IPortal(_hubPortal).transferWrappedMToken{ value: _quoteDeliveryPrice(_hubPortal, _BASE_WORMHOLE_CHAIN_ID) }(
+            amount_,
+            _MAINNET_WRAPPED_M_TOKEN,
+            _baseSpokeMToken.toBytes32(),
+            _BASE_WORMHOLE_CHAIN_ID,
+            _wrappedMHolder.toBytes32(),
+            _wrappedMHolder.toBytes32()
+        );
+
+        vm.stopPrank();
+
+        assertEq(IERC20(_MAINNET_WRAPPED_M_TOKEN).balanceOf(_wrappedMHolder), balanceBefore_ - amount_);
+        assertEq(IERC20(_MAINNET_M_TOKEN).balanceOf(_hubPortal), amount_ = amount_ - 1);
+        bytes memory signedMessage_ = _signMessage(_hubGuardian, _MAINNET_WORMHOLE_CHAIN_ID);
+
+        vm.selectFork(_baseForkId);
+        _deliverMessage(_BASE_WORMHOLE_RELAYER, signedMessage_);
+
+        assertEq(IERC20(_baseSpokeMToken).balanceOf(_wrappedMHolder), amount_);
         assertEq(IContinuousIndexing(_baseSpokeMToken).currentIndex(), mainnetIndex_);
     }
 
