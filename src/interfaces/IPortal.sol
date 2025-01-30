@@ -98,11 +98,11 @@ interface IPortal {
     ///         isn't equal to EVM chainId set in the constructor.
     error InvalidFork(uint256 evmChainId, uint256 blockChainId);
 
-    /// @notice Emitted in `setDestinationWrappedMToken` function when the destination chain id
+    /// @notice Emitted when the destination chain id
     ///         is equal to the source one.
     error InvalidDestinationChain(uint16 destinationChainId);
 
-    /// @notice Emitted in `transferWrappedMToken` function when bridging path is not supported
+    /// @notice Emitted in `transferMLikeToken` function when bridging path is not supported
     error UnsupportedBridgingPath(address sourceToken, uint16 destinationChainId, bytes32 destinationToken);
 
     /* ============ View/Pure Functions ============ */
@@ -169,7 +169,7 @@ interface IPortal {
      * @param  refundAddress      The address to receive excess native gas on the destination chain.
      * @return messageId          The ID uniquely identifying the message.
      */
-    function transferWrappedMToken(
+    function transferMLikeToken(
         uint256 amount,
         address sourceToken,
         bytes32 destinationToken,

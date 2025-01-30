@@ -66,9 +66,9 @@ contract HubPortalForkTests is ForkTestBase {
         assertEq(IContinuousIndexing(_baseSpokeMToken).currentIndex(), mainnetIndex_);
     }
 
-    /* ============ transferWrappedMToken ============ */
+    /* ============ transferMLikeToken ============ */
 
-    function testFork_transferWrappedMToken_mTokenToMToken() external {
+    function testFork_transferMLikeToken_mTokenToMToken() external {
         vm.selectFork(_baseForkId);
         assertEq(IERC20(_baseSpokeMToken).balanceOf(_mHolder), 0);
 
@@ -91,7 +91,7 @@ contract HubPortalForkTests is ForkTestBase {
         uint256 amount_ = 1_000e6;
 
         IERC20(_MAINNET_M_TOKEN).approve(_hubPortal, amount_);
-        IPortal(_hubPortal).transferWrappedMToken{ value: _quoteDeliveryPrice(_hubPortal, _BASE_WORMHOLE_CHAIN_ID) }(
+        IPortal(_hubPortal).transferMLikeToken{ value: _quoteDeliveryPrice(_hubPortal, _BASE_WORMHOLE_CHAIN_ID) }(
             amount_,
             _MAINNET_M_TOKEN,
             _baseSpokeMToken.toBytes32(),
@@ -112,7 +112,7 @@ contract HubPortalForkTests is ForkTestBase {
         assertEq(IContinuousIndexing(_baseSpokeMToken).currentIndex(), mainnetIndex_);
     }
 
-    function testFork_transferWrappedMToken_wrappedMTokenToMToken() external {
+    function testFork_transferMLikeToken_wrappedMTokenToMToken() external {
         vm.selectFork(_baseForkId);
         assertEq(IERC20(_baseSpokeMToken).balanceOf(_wrappedMHolder), 0);
 
@@ -136,7 +136,7 @@ contract HubPortalForkTests is ForkTestBase {
         uint256 balanceBefore_ = IERC20(_MAINNET_WRAPPED_M_TOKEN).balanceOf(_wrappedMHolder);
 
         IERC20(_MAINNET_WRAPPED_M_TOKEN).approve(_hubPortal, amount_);
-        IPortal(_hubPortal).transferWrappedMToken{ value: _quoteDeliveryPrice(_hubPortal, _BASE_WORMHOLE_CHAIN_ID) }(
+        IPortal(_hubPortal).transferMLikeToken{ value: _quoteDeliveryPrice(_hubPortal, _BASE_WORMHOLE_CHAIN_ID) }(
             amount_,
             _MAINNET_WRAPPED_M_TOKEN,
             _baseSpokeMToken.toBytes32(),

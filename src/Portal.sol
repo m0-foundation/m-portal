@@ -96,7 +96,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
     }
 
     /// @inheritdoc IPortal
-    function transferWrappedMToken(
+    function transferMLikeToken(
         uint256 amount_,
         address sourceToken_,
         bytes32 destinationToken_,
