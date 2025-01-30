@@ -104,11 +104,49 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         bytes32 recipient_,
         bytes32 refundAddress_
     ) external payable returns (bytes32 messageId_) {
-        _verifyTransferArgs(amount_, destinationToken_, recipient_, refundAddress_);
-
+        // _verifyPath(sourceToken_, destinationChainId_, destinationToken_);
         if (!supportedBridgingPath[sourceToken_][destinationChainId_][destinationToken_]) {
             revert UnsupportedBridgingPath(sourceToken_, destinationChainId_, destinationToken_);
         }
+
+        return
+            _transferMLikeToken(
+                amount_,
+                sourceToken_,
+                destinationToken_,
+                destinationChainId_,
+                recipient_,
+                refundAddress_
+            );
+    }
+
+    /* ============ Internal/Private Interactive Functions ============ */
+
+    /// @dev Called from NTTManager `transfer` function to transfer M token
+    ///      Overridden to reduce code duplication, optimize gas cost and prevent Yul stack too deep
+    function _transferEntryPoint(
+        uint256 amount_,
+        uint16 destinationChainId_,
+        bytes32 recipient_,
+        bytes32 refundAddress_,
+        bool, // shouldQueue_
+        bytes memory // transceiverInstructions_
+    ) internal override returns (uint64 sequence_) {
+        bytes32 destinationToken_ = destinationMToken[destinationChainId_];
+
+        _transferMLikeToken(amount_, token, destinationToken_, destinationChainId_, recipient_, refundAddress_);
+    }
+
+    function _transferMLikeToken(
+        uint256 amount_,
+        address sourceToken_,
+        bytes32 destinationToken_,
+        uint16 destinationChainId_,
+        bytes32 recipient_,
+        bytes32 refundAddress_
+    ) internal returns (bytes32 messageId_) {
+        _verifyTransferArgs(amount_, destinationToken_, recipient_, refundAddress_);
+
         IERC20 mToken_ = IERC20(token);
         uint256 balanceBefore = mToken_.balanceOf(address(this));
 
@@ -126,41 +164,6 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         (messageId_, ) = _transferMToken(
             amount_,
             sourceToken_,
-            destinationToken_,
-            destinationChainId_,
-            recipient_,
-            refundAddress_
-        );
-    }
-
-    /* ============ Internal/Private Interactive Functions ============ */
-
-    /// @dev Called from NTTManager `transfer` function to transfer M token
-    ///      Overridden to reduce code duplication, optimize gas cost and prevent Yul stack too deep
-    function _transferEntryPoint(
-        uint256 amount_,
-        uint16 destinationChainId_,
-        bytes32 recipient_,
-        bytes32 refundAddress_,
-        bool, // shouldQueue_
-        bytes memory // transceiverInstructions_
-    ) internal override returns (uint64 sequence_) {
-        bytes32 destinationToken_ = destinationMToken[destinationChainId_];
-
-        _verifyTransferArgs(amount_, destinationToken_, recipient_, refundAddress_);
-
-        IERC20 mToken_ = IERC20(token);
-        uint256 balanceBefore = mToken_.balanceOf(address(this));
-
-        // transfer M token from the sender
-        mToken_.transferFrom(msg.sender, address(this), amount_);
-
-        // account for potential rounding errors when transferring between earners and non-earners
-        amount_ = mToken_.balanceOf(address(this)) - balanceBefore;
-
-        (, sequence_) = _transferMToken(
-            amount_,
-            token,
             destinationToken_,
             destinationChainId_,
             recipient_,
