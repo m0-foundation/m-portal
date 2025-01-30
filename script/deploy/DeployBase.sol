@@ -228,21 +228,21 @@ contract DeployBase is Script, Utils {
     ) internal returns (address spokeWrappedMTokenImplementation_, address spokeWrappedMTokenProxy_) {
         uint64 deployerNonce_ = vm.getNonce(deployer_);
 
-        if (deployerNonce_ > _SPOKE_SMART_M_TOKEN_NONCE) {
-            revert DeployerNonceTooHigh(_SPOKE_SMART_M_TOKEN_NONCE, deployerNonce_);
+        if (deployerNonce_ > _SPOKE_WRAPPED_M_TOKEN_NONCE) {
+            revert DeployerNonceTooHigh(_SPOKE_WRAPPED_M_TOKEN_NONCE, deployerNonce_);
         }
 
-        burnNonces_(deployer_, deployerNonce_, _SPOKE_SMART_M_TOKEN_NONCE);
+        burnNonces_(deployer_, deployerNonce_, _SPOKE_WRAPPED_M_TOKEN_NONCE);
 
         deployerNonce_ = vm.getNonce(deployer_);
-        if (deployerNonce_ != _SPOKE_SMART_M_TOKEN_NONCE) {
-            revert DeployerNonceTooHigh(_SPOKE_SMART_M_TOKEN_NONCE, deployerNonce_);
+        if (deployerNonce_ != _SPOKE_WRAPPED_M_TOKEN_NONCE) {
+            revert DeployerNonceTooHigh(_SPOKE_WRAPPED_M_TOKEN_NONCE, deployerNonce_);
         }
 
         // Pre-compute the expected SpokeWrappedMToken implementation address.
         address expectedWrappedMTokenImplementation_ = ContractHelper.getContractFrom(
             deployer_,
-            _SPOKE_SMART_M_TOKEN_NONCE
+            _SPOKE_WRAPPED_M_TOKEN_NONCE
         );
 
         spokeWrappedMTokenImplementation_ = address(
@@ -256,14 +256,14 @@ contract DeployBase is Script, Utils {
         console.log("SpokeWrappedMTokenImplementation:", spokeWrappedMTokenImplementation_);
 
         deployerNonce_ = vm.getNonce(deployer_);
-        if (deployerNonce_ != _SPOKE_SMART_M_TOKEN_PROXY_NONCE) {
-            revert DeployerNonceTooHigh(_SPOKE_SMART_M_TOKEN_PROXY_NONCE, deployerNonce_);
+        if (deployerNonce_ != _SPOKE_WRAPPED_M_TOKEN_PROXY_NONCE) {
+            revert DeployerNonceTooHigh(_SPOKE_WRAPPED_M_TOKEN_PROXY_NONCE, deployerNonce_);
         }
 
         // Pre-compute the expected SpokeWrappedMToken proxy address.
         address expectedWrappedMTokenProxy_ = ContractHelper.getContractFrom(
             deployer_,
-            _SPOKE_SMART_M_TOKEN_PROXY_NONCE
+            _SPOKE_WRAPPED_M_TOKEN_PROXY_NONCE
         );
 
         spokeWrappedMTokenProxy_ = address(new Proxy(spokeWrappedMTokenImplementation_));

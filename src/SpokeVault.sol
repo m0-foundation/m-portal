@@ -13,7 +13,7 @@ import { IRegistrarLike } from "./interfaces/IRegistrarLike.sol";
 import { ISpokeVault } from "./interfaces/ISpokeVault.sol";
 
 /**
- * @title  Vault residing on L2s and receiving excess M from Smart M.
+ * @title  Vault residing on L2s and receiving excess M from Wrapped M.
  * @author M^0 Labs
  */
 contract SpokeVault is ISpokeVault, Migratable {

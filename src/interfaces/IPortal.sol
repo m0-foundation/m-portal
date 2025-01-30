@@ -117,9 +117,9 @@ interface IPortal {
     function registrar() external view returns (address);
 
     /**
-     * @notice Returns the address of M token the destination chain.
+     * @notice Returns the address of M token on the destination chain.
      * @param  destinationChainId The Wormhole destination chain ID.
-     * @return mToken             The address of M token the destination chain.
+     * @return mToken             The address of M token on the destination chain.
      */
     function destinationMToken(uint16 destinationChainId) external view returns (bytes32 mToken);
 

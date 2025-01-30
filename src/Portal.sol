@@ -227,7 +227,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         TrimmedAmount amount_,
         uint128 index_,
         bytes32 recipient_,
-        bytes32 destinationWrappedToken_,
+        bytes32 destinationToken_,
         uint16 destinationChainId_,
         uint64 sequence_,
         address sender_
@@ -244,7 +244,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
             token.toBytes32(),
             recipient_,
             destinationChainId_,
-            PayloadEncoder.encodeAdditionalPayload(index_, destinationWrappedToken_)
+            PayloadEncoder.encodeAdditionalPayload(index_, destinationToken_)
         );
 
         message_ = TransceiverStructs.NttManagerMessage(

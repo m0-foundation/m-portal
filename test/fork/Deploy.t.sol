@@ -39,8 +39,8 @@ contract Deploy is ForkTestBase {
             _computeSalt(_DEPLOYER, "WormholeTransceiver")
         );
 
-        address _expectedSpokeWrappedMTokenImplementation = ContractHelper.getContractFrom(_DEPLOYER, 37);
-        address _expectedSpokeWrappedMTokenProxy = ContractHelper.getContractFrom(_DEPLOYER, 38);
+        address _expectedSpokeWrappedMTokenImplementation = ContractHelper.getContractFrom(_DEPLOYER, 39);
+        address _expectedSpokeWrappedMTokenProxy = ContractHelper.getContractFrom(_DEPLOYER, 40);
 
         assertEq(_baseSpokePortal, expectedSpokePortal_);
         assertEq(_baseSpokeWormholeTransceiver, expectedSpokeWormholeTransceiver_);

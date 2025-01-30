@@ -106,7 +106,7 @@ contract SpokePortal is ISpokePortal, Portal {
 
     /**
      * @dev Burns M Token.
-     * @param amount_ The amount of M Token to mint to the recipient.
+     * @param amount_ The amount of M Token to burn from the SpokePortal.
      */
     function _burnOrLock(uint256 amount_) internal override {
         ISpokeMTokenLike(token).burn(amount_);
