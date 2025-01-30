@@ -218,57 +218,57 @@ contract PortalTests is UnitTestBase {
         _portal.transfer{ value: msgValue_ }(amount_, _REMOTE_CHAIN_ID, recipient_);
     }
 
-    /* ====== _transferWrappedMToken ====== */
+    /* ====== _transferMLikeToken ====== */
 
-    function test_transferWrappedMToken_zeroAmount() external {
+    function test_transferMLikeToken_zeroAmount() external {
         uint256 amount_ = 0;
         bytes32 recipient_ = _alice.toBytes32();
         bytes32 refundAddress_ = recipient_;
 
         vm.expectRevert(INttManager.ZeroAmount.selector);
-        _portal.transferWrappedMToken(
+        _portal.transferMLikeToken(
             amount_,
             address(_wrappedMToken),
-            _remoteWrappedMToken,
             _REMOTE_CHAIN_ID,
+            _remoteWrappedMToken,
             recipient_,
             refundAddress_
         );
     }
 
-    function test_transferWrappedMToken_zeroRecipient() external {
+    function test_transferMLikeToken_zeroRecipient() external {
         uint256 amount_ = 1_000e6;
         bytes32 recipient_ = bytes32(0);
         bytes32 refundAddress_ = _alice.toBytes32();
 
         vm.expectRevert(INttManager.InvalidRecipient.selector);
-        _portal.transferWrappedMToken(
+        _portal.transferMLikeToken(
             amount_,
             address(_wrappedMToken),
-            _remoteWrappedMToken,
             _REMOTE_CHAIN_ID,
+            _remoteWrappedMToken,
             recipient_,
             refundAddress_
         );
     }
 
-    function test_transferWrappedMToken_zeroRefundAddress() external {
+    function test_transferMLikeToken_zeroRefundAddress() external {
         uint256 amount_ = 1_000e6;
         bytes32 recipient_ = _alice.toBytes32();
         bytes32 refundAddress_ = bytes32(0);
 
         vm.expectRevert(INttManager.InvalidRefundAddress.selector);
-        _portal.transferWrappedMToken(
+        _portal.transferMLikeToken(
             amount_,
             address(_wrappedMToken),
-            _remoteWrappedMToken,
             _REMOTE_CHAIN_ID,
+            _remoteWrappedMToken,
             recipient_,
             refundAddress_
         );
     }
 
-    function test_transferWrappedMToken_unsupportedPath() external {
+    function test_transferMLikeToken_unsupportedPath() external {
         uint256 amount_ = 1_000e6;
         bytes32 recipient_ = _alice.toBytes32();
         bytes32 refundAddress_ = recipient_;
@@ -282,11 +282,11 @@ contract PortalTests is UnitTestBase {
             )
         );
 
-        _portal.transferWrappedMToken(
+        _portal.transferMLikeToken(
             amount_,
             address(_wrappedMToken),
-            _remoteWrappedMToken,
             _REMOTE_CHAIN_ID,
+            _remoteWrappedMToken,
             recipient_,
             refundAddress_
         );

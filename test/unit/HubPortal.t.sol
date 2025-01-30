@@ -318,9 +318,9 @@ contract HubPortalTests is UnitTestBase {
         _portal.transfer{ value: fee_ }(amount_, _REMOTE_CHAIN_ID, _alice.toBytes32());
     }
 
-    /* ============ transferWrappedMToken ============ */
+    /* ============ transferMLikeToken ============ */
 
-    function test_transferWrappedMToken_sourceTokenWrappedM() external {
+    function test_transferMLikeToken_sourceTokenWrappedM() external {
         uint256 amount_ = 1_000e6;
         uint128 index_ = 0;
         bytes32 recipient_ = _alice.toBytes32();
@@ -373,11 +373,11 @@ contract HubPortalTests is UnitTestBase {
         vm.expectEmit();
         emit INttManager.TransferSent(messageId_);
 
-        _portal.transferWrappedMToken(
+        _portal.transferMLikeToken(
             amount_,
             address(_wrappedMToken),
-            _remoteWrappedMToken,
             _REMOTE_CHAIN_ID,
+            _remoteWrappedMToken,
             recipient_,
             refundAddress_
         );
@@ -388,7 +388,7 @@ contract HubPortalTests is UnitTestBase {
         assertEq(_wrappedMToken.balanceOf(address(_portal)), 0);
     }
 
-    function test_transferWrappedMToken_sourceTokenM() external {
+    function test_transferMLikeToken_sourceTokenM() external {
         uint256 amount_ = 1_000e6;
         uint128 index_ = 0;
         bytes32 recipient_ = _alice.toBytes32();
@@ -439,11 +439,11 @@ contract HubPortalTests is UnitTestBase {
         vm.expectEmit();
         emit INttManager.TransferSent(messageId_);
 
-        _portal.transferWrappedMToken(
+        _portal.transferMLikeToken(
             amount_,
             address(_mToken),
-            _remoteWrappedMToken,
             _REMOTE_CHAIN_ID,
+            _remoteWrappedMToken,
             recipient_,
             refundAddress_
         );

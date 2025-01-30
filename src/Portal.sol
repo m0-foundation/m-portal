@@ -32,11 +32,11 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
     address public immutable registrar;
 
     /// @inheritdoc IPortal
-    mapping(address sourceToken => mapping(uint16 destinationChainId => mapping(bytes32 destinationToken => bool supported)))
+    mapping(address sourceToken => mapping(uint16 chainId => mapping(bytes32 destinationToken => bool supported)))
         public supportedBridgingPath;
 
     /// @inheritdoc IPortal
-    mapping(uint16 destinationChainId => bytes32 mToken) public destinationMToken;
+    mapping(uint16 chainId => bytes32 mToken) public destinationMToken;
 
     /* ============ Constructor ============ */
 
@@ -72,43 +72,77 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
     /* ============ External Interactive Functions ============ */
 
     /// @inheritdoc IPortal
-    function setDestinationMToken(uint16 destinationChainId_, bytes32 mToken_) external onlyOwner {
-        if (destinationChainId_ == chainId) revert InvalidDestinationChain(destinationChainId_);
+    function setDestinationMToken(uint16 chainId_, bytes32 mToken_) external onlyOwner {
+        if (chainId_ == chainId) revert InvalidDestinationChain(chainId_);
         if (mToken_ == bytes32(0)) revert ZeroMToken();
 
-        destinationMToken[destinationChainId_] = mToken_;
-        emit DestinationMTokenSet(destinationChainId_, mToken_);
+        destinationMToken[chainId_] = mToken_;
+        emit DestinationMTokenSet(chainId_, mToken_);
     }
 
     /// @inheritdoc IPortal
     function setSupportedBridgingPath(
         address sourceToken_,
-        uint16 destinationChainId_,
+        uint16 chainId_,
         bytes32 destinationToken_,
         bool supported_
     ) external onlyOwner {
         if (sourceToken_ == address(0)) revert ZeroSourceToken();
-        if (destinationChainId_ == chainId) revert InvalidDestinationChain(destinationChainId_);
+        if (chainId_ == chainId) revert InvalidDestinationChain(chainId_);
         if (destinationToken_ == bytes32(0)) revert ZeroDestinationToken();
 
-        supportedBridgingPath[sourceToken_][destinationChainId_][destinationToken_] = supported_;
-        emit SupportedBridgingPathSet(sourceToken_, destinationChainId_, destinationToken_, supported_);
+        supportedBridgingPath[sourceToken_][chainId_][destinationToken_] = supported_;
+        emit SupportedBridgingPathSet(sourceToken_, chainId_, destinationToken_, supported_);
     }
 
     /// @inheritdoc IPortal
-    function transferWrappedMToken(
+    function transferMLikeToken(
+        uint256 amount_,
+        address sourceToken_,
+        uint16 chainId_,
+        bytes32 destinationToken_,
+        bytes32 recipient_,
+        bytes32 refundAddress_
+    ) external payable returns (uint64 sequence_) {
+        if (!supportedBridgingPath[sourceToken_][chainId_][destinationToken_]) {
+            revert UnsupportedBridgingPath(sourceToken_, chainId_, destinationToken_);
+        }
+
+        sequence_ = _transferMLikeToken(amount_, sourceToken_, destinationToken_, chainId_, recipient_, refundAddress_);
+    }
+
+    /* ============ Internal/Private Interactive Functions ============ */
+
+    /// @dev Called from NTTManager `transfer` function to transfer M token
+    ///      Overridden to reduce code duplication, optimize gas cost and prevent Yul stack too deep
+    function _transferEntryPoint(
+        uint256 amount_,
+        uint16 chainId_,
+        bytes32 recipient_,
+        bytes32 refundAddress_,
+        bool, // shouldQueue_
+        bytes memory // transceiverInstructions_
+    ) internal override returns (uint64 sequence_) {
+        sequence_ = _transferMLikeToken(
+            amount_,
+            token, // M is the source token
+            destinationMToken[chainId_], // M is the destination token
+            chainId_,
+            recipient_,
+            refundAddress_
+        );
+    }
+
+    function _transferMLikeToken(
         uint256 amount_,
         address sourceToken_,
         bytes32 destinationToken_,
-        uint16 destinationChainId_,
+        uint16 chainId_,
         bytes32 recipient_,
         bytes32 refundAddress_
-    ) external payable returns (bytes32 messageId_) {
+    ) internal returns (uint64 sequence_) {
         _verifyTransferArgs(amount_, destinationToken_, recipient_, refundAddress_);
 
-        if (!supportedBridgingPath[sourceToken_][destinationChainId_][destinationToken_]) {
-            revert UnsupportedBridgingPath(sourceToken_, destinationChainId_, destinationToken_);
-        }
         IERC20 mToken_ = IERC20(token);
         uint256 balanceBefore = mToken_.balanceOf(address(this));
 
@@ -123,56 +157,20 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         // account for potential rounding errors when transferring between earners and non-earners
         amount_ = mToken_.balanceOf(address(this)) - balanceBefore;
 
-        (messageId_, ) = _transferMToken(
+        (, sequence_) = _nativeTokenTransfer(
             amount_,
             sourceToken_,
             destinationToken_,
-            destinationChainId_,
+            chainId_,
             recipient_,
             refundAddress_
         );
     }
-
-    /* ============ Internal/Private Interactive Functions ============ */
-
-    /// @dev Called from NTTManager `transfer` function to transfer M token
-    ///      Overridden to reduce code duplication, optimize gas cost and prevent Yul stack too deep
-    function _transferEntryPoint(
-        uint256 amount_,
-        uint16 destinationChainId_,
-        bytes32 recipient_,
-        bytes32 refundAddress_,
-        bool, // shouldQueue_
-        bytes memory // transceiverInstructions_
-    ) internal override returns (uint64 sequence_) {
-        bytes32 destinationToken_ = destinationMToken[destinationChainId_];
-
-        _verifyTransferArgs(amount_, destinationToken_, recipient_, refundAddress_);
-
-        IERC20 mToken_ = IERC20(token);
-        uint256 balanceBefore = mToken_.balanceOf(address(this));
-
-        // transfer M token from the sender
-        mToken_.transferFrom(msg.sender, address(this), amount_);
-
-        // account for potential rounding errors when transferring between earners and non-earners
-        amount_ = mToken_.balanceOf(address(this)) - balanceBefore;
-
-        (, sequence_) = _transferMToken(
-            amount_,
-            token,
-            destinationToken_,
-            destinationChainId_,
-            recipient_,
-            refundAddress_
-        );
-    }
-
-    function _transferMToken(
+    function _nativeTokenTransfer(
         uint256 amount_,
         address sourceToken_,
         bytes32 destinationToken_,
-        uint16 destinationChainId_,
+        uint16 chainId_,
         bytes32 recipient_,
         bytes32 refundAddress_
     ) private returns (bytes32 messageId_, uint64 sequence_) {
@@ -185,23 +183,23 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         uint128 index_ = _currentIndex();
 
         TransceiverStructs.NttManagerMessage memory message_;
-        (, message_, messageId_) = _encodeTokenTransfer(
-            _trimTransferAmount(amount_, destinationChainId_),
+        (, message_, messageId_) = _prepareNativeTokenTransfer(
+            _trimTransferAmount(amount_, chainId_),
             index_,
             recipient_,
             destinationToken_,
-            destinationChainId_,
+            chainId_,
             sequence_,
             msg.sender
         );
 
-        uint256 totalPriceQuote_ = _sendMessage(destinationChainId_, refundAddress_, message_);
+        uint256 totalPriceQuote_ = _sendMessage(chainId_, refundAddress_, message_);
 
         // Prevent stack too deep
         uint256 transferAmount_ = amount_;
 
         emit MTokenSent(
-            destinationChainId_,
+            chainId_,
             sourceToken_,
             destinationToken_,
             messageId_,
@@ -212,23 +210,16 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         );
 
         // Emit NTT events
-        emit TransferSent(
-            recipient_,
-            refundAddress_,
-            transferAmount_,
-            totalPriceQuote_,
-            destinationChainId_,
-            sequence_
-        );
+        emit TransferSent(recipient_, refundAddress_, transferAmount_, totalPriceQuote_, chainId_, sequence_);
         emit TransferSent(messageId_);
     }
 
-    function _encodeTokenTransfer(
+    function _prepareNativeTokenTransfer(
         TrimmedAmount amount_,
         uint128 index_,
         bytes32 recipient_,
-        bytes32 destinationWrappedToken_,
-        uint16 destinationChainId_,
+        bytes32 destinationToken_,
+        uint16 chainId_,
         uint64 sequence_,
         address sender_
     )
@@ -243,8 +234,8 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
             amount_,
             token.toBytes32(),
             recipient_,
-            destinationChainId_,
-            PayloadEncoder.encodeAdditionalPayload(index_, destinationWrappedToken_)
+            chainId_,
+            PayloadEncoder.encodeAdditionalPayload(index_, destinationToken_)
         );
 
         message_ = TransceiverStructs.NttManagerMessage(
@@ -259,7 +250,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
     /// @notice Sends a generic message to the destination chain.
     /// @dev    The implementation is adapted from `NttManager` `_transfer` function.
     function _sendMessage(
-        uint16 destinationChainId_,
+        uint16 chainId_,
         bytes32 refundAddress_,
         TransceiverStructs.NttManagerMessage memory message_
     ) internal returns (uint256) {
@@ -270,13 +261,13 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
             TransceiverStructs.TransceiverInstruction[] memory instructions_,
             uint256[] memory priceQuotes_,
             uint256 totalPriceQuote_
-        ) = _prepareForTransfer(destinationChainId_, DEFAULT_TRANSCEIVER_INSTRUCTIONS);
+        ) = _prepareForTransfer(chainId_, DEFAULT_TRANSCEIVER_INSTRUCTIONS);
 
         // send a message
         _sendMessageToTransceivers(
-            destinationChainId_,
+            chainId_,
             refundAddress_,
-            _getPeersStorage()[destinationChainId_].peerAddress,
+            _getPeersStorage()[chainId_].peerAddress,
             priceQuotes_,
             instructions_,
             enabledTransceivers_,
@@ -358,9 +349,9 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         bytes memory payload_
     ) internal virtual {}
 
-    function _verifyDestinationChain(uint16 destinationChainId_) internal view {
+    function _verifyDestinationChain(uint16 chainId_) internal view {
         // Verify that the destination chain is the current chain.
-        if (destinationChainId_ != chainId) revert InvalidTargetChain(destinationChainId_, chainId);
+        if (chainId_ != chainId) revert InvalidTargetChain(chainId_, chainId);
     }
 
     function _verifyIfChainForked() internal view {

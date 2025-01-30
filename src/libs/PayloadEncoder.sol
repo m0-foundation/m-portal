@@ -69,6 +69,7 @@ library PayloadEncoder {
         uint128 index_,
         bytes32 destinationWrappedToken_
     ) internal pure returns (bytes memory encoded_) {
+        // Convert index to uint64 for compatibility with Solana and other non-EVM chains.
         return abi.encodePacked(index_.toUint64(), destinationWrappedToken_);
     }
 

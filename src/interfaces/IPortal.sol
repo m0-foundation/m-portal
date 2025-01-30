@@ -102,7 +102,7 @@ interface IPortal {
     ///         is equal to the source one.
     error InvalidDestinationChain(uint16 destinationChainId);
 
-    /// @notice Emitted in `transferWrappedMToken` function when bridging path is not supported
+    /// @notice Emitted in `transferMLikeToken` function when bridging path is not supported
     error UnsupportedBridgingPath(address sourceToken, uint16 destinationChainId, bytes32 destinationToken);
 
     /* ============ View/Pure Functions ============ */
@@ -118,21 +118,21 @@ interface IPortal {
 
     /**
      * @notice Returns the address of M token the destination chain.
-     * @param  destinationChainId The Wormhole destination chain ID.
-     * @return mToken             The address of M token the destination chain.
+     * @param  chainId The Wormhole destination chain ID.
+     * @return mToken  The address of M token the destination chain.
      */
-    function destinationMToken(uint16 destinationChainId) external view returns (bytes32 mToken);
+    function destinationMToken(uint16 chainId) external view returns (bytes32 mToken);
 
     /**
      * @notice Indicates whether the provided bridging path is supported.
      * @param  sourceToken        The address of the token on the current chain.
-     * @param  destinationChainId The Wormhole destination chain ID.
+     * @param  chainId            The Wormhole destination chain ID.
      * @param  destinationToken   The address of the token on the destination chain.
      * @return supported          `True` if the token is supported, `false` otherwise.
      */
     function supportedBridgingPath(
         address sourceToken,
-        uint16 destinationChainId,
+        uint16 chainId,
         bytes32 destinationToken
     ) external view returns (bool supported);
 
@@ -140,21 +140,21 @@ interface IPortal {
 
     /**
      * @notice Sets M token address on the remote chain.
-     * @param  destinationChainId The Wormhole destination chain ID.
-     * @param  mToken             The address of M token on the destination chain.
+     * @param  chainId The Wormhole destination chain ID.
+     * @param  mToken  The address of M token on the destination chain.
      */
-    function setDestinationMToken(uint16 destinationChainId, bytes32 mToken) external;
+    function setDestinationMToken(uint16 chainId, bytes32 mToken) external;
 
     /**
      * @notice Sets a bridging path support status.
      * @param  sourceToken        The address of the token on the current chain.
-     * @param  destinationChainId The Wormhole destination chain ID.
+     * @param  chainId            The Wormhole destination chain ID.
      * @param  destinationToken   The address of the token on the destination chain.
      * @param  supported          `True` if the token is supported, `false` otherwise.
      */
     function setSupportedBridgingPath(
         address sourceToken,
-        uint16 destinationChainId,
+        uint16 chainId,
         bytes32 destinationToken,
         bool supported
     ) external;
@@ -163,18 +163,18 @@ interface IPortal {
      * @notice Transfers M or Wrapped M Token to the destination chain.
      * @param  amount             The amount of tokens to transfer.
      * @param  sourceToken        The address of the token (M or Wrapped M) on the source chain.
+     * @param  chainId            The Wormhole destination chain ID.
      * @param  destinationToken   The address of the token (M or Wrapped M) on the destination chain.
-     * @param  destinationChainId The Wormhole destination chain ID.
      * @param  recipient          The account to receive tokens.
      * @param  refundAddress      The address to receive excess native gas on the destination chain.
-     * @return messageId          The ID uniquely identifying the message.
+     * @return sequence           The ID uniquely identifying the message.
      */
-    function transferWrappedMToken(
+    function transferMLikeToken(
         uint256 amount,
         address sourceToken,
+        uint16 chainId,
         bytes32 destinationToken,
-        uint16 destinationChainId,
         bytes32 recipient,
         bytes32 refundAddress
-    ) external payable returns (bytes32 messageId);
+    ) external payable returns (uint64 sequence);
 }
