@@ -11,44 +11,44 @@ interface IPortal {
 
     /**
      * @notice Emitted when M token is sent to a destination chain.
-     * @param  destinationChainId The Wormhole destination chain ID.
      * @param  sourceToken        The address of the token on the source chain.
+     * @param  destinationChainId The Wormhole destination chain ID.
      * @param  destinationToken   The address of the token on the destination chain.
-     * @param  messageId          The unique identifier for the sent message.
      * @param  sender             The address that bridged the M tokens via the Portal.
      * @param  recipient          The account receiving tokens on destination chain.
      * @param  amount             The amount of tokens.
      * @param  index              The M token index.
+     * @param  messageId          The unique identifier for the sent message.
      */
     event MTokenSent(
-        uint16 destinationChainId,
         address indexed sourceToken,
+        uint16 destinationChainId,
         bytes32 destinationToken,
-        bytes32 messageId,
         address indexed sender,
         bytes32 indexed recipient,
         uint256 amount,
-        uint128 index
+        uint128 index,
+        bytes32 messageId
     );
 
     /**
      * @notice Emitted when M token is received from a source chain.
      * @param  sourceChainId    The Wormhole source chain ID.
      * @param  destinationToken The address of the token on the destination chain.
-     * @param  messageId        The unique identifier for the received message.
      * @param  sender           The account sending tokens.
      * @param  recipient        The account receiving tokens.
      * @param  amount           The amount of tokens.
      * @param  index            The M token index.
+     * @param  messageId        The unique identifier for the received message.
      */
     event MTokenReceived(
         uint16 sourceChainId,
         address indexed destinationToken,
-        bytes32 messageId,
         bytes32 indexed sender,
         address indexed recipient,
         uint256 amount,
-        uint128 index
+        uint128 index,
+        bytes32 messageId
     );
 
     /**
@@ -163,8 +163,8 @@ interface IPortal {
      * @notice Transfers M or Wrapped M Token to the destination chain.
      * @param  amount             The amount of tokens to transfer.
      * @param  sourceToken        The address of the token (M or Wrapped M) on the source chain.
-     * @param  destinationToken   The address of the token (M or Wrapped M) on the destination chain.
      * @param  destinationChainId The Wormhole destination chain ID.
+     * @param  destinationToken   The address of the token (M or Wrapped M) on the destination chain.
      * @param  recipient          The account to receive tokens.
      * @param  refundAddress      The address to receive excess native gas on the destination chain.
      * @return sequence           The message sequence.
@@ -172,8 +172,8 @@ interface IPortal {
     function transferMLikeToken(
         uint256 amount,
         address sourceToken,
-        bytes32 destinationToken,
         uint16 destinationChainId,
+        bytes32 destinationToken,
         bytes32 recipient,
         bytes32 refundAddress
     ) external payable returns (uint64 sequence);

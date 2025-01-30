@@ -99,8 +99,8 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
     function transferMLikeToken(
         uint256 amount_,
         address sourceToken_,
-        bytes32 destinationToken_,
         uint16 destinationChainId_,
+        bytes32 destinationToken_,
         bytes32 recipient_,
         bytes32 refundAddress_
     ) external payable returns (uint64 sequence_) {
@@ -111,8 +111,8 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         sequence_ = _transferMLikeToken(
             amount_,
             sourceToken_,
-            destinationToken_,
             destinationChainId_,
+            destinationToken_,
             recipient_,
             refundAddress_
         );
@@ -133,8 +133,8 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         sequence_ = _transferMLikeToken(
             amount_,
             token, // M Token
-            destinationMToken[destinationChainId_], // M Token on destination
             destinationChainId_,
+            destinationMToken[destinationChainId_], // M Token on destination
             recipient_,
             refundAddress_
         );
@@ -143,8 +143,8 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
     function _transferMLikeToken(
         uint256 amount_,
         address sourceToken_,
-        bytes32 destinationToken_,
         uint16 destinationChainId_,
+        bytes32 destinationToken_,
         bytes32 recipient_,
         bytes32 refundAddress_
     ) private returns (uint64 sequence_) {
@@ -170,8 +170,8 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         sequence_ = _transferNativeToken(
             amount_,
             sourceToken_,
-            destinationToken_,
             destinationChainId_,
+            destinationToken_,
             recipient_,
             refundAddress_
         );
@@ -182,8 +182,8 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
     function _transferNativeToken(
         uint256 amount_,
         address sourceToken_,
-        bytes32 destinationToken_,
         uint16 destinationChainId_,
+        bytes32 destinationToken_,
         bytes32 recipient_,
         bytes32 refundAddress_
     ) private returns (uint64 sequence_) {
@@ -195,12 +195,12 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
 
         (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) = _encodeTokenTransfer(
             _trimTransferAmount(amount_, destinationChainId_),
-            index_,
-            recipient_,
-            destinationToken_,
             destinationChainId_,
-            sequence_,
-            msg.sender
+            destinationToken_,
+            msg.sender,
+            recipient_,
+            index_,
+            sequence_
         );
 
         uint256 totalPriceQuote_ = _sendMessage(destinationChainId_, refundAddress_, message_);
@@ -209,14 +209,14 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         uint256 transferAmount_ = amount_;
 
         emit MTokenSent(
-            destinationChainId_,
             sourceToken_,
+            destinationChainId_,
             destinationToken_,
-            messageId_,
             msg.sender,
             recipient_,
             transferAmount_,
-            index_
+            index_,
+            messageId_
         );
 
         // emit NTT events
@@ -233,12 +233,12 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
 
     function _encodeTokenTransfer(
         TrimmedAmount amount_,
-        uint128 index_,
-        bytes32 recipient_,
-        bytes32 destinationToken_,
         uint16 destinationChainId_,
-        uint64 sequence_,
-        address sender_
+        bytes32 destinationToken_,
+        address sender_,
+        bytes32 recipient_,
+        uint128 index_,
+        uint64 sequence_
     ) internal returns (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) {
         TransceiverStructs.NativeTokenTransfer memory nativeTokenTransfer_ = TransceiverStructs.NativeTokenTransfer(
             amount_,
@@ -321,7 +321,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         // NOTE: Assumes that token.decimals() are the same on all chains.
         uint256 amount_ = trimmedAmount_.untrim(tokenDecimals());
 
-        emit MTokenReceived(sourceChainId_, destinationToken_, messageId_, sender_, recipient_, amount_, index_);
+        emit MTokenReceived(sourceChainId_, destinationToken_, sender_, recipient_, amount_, index_, messageId_);
 
         // Emitting `INttManager.TransferRedeemed` to comply with Wormhole NTT specification.
         emit TransferRedeemed(messageId_);

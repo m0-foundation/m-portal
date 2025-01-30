@@ -360,14 +360,14 @@ contract HubPortalTests is UnitTestBase {
 
         vm.expectEmit();
         emit IPortal.MTokenSent(
-            _REMOTE_CHAIN_ID,
             address(_wrappedMToken),
+            _REMOTE_CHAIN_ID,
             _remoteWrappedMToken,
-            messageId_,
             _alice,
             recipient_,
             amount_,
-            index_
+            index_,
+            messageId_
         );
 
         vm.expectEmit();
@@ -376,8 +376,8 @@ contract HubPortalTests is UnitTestBase {
         _portal.transferMLikeToken(
             amount_,
             address(_wrappedMToken),
-            _remoteWrappedMToken,
             _REMOTE_CHAIN_ID,
+            _remoteWrappedMToken,
             recipient_,
             refundAddress_
         );
@@ -426,14 +426,14 @@ contract HubPortalTests is UnitTestBase {
 
         vm.expectEmit();
         emit IPortal.MTokenSent(
-            _REMOTE_CHAIN_ID,
             address(_mToken),
+            _REMOTE_CHAIN_ID,
             _remoteWrappedMToken,
-            messageId_,
             _alice,
             recipient_,
             amount_,
-            index_
+            index_,
+            messageId_
         );
 
         vm.expectEmit();
@@ -442,8 +442,8 @@ contract HubPortalTests is UnitTestBase {
         _portal.transferMLikeToken(
             amount_,
             address(_mToken),
-            _remoteWrappedMToken,
             _REMOTE_CHAIN_ID,
+            _remoteWrappedMToken,
             recipient_,
             refundAddress_
         );
@@ -495,11 +495,11 @@ contract HubPortalTests is UnitTestBase {
         emit IPortal.MTokenReceived(
             _REMOTE_CHAIN_ID,
             _remoteMToken.toAddress(),
-            messageId_,
             _alice.toBytes32(),
             _alice,
             amount_,
-            remoteIndex_
+            remoteIndex_,
+            messageId_
         );
 
         vm.expectEmit();

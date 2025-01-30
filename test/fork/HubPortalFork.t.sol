@@ -94,8 +94,8 @@ contract HubPortalForkTests is ForkTestBase {
         IPortal(_hubPortal).transferMLikeToken{ value: _quoteDeliveryPrice(_hubPortal, _BASE_WORMHOLE_CHAIN_ID) }(
             amount_,
             _MAINNET_M_TOKEN,
-            _baseSpokeMToken.toBytes32(),
             _BASE_WORMHOLE_CHAIN_ID,
+            _baseSpokeMToken.toBytes32(),
             _mHolder.toBytes32(),
             _mHolder.toBytes32()
         );
@@ -139,8 +139,8 @@ contract HubPortalForkTests is ForkTestBase {
         IPortal(_hubPortal).transferMLikeToken{ value: _quoteDeliveryPrice(_hubPortal, _BASE_WORMHOLE_CHAIN_ID) }(
             amount_,
             _MAINNET_WRAPPED_M_TOKEN,
-            _baseSpokeMToken.toBytes32(),
             _BASE_WORMHOLE_CHAIN_ID,
+            _baseSpokeMToken.toBytes32(),
             _wrappedMHolder.toBytes32(),
             _wrappedMHolder.toBytes32()
         );

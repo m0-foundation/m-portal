@@ -206,14 +206,14 @@ contract PortalTests is UnitTestBase {
 
         vm.expectEmit();
         emit IPortal.MTokenSent(
-            _REMOTE_CHAIN_ID,
             address(_mToken),
+            _REMOTE_CHAIN_ID,
             _remoteMToken,
-            messageId_,
             _alice,
             recipient_,
             amount_,
-            index_
+            index_,
+            messageId_
         );
 
         _portal.transfer{ value: msgValue_ }(amount_, _REMOTE_CHAIN_ID, recipient_);
@@ -230,8 +230,8 @@ contract PortalTests is UnitTestBase {
         _portal.transferMLikeToken(
             amount_,
             address(_wrappedMToken),
-            _remoteWrappedMToken,
             _REMOTE_CHAIN_ID,
+            _remoteWrappedMToken,
             recipient_,
             refundAddress_
         );
@@ -246,8 +246,8 @@ contract PortalTests is UnitTestBase {
         _portal.transferMLikeToken(
             amount_,
             address(_wrappedMToken),
-            _remoteWrappedMToken,
             _REMOTE_CHAIN_ID,
+            _remoteWrappedMToken,
             recipient_,
             refundAddress_
         );
@@ -262,8 +262,8 @@ contract PortalTests is UnitTestBase {
         _portal.transferMLikeToken(
             amount_,
             address(_wrappedMToken),
-            _remoteWrappedMToken,
             _REMOTE_CHAIN_ID,
+            _remoteWrappedMToken,
             recipient_,
             refundAddress_
         );
@@ -287,8 +287,8 @@ contract PortalTests is UnitTestBase {
         _portal.transferMLikeToken(
             amount_,
             address(_wrappedMToken),
-            _remoteWrappedMToken,
             _REMOTE_CHAIN_ID,
+            _remoteWrappedMToken,
             recipient_,
             refundAddress_
         );

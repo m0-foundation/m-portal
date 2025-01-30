@@ -211,14 +211,14 @@ contract SpokePortalTests is UnitTestBase {
 
         vm.expectEmit();
         emit IPortal.MTokenSent(
-            _REMOTE_CHAIN_ID,
             address(_wrappedMToken),
+            _REMOTE_CHAIN_ID,
             _remoteWrappedMToken,
-            messageId_,
             _alice,
             recipient_,
             amount_,
-            index_
+            index_,
+            messageId_
         );
 
         vm.expectEmit();
@@ -227,8 +227,8 @@ contract SpokePortalTests is UnitTestBase {
         _portal.transferMLikeToken(
             amount_,
             address(_wrappedMToken),
-            _remoteWrappedMToken,
             _REMOTE_CHAIN_ID,
+            _remoteWrappedMToken,
             recipient_,
             refundAddress_
         );
@@ -279,14 +279,14 @@ contract SpokePortalTests is UnitTestBase {
 
         vm.expectEmit();
         emit IPortal.MTokenSent(
-            _REMOTE_CHAIN_ID,
             address(_mToken),
+            _REMOTE_CHAIN_ID,
             _remoteWrappedMToken,
-            messageId_,
             _alice,
             recipient_,
             amount_,
-            index_
+            index_,
+            messageId_
         );
 
         vm.expectEmit();
@@ -295,8 +295,8 @@ contract SpokePortalTests is UnitTestBase {
         _portal.transferMLikeToken(
             amount_,
             address(_mToken),
-            _remoteWrappedMToken,
             _REMOTE_CHAIN_ID,
+            _remoteWrappedMToken,
             recipient_,
             refundAddress_
         );
@@ -340,7 +340,7 @@ contract SpokePortalTests is UnitTestBase {
             _alice.toBytes32(),
             _REMOTE_CHAIN_ID,
             _LOCAL_CHAIN_ID,
-            _remoteMToken
+            address(_mToken).toBytes32()
         );
 
         vm.expectCall(address(_mToken), abi.encodeWithSignature("mint(address,uint256)", _alice, amount_));
@@ -348,12 +348,12 @@ contract SpokePortalTests is UnitTestBase {
         vm.expectEmit();
         emit IPortal.MTokenReceived(
             _REMOTE_CHAIN_ID,
-            _remoteMToken.toAddress(),
-            messageId_,
+            address(_mToken),
             _alice.toBytes32(),
             _alice,
             amount_,
-            remoteIndex_
+            remoteIndex_,
+            messageId_
         );
 
         vm.expectEmit();
@@ -511,11 +511,11 @@ contract SpokePortalTests is UnitTestBase {
         emit IPortal.MTokenReceived(
             _REMOTE_CHAIN_ID,
             address(_wrappedMToken),
-            messageId_,
             _alice.toBytes32(),
             _alice,
             amount_,
-            remoteIndex_
+            remoteIndex_,
+            messageId_
         );
 
         vm.expectEmit();
@@ -552,11 +552,11 @@ contract SpokePortalTests is UnitTestBase {
         emit IPortal.MTokenReceived(
             _REMOTE_CHAIN_ID,
             destinationWrappedToken_,
-            messageId_,
             _alice.toBytes32(),
             _alice,
             amount_,
-            remoteIndex_
+            remoteIndex_,
+            messageId_
         );
 
         vm.expectEmit();
