@@ -54,6 +54,7 @@ contract PortalTests is UnitTestBase {
         _portal.setDestinationMToken(_REMOTE_CHAIN_ID, _remoteMToken);
         _portal.setSupportedBridgingPath(address(_mToken), _REMOTE_CHAIN_ID, _remoteMToken, true);
         _portal.setSupportedBridgingPath(address(_mToken), _REMOTE_CHAIN_ID, _remoteWrappedMToken, true);
+        _portal.setSupportedBridgingPath(address(_wrappedMToken), _REMOTE_CHAIN_ID, _remoteWrappedMToken, true);
     }
 
     /* ============ constructor ============ */
@@ -272,6 +273,7 @@ contract PortalTests is UnitTestBase {
         uint256 amount_ = 1_000e6;
         bytes32 recipient_ = _alice.toBytes32();
         bytes32 refundAddress_ = recipient_;
+        _portal.setSupportedBridgingPath(address(_wrappedMToken), _REMOTE_CHAIN_ID, _remoteWrappedMToken, false);
 
         vm.expectRevert(
             abi.encodeWithSelector(

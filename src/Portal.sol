@@ -104,26 +104,11 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         bytes32 recipient_,
         bytes32 refundAddress_
     ) external payable returns (uint64 sequence_) {
-        _verifyTransferArgs(amount_, destinationToken_, recipient_, refundAddress_);
-
         if (!supportedBridgingPath[sourceToken_][destinationChainId_][destinationToken_]) {
             revert UnsupportedBridgingPath(sourceToken_, destinationChainId_, destinationToken_);
         }
-        IERC20 mToken_ = IERC20(token);
-        uint256 balanceBefore = mToken_.balanceOf(address(this));
 
-        // transfer source token from the sender
-        IERC20(sourceToken_).transferFrom(msg.sender, address(this), amount_);
-
-        // if the source token isn't M token, unwrap it
-        if (sourceToken_ != address(mToken_)) {
-            IWrappedMTokenLike(sourceToken_).unwrap(address(this), amount_);
-        }
-
-        // account for potential rounding errors when transferring between earners and non-earners
-        amount_ = mToken_.balanceOf(address(this)) - balanceBefore;
-
-        sequence_ = _transferMToken(
+        sequence_ = _transferMLikeToken(
             amount_,
             sourceToken_,
             destinationToken_,
@@ -145,23 +130,17 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         bool, // shouldQueue_
         bytes memory // transceiverInstructions_
     ) internal override returns (uint64 sequence_) {
-        bytes32 destinationToken_ = destinationMToken[destinationChainId_];
-
-        _verifyTransferArgs(amount_, destinationToken_, recipient_, refundAddress_);
-
-        IERC20 mToken_ = IERC20(token);
-        uint256 balanceBefore = mToken_.balanceOf(address(this));
-
-        // transfer M token from the sender
-        mToken_.transferFrom(msg.sender, address(this), amount_);
-
-        // account for potential rounding errors when transferring between earners and non-earners
-        amount_ = mToken_.balanceOf(address(this)) - balanceBefore;
-
-        sequence_ = _transferMToken(amount_, token, destinationToken_, destinationChainId_, recipient_, refundAddress_);
+        sequence_ = _transferMLikeToken(
+            amount_,
+            token, // M Token
+            destinationMToken[destinationChainId_], // M Token on destination
+            destinationChainId_,
+            recipient_,
+            refundAddress_
+        );
     }
 
-    function _transferMToken(
+    function _transferMLikeToken(
         uint256 amount_,
         address sourceToken_,
         bytes32 destinationToken_,
@@ -169,9 +148,46 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         bytes32 recipient_,
         bytes32 refundAddress_
     ) private returns (uint64 sequence_) {
-        // NOTE: the following code has been adapted from NTT manager `transfer` or `_transferEntryPoint` functions.
-        // We cannot call those functions directly here as they attempt to transfer M Token from the msg.sender.
+        if (amount_ == 0) revert ZeroAmount();
+        if (destinationToken_ == bytes32(0)) revert ZeroDestinationToken();
+        if (recipient_ == bytes32(0)) revert InvalidRecipient();
+        if (refundAddress_ == bytes32(0)) revert InvalidRefundAddress();
 
+        IERC20 mToken_ = IERC20(token);
+        uint256 balanceBefore = mToken_.balanceOf(address(this));
+
+        // transfer source token from the sender
+        IERC20(sourceToken_).transferFrom(msg.sender, address(this), amount_);
+
+        // if the source token isn't M token, unwrap it
+        if (sourceToken_ != address(mToken_)) {
+            IWrappedMTokenLike(sourceToken_).unwrap(address(this), amount_);
+        }
+
+        // account for potential rounding errors when transferring between earners and non-earners
+        amount_ = mToken_.balanceOf(address(this)) - balanceBefore;
+
+        sequence_ = _transferNativeToken(
+            amount_,
+            sourceToken_,
+            destinationToken_,
+            destinationChainId_,
+            recipient_,
+            refundAddress_
+        );
+    }
+
+    /// @dev adapted from NttManager `_transfer` function.
+    //       https://github.com/wormhole-foundation/native-token-transfers/blob/main/evm/src/NttManager/NttManager.sol#L521
+    function _transferNativeToken(
+        uint256 amount_,
+        address sourceToken_,
+        bytes32 destinationToken_,
+        uint16 destinationChainId_,
+        bytes32 recipient_,
+        bytes32 refundAddress_
+    ) private returns (uint64 sequence_) {
+        // burns token on Spoke. In case of Hub, tokens are already transferred
         _burnOrLock(amount_);
 
         sequence_ = _useMessageSequence();
@@ -189,7 +205,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
 
         uint256 totalPriceQuote_ = _sendMessage(destinationChainId_, refundAddress_, message_);
 
-        // Prevent stack too deep
+        // prevent stack too deep
         uint256 transferAmount_ = amount_;
 
         emit MTokenSent(
@@ -203,7 +219,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
             index_
         );
 
-        // Emit NTT events
+        // emit NTT events
         emit TransferSent(
             recipient_,
             refundAddress_,
@@ -352,18 +368,6 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         // Verify that the destination chain isn't forked
         uint256 evmChainId_ = evmChainId;
         if (evmChainId_ != block.chainid) revert InvalidFork(evmChainId_, block.chainid);
-    }
-
-    function _verifyTransferArgs(
-        uint256 amount_,
-        bytes32 destinationToken_,
-        bytes32 recipient_,
-        bytes32 refundAddress_
-    ) private view {
-        if (amount_ == 0) revert ZeroAmount();
-        if (destinationToken_ == bytes32(0)) revert ZeroDestinationToken();
-        if (recipient_ == bytes32(0)) revert InvalidRecipient();
-        if (refundAddress_ == bytes32(0)) revert InvalidRefundAddress();
     }
 
     /**
