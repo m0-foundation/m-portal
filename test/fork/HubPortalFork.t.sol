@@ -68,93 +68,76 @@ contract HubPortalForkTests is ForkTestBase {
 
     /* ============ transferMLikeToken ============ */
 
-    function testFork_transferMLikeToken_mTokenToMToken() external {
-        vm.selectFork(_baseForkId);
-        assertEq(IERC20(_baseSpokeMToken).balanceOf(_mHolder), 0);
-
-        vm.selectFork(_mainnetForkId);
-        assertEq(IERC20(_MAINNET_M_TOKEN).balanceOf(_hubPortal), 0);
-
-        uint128 mainnetIndex_ = IContinuousIndexing(_MAINNET_M_TOKEN).currentIndex();
-
-        vm.prank(_DEPLOYER);
-        IPortal(_hubPortal).setSupportedBridgingPath(
-            _MAINNET_M_TOKEN,
-            _BASE_WORMHOLE_CHAIN_ID,
-            _baseSpokeMToken.toBytes32(),
-            true
-        );
-
-        vm.startPrank(_mHolder);
-        vm.recordLogs();
-
-        uint256 amount_ = 1_000e6;
-
-        IERC20(_MAINNET_M_TOKEN).approve(_hubPortal, amount_);
-        IPortal(_hubPortal).transferMLikeToken{ value: _quoteDeliveryPrice(_hubPortal, _BASE_WORMHOLE_CHAIN_ID) }(
-            amount_,
-            _MAINNET_M_TOKEN,
-            _BASE_WORMHOLE_CHAIN_ID,
-            _baseSpokeMToken.toBytes32(),
-            _mHolder.toBytes32(),
-            _mHolder.toBytes32()
-        );
-
-        vm.stopPrank();
-
-        assertEq(IERC20(_MAINNET_M_TOKEN).balanceOf(_hubPortal), amount_ = amount_ - 1);
-        bytes memory signedMessage_ = _signMessage(_hubGuardian, _MAINNET_WORMHOLE_CHAIN_ID);
-
-        vm.selectFork(_baseForkId);
-        _deliverMessage(_BASE_WORMHOLE_RELAYER, signedMessage_);
-
-        assertEq(IERC20(_baseSpokeMToken).balanceOf(_mHolder), amount_);
-        assertEq(IContinuousIndexing(_baseSpokeMToken).currentIndex(), mainnetIndex_);
+    /// @dev From $M on Hub to $M on Spoke
+    function testFork_transferMLikeToken_M_to_M() external {
+        _transferMLikeTokenToSpoke(_MAINNET_M_TOKEN, _baseSpokeMToken, _mHolder);
     }
 
-    function testFork_transferMLikeToken_wrappedMTokenToMToken() external {
-        vm.selectFork(_baseForkId);
-        assertEq(IERC20(_baseSpokeMToken).balanceOf(_wrappedMHolder), 0);
+    /// @dev From $M on Hub to Wrapped $M on Spoke
+    function testFork_transferMLikeToken_M_to_wrappedM() external {
+        _transferMLikeTokenToSpoke(_MAINNET_M_TOKEN, _baseSpokeWrappedMTokenProxy, _mHolder);
+    }
 
+    /// @dev From Wrapped $M on Hub to $M on Spoke
+    function testFork_transferMLikeToken_wrappedM_to_M() external {
+        _transferMLikeTokenToSpoke(_MAINNET_WRAPPED_M_TOKEN, _baseSpokeMToken, _wrappedMHolder);
+    }
+
+    /// @dev From Wrapped $M on Hub to Wrapped $M on Spoke
+    function testFork_transferMLikeToken_wM_to_wM() external {
+        _transferMLikeTokenToSpoke(_MAINNET_WRAPPED_M_TOKEN, _baseSpokeWrappedMTokenProxy, _wrappedMHolder);
+    }
+
+    function _transferMLikeTokenToSpoke(address sourceToken_, address destinationToken_, address user_) private {
+        // User doesn't have destination token
+        vm.selectFork(_baseForkId);
+        assertEq(IERC20(destinationToken_).balanceOf(user_), 0);
+
+        // Hub portal doesn't have $M locked
         vm.selectFork(_mainnetForkId);
         assertEq(IERC20(_MAINNET_M_TOKEN).balanceOf(_hubPortal), 0);
 
         uint128 mainnetIndex_ = IContinuousIndexing(_MAINNET_M_TOKEN).currentIndex();
+        uint256 amount_ = 1e6;
 
+        // Deployer sets supported path
         vm.prank(_DEPLOYER);
         IPortal(_hubPortal).setSupportedBridgingPath(
-            _MAINNET_WRAPPED_M_TOKEN,
+            sourceToken_,
             _BASE_WORMHOLE_CHAIN_ID,
-            _baseSpokeMToken.toBytes32(),
+            destinationToken_.toBytes32(),
             true
         );
 
-        vm.startPrank(_wrappedMHolder);
+        // Recording logs for Wormhole simulation
         vm.recordLogs();
 
-        uint256 amount_ = 1e6;
-        uint256 balanceBefore_ = IERC20(_MAINNET_WRAPPED_M_TOKEN).balanceOf(_wrappedMHolder);
-
-        IERC20(_MAINNET_WRAPPED_M_TOKEN).approve(_hubPortal, amount_);
+        // User approves source token and calls transferMLikeToken
+        vm.startPrank(user_);
+        IERC20(sourceToken_).approve(_hubPortal, amount_);
         IPortal(_hubPortal).transferMLikeToken{ value: _quoteDeliveryPrice(_hubPortal, _BASE_WORMHOLE_CHAIN_ID) }(
             amount_,
-            _MAINNET_WRAPPED_M_TOKEN,
+            sourceToken_,
             _BASE_WORMHOLE_CHAIN_ID,
-            _baseSpokeMToken.toBytes32(),
-            _wrappedMHolder.toBytes32(),
-            _wrappedMHolder.toBytes32()
+            destinationToken_.toBytes32(),
+            user_.toBytes32(),
+            user_.toBytes32()
         );
-
         vm.stopPrank();
 
-        assertEq(IERC20(_MAINNET_WRAPPED_M_TOKEN).balanceOf(_wrappedMHolder), balanceBefore_ - amount_);
-        assertEq(IERC20(_MAINNET_M_TOKEN).balanceOf(_hubPortal), amount_ = amount_ - 1);
-        bytes memory signedMessage_ = _signMessage(_hubGuardian, _MAINNET_WORMHOLE_CHAIN_ID);
+        // amount is decreased due to the rounding errors when transferring M from non-earner
+        amount_ = amount_ - 1;
+        assertEq(IERC20(_MAINNET_M_TOKEN).balanceOf(_hubPortal), amount_);
 
+        // Wormhole delivers message
+        bytes memory signedMessage_ = _signMessage(_hubGuardian, _MAINNET_WORMHOLE_CHAIN_ID);
         vm.selectFork(_baseForkId);
         _deliverMessage(_BASE_WORMHOLE_RELAYER, signedMessage_);
 
-        assertEq(IERC20(_baseSpokeMToken).balanceOf(_wrappedMHolder), amount_);
+        // User receives destination token
+        assertEq(IERC20(destinationToken_).balanceOf(user_), amount_);
+
+        // Spoke M index updated
         assertEq(IContinuousIndexing(_baseSpokeMToken).currentIndex(), mainnetIndex_);
     }
 

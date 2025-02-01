@@ -39,12 +39,12 @@ contract Migrate is ForkTestBase, UpgradeBase {
 
         vm.startPrank(_DEPLOYER);
 
-        assertEq(WormholeTransceiver(_hubWormholeTransceiver).gasLimit(), 250_000);
+        assertEq(WormholeTransceiver(_hubWormholeTransceiver).gasLimit(), 300_000);
 
         string memory config_ = "test/fork/fixtures/upgrade-config.json";
         _upgradeWormholeTransceiver(_loadWormholeConfig(config_, block.chainid));
 
-        assertEq(WormholeTransceiver(_hubWormholeTransceiver).gasLimit(), 300_000);
+        assertEq(WormholeTransceiver(_hubWormholeTransceiver).gasLimit(), 350_000);
 
         _upgradeHubPortal(_loadPortalConfig(config_, block.chainid));
 

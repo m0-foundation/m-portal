@@ -24,6 +24,10 @@ import { IHubPortal } from "../../src/interfaces/IHubPortal.sol";
 import { IRegistrarLike } from "../../src/interfaces/IRegistrarLike.sol";
 
 contract ForkTestBase is CastBase, ConfigureBase, DeployBase, Test {
+    uint256 internal constant _MAINNET_FORK_BLOCK = 21_741_044;
+    uint256 internal constant _BASE_FORK_BLOCK = 25_747_655;
+    uint256 internal constant _OPTIMISM_FORK_BLOCK = 131_342_961;
+
     address internal constant _DEPLOYER = 0xF2f1ACbe0BA726fEE8d75f3E32900526874740BB;
 
     // TODO: confirm that this is the correct address.
@@ -84,7 +88,7 @@ contract ForkTestBase is CastBase, ConfigureBase, DeployBase, Test {
 
     function setUp() public virtual {
         // Deploy Mainnet - Hub
-        _mainnetForkId = vm.createSelectFork(vm.rpcUrl("mainnet"));
+        _mainnetForkId = vm.createSelectFork({ urlOrAlias: "mainnet", blockNumber: _MAINNET_FORK_BLOCK });
         _forkIds[0] = _mainnetForkId;
 
         deal(_DEPLOYER, 10 ether);
@@ -114,7 +118,7 @@ contract ForkTestBase is CastBase, ConfigureBase, DeployBase, Test {
         IHubPortal(_hubPortal).enableEarning();
 
         // Deploy Base - Spoke
-        _baseForkId = vm.createSelectFork(vm.rpcUrl("base"));
+        _baseForkId = vm.createSelectFork({ urlOrAlias: "base", blockNumber: _BASE_FORK_BLOCK });
         _forkIds[1] = _baseForkId;
 
         deal(_DEPLOYER, 10 ether);
@@ -155,7 +159,7 @@ contract ForkTestBase is CastBase, ConfigureBase, DeployBase, Test {
         vm.stopPrank();
 
         // Deploy Optimism - Spoke
-        _optimismForkId = vm.createSelectFork(vm.rpcUrl("optimism"));
+        _optimismForkId = vm.createSelectFork({ urlOrAlias: "optimism", blockNumber: _OPTIMISM_FORK_BLOCK });
         _forkIds[2] = _optimismForkId;
 
         deal(_DEPLOYER, 10 ether);
