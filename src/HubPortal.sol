@@ -3,7 +3,7 @@
 pragma solidity 0.8.26;
 
 import { IERC20 } from "../lib/common/src/interfaces/IERC20.sol";
-import { TransceiverStructs } from "../lib/example-native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
+import { TransceiverStructs } from "../lib/native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
 
 import { IMTokenLike } from "./interfaces/IMTokenLike.sol";
 import { IRegistrarLike } from "./interfaces/IRegistrarLike.sol";
@@ -19,9 +19,6 @@ import { TypeConverter } from "./libs/TypeConverter.sol";
  */
 contract HubPortal is IHubPortal, Portal {
     using TypeConverter for address;
-
-    /// @dev Use only standard WormholeTransceiver with relaying enabled
-    bytes public constant DEFAULT_TRANSCEIVER_INSTRUCTIONS = new bytes(1);
 
     /* ============ Variables ============ */
 
@@ -54,7 +51,7 @@ contract HubPortal is IHubPortal, Portal {
     ) external payable returns (bytes32 messageId_) {
         uint128 index_ = _currentIndex();
         bytes memory payload_ = PayloadEncoder.encodeIndex(index_, destinationChainId_);
-        messageId_ = _sendMessage(destinationChainId_, refundAddress_, payload_);
+        messageId_ = _sendCustomMessage(destinationChainId_, refundAddress_, payload_);
 
         emit MTokenIndexSent(destinationChainId_, messageId_, index_);
     }
@@ -67,7 +64,7 @@ contract HubPortal is IHubPortal, Portal {
     ) external payable returns (bytes32 messageId_) {
         bytes32 value_ = IRegistrarLike(registrar).get(key_);
         bytes memory payload_ = PayloadEncoder.encodeKey(key_, value_, destinationChainId_);
-        messageId_ = _sendMessage(destinationChainId_, refundAddress_, payload_);
+        messageId_ = _sendCustomMessage(destinationChainId_, refundAddress_, payload_);
 
         emit RegistrarKeySent(destinationChainId_, messageId_, key_, value_);
     }
@@ -81,7 +78,7 @@ contract HubPortal is IHubPortal, Portal {
     ) external payable returns (bytes32 messageId_) {
         bool status_ = IRegistrarLike(registrar).listContains(listName_, account_);
         bytes memory payload_ = PayloadEncoder.encodeListUpdate(listName_, account_, status_, destinationChainId_);
-        messageId_ = _sendMessage(destinationChainId_, refundAddress_, payload_);
+        messageId_ = _sendCustomMessage(destinationChainId_, refundAddress_, payload_);
 
         emit RegistrarListStatusSent(destinationChainId_, messageId_, listName_, account_, status_);
     }
@@ -118,24 +115,18 @@ contract HubPortal is IHubPortal, Portal {
      * @param amount_    The amount of M Token to unlock to the recipient.
      */
     function _mintOrUnlock(address recipient_, uint256 amount_, uint128) internal override {
-        IERC20(mToken()).transfer(recipient_, amount_);
+        if (recipient_ != address(this)) {
+            IERC20(mToken()).transfer(recipient_, amount_);
+        }
     }
 
-    /// @notice Sends a generic message to the destination chain.
-    /// @dev    The implementation is adapted from `NttManager` `_transfer` function.
-    function _sendMessage(
+    /// @dev Sends a custom (not a transfer) message to the destination chain.
+    function _sendCustomMessage(
         uint16 destinationChainId_,
         bytes32 refundAddress_,
         bytes memory payload_
     ) private returns (bytes32 messageId_) {
         if (refundAddress_ == bytes32(0)) revert InvalidRefundAddress();
-
-        (
-            address[] memory enabledTransceivers_,
-            TransceiverStructs.TransceiverInstruction[] memory instructions_,
-            uint256[] memory priceQuotes_,
-
-        ) = _prepareForTransfer(destinationChainId_, DEFAULT_TRANSCEIVER_INSTRUCTIONS);
 
         TransceiverStructs.NttManagerMessage memory message_ = TransceiverStructs.NttManagerMessage(
             bytes32(uint256(_useMessageSequence())),
@@ -143,18 +134,9 @@ contract HubPortal is IHubPortal, Portal {
             payload_
         );
 
-        // send the message
-        _sendMessageToTransceivers(
-            destinationChainId_,
-            refundAddress_,
-            _getPeersStorage()[destinationChainId_].peerAddress,
-            priceQuotes_,
-            instructions_,
-            enabledTransceivers_,
-            TransceiverStructs.encodeNttManagerMessage(message_)
-        );
+        _sendMessage(destinationChainId_, refundAddress_, message_);
 
-        return TransceiverStructs.nttManagerMessageDigest(chainId, message_);
+        messageId_ = TransceiverStructs.nttManagerMessageDigest(chainId, message_);
     }
 
     /* ============ Internal View/Pure Functions ============ */

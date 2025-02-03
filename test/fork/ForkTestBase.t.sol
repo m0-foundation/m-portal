@@ -7,16 +7,14 @@ import { Vm } from "../../lib/forge-std/src/Test.sol";
 
 import {
     IWormholeRelayer
-} from "../../lib/example-native-token-transfers/evm/lib/wormhole-solidity-sdk/src/interfaces/IWormholeRelayer.sol";
+} from "../../lib/native-token-transfers/evm/lib/wormhole-solidity-sdk/src/interfaces/IWormholeRelayer.sol";
 import {
     WormholeSimulator
-} from "../../lib/example-native-token-transfers/evm/lib/wormhole-solidity-sdk/src/testing/helpers/WormholeSimulator.sol";
+} from "../../lib/native-token-transfers/evm/lib/wormhole-solidity-sdk/src/testing/helpers/WormholeSimulator.sol";
 
-import { INttManager } from "../../lib/example-native-token-transfers/evm/src/interfaces/INttManager.sol";
-import {
-    IWormholeTransceiver
-} from "../../lib/example-native-token-transfers/evm/src/interfaces/IWormholeTransceiver.sol";
-import { TransceiverStructs } from "../../lib/example-native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
+import { INttManager } from "../../lib/native-token-transfers/evm/src/interfaces/INttManager.sol";
+import { IWormholeTransceiver } from "../../lib/native-token-transfers/evm/src/interfaces/IWormholeTransceiver.sol";
+import { TransceiverStructs } from "../../lib/native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
 
 import { CastBase } from "../../script/cast/CastBase.sol";
 import { ConfigureBase } from "../../script/configure/ConfigureBase.sol";
@@ -26,6 +24,10 @@ import { IHubPortal } from "../../src/interfaces/IHubPortal.sol";
 import { IRegistrarLike } from "../../src/interfaces/IRegistrarLike.sol";
 
 contract ForkTestBase is CastBase, ConfigureBase, DeployBase, Test {
+    uint256 internal constant _MAINNET_FORK_BLOCK = 21_741_044;
+    uint256 internal constant _BASE_FORK_BLOCK = 25_747_655;
+    uint256 internal constant _OPTIMISM_FORK_BLOCK = 131_342_961;
+
     address internal constant _DEPLOYER = 0xF2f1ACbe0BA726fEE8d75f3E32900526874740BB;
 
     // TODO: confirm that this is the correct address.
@@ -38,6 +40,7 @@ contract ForkTestBase is CastBase, ConfigureBase, DeployBase, Test {
     address internal immutable _alice = makeAddr("alice");
     address internal immutable _bob = makeAddr("bob");
     address internal immutable _mHolder = 0x3f0376da3Ae4313E7a5F1dA184BAFC716252d759;
+    address internal immutable _wrappedMHolder = 0x942AeF058cb15C9b8b89B57B4E607d464ed8Cd33;
 
     TransceiverStructs.TransceiverInstruction internal _emptyTransceiverInstruction =
         TransceiverStructs.TransceiverInstruction({ index: 0, payload: "" });
@@ -68,10 +71,8 @@ contract ForkTestBase is CastBase, ConfigureBase, DeployBase, Test {
 
     address internal _baseSpokeVault;
 
-    address internal _baseSpokeSmartMTokenEarnerManagerImplementation;
-    address internal _baseSpokeSmartMTokenEarnerManagerProxy;
-    address internal _baseSpokeSmartMTokenImplementation;
-    address internal _baseSpokeSmartMTokenProxy;
+    address internal _baseSpokeWrappedMTokenImplementation;
+    address internal _baseSpokeWrappedMTokenProxy;
 
     // Optimism - Spoke
     address internal _optimismSpokePortal;
@@ -82,14 +83,12 @@ contract ForkTestBase is CastBase, ConfigureBase, DeployBase, Test {
 
     address internal _optimismSpokeVault;
 
-    address internal _optimismSpokeSmartMTokenEarnerManagerImplementation;
-    address internal _optimismSpokeSmartMTokenEarnerManagerProxy;
-    address internal _optimismSpokeSmartMTokenImplementation;
-    address internal _optimismSpokeSmartMTokenProxy;
+    address internal _optimismSpokeWrappedMTokenImplementation;
+    address internal _optimismSpokeWrappedMTokenProxy;
 
     function setUp() public virtual {
         // Deploy Mainnet - Hub
-        _mainnetForkId = vm.createSelectFork(vm.rpcUrl("mainnet"));
+        _mainnetForkId = vm.createSelectFork({ urlOrAlias: "mainnet", blockNumber: _MAINNET_FORK_BLOCK });
         _forkIds[0] = _mainnetForkId;
 
         deal(_DEPLOYER, 10 ether);
@@ -119,7 +118,7 @@ contract ForkTestBase is CastBase, ConfigureBase, DeployBase, Test {
         IHubPortal(_hubPortal).enableEarning();
 
         // Deploy Base - Spoke
-        _baseForkId = vm.createSelectFork(vm.rpcUrl("base"));
+        _baseForkId = vm.createSelectFork({ urlOrAlias: "base", blockNumber: _BASE_FORK_BLOCK });
         _forkIds[1] = _baseForkId;
 
         deal(_DEPLOYER, 10 ether);
@@ -148,12 +147,7 @@ contract ForkTestBase is CastBase, ConfigureBase, DeployBase, Test {
             _MIGRATION_ADMIN
         );
 
-        (
-            _baseSpokeSmartMTokenEarnerManagerImplementation,
-            _baseSpokeSmartMTokenEarnerManagerProxy,
-            _baseSpokeSmartMTokenImplementation,
-            _baseSpokeSmartMTokenProxy
-        ) = _deploySpokeSmartMToken(
+        (_baseSpokeWrappedMTokenImplementation, _baseSpokeWrappedMTokenProxy) = _deploySpokeWrappedMToken(
             _DEPLOYER,
             _baseSpokeMToken,
             _baseSpokeRegistrar,
@@ -165,7 +159,7 @@ contract ForkTestBase is CastBase, ConfigureBase, DeployBase, Test {
         vm.stopPrank();
 
         // Deploy Optimism - Spoke
-        _optimismForkId = vm.createSelectFork(vm.rpcUrl("optimism"));
+        _optimismForkId = vm.createSelectFork({ urlOrAlias: "optimism", blockNumber: _OPTIMISM_FORK_BLOCK });
         _forkIds[2] = _optimismForkId;
 
         deal(_DEPLOYER, 10 ether);
@@ -194,12 +188,7 @@ contract ForkTestBase is CastBase, ConfigureBase, DeployBase, Test {
             _MIGRATION_ADMIN
         );
 
-        (
-            _optimismSpokeSmartMTokenEarnerManagerImplementation,
-            _optimismSpokeSmartMTokenEarnerManagerProxy,
-            _optimismSpokeSmartMTokenImplementation,
-            _optimismSpokeSmartMTokenProxy
-        ) = _deploySpokeSmartMToken(
+        (_optimismSpokeWrappedMTokenImplementation, _optimismSpokeWrappedMTokenProxy) = _deploySpokeWrappedMToken(
             _DEPLOYER,
             _optimismSpokeMToken,
             _optimismSpokeRegistrar,

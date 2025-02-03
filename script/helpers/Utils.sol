@@ -6,20 +6,19 @@ import { console } from "../../lib/forge-std/src/console.sol";
 
 import {
     ERC1967Proxy
-} from "../../lib/example-native-token-transfers/evm/lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+} from "../../lib/native-token-transfers/evm/lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
 import { ICreateXLike } from "../deploy/interfaces/ICreateXLike.sol";
 
 contract Utils {
     uint64 internal constant _SPOKE_REGISTRAR_NONCE = 7;
     uint64 internal constant _SPOKE_M_TOKEN_NONCE = 8;
-    uint64 internal constant _SPOKE_SMART_M_TOKEN_EARNER_MANAGER_NONCE = 37;
-    uint64 internal constant _SPOKE_SMART_M_TOKEN_EARNER_MANAGER_PROXY_NONCE = 38;
-    uint64 internal constant _SPOKE_SMART_M_TOKEN_NONCE = 39;
-    uint64 internal constant _SPOKE_SMART_M_TOKEN_PROXY_NONCE = 40;
+    uint64 internal constant _SPOKE_WRAPPED_M_TOKEN_NONCE = 39;
+    uint64 internal constant _SPOKE_WRAPPED_M_TOKEN_PROXY_NONCE = 40;
 
     address internal constant _MAINNET_REGISTRAR = 0x119FbeeDD4F4f4298Fb59B720d5654442b81ae2c;
     address internal constant _MAINNET_M_TOKEN = 0x866A2BF4E572CbcF37D5071A7a58503Bfb36be1b;
+    address internal constant _MAINNET_WRAPPED_M_TOKEN = 0x437cc33344a0B27A429f795ff6B469C72698B291;
     address internal constant _MAINNET_VAULT = 0xd7298f620B0F752Cf41BD818a16C756d9dCAA34f;
 
     address internal constant _SEPOLIA_REGISTRAR = 0x975Bf5f212367D09CB7f69D3dc4BA8C9B440aD3A;

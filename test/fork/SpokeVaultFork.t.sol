@@ -4,9 +4,14 @@ pragma solidity 0.8.26;
 
 import { IERC20 } from "../../lib/common/src/interfaces/IERC20.sol";
 
+import { IPortal } from "../../src/interfaces/IPortal.sol";
+import { TypeConverter } from "../../src/libs/TypeConverter.sol";
+
 import { ForkTestBase } from "./ForkTestBase.t.sol";
 
 contract SpokeVaultForkTests is ForkTestBase {
+    using TypeConverter for *;
+
     uint256 internal _amount;
 
     function setUp() public override {
@@ -18,6 +23,9 @@ contract SpokeVaultForkTests is ForkTestBase {
 
     function testFork_transferExcessM() external {
         _beforeTest();
+
+        vm.prank(_DEPLOYER);
+        IPortal(_baseSpokePortal).setDestinationMToken(_MAINNET_WORMHOLE_CHAIN_ID, _MAINNET_M_TOKEN.toBytes32());
 
         vm.startPrank(_mHolder);
 
@@ -48,6 +56,9 @@ contract SpokeVaultForkTests is ForkTestBase {
         _amount = 1_000e6;
 
         vm.selectFork(_mainnetForkId);
+
+        vm.prank(_DEPLOYER);
+        IPortal(_hubPortal).setDestinationMToken(_BASE_WORMHOLE_CHAIN_ID, _MAINNET_M_TOKEN.toBytes32());
 
         vm.startPrank(_mHolder);
 

@@ -6,9 +6,9 @@ import { Test } from "../../lib/forge-std/src/Test.sol";
 
 import {
     ERC1967Proxy
-} from "../../lib/example-native-token-transfers/evm/lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol";
-import { TrimmedAmountLib } from "../../lib/example-native-token-transfers/evm/src/libraries/TrimmedAmount.sol";
-import { TransceiverStructs } from "../../lib/example-native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
+} from "../../lib/native-token-transfers/evm/lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import { TrimmedAmountLib } from "../../lib/native-token-transfers/evm/src/libraries/TrimmedAmount.sol";
+import { TransceiverStructs } from "../../lib/native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
 
 import { TypeConverter } from "../../src/libs/TypeConverter.sol";
 import { Portal } from "../../src/Portal.sol";
@@ -71,14 +71,15 @@ contract UnitTestBase is Test {
         uint128 index_,
         bytes32 recipient_,
         uint16 sourceChainId_,
-        uint16 destinationChainId_
+        uint16 destinationChainId_,
+        bytes32 destinationToken_
     ) internal view returns (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) {
         TransceiverStructs.NativeTokenTransfer memory nativeTokenTransfer_ = TransceiverStructs.NativeTokenTransfer(
             amount_.trim(_tokenDecimals, _tokenDecimals),
             _tokenAddress.toBytes32(),
             recipient_,
             destinationChainId_,
-            abi.encodePacked(index_.toUint64())
+            abi.encodePacked(index_.toUint64(), destinationToken_)
         );
         bytes memory payload_ = TransceiverStructs.encodeNativeTokenTransfer(nativeTokenTransfer_);
         message_ = TransceiverStructs.NttManagerMessage(bytes32(0), _alice.toBytes32(), payload_);

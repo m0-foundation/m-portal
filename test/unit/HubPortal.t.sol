@@ -2,9 +2,9 @@
 
 pragma solidity 0.8.26;
 
-import { IManagerBase } from "../../lib/example-native-token-transfers/evm/src/interfaces/IManagerBase.sol";
-import { INttManager } from "../../lib/example-native-token-transfers/evm/src/interfaces/INttManager.sol";
-import { TransceiverStructs } from "../../lib/example-native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
+import { IManagerBase } from "../../lib/native-token-transfers/evm/src/interfaces/IManagerBase.sol";
+import { INttManager } from "../../lib/native-token-transfers/evm/src/interfaces/INttManager.sol";
+import { TransceiverStructs } from "../../lib/native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
 
 import { IPortal } from "../../src/interfaces/IPortal.sol";
 import { IHubPortal } from "../../src/interfaces/IHubPortal.sol";
@@ -14,6 +14,7 @@ import { TypeConverter } from "../../src/libs/TypeConverter.sol";
 
 import { UnitTestBase } from "./UnitTestBase.t.sol";
 import { MockHubMToken } from "../mocks/MockHubMToken.sol";
+import { MockWrappedMToken } from "../mocks/MockWrappedMToken.sol";
 import { MockHubRegistrar } from "../mocks/MockHubRegistrar.sol";
 import { MockTransceiver } from "../mocks/MockTransceiver.sol";
 
@@ -21,12 +22,18 @@ contract HubPortalTests is UnitTestBase {
     using TypeConverter for *;
 
     MockHubMToken internal _mToken;
+    MockWrappedMToken internal _wrappedMToken;
+    bytes32 internal _remoteMToken;
+    bytes32 internal _remoteWrappedMToken;
     MockHubRegistrar internal _registrar;
 
     HubPortal internal _portal;
 
     function setUp() external {
         _mToken = new MockHubMToken();
+        _wrappedMToken = new MockWrappedMToken(address(_mToken));
+        _remoteMToken = address(_mToken).toBytes32();
+        _remoteWrappedMToken = address(_wrappedMToken).toBytes32();
 
         _tokenDecimals = _mToken.decimals();
         _tokenAddress = address(_mToken);
@@ -38,6 +45,11 @@ contract HubPortalTests is UnitTestBase {
         _portal = HubPortal(_createProxy(address(implementation_)));
 
         _initializePortal(_portal);
+        _portal.setDestinationMToken(_REMOTE_CHAIN_ID, _remoteMToken);
+        _portal.setSupportedBridgingPath(address(_mToken), _REMOTE_CHAIN_ID, _remoteMToken, true);
+        _portal.setSupportedBridgingPath(address(_mToken), _REMOTE_CHAIN_ID, _remoteWrappedMToken, true);
+        _portal.setSupportedBridgingPath(address(_wrappedMToken), _REMOTE_CHAIN_ID, _remoteMToken, true);
+        _portal.setSupportedBridgingPath(address(_wrappedMToken), _REMOTE_CHAIN_ID, _remoteWrappedMToken, true);
     }
 
     /* ============ initialState ============ */
@@ -306,19 +318,156 @@ contract HubPortalTests is UnitTestBase {
         _portal.transfer{ value: fee_ }(amount_, _REMOTE_CHAIN_ID, _alice.toBytes32());
     }
 
+    /* ============ transferMLikeToken ============ */
+
+    function test_transferMLikeToken_sourceTokenWrappedM() external {
+        uint256 amount_ = 1_000e6;
+        uint128 index_ = 0;
+        bytes32 recipient_ = _alice.toBytes32();
+        bytes32 refundAddress_ = recipient_;
+
+        (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) = _createTransferMessage(
+            amount_,
+            index_,
+            recipient_,
+            _LOCAL_CHAIN_ID,
+            _REMOTE_CHAIN_ID,
+            _remoteWrappedMToken
+        );
+
+        _mToken.mint(_alice, amount_);
+
+        vm.startPrank(_alice);
+        _mToken.approve(address(_wrappedMToken), amount_);
+        amount_ = _wrappedMToken.wrap(_alice, amount_);
+        _wrappedMToken.approve(address(_portal), amount_);
+
+        // expect to call sendMessage in Transceiver
+        vm.expectCall(
+            address(_transceiver),
+            0,
+            abi.encodeCall(
+                _transceiver.sendMessage,
+                (
+                    _REMOTE_CHAIN_ID,
+                    _emptyTransceiverInstruction,
+                    TransceiverStructs.encodeNttManagerMessage(message_),
+                    _PEER,
+                    recipient_
+                )
+            )
+        );
+
+        vm.expectEmit();
+        emit IPortal.MTokenSent(
+            address(_wrappedMToken),
+            _REMOTE_CHAIN_ID,
+            _remoteWrappedMToken,
+            _alice,
+            recipient_,
+            amount_,
+            index_,
+            messageId_
+        );
+
+        vm.expectEmit();
+        emit INttManager.TransferSent(messageId_);
+
+        _portal.transferMLikeToken(
+            amount_,
+            address(_wrappedMToken),
+            _REMOTE_CHAIN_ID,
+            _remoteWrappedMToken,
+            recipient_,
+            refundAddress_
+        );
+
+        assertEq(_mToken.balanceOf(_alice), 0);
+        assertEq(_wrappedMToken.balanceOf(_alice), 0);
+        assertEq(_mToken.balanceOf(address(_portal)), amount_);
+        assertEq(_wrappedMToken.balanceOf(address(_portal)), 0);
+    }
+
+    function test_transferMLikeToken_sourceTokenM() external {
+        uint256 amount_ = 1_000e6;
+        uint128 index_ = 0;
+        bytes32 recipient_ = _alice.toBytes32();
+        bytes32 refundAddress_ = recipient_;
+
+        (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) = _createTransferMessage(
+            amount_,
+            index_,
+            recipient_,
+            _LOCAL_CHAIN_ID,
+            _REMOTE_CHAIN_ID,
+            _remoteWrappedMToken
+        );
+
+        _mToken.mint(_alice, amount_);
+
+        vm.startPrank(_alice);
+        _mToken.approve(address(_portal), amount_);
+
+        // expect to call sendMessage in Transceiver
+        vm.expectCall(
+            address(_transceiver),
+            0,
+            abi.encodeCall(
+                _transceiver.sendMessage,
+                (
+                    _REMOTE_CHAIN_ID,
+                    _emptyTransceiverInstruction,
+                    TransceiverStructs.encodeNttManagerMessage(message_),
+                    _PEER,
+                    recipient_
+                )
+            )
+        );
+
+        vm.expectEmit();
+        emit IPortal.MTokenSent(
+            address(_mToken),
+            _REMOTE_CHAIN_ID,
+            _remoteWrappedMToken,
+            _alice,
+            recipient_,
+            amount_,
+            index_,
+            messageId_
+        );
+
+        vm.expectEmit();
+        emit INttManager.TransferSent(messageId_);
+
+        _portal.transferMLikeToken(
+            amount_,
+            address(_mToken),
+            _REMOTE_CHAIN_ID,
+            _remoteWrappedMToken,
+            recipient_,
+            refundAddress_
+        );
+
+        assertEq(_mToken.balanceOf(_alice), 0);
+        assertEq(_mToken.balanceOf(address(_portal)), amount_);
+    }
+
     /* ============ receiveMToken ============ */
 
     function test_receiveMToken_invalidTargetChain() external {
+        uint16 invalidChainId = 1111;
+
         (TransceiverStructs.NttManagerMessage memory message_, ) = _createTransferMessage(
             1_000e6,
             _EXP_SCALED_ONE,
             _alice.toBytes32(),
             _REMOTE_CHAIN_ID,
-            _REMOTE_CHAIN_ID
+            invalidChainId,
+            address(_mToken).toBytes32()
         );
 
         vm.expectRevert(
-            abi.encodeWithSelector(INttManager.InvalidTargetChain.selector, _REMOTE_CHAIN_ID, _LOCAL_CHAIN_ID)
+            abi.encodeWithSelector(INttManager.InvalidTargetChain.selector, invalidChainId, _LOCAL_CHAIN_ID)
         );
 
         vm.prank(address(_transceiver));
@@ -336,13 +485,22 @@ contract HubPortalTests is UnitTestBase {
             remoteIndex_,
             _alice.toBytes32(),
             _REMOTE_CHAIN_ID,
-            _LOCAL_CHAIN_ID
+            _LOCAL_CHAIN_ID,
+            _remoteMToken
         );
 
         vm.expectCall(address(_mToken), abi.encodeCall(_mToken.transfer, (_alice, amount_)));
 
         vm.expectEmit();
-        emit IPortal.MTokenReceived(_REMOTE_CHAIN_ID, messageId_, _alice.toBytes32(), _alice, amount_, remoteIndex_);
+        emit IPortal.MTokenReceived(
+            _REMOTE_CHAIN_ID,
+            _remoteMToken.toAddress(),
+            _alice.toBytes32(),
+            _alice,
+            amount_,
+            remoteIndex_,
+            messageId_
+        );
 
         vm.expectEmit();
         emit INttManager.TransferRedeemed(messageId_);
@@ -365,7 +523,8 @@ contract HubPortalTests is UnitTestBase {
             remoteIndex_,
             _alice.toBytes32(),
             _REMOTE_CHAIN_ID,
-            _LOCAL_CHAIN_ID
+            _LOCAL_CHAIN_ID,
+            address(_mToken).toBytes32()
         );
 
         vm.expectCall(address(_mToken), abi.encodeCall(_mToken.transfer, (_alice, amount_)));
@@ -389,7 +548,8 @@ contract HubPortalTests is UnitTestBase {
             remoteIndex_,
             _alice.toBytes32(),
             _REMOTE_CHAIN_ID,
-            _LOCAL_CHAIN_ID
+            _LOCAL_CHAIN_ID,
+            address(_mToken).toBytes32()
         );
 
         vm.expectCall(address(_mToken), abi.encodeCall(_mToken.transfer, (_alice, amount_)));
@@ -413,7 +573,8 @@ contract HubPortalTests is UnitTestBase {
             remoteIndex_,
             _alice.toBytes32(),
             _REMOTE_CHAIN_ID,
-            _LOCAL_CHAIN_ID
+            _LOCAL_CHAIN_ID,
+            address(_mToken).toBytes32()
         );
 
         vm.expectCall(address(_mToken), abi.encodeCall(_mToken.transfer, (_alice, amount_)));
@@ -438,7 +599,8 @@ contract HubPortalTests is UnitTestBase {
             remoteIndex_,
             _alice.toBytes32(),
             _REMOTE_CHAIN_ID,
-            _LOCAL_CHAIN_ID
+            _LOCAL_CHAIN_ID,
+            address(_mToken).toBytes32()
         );
 
         vm.expectCall(address(_mToken), abi.encodeCall(_mToken.transfer, (_alice, amount_)));

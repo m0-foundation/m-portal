@@ -26,7 +26,7 @@ contract DeploySpoke is DeployBase {
             migrationAdmin_
         );
 
-        _deploySpokeSmartMToken(deployer_, spokeMToken_, spokeRegistrar_, spokeVault_, migrationAdmin_, _burnNonces);
+        _deploySpokeWrappedMToken(deployer_, spokeMToken_, spokeRegistrar_, spokeVault_, migrationAdmin_, _burnNonces);
 
         vm.stopBroadcast();
     }

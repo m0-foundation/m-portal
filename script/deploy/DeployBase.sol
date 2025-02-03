@@ -11,14 +11,13 @@ import { Proxy } from "../../lib/common/src/Proxy.sol";
 
 import { MToken as SpokeMToken } from "../../lib/protocol/src/MToken.sol";
 import { Registrar as SpokeRegistrar } from "../../lib/ttg/src/Registrar.sol";
-import { EarnerManager as SpokeSmartMTokenEarnerManager } from "../../lib/smart-m-token/src/EarnerManager.sol";
-import { SmartMToken as SpokeSmartMToken } from "../../lib/smart-m-token/src/SmartMToken.sol";
+import { WrappedMToken as SpokeWrappedMToken } from "../../lib/wrapped-m-token/src/WrappedMToken.sol";
 
-import { IManagerBase } from "../../lib/example-native-token-transfers/evm/src/interfaces/IManagerBase.sol";
-import { INttManager } from "../../lib/example-native-token-transfers/evm/src/interfaces/INttManager.sol";
+import { IManagerBase } from "../../lib/native-token-transfers/evm/src/interfaces/IManagerBase.sol";
+import { INttManager } from "../../lib/native-token-transfers/evm/src/interfaces/INttManager.sol";
 import {
     WormholeTransceiver
-} from "../../lib/example-native-token-transfers/evm/src/Transceiver/WormholeTransceiver/WormholeTransceiver.sol";
+} from "../../lib/native-token-transfers/evm/src/Transceiver/WormholeTransceiver/WormholeTransceiver.sol";
 
 import { HubPortal } from "../../src/HubPortal.sol";
 import { SpokePortal } from "../../src/SpokePortal.sol";
@@ -219,105 +218,61 @@ contract DeployBase is Script, Utils {
         console.log("SpokeVault:", spokeVaultProxy_);
     }
 
-    function _deploySpokeSmartMToken(
+    function _deploySpokeWrappedMToken(
         address deployer_,
         address spokeMToken_,
         address registrar_,
         address spokeVault_,
         address migrationAdmin_,
         function(address, uint64, uint64) internal burnNonces_
-    )
-        internal
-        returns (
-            address spokeSmartMTokenEarnerManagerImplementation_,
-            address spokeSmartMTokenEarnerManagerProxy_,
-            address spokeSmartMTokenImplementation_,
-            address spokeSmartMTokenProxy_
-        )
-    {
+    ) internal returns (address spokeWrappedMTokenImplementation_, address spokeWrappedMTokenProxy_) {
         uint64 deployerNonce_ = vm.getNonce(deployer_);
 
-        if (deployerNonce_ > _SPOKE_SMART_M_TOKEN_EARNER_MANAGER_NONCE) {
-            revert DeployerNonceTooHigh(_SPOKE_SMART_M_TOKEN_EARNER_MANAGER_NONCE, deployerNonce_);
+        if (deployerNonce_ > _SPOKE_WRAPPED_M_TOKEN_NONCE) {
+            revert DeployerNonceTooHigh(_SPOKE_WRAPPED_M_TOKEN_NONCE, deployerNonce_);
         }
 
-        burnNonces_(deployer_, deployerNonce_, _SPOKE_SMART_M_TOKEN_EARNER_MANAGER_NONCE);
+        burnNonces_(deployer_, deployerNonce_, _SPOKE_WRAPPED_M_TOKEN_NONCE);
 
         deployerNonce_ = vm.getNonce(deployer_);
-        if (deployerNonce_ != _SPOKE_SMART_M_TOKEN_EARNER_MANAGER_NONCE) {
-            revert DeployerNonceTooHigh(_SPOKE_SMART_M_TOKEN_EARNER_MANAGER_NONCE, deployerNonce_);
+        if (deployerNonce_ != _SPOKE_WRAPPED_M_TOKEN_NONCE) {
+            revert DeployerNonceTooHigh(_SPOKE_WRAPPED_M_TOKEN_NONCE, deployerNonce_);
         }
 
-        // Pre-compute the expected SpokeSmartMTokenEarnerManager implementation address.
-        address expectedSmartMTokenEarnerManagerImplementation_ = ContractHelper.getContractFrom(
+        // Pre-compute the expected SpokeWrappedMToken implementation address.
+        address expectedWrappedMTokenImplementation_ = ContractHelper.getContractFrom(
             deployer_,
-            _SPOKE_SMART_M_TOKEN_EARNER_MANAGER_NONCE
+            _SPOKE_WRAPPED_M_TOKEN_NONCE
         );
 
-        spokeSmartMTokenEarnerManagerImplementation_ = address(
-            new SpokeSmartMTokenEarnerManager(registrar_, migrationAdmin_)
+        spokeWrappedMTokenImplementation_ = address(
+            new SpokeWrappedMToken(spokeMToken_, registrar_, spokeVault_, migrationAdmin_)
         );
 
-        if (expectedSmartMTokenEarnerManagerImplementation_ != spokeSmartMTokenEarnerManagerImplementation_) {
-            revert ExpectedAddressMismatch(
-                expectedSmartMTokenEarnerManagerImplementation_,
-                spokeSmartMTokenEarnerManagerImplementation_
-            );
+        if (expectedWrappedMTokenImplementation_ != spokeWrappedMTokenImplementation_) {
+            revert ExpectedAddressMismatch(expectedWrappedMTokenImplementation_, spokeWrappedMTokenImplementation_);
         }
 
-        console.log("SpokeSmartMTokenEarnerManagerImplementation:", spokeSmartMTokenEarnerManagerImplementation_);
-
-        // Pre-compute the expected SpokeSmartMTokenEarnerManager proxy address.
-        address expectedSmartMTokenEarnerManagerProxy_ = ContractHelper.getContractFrom(
-            deployer_,
-            _SPOKE_SMART_M_TOKEN_EARNER_MANAGER_PROXY_NONCE
-        );
-
-        spokeSmartMTokenEarnerManagerProxy_ = address(new Proxy(spokeSmartMTokenEarnerManagerImplementation_));
-
-        if (expectedSmartMTokenEarnerManagerProxy_ != spokeSmartMTokenEarnerManagerProxy_) {
-            revert ExpectedAddressMismatch(expectedSmartMTokenEarnerManagerProxy_, spokeSmartMTokenEarnerManagerProxy_);
-        }
-
-        console.log("SpokeSmartMTokenEarnerManagerProxy:", spokeSmartMTokenEarnerManagerProxy_);
-
-        // Pre-compute the expected SpokeSmartMToken implementation address.
-        address expectedSmartMTokenImplementation_ = ContractHelper.getContractFrom(
-            deployer_,
-            _SPOKE_SMART_M_TOKEN_NONCE
-        );
-
-        spokeSmartMTokenImplementation_ = address(
-            new SpokeSmartMToken(
-                spokeMToken_,
-                registrar_,
-                spokeSmartMTokenEarnerManagerProxy_,
-                spokeVault_,
-                migrationAdmin_
-            )
-        );
-
-        if (expectedSmartMTokenImplementation_ != spokeSmartMTokenImplementation_) {
-            revert ExpectedAddressMismatch(expectedSmartMTokenImplementation_, spokeSmartMTokenImplementation_);
-        }
-
-        console.log("SpokeSmartMTokenImplementation:", spokeSmartMTokenImplementation_);
+        console.log("SpokeWrappedMTokenImplementation:", spokeWrappedMTokenImplementation_);
 
         deployerNonce_ = vm.getNonce(deployer_);
-        if (deployerNonce_ != _SPOKE_SMART_M_TOKEN_PROXY_NONCE) {
-            revert DeployerNonceTooHigh(_SPOKE_SMART_M_TOKEN_PROXY_NONCE, deployerNonce_);
+        if (deployerNonce_ != _SPOKE_WRAPPED_M_TOKEN_PROXY_NONCE) {
+            revert DeployerNonceTooHigh(_SPOKE_WRAPPED_M_TOKEN_PROXY_NONCE, deployerNonce_);
         }
 
-        // Pre-compute the expected SpokeSmartMToken proxy address.
-        address expectedSmartMTokenProxy_ = ContractHelper.getContractFrom(deployer_, _SPOKE_SMART_M_TOKEN_PROXY_NONCE);
+        // Pre-compute the expected SpokeWrappedMToken proxy address.
+        address expectedWrappedMTokenProxy_ = ContractHelper.getContractFrom(
+            deployer_,
+            _SPOKE_WRAPPED_M_TOKEN_PROXY_NONCE
+        );
 
-        spokeSmartMTokenProxy_ = address(new Proxy(spokeSmartMTokenImplementation_));
+        spokeWrappedMTokenProxy_ = address(new Proxy(spokeWrappedMTokenImplementation_));
 
-        if (expectedSmartMTokenProxy_ != spokeSmartMTokenProxy_) {
-            revert ExpectedAddressMismatch(expectedSmartMTokenProxy_, spokeSmartMTokenProxy_);
+        if (expectedWrappedMTokenProxy_ != spokeWrappedMTokenProxy_) {
+            revert ExpectedAddressMismatch(expectedWrappedMTokenProxy_, spokeWrappedMTokenProxy_);
         }
 
-        console.log("SpokeSmartMTokenProxy:", spokeSmartMTokenProxy_);
+        console.log("SpokeWrappedMTokenProxy:", spokeWrappedMTokenProxy_);
     }
 
     function _configurePortal(address portal_, address transceiver_) internal {
