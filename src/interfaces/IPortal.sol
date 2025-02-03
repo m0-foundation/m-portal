@@ -161,6 +161,7 @@ interface IPortal {
 
     /**
      * @notice Transfers M or Wrapped M Token to the destination chain.
+     * @dev    If wrapping on the destination fails, the recipient will receive $M token.
      * @param  amount             The amount of tokens to transfer.
      * @param  sourceToken        The address of the token (M or Wrapped M) on the source chain.
      * @param  destinationChainId The Wormhole destination chain ID.

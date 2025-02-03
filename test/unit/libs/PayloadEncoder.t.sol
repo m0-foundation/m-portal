@@ -70,31 +70,31 @@ contract PayloadEncoderTest is Test {
 
     function test_encodeAdditionalPayload() external {
         uint128 index_ = 1e12;
-        bytes32 wrappedToken_ = makeAddr("wrapped").toBytes32();
-        bytes memory payload_ = abi.encodePacked(uint64(index_), wrappedToken_);
+        bytes32 destinationToken_ = makeAddr("destination token").toBytes32();
+        bytes memory payload_ = abi.encodePacked(uint64(index_), destinationToken_);
 
-        assertEq(PayloadEncoder.encodeAdditionalPayload(index_, wrappedToken_), payload_);
+        assertEq(PayloadEncoder.encodeAdditionalPayload(index_, destinationToken_), payload_);
     }
 
     function test_decodeAdditionalPayload() external {
         uint128 encodedIndex_ = 1e12;
-        address encodedWrappedToken_ = makeAddr("wrapped");
+        address encodedDestinationToken_ = makeAddr("destination token");
 
-        bytes memory payload_ = abi.encodePacked(uint64(encodedIndex_), encodedWrappedToken_.toBytes32());
+        bytes memory payload_ = abi.encodePacked(uint64(encodedIndex_), encodedDestinationToken_.toBytes32());
 
-        (uint128 decodedIndex_, address decodedWrappedToken_) = PayloadEncoder.decodeAdditionalPayload(payload_);
+        (uint128 decodedIndex_, address decodedDestinationToken_) = PayloadEncoder.decodeAdditionalPayload(payload_);
 
         assertEq(decodedIndex_, encodedIndex_);
-        assertEq(decodedWrappedToken_, encodedWrappedToken_);
+        assertEq(decodedDestinationToken_, encodedDestinationToken_);
     }
 
-    function testFuzz_decodeAdditionalPayload(uint64 encodedIndex_, address encodedWrappedToken_) external {
-        bytes memory payload_ = abi.encodePacked(encodedIndex_, encodedWrappedToken_.toBytes32());
+    function testFuzz_decodeAdditionalPayload(uint64 encodedIndex_, address encodedDestinationToken_) external {
+        bytes memory payload_ = abi.encodePacked(encodedIndex_, encodedDestinationToken_.toBytes32());
 
-        (uint128 decodedIndex_, address decodedWrappedToken_) = PayloadEncoder.decodeAdditionalPayload(payload_);
+        (uint128 decodedIndex_, address decodedDestinationToken_) = PayloadEncoder.decodeAdditionalPayload(payload_);
 
         assertEq(decodedIndex_, encodedIndex_);
-        assertEq(decodedWrappedToken_, encodedWrappedToken_);
+        assertEq(decodedDestinationToken_, encodedDestinationToken_);
     }
 
     function test_decodeAdditionalPayload_invalidLength() external {
@@ -115,7 +115,7 @@ contract PayloadEncoderTest is Test {
     function test_decodeTokenTransfer() external {
         uint256 encodedAmount_ = 1000;
         uint128 encodedIndex_ = 1e12;
-        address encodedWrappedToken_ = makeAddr("wrapped");
+        address encodedDestinationToken_ = makeAddr("destination token");
 
         bytes memory payload_ = TransceiverStructs.encodeNativeTokenTransfer(
             TransceiverStructs.NativeTokenTransfer(
@@ -123,14 +123,14 @@ contract PayloadEncoderTest is Test {
                 _token.toBytes32(),
                 _recipient.toBytes32(),
                 _DESTINATION_CHAIN_ID,
-                abi.encodePacked(uint64(encodedIndex_), encodedWrappedToken_.toBytes32())
+                abi.encodePacked(uint64(encodedIndex_), encodedDestinationToken_.toBytes32())
             )
         );
 
         (
             TrimmedAmount decodedTrimmedAmount_,
             uint128 decodedIndex_,
-            address decodedWrappedToken_,
+            address decodedDestinationToken_,
             address decodedRecipient_,
             uint16 decodedDestinationChainId_
         ) = PayloadEncoder.decodeTokenTransfer(payload_);
@@ -139,7 +139,7 @@ contract PayloadEncoderTest is Test {
 
         assertEq(decodedAmount_, encodedAmount_);
         assertEq(decodedIndex_, encodedIndex_);
-        assertEq(decodedWrappedToken_, encodedWrappedToken_);
+        assertEq(decodedDestinationToken_, encodedDestinationToken_);
         assertEq(decodedRecipient_, _recipient);
         assertEq(decodedDestinationChainId_, _DESTINATION_CHAIN_ID);
     }

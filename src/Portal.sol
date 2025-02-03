@@ -103,7 +103,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         bytes32 destinationToken_,
         bytes32 recipient_,
         bytes32 refundAddress_
-    ) external payable returns (uint64 sequence_) {
+    ) external payable nonReentrant whenNotPaused returns (uint64 sequence_) {
         if (!supportedBridgingPath[sourceToken_][destinationChainId_][destinationToken_]) {
             revert UnsupportedBridgingPath(sourceToken_, destinationChainId_, destinationToken_);
         }
@@ -148,7 +148,8 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         bytes32 recipient_,
         bytes32 refundAddress_
     ) private returns (uint64 sequence_) {
-        if (amount_ == 0) revert ZeroAmount();
+        _verifyTransferAmount(amount_);
+
         if (destinationToken_ == bytes32(0)) revert ZeroDestinationToken();
         if (recipient_ == bytes32(0)) revert InvalidRecipient();
         if (refundAddress_ == bytes32(0)) revert InvalidRefundAddress();
@@ -166,6 +167,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
 
         // account for potential rounding errors when transferring between earners and non-earners
         amount_ = mToken_.balanceOf(address(this)) - balanceBefore;
+        _verifyTransferAmount(amount_);
 
         sequence_ = _transferNativeToken(
             amount_,
@@ -334,22 +336,30 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
             // mints or unlocks M Token to the Portal
             _mintOrUnlock(address(this), amount_, index_);
 
-            IERC20(mToken_).approve(destinationToken_, amount_);
             // wraps M token and transfers it to the recipient
-            _wrap(destinationToken_, recipient_, amount_);
+            _wrap(mToken_, destinationToken_, recipient_, amount_);
         }
     }
 
     /// @dev Wraps M token to the token specified by `destinationWrappedToken_`.
-    ///      If wrapping fails transfers M token to `recipient_`.
-    function _wrap(address destinationWrappedToken_, address recipient_, uint256 amount_) private {
+    ///      If wrapping fails transfers $M token to `recipient_`.
+    function _wrap(address mToken_, address destinationWrappedToken_, address recipient_, uint256 amount_) private {
+        IERC20(mToken_).approve(destinationWrappedToken_, amount_);
+
+        // Attempt to wrap $M token
+        // NOTE: the call might fail with out-of-gas exception
+        //       even if the destination token is the valid wrapped M token.
+        //       Recipients must support both $M and wrapped $M transfers.
         bool success = destinationWrappedToken_.safeCall(
             abi.encodeCall(IWrappedMTokenLike.wrap, (recipient_, amount_))
         );
 
         if (!success) {
             emit WrapFailed(destinationWrappedToken_, recipient_, amount_);
-            IERC20(mToken()).transfer(recipient_, amount_);
+            // reset approval to prevent a potential double-spend attack
+            IERC20(mToken_).approve(destinationWrappedToken_, 0);
+            // transfer $M token to the recipient
+            IERC20(mToken_).transfer(recipient_, amount_);
         }
     }
 
@@ -359,15 +369,20 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         bytes memory payload_
     ) internal virtual {}
 
+    /// @dev Verifies that the destination chain is the current chain.
     function _verifyDestinationChain(uint16 destinationChainId_) internal view {
-        // Verify that the destination chain is the current chain.
         if (destinationChainId_ != chainId) revert InvalidTargetChain(destinationChainId_, chainId);
     }
 
-    function _verifyIfChainForked() internal view {
-        // Verify that the destination chain isn't forked
+    /// @dev Verifies that the destination chain isn't forked.
+    function _verifyIfChainForked() private view {
         uint256 evmChainId_ = evmChainId;
         if (evmChainId_ != block.chainid) revert InvalidFork(evmChainId_, block.chainid);
+    }
+
+    /// @dev Verifies that the transfer amount isn't zero.
+    function _verifyTransferAmount(uint256 amount_) private view {
+        if (amount_ == 0) revert ZeroAmount();
     }
 
     /**
