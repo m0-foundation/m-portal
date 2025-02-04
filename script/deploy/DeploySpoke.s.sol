@@ -22,7 +22,7 @@ contract DeploySpoke is DeployBase {
             deployer_,
             spokePortal_,
             spokeConfig_.hubVault,
-            spokeConfig_.hubVaultWormholechainId,
+            spokeConfig_.hubWormholeChainId,
             migrationAdmin_
         );
 

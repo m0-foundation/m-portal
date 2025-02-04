@@ -143,7 +143,7 @@ contract ForkTestBase is CastBase, ConfigureBase, DeployBase, Test {
             _DEPLOYER,
             _baseSpokePortal,
             baseSpokeConfig_.hubVault,
-            baseSpokeConfig_.hubVaultWormholechainId,
+            baseSpokeConfig_.hubWormholeChainId,
             _MIGRATION_ADMIN
         );
 
@@ -184,7 +184,7 @@ contract ForkTestBase is CastBase, ConfigureBase, DeployBase, Test {
             _DEPLOYER,
             _optimismSpokePortal,
             optimismSpokeConfig_.hubVault,
-            optimismSpokeConfig_.hubVaultWormholechainId,
+            optimismSpokeConfig_.hubWormholeChainId,
             _MIGRATION_ADMIN
         );
 
