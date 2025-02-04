@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 
-pragma solidity 0.8.26;
+pragma solidity ^0.8.23;
 
 import { IERC6372 } from "./interfaces/IERC6372.sol";
 import { IAdminControlledRegistrar } from "./interfaces/IAdminControlledRegistrar.sol";
@@ -11,6 +11,8 @@ contract AdminControlledRegistrar is IAdminControlledRegistrar {
     mapping(bytes32 key => bytes32 value) internal _valueAt;
 
     address public admin;
+
+    address public vault;
 
     /* ============ Modifiers ============ */
 
@@ -24,6 +26,7 @@ contract AdminControlledRegistrar is IAdminControlledRegistrar {
 
     constructor(address admin_) {
         admin = admin_;
+        vault = admin_;
     }
 
     /* ============ Interactive Functions ============ */

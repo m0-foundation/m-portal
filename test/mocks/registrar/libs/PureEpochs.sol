@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 
-pragma solidity 0.8.26;
+pragma solidity ^0.8.23;
 
 /**
  * @notice Defines epochs as periods away from STARTING_TIMESTAMP timestamp.
