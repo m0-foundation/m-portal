@@ -32,11 +32,11 @@ contract DeployBase is Script, Utils {
 
     struct WormholeConfiguration {
         uint16 chainId;
+        uint8 consistencyLevel;
         address coreBridge;
+        uint256 gasLimit;
         address relayer;
         address specialRelayer;
-        uint8 consistencyLevel;
-        uint256 gasLimit;
     }
 
     struct HubConfiguration {
@@ -47,7 +47,7 @@ contract DeployBase is Script, Utils {
 
     struct SpokeConfiguration {
         address hubVault;
-        uint16 hubVaultWormholechainId;
+        uint16 hubWormholeChainId;
         WormholeConfiguration wormhole;
     }
 
@@ -290,17 +290,13 @@ contract DeployBase is Script, Utils {
         uint256 chainId_
     ) internal view returns (HubConfiguration memory hubConfig_) {
         string memory file_ = vm.readFile(filepath_);
-        string memory hub_ = string.concat("$.hub.", vm.toString(chainId_), ".");
+        bytes memory data = vm.parseJson(file_, string.concat(".hub.", vm.toString(chainId_)));
+        hubConfig_ = abi.decode(data, (HubConfiguration));
 
-        console.log("Hub configuration for chain ID %s loaded:", chainId_);
-
-        hubConfig_.mToken = file_.readAddress(_readKey(hub_, "m_token"));
-        hubConfig_.registrar = file_.readAddress(_readKey(hub_, "registrar"));
-
+        console.log("Hub configuration for Chain ID %s loaded:", chainId_);
         console.log("M Token:", hubConfig_.mToken);
         console.log("Registrar:", hubConfig_.registrar);
-
-        hubConfig_.wormhole = _loadWormholeConfig(file_, hub_);
+        _logWormholeConfig(hubConfig_.wormhole);
     }
 
     function _loadSpokeConfig(
@@ -308,34 +304,19 @@ contract DeployBase is Script, Utils {
         uint256 chainId_
     ) internal view returns (SpokeConfiguration memory spokeConfig_) {
         string memory file_ = vm.readFile(filepath_);
+        bytes memory data = vm.parseJson(file_, string.concat(".spoke.", vm.toString(chainId_)));
         string memory spoke_ = string.concat("$.spoke.", vm.toString(chainId_), ".");
         string memory hubVault_ = string.concat(spoke_, "hub_vault.");
+        spokeConfig_ = abi.decode(data, (SpokeConfiguration));
 
-        console.log("Spoke configuration for chain ID %s loaded:", chainId_);
-
-        spokeConfig_.hubVault = file_.readAddress(_readKey(hubVault_, "address"));
-        spokeConfig_.hubVaultWormholechainId = uint16(file_.readUint(_readKey(hubVault_, "wormhole_chain_id")));
-
+        console.log("Spoke configuration for Chain ID %s loaded:", chainId_);
         console.log("Hub Vault:", spokeConfig_.hubVault);
-        console.log("Hub Vault Wormhole Chain ID:", spokeConfig_.hubVaultWormholechainId);
-
-        spokeConfig_.wormhole = _loadWormholeConfig(file_, spoke_);
+        console.log("Hub Wormhole Chain ID:", spokeConfig_.hubWormholeChainId);
+        _logWormholeConfig(spokeConfig_.wormhole);
     }
 
-    function _loadWormholeConfig(
-        string memory file_,
-        string memory parentNode_
-    ) internal pure returns (WormholeConfiguration memory wormholeConfig_) {
-        string memory wormhole_ = string.concat(parentNode_, "wormhole.");
-
-        wormholeConfig_.chainId = uint16(file_.readUint(_readKey(wormhole_, "chain_id")));
-        wormholeConfig_.coreBridge = file_.readAddress(_readKey(wormhole_, "core_bridge"));
-        wormholeConfig_.relayer = file_.readAddress(_readKey(wormhole_, "relayer"));
-        wormholeConfig_.specialRelayer = file_.readAddress(_readKey(wormhole_, "special_relayer"));
-        wormholeConfig_.consistencyLevel = uint8(file_.readUint(_readKey(wormhole_, "consistency_level")));
-        wormholeConfig_.gasLimit = file_.readUint(_readKey(wormhole_, "gas_limit"));
-
-        console.log("Wormhole chain ID:", wormholeConfig_.chainId);
+    function _logWormholeConfig(WormholeConfiguration memory wormholeConfig_) internal pure {
+        console.log("Wormhole Chain ID:", wormholeConfig_.chainId);
         console.log("Wormhole Core Bridge:", wormholeConfig_.coreBridge);
         console.log("Wormhole Relayer:", wormholeConfig_.relayer);
         console.log("Wormhole Special Relayer:", wormholeConfig_.specialRelayer);
