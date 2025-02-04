@@ -2,7 +2,7 @@
 
 import { IERC6372 } from "./IERC6372.sol";
 
-pragma solidity 0.8.26;
+pragma solidity ^0.8.23;
 
 /**
  * @title  A book of record of TTG-specific contracts and arbitrary key-value pairs and lists.
@@ -101,4 +101,7 @@ interface IAdminControlledRegistrar is IERC6372 {
 
     /// @notice Returns the address of the admin.
     function admin() external view returns (address);
+
+    /// @notice Returns the address of the Vault.
+    function vault() external view returns (address);
 }
