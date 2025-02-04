@@ -26,3 +26,7 @@
 	path = lib/hub-protocol
 	url = git@github.com:m0-foundation/protocol.git
 	branch = main
+[submodule "lib/hub-wrapped-m-token"]
+	path = lib/hub-wrapped-m-token
+	url = git@github.com:m0-foundation/wrapped-m-token.git
+	branch = main
