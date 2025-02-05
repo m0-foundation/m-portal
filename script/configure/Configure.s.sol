@@ -2,10 +2,7 @@
 
 pragma solidity 0.8.26;
 
-import { INttManager } from "../../lib/native-token-transfers/evm/src/interfaces/INttManager.sol";
-import {
-    IWormholeTransceiver
-} from "../../lib/native-token-transfers/evm/src/interfaces/IWormholeTransceiver.sol";
+import { IWormholeTransceiver } from "../../lib/native-token-transfers/evm/src/interfaces/IWormholeTransceiver.sol";
 
 import { ConfigureBase } from "./ConfigureBase.sol";
 
@@ -23,12 +20,12 @@ contract Configure is ConfigureBase {
 
             if (chainConfig_.chainId == block.chainid) {
                 _configureWormholeTransceiver(
-                    IWormholeTransceiver(chainConfig_.wormholeTransceiver),
+                    IWormholeTransceiver(chainConfig_.transceiver),
                     chainsConfig_,
                     chainConfig_.wormholeChainId
                 );
 
-                _configurePortal(INttManager(chainConfig_.portal), chainsConfig_, chainConfig_.wormholeChainId);
+                _configurePortal(chainConfig_.portal, chainsConfig_, chainConfig_);
             }
         }
 

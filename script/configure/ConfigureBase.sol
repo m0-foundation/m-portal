@@ -9,6 +9,7 @@ import { stdJson } from "../../lib/forge-std/src/StdJson.sol";
 import { INttManager } from "../../lib/native-token-transfers/evm/src/interfaces/INttManager.sol";
 import { IWormholeTransceiver } from "../../lib/native-token-transfers/evm/src/interfaces/IWormholeTransceiver.sol";
 
+import { IPortal } from "../../src/interfaces/IPortal.sol";
 import { Utils } from "../helpers/Utils.sol";
 
 contract ConfigureBase is Script, Utils {
@@ -27,22 +28,53 @@ contract ConfigureBase is Script, Utils {
     }
 
     function _configurePortal(
-        INttManager portal_,
-        ChainConfig[] memory targetConfigs_,
-        uint16 sourceWormholeChainId_
+        address portal_,
+        ChainConfig[] memory targetChains_,
+        ChainConfig memory sourceChain_
     ) internal {
-        for (uint256 i_; i_ < targetConfigs_.length; ++i_) {
-            ChainConfig memory targetConfig_ = targetConfigs_[i_];
+        for (uint256 i_; i_ < targetChains_.length; ++i_) {
+            ChainConfig memory targetChain_ = targetChains_[i_];
 
-            if (targetConfig_.wormholeChainId != sourceWormholeChainId_) {
-                portal_.setPeer(
-                    targetConfig_.wormholeChainId,
-                    _toUniversalAddress(targetConfig_.portal),
+            if (targetChain_.wormholeChainId != sourceChain_.wormholeChainId) {
+                uint16 destinationChainId_ = targetChain_.wormholeChainId;
+                bytes32 destinationMToken_ = _toUniversalAddress(targetChain_.mToken);
+                bytes32 destinationWrappedMToken_ = _toUniversalAddress(targetChain_.wrappedMToken);
+
+                INttManager(portal_).setPeer(
+                    destinationChainId_,
+                    _toUniversalAddress(targetChain_.portal),
                     _M_TOKEN_DECIMALS,
                     0
                 );
+                console.log("Peer set for chain: %s", targetChain_.wormholeChainId);
 
-                console.log("Peer set for chain: %s", targetConfig_.wormholeChainId);
+                IPortal(portal_).setDestinationMToken(targetChain_.wormholeChainId, destinationMToken_);
+                console.log("Destination M token set for chain: %s", targetChain_.wormholeChainId);
+
+                IPortal(portal_).setSupportedBridgingPath(
+                    sourceChain_.mToken,
+                    targetChain_.wormholeChainId,
+                    destinationMToken_,
+                    true
+                );
+                IPortal(portal_).setSupportedBridgingPath(
+                    sourceChain_.wrappedMToken,
+                    targetChain_.wormholeChainId,
+                    destinationMToken_,
+                    true
+                );
+                IPortal(portal_).setSupportedBridgingPath(
+                    sourceChain_.mToken,
+                    targetChain_.wormholeChainId,
+                    destinationWrappedMToken_,
+                    true
+                );
+                IPortal(portal_).setSupportedBridgingPath(
+                    sourceChain_.wrappedMToken,
+                    targetChain_.wormholeChainId,
+                    destinationWrappedMToken_,
+                    true
+                );
             }
         }
     }

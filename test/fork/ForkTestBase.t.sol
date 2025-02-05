@@ -222,7 +222,7 @@ contract ForkTestBase is CastBase, ConfigureBase, DeployBase, Test {
                         chainConfig_.wormholeChainId
                     );
 
-                    _configurePortal(INttManager(chainConfig_.portal), chainsConfig_, chainConfig_.wormholeChainId);
+                    _configurePortal(chainConfig_.portal, chainsConfig_, chainConfig_);
                 }
             }
 
