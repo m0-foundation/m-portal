@@ -1,28 +1,35 @@
-{
-  "config": {
-    "11155111": {
-      "wormhole_chain_id": "10002",
-      "is_evm_chain": true,
-      "is_special_relaying_enabled": false,
-      "is_wormhole_relaying_enabled": true,
-      "portal": "0x1B7aE194B20C555B9d999c835F74cDCE36A67a74",
-      "wormhole_transceiver": "0x29CbF1e07166D31446307aE07999fa6d16223990"
-    },
-    "84532": {
-      "wormhole_chain_id": "10004",
-      "is_evm_chain": true,
-      "is_special_relaying_enabled": false,
-      "is_wormhole_relaying_enabled": true,
-      "portal": "0x1B7aE194B20C555B9d999c835F74cDCE36A67a74",
-      "wormhole_transceiver": "0x29CbF1e07166D31446307aE07999fa6d16223990"
-    },
-    "11155420": {
-      "wormhole_chain_id": "10005",
-      "is_evm_chain": true,
-      "is_special_relaying_enabled": false,
-      "is_wormhole_relaying_enabled": true,
-      "portal": "0x1B7aE194B20C555B9d999c835F74cDCE36A67a74",
-      "wormhole_transceiver": "0x29CbF1e07166D31446307aE07999fa6d16223990"
-    }
+[
+  {
+    "chain_id": 11155111,
+    "is_evm_chain": true,
+    "is_special_relaying_enabled": false,
+    "is_wormhole_relaying_enabled": true,
+    "m_token": "0x245902cAB620E32DF09DA4a26094064e096dd480",
+    "portal": "0xf1669804140fA31cdAA805A1B3Be91e6282D5e41",
+    "transceiver": "0xb1725758f7255B025cdbF2814Bc428B403623562",
+    "wormhole_chain_id": 10002,
+    "wrapped_m_token": "0xe91A93a2B782781744a07118bab5855fb256b881"
+  },
+  {
+    "chain_id": 421614,
+    "is_evm_chain": true,
+    "is_special_relaying_enabled": false,
+    "is_wormhole_relaying_enabled": true,
+    "m_token": "0x58582438ab47FfA2206570AC93E85B42640bef09",
+    "portal": "0xf1669804140fA31cdAA805A1B3Be91e6282D5e41",
+    "transceiver": "0xb1725758f7255B025cdbF2814Bc428B403623562",
+    "wormhole_chain_id": 10003,
+    "wrapped_m_token": "0x71c72Ee9F587DAC1df749940c7581E4BbC789F85"
+  },
+  {
+    "chain_id": 11155420,
+    "is_evm_chain": true,
+    "is_special_relaying_enabled": false,
+    "is_wormhole_relaying_enabled": true,
+    "m_token": "0x58582438ab47FfA2206570AC93E85B42640bef09",
+    "portal": "0xf1669804140fA31cdAA805A1B3Be91e6282D5e41",
+    "transceiver": "0xb1725758f7255B025cdbF2814Bc428B403623562",
+    "wormhole_chain_id": 10005,
+    "wrapped_m_token": "0x71c72Ee9F587DAC1df749940c7581E4BbC789F85"
   }
-}
+]

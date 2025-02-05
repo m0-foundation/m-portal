@@ -7,9 +7,7 @@ import { Script } from "../../lib/forge-std/src/Script.sol";
 import { stdJson } from "../../lib/forge-std/src/StdJson.sol";
 
 import { INttManager } from "../../lib/native-token-transfers/evm/src/interfaces/INttManager.sol";
-import {
-    IWormholeTransceiver
-} from "../../lib/native-token-transfers/evm/src/interfaces/IWormholeTransceiver.sol";
+import { IWormholeTransceiver } from "../../lib/native-token-transfers/evm/src/interfaces/IWormholeTransceiver.sol";
 
 import { Utils } from "../helpers/Utils.sol";
 
@@ -18,12 +16,14 @@ contract ConfigureBase is Script, Utils {
 
     struct ChainConfig {
         uint256 chainId;
-        uint16 wormholeChainId;
         bool isEvmChain;
         bool isSpecialRelayingEnabled;
         bool isWormholeRelayingEnabled;
+        address mToken;
         address portal;
-        address wormholeTransceiver;
+        address transceiver;
+        uint16 wormholeChainId;
+        address wrappedMToken;
     }
 
     function _configurePortal(
@@ -42,7 +42,7 @@ contract ConfigureBase is Script, Utils {
                     0
                 );
 
-                console.log("Peer set for chain: %s", targetConfig_.chainId);
+                console.log("Peer set for chain: %s", targetConfig_.wormholeChainId);
             }
         }
     }
@@ -66,7 +66,7 @@ contract ConfigureBase is Script, Utils {
 
                 wormholeTransceiver_.setWormholePeer(
                     targetConfig_.wormholeChainId,
-                    _toUniversalAddress(targetConfig_.wormholeTransceiver)
+                    _toUniversalAddress(targetConfig_.transceiver)
                 );
 
                 console.log("Wormhole peer set for chain: %s", targetConfig_.chainId);
@@ -85,37 +85,24 @@ contract ConfigureBase is Script, Utils {
         string memory filepath_,
         uint256 chainId_
     ) internal view returns (ChainConfig[] memory chainConfig_) {
-        string memory file_ = vm.readFile(filepath_);
-        string[] memory configKeys_ = vm.parseJsonKeys(file_, "$.config");
-        uint256 configKeysLength_ = configKeys_.length;
+        bytes memory data = vm.parseJson(vm.readFile(filepath_));
+        chainConfig_ = abi.decode(data, (ChainConfig[]));
 
-        chainConfig_ = new ChainConfig[](configKeysLength_);
+        uint256 configKeysLength_ = chainConfig_.length;
 
         console.log("Chains config for chain ID %s loaded.", chainId_);
         console.log("=======================================================");
 
         for (uint256 i_; i_ < configKeysLength_; ++i_) {
-            string memory configKey_ = string.concat("$.config.", configKeys_[i_], ".");
-
-            chainConfig_[i_].chainId = vm.parseUint(configKeys_[i_]);
-            chainConfig_[i_].wormholeChainId = uint16(file_.readUint(_readKey(configKey_, "wormhole_chain_id")));
-            chainConfig_[i_].isEvmChain = file_.readBool(_readKey(configKey_, "is_evm_chain"));
-            chainConfig_[i_].isSpecialRelayingEnabled = file_.readBool(
-                _readKey(configKey_, "is_special_relaying_enabled")
-            );
-            chainConfig_[i_].isWormholeRelayingEnabled = file_.readBool(
-                _readKey(configKey_, "is_wormhole_relaying_enabled")
-            );
-            chainConfig_[i_].portal = file_.readAddress(_readKey(configKey_, "portal"));
-            chainConfig_[i_].wormholeTransceiver = file_.readAddress(_readKey(configKey_, "wormhole_transceiver"));
-
             console.log("Config for chain ID:", chainConfig_[i_].chainId);
             console.log("Wormhole chain ID:", chainConfig_[i_].wormholeChainId);
             console.log("Is EVM chain:", chainConfig_[i_].isEvmChain);
             console.log("Is special relaying enabled:", chainConfig_[i_].isSpecialRelayingEnabled);
             console.log("Is Wormhole relaying enabled:", chainConfig_[i_].isWormholeRelayingEnabled);
             console.log("Portal:", vm.toString(chainConfig_[i_].portal));
-            console.log("Wormhole transceiver:", vm.toString(chainConfig_[i_].wormholeTransceiver));
+            console.log("Transceiver:", vm.toString(chainConfig_[i_].transceiver));
+            console.log("M Token:", vm.toString(chainConfig_[i_].mToken));
+            console.log("Wrapped M Token:", vm.toString(chainConfig_[i_].wrappedMToken));
             console.log("=======================================================");
         }
     }
