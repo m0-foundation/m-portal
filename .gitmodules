@@ -26,3 +26,7 @@
 	path = lib/hub-wrapped-m-token
 	url = git@github.com:m0-foundation/wrapped-m-token.git
 	branch = main
+[submodule "lib/wrapped-m-token"]
+	path = lib/wrapped-m-token
+	url = git@github.com:m0-foundation/wrapped-m-token.git
+	branch = spoke
