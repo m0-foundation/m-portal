@@ -21,6 +21,9 @@ deploy-dev-base-sepolia:
 deploy-dev-optimism-sepolia:
 	FOUNDRY_PROFILE=production CONFIG="config/deploy/sepolia.json" MIGRATION_ADMIN=$(MIGRATION_ADMIN_ADDRESS) PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/deploy/DeploySpoke.s.sol:DeploySpoke --rpc-url $(OPTIMISM_SEPOLIA_RPC_URL) --etherscan-api-key $(OPTIMISM_ETHERSCAN_API_KEY) --skip test --non-interactive --broadcast --slow -v --verify
 
+deploy-dev-arbitrum-sepolia:
+	FOUNDRY_PROFILE=production CONFIG="config/deploy/sepolia.json" MIGRATION_ADMIN=$(MIGRATION_ADMIN_ADDRESS) PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/deploy/DeploySpoke.s.sol:DeploySpoke --rpc-url $(ARBITRUM_SEPOLIA_RPC_URL) --etherscan-api-key $(ARBITRUM_ETHERSCAN_API_KEY) --skip test --non-interactive --broadcast --slow -v --verify
+
 # Configuration helpers
 configure-local:
 	CONFIG="config/configure/sepolia.json" PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/configure/Configure.s.sol:Configure --rpc-url localhost --skip test --broadcast -v
