@@ -10,8 +10,19 @@ contract DeployHub is DeployBase {
 
         vm.startBroadcast(deployer_);
 
-        _deployHubComponents(deployer_, _loadHubConfig(vm.envString("CONFIG"), block.chainid));
+        (address hubPortal_, address wormholeTransceiver_) = _deployHubComponents(
+            deployer_,
+            _loadHubConfig(vm.envString("CONFIG"), block.chainid)
+        );
+        _serializeHubDeployments(hubPortal_, wormholeTransceiver_);
 
         vm.stopBroadcast();
+    }
+
+    function _serializeHubDeployments(address hubPortal_, address wormholeTransceiver_) internal {
+        string memory root = "";
+
+        vm.serializeAddress(root, "hub_portal", hubPortal_);
+        vm.writeJson(vm.serializeAddress(root, "wormhole_transceiver", wormholeTransceiver_), _deployOutputPath());
     }
 }

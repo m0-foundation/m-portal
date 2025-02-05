@@ -3,6 +3,7 @@ evm_version = "cancun"
 fs_permissions = [
   { access = "read", path = "./config" },
   { access = "read", path = "./test/fork/fixtures/" },
+  { access = "read-write", path = "./deployments" }
 ]
 gas_reports = ["HubPortal", "SpokePortal"]
 gas_reports_ignore = []
