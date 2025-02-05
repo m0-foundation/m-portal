@@ -91,7 +91,7 @@ contract Configure is ForkTestBase {
 
             if (chainConfig_.chainId == block.chainid) {
                 _configureWormholeTransceiver(
-                    IWormholeTransceiver(chainConfig_.wormholeTransceiver),
+                    IWormholeTransceiver(chainConfig_.transceiver),
                     chainsConfig_,
                     chainConfig_.wormholeChainId
                 );
