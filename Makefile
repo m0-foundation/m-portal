@@ -68,51 +68,51 @@ upgrade-portal-dev-base-sepolia:
 upgrade-portal-dev-optimism-sepolia:
 	FOUNDRY_PROFILE=production CONFIG="config/upgrade/sepolia.json" PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/upgrade/UpgradeSpokePortal.s.sol:UpgradeSpokePortal --rpc-url $(OPTIMISM_SEPOLIA_RPC_URL) --etherscan-api-key $(OPTIMISM_ETHERSCAN_API_KEY) --skip test --broadcast --slow -v --verify
 
-# Cast helpers
-cast-send-m-token-index-local:
-	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/cast/CastSendMTokenIndex.s.sol:CastSendMTokenIndex --rpc-url localhost --skip test --broadcast -v
+# Tasks
+send-m-token-index-local:
+	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/tasks/SendMTokenIndex.s.sol:SendMTokenIndex --rpc-url localhost --skip test --broadcast -v
 
 cast-transfer-dev-sepolia:
-	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/cast/CastTransfer.s.sol:CastTransfer --rpc-url $(SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/tasks/Transfer.s.sol:Transfer --rpc-url $(SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
 
 cast-transfer-dev-optimism-sepolia:
-	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/cast/CastTransfer.s.sol:CastTransfer --rpc-url $(OPTIMISM_SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/tasks/Transfer.s.sol:Transfer --rpc-url $(OPTIMISM_SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
 
 cast-transfer-dev-arbitrum-sepolia:
-	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/cast/CastTransfer.s.sol:CastTransfer --rpc-url $(ARBITRUM_SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/tasks/Transfer.s.sol:Transfer --rpc-url $(ARBITRUM_SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
 
 cast-transfer-m-like-token-dev-sepolia:
-	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/cast/CastTransferMLikeToken.s.sol:CastTransferMLikeToken --rpc-url $(SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/tasks/TransferMLikeToken.s.sol:TransferMLikeToken --rpc-url $(SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
 
 cast-transfer-m-like-token-dev-optimism-sepolia:
-	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/cast/CastTransferMLikeToken.s.sol:CastTransferMLikeToken --rpc-url $(OPTIMISM_SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/tasks/TransferMLikeToken.s.sol:TransferMLikeToken --rpc-url $(OPTIMISM_SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
 
 cast-transfer-m-like-token-dev-arbitrum-sepolia:
-	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/cast/CastTransferMLikeToken.s.sol:CastTransferMLikeToken --rpc-url $(ARBITRUM_SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/tasks/TransferMLikeToken.s.sol:TransferMLikeToken --rpc-url $(ARBITRUM_SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
 
 cast-send-m-token-index-dev-sepolia:
-	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/cast/CastSendMTokenIndex.s.sol:CastSendMTokenIndex --rpc-url $(SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/tasks/SendMTokenIndex.s.sol:SendMTokenIndex --rpc-url $(SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
 
 cast-send-registrar-key-local:
-	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/cast/CastSendRegistrarKey.s.sol:CastSendRegistrarKey --rpc-url localhost --skip test --broadcast -v
+	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/tasks/SendRegistrarKey.s.sol:SendRegistrarKey --rpc-url localhost --skip test --broadcast -v
 
 cast-send-registrar-key-dev-sepolia:
-	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/cast/CastSendRegistrarKey.s.sol:CastSendRegistrarKey --rpc-url $(SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/tasks/SendRegistrarKey.s.sol:SendRegistrarKey --rpc-url $(SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
 
 cast-send-registrar-list-status-local:
-	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/cast/CastSendRegistrarListStatus.s.sol:CastSendRegistrarListStatus --rpc-url localhost --skip test --broadcast -v
+	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/tasks/SendRegistrarListStatus.s.sol:SendRegistrarListStatus --rpc-url localhost --skip test --broadcast -v
 
 cast-send-registrar-list-status-dev-sepolia:
-	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/cast/CastSendRegistrarListStatus.s.sol:CastSendRegistrarListStatus --rpc-url $(SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/tasks/SendRegistrarListStatus.s.sol:SendRegistrarListStatus --rpc-url $(SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
 
 cast-transfer-excess-m-local:
-	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/cast/CastTransferExcessM.s.sol:CastTransferExcessM --rpc-url localhost --skip test --broadcast -v
+	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/tasks/TransferExcessM.s.sol:TransferExcessM --rpc-url localhost --skip test --broadcast -v
 
 cast-transfer-excess-m-base-sepolia:
-	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/cast/CastTransferExcessM.s.sol:CastTransferExcessM --rpc-url $(BASE_SEPOLIA_RPC_URL) --skip test --broadcast -v
+	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/tasks/TransferExcessM.s.sol:TransferExcessM --rpc-url $(BASE_SEPOLIA_RPC_URL) --skip test --broadcast -v
 
 cast-transfer-excess-m-optimism-sepolia:
-	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/cast/CastTransferExcessM.s.sol:CastTransferExcessM --rpc-url $(OPTIMISM_SEPOLIA_RPC_URL) --skip test --broadcast -v
+	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/tasks/TransferExcessM.s.sol:TransferExcessM --rpc-url $(OPTIMISM_SEPOLIA_RPC_URL) --skip test --broadcast -v
 
 # Run slither
 slither :; FOUNDRY_PROFILE=production forge build --build-info --skip '*/test/**' --skip '*/script/**' --force && slither --compile-force-framework foundry --ignore-compile --sarif results.sarif --config-file slither.config.json .

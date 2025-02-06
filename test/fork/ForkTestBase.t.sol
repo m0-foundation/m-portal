@@ -16,14 +16,14 @@ import { INttManager } from "../../lib/native-token-transfers/evm/src/interfaces
 import { IWormholeTransceiver } from "../../lib/native-token-transfers/evm/src/interfaces/IWormholeTransceiver.sol";
 import { TransceiverStructs } from "../../lib/native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
 
-import { CastBase } from "../../script/cast/CastBase.sol";
+import { TaskBase } from "../../script/tasks/TaskBase.sol";
 import { ConfigureBase } from "../../script/configure/ConfigureBase.sol";
 import { DeployBase } from "../../script/deploy/DeployBase.sol";
 
 import { IHubPortal } from "../../src/interfaces/IHubPortal.sol";
 import { IRegistrarLike } from "../../src/interfaces/IRegistrarLike.sol";
 
-contract ForkTestBase is CastBase, ConfigureBase, DeployBase, Test {
+contract ForkTestBase is TaskBase, ConfigureBase, DeployBase, Test {
     uint256 internal constant _MAINNET_FORK_BLOCK = 21_741_044;
     uint256 internal constant _BASE_FORK_BLOCK = 25_747_655;
     uint256 internal constant _OPTIMISM_FORK_BLOCK = 131_342_961;

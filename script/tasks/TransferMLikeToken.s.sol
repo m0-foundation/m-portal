@@ -11,9 +11,9 @@ import { IPortal } from "../../src/interfaces/IPortal.sol";
 import { IWrappedMTokenLike } from "../../src/interfaces/IWrappedMTokenLike.sol";
 import { TypeConverter } from "../../src/libs/TypeConverter.sol";
 
-import { CastBase } from "./CastBase.sol";
+import { TaskBase } from "./TaskBase.sol";
 
-contract CastTransferMLikeToken is CastBase {
+contract TransferMLikeToken is TaskBase {
     using TypeConverter for address;
 
     function run() public {

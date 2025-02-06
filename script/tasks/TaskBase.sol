@@ -13,7 +13,7 @@ import { ISpokeVault } from "../../src/interfaces/ISpokeVault.sol";
 
 import { ScriptBase } from "../ScriptBase.sol";
 
-contract CastBase is ScriptBase {
+contract TaskBase is ScriptBase {
     function _quoteDeliveryPrice(
         address hubPortal_,
         uint16 destinationChainId_
