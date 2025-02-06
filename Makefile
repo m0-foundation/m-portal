@@ -69,49 +69,49 @@ upgrade-portal-dev-optimism-sepolia:
 	FOUNDRY_PROFILE=production CONFIG="config/upgrade/sepolia.json" PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/upgrade/UpgradeSpokePortal.s.sol:UpgradeSpokePortal --rpc-url $(OPTIMISM_SEPOLIA_RPC_URL) --etherscan-api-key $(OPTIMISM_ETHERSCAN_API_KEY) --skip test --broadcast --slow -v --verify
 
 # Tasks
+transfer-dev-sepolia:
+	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/tasks/Transfer.s.sol:Transfer --rpc-url $(SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+
+transfer-dev-optimism-sepolia:
+	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/tasks/Transfer.s.sol:Transfer --rpc-url $(OPTIMISM_SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+
+transfer-dev-arbitrum-sepolia:
+	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/tasks/Transfer.s.sol:Transfer --rpc-url $(ARBITRUM_SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+
+transfer-m-like-token-dev-sepolia:
+	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/tasks/TransferMLikeToken.s.sol:TransferMLikeToken --rpc-url $(SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+
+transfer-m-like-token-dev-optimism-sepolia:
+	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/tasks/TransferMLikeToken.s.sol:TransferMLikeToken --rpc-url $(OPTIMISM_SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+
+transfer-m-like-token-dev-arbitrum-sepolia:
+	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/tasks/TransferMLikeToken.s.sol:TransferMLikeToken --rpc-url $(ARBITRUM_SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+
 send-m-token-index-local:
 	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/tasks/SendMTokenIndex.s.sol:SendMTokenIndex --rpc-url localhost --skip test --broadcast -v
 
-cast-transfer-dev-sepolia:
-	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/tasks/Transfer.s.sol:Transfer --rpc-url $(SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
-
-cast-transfer-dev-optimism-sepolia:
-	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/tasks/Transfer.s.sol:Transfer --rpc-url $(OPTIMISM_SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
-
-cast-transfer-dev-arbitrum-sepolia:
-	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/tasks/Transfer.s.sol:Transfer --rpc-url $(ARBITRUM_SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
-
-cast-transfer-m-like-token-dev-sepolia:
-	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/tasks/TransferMLikeToken.s.sol:TransferMLikeToken --rpc-url $(SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
-
-cast-transfer-m-like-token-dev-optimism-sepolia:
-	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/tasks/TransferMLikeToken.s.sol:TransferMLikeToken --rpc-url $(OPTIMISM_SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
-
-cast-transfer-m-like-token-dev-arbitrum-sepolia:
-	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/tasks/TransferMLikeToken.s.sol:TransferMLikeToken --rpc-url $(ARBITRUM_SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
-
-cast-send-m-token-index-dev-sepolia:
+send-m-token-index-dev-sepolia:
 	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/tasks/SendMTokenIndex.s.sol:SendMTokenIndex --rpc-url $(SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
 
-cast-send-registrar-key-local:
+send-registrar-key-local:
 	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/tasks/SendRegistrarKey.s.sol:SendRegistrarKey --rpc-url localhost --skip test --broadcast -v
 
-cast-send-registrar-key-dev-sepolia:
+send-registrar-key-dev-sepolia:
 	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/tasks/SendRegistrarKey.s.sol:SendRegistrarKey --rpc-url $(SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
 
-cast-send-registrar-list-status-local:
+send-registrar-list-status-local:
 	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/tasks/SendRegistrarListStatus.s.sol:SendRegistrarListStatus --rpc-url localhost --skip test --broadcast -v
 
-cast-send-registrar-list-status-dev-sepolia:
+send-registrar-list-status-dev-sepolia:
 	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/tasks/SendRegistrarListStatus.s.sol:SendRegistrarListStatus --rpc-url $(SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
 
-cast-transfer-excess-m-local:
+transfer-excess-m-local:
 	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/tasks/TransferExcessM.s.sol:TransferExcessM --rpc-url localhost --skip test --broadcast -v
 
-cast-transfer-excess-m-base-sepolia:
+transfer-excess-m-base-sepolia:
 	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/tasks/TransferExcessM.s.sol:TransferExcessM --rpc-url $(BASE_SEPOLIA_RPC_URL) --skip test --broadcast -v
 
-cast-transfer-excess-m-optimism-sepolia:
+transfer-excess-m-optimism-sepolia:
 	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/tasks/TransferExcessM.s.sol:TransferExcessM --rpc-url $(OPTIMISM_SEPOLIA_RPC_URL) --skip test --broadcast -v
 
 # Run slither
