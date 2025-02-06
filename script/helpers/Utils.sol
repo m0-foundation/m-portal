@@ -3,6 +3,7 @@
 pragma solidity 0.8.26;
 
 import { console } from "../../lib/forge-std/src/console.sol";
+import { Script } from "../../lib/forge-std/src/Script.sol";
 
 import {
     ERC1967Proxy
@@ -10,7 +11,16 @@ import {
 
 import { ICreateXLike } from "../deploy/interfaces/ICreateXLike.sol";
 
-contract Utils {
+contract Utils is Script {
+    struct Deployment {
+        address mToken;
+        address portal;
+        address registrar;
+        address transceiver;
+        address vault;
+        address wrappedMToken;
+    }
+
     uint64 internal constant _SPOKE_REGISTRAR_NONCE = 7;
     uint64 internal constant _SPOKE_M_TOKEN_NONCE = 8;
     uint64 internal constant _SPOKE_WRAPPED_M_TOKEN_NONCE = 39;
@@ -137,5 +147,14 @@ contract Utils {
 
     function _readKey(string memory parentNode_, string memory key_) internal pure returns (string memory) {
         return string.concat(parentNode_, key_);
+    }
+
+    function _deployOutputPath() internal view returns (string memory) {
+        return string.concat(vm.projectRoot(), "/deployments/", vm.toString(block.chainid), ".json");
+    }
+
+    function _readDeployment() internal returns (Deployment memory deployment_) {
+        bytes memory data = vm.parseJson(vm.readFile(_deployOutputPath()));
+        deployment_ = abi.decode(data, (Deployment));
     }
 }

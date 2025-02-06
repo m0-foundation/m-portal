@@ -323,8 +323,4 @@ contract DeployBase is Script, Utils {
         console.log("Wormhole Consistency Level:", wormholeConfig_.consistencyLevel);
         console.log("Wormhole Gas Limit:", wormholeConfig_.gasLimit);
     }
-
-    function _deployOutputPath() internal view returns (string memory) {
-        return string.concat(vm.projectRoot(), "/deployments/", vm.toString(block.chainid), ".json");
-    }
 }
