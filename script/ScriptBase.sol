@@ -2,16 +2,16 @@
 
 pragma solidity 0.8.26;
 
-import { console } from "../../lib/forge-std/src/console.sol";
-import { Script } from "../../lib/forge-std/src/Script.sol";
+import { console } from "../lib/forge-std/src/console.sol";
+import { Script } from "../lib/forge-std/src/Script.sol";
 
 import {
     ERC1967Proxy
-} from "../../lib/native-token-transfers/evm/lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+} from "../lib/native-token-transfers/evm/lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
-import { ICreateXLike } from "../deploy/interfaces/ICreateXLike.sol";
+import { ICreateXLike } from "./deploy/interfaces/ICreateXLike.sol";
 
-contract Utils is Script {
+contract ScriptBase is Script {
     struct Deployment {
         address mToken;
         address portal;

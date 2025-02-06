@@ -11,9 +11,9 @@ import { INttManager } from "../../lib/native-token-transfers/evm/src/interfaces
 import { IHubPortal } from "../../src/interfaces/IHubPortal.sol";
 import { ISpokeVault } from "../../src/interfaces/ISpokeVault.sol";
 
-import { Utils } from "../helpers/Utils.sol";
+import { ScriptBase } from "../ScriptBase.sol";
 
-contract CastBase is Script, Utils {
+contract CastBase is ScriptBase {
     function _quoteDeliveryPrice(
         address hubPortal_,
         uint16 destinationChainId_

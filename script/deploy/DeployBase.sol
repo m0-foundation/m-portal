@@ -23,9 +23,9 @@ import { HubPortal } from "../../src/HubPortal.sol";
 import { SpokePortal } from "../../src/SpokePortal.sol";
 import { SpokeVault } from "../../src/SpokeVault.sol";
 
-import { Utils } from "../helpers/Utils.sol";
+import { ScriptBase } from "../ScriptBase.sol";
 
-contract DeployBase is Script, Utils {
+contract DeployBase is ScriptBase {
     using stdJson for string;
 
     /* ============ Config Structs ============ */

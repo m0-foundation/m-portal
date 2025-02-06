@@ -10,9 +10,9 @@ import { INttManager } from "../../lib/native-token-transfers/evm/src/interfaces
 import { IWormholeTransceiver } from "../../lib/native-token-transfers/evm/src/interfaces/IWormholeTransceiver.sol";
 
 import { IPortal } from "../../src/interfaces/IPortal.sol";
-import { Utils } from "../helpers/Utils.sol";
+import { ScriptBase } from "../ScriptBase.sol";
 
-contract ConfigureBase is Script, Utils {
+contract ConfigureBase is ScriptBase {
     using stdJson for string;
 
     struct ChainConfig {
