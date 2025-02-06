@@ -15,9 +15,9 @@ import {
 import { HubPortal } from "../../src/HubPortal.sol";
 import { SpokePortal } from "../../src/SpokePortal.sol";
 
-import { Utils } from "../helpers/Utils.sol";
+import { ScriptBase } from "../ScriptBase.sol";
 
-contract UpgradeBase is Script, Utils {
+contract UpgradeBase is ScriptBase {
     using stdJson for string;
 
     /* ============ Struct functions ============ */
