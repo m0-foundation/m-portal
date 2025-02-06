@@ -37,6 +37,9 @@ configure-dev-base-sepolia:
 configure-dev-optimism-sepolia:
 	CONFIG="config/configure/sepolia.json" PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/configure/Configure.s.sol:Configure --rpc-url $(OPTIMISM_SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
 
+configure-dev-arbitrum-sepolia:
+	CONFIG="config/configure/sepolia.json" PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/configure/Configure.s.sol:Configure --rpc-url $(ARBITRUM_SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+
 # Upgrade helpers
 upgrade-transceiver-local:
 	FOUNDRY_PROFILE=production CONFIG="config/upgrade/sepolia.json" PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/upgrade/UpgradeWormholeTransceiver.s.sol:UpgradeWormholeTransceiver --rpc-url localhost --skip test --broadcast -v
@@ -68,6 +71,24 @@ upgrade-portal-dev-optimism-sepolia:
 # Cast helpers
 cast-send-m-token-index-local:
 	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/cast/CastSendMTokenIndex.s.sol:CastSendMTokenIndex --rpc-url localhost --skip test --broadcast -v
+
+cast-transfer-dev-sepolia:
+	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/cast/CastTransfer.s.sol:CastTransfer --rpc-url $(SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+
+cast-transfer-dev-optimism-sepolia:
+	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/cast/CastTransfer.s.sol:CastTransfer --rpc-url $(OPTIMISM_SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+
+cast-transfer-dev-arbitrum-sepolia:
+	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/cast/CastTransfer.s.sol:CastTransfer --rpc-url $(ARBITRUM_SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+
+cast-transfer-m-like-token-dev-sepolia:
+	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/cast/CastTransferMLikeToken.s.sol:CastTransferMLikeToken --rpc-url $(SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+
+cast-transfer-m-like-token-dev-optimism-sepolia:
+	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/cast/CastTransferMLikeToken.s.sol:CastTransferMLikeToken --rpc-url $(OPTIMISM_SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
+
+cast-transfer-m-like-token-dev-arbitrum-sepolia:
+	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/cast/CastTransferMLikeToken.s.sol:CastTransferMLikeToken --rpc-url $(ARBITRUM_SEPOLIA_RPC_URL) --skip test --broadcast --slow -v
 
 cast-send-m-token-index-dev-sepolia:
 	PRIVATE_KEY=$(DEV_PRIVATE_KEY) forge script script/cast/CastSendMTokenIndex.s.sol:CastSendMTokenIndex --rpc-url $(SEPOLIA_RPC_URL) --skip test --broadcast --slow -v

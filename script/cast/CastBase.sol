@@ -4,6 +4,7 @@ pragma solidity 0.8.26;
 
 import { Script } from "../../lib/forge-std/src/Script.sol";
 
+import { IERC20 } from "../../lib/common/src/interfaces/IERC20.sol";
 import { IManagerBase } from "../../lib/native-token-transfers/evm/src/interfaces/IManagerBase.sol";
 import { INttManager } from "../../lib/native-token-transfers/evm/src/interfaces/INttManager.sol";
 
@@ -81,5 +82,28 @@ contract CastBase is Script, Utils {
         uint256 value_
     ) internal returns (uint64 messageSequence_) {
         return ISpokeVault(spokeVault_).transferExcessM{ value: value_ }(refundAddress_);
+    }
+
+    function _verifyDeploymentExist() internal {
+        if (!vm.isFile(_deployOutputPath())) {
+            revert("Deployment artifacts not found");
+        }
+    }
+
+    function _promptForDestinationChainId(address portal_) internal returns (uint16 destinationChainId_) {
+        destinationChainId_ = uint16(vm.parseUint(vm.prompt("Enter Wormhole destination chain ID")));
+
+        if (INttManager(portal_).getPeer(destinationChainId_).peerAddress == bytes32(0)) {
+            revert("Unsupported destination chain");
+        }
+    }
+
+    function _promptForTransferAmount(address mToken_, address account_) internal returns (uint256 amount_) {
+        uint256 balance_ = IERC20(mToken_).balanceOf(account_);
+        amount_ = vm.parseUint(vm.prompt("Enter amount to transfer"));
+
+        if (amount_ > balance_) {
+            revert("Insufficient balance");
+        }
     }
 }
