@@ -4,9 +4,9 @@ pragma solidity 0.8.26;
 
 import { console } from "../../lib/forge-std/src/console.sol";
 
-import { CastBase } from "./CastBase.sol";
+import { TaskBase } from "./TaskBase.sol";
 
-contract CastSendRegistrarKey is CastBase {
+contract SendRegistrarKey is TaskBase {
     function run() public {
         address signer_ = vm.rememberKey(vm.envUint("PRIVATE_KEY"));
 
