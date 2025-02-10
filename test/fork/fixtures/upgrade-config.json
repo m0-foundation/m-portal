@@ -10,7 +10,7 @@
         "relayer": "0x27428DD2d3DD32A4D7f7C497eAaa23130d894911",
         "special_relayer": "0x0000000000000000000000000000000000000000",
         "transceiver": "0x0763196A091575adF99e2306E5e90E0Be5154841",
-        "consistency_level": "15",
+        "consistency_level": "1",
         "gas_limit": "350000"
       }
     },
@@ -24,7 +24,7 @@
         "relayer": "0x706F82e9bb5b0813501714Ab5974216704980e31",
         "special_relayer": "0x0000000000000000000000000000000000000000",
         "transceiver": "0x0763196A091575adF99e2306E5e90E0Be5154841",
-        "consistency_level": "15",
+        "consistency_level": "1",
         "gas_limit": "350000"
       }
     },
@@ -38,7 +38,7 @@
         "relayer": "0x27428DD2d3DD32A4D7f7C497eAaa23130d894911",
         "special_relayer": "0x0000000000000000000000000000000000000000",
         "transceiver": "0x0763196A091575adF99e2306E5e90E0Be5154841",
-        "consistency_level": "15",
+        "consistency_level": "1",
         "gas_limit": "350000"
       }
     }
