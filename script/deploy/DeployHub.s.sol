@@ -3,6 +3,7 @@
 pragma solidity 0.8.26;
 
 import { DeployBase } from "./DeployBase.sol";
+import { IHubPortal } from "../../src/interfaces/IHubPortal.sol";
 
 contract DeployHub is DeployBase {
     function run() external {
@@ -14,6 +15,9 @@ contract DeployHub is DeployBase {
             deployer_,
             _loadHubConfig(vm.envString("CONFIG"), block.chainid)
         );
+
+        // HubPortal is already an approve earner
+        IHubPortal(portal_).enableEarning();
 
         vm.stopBroadcast();
 
