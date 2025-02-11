@@ -153,7 +153,7 @@ contract ScriptBase is Script {
         return string.concat(vm.projectRoot(), "/deployments/", vm.toString(block.chainid), ".json");
     }
 
-    function _readDeployment() internal returns (Deployment memory deployment_) {
+    function _readDeployment() internal view returns (Deployment memory deployment_) {
         bytes memory data = vm.parseJson(vm.readFile(_deployOutputPath()));
         deployment_ = abi.decode(data, (Deployment));
     }

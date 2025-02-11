@@ -8,8 +8,10 @@ import { TypeConverter } from "../../src/libs/TypeConverter.sol";
 
 import { TaskBase } from "./TaskBase.sol";
 
-contract SendMTokenIndex is TaskBase {
+contract SendEarnerStatus is TaskBase {
     using TypeConverter for address;
+
+    bytes32 internal constant EARNERS_LIST = "earners";
 
     function run() public {
         _verifyDeploymentExist();
@@ -17,13 +19,22 @@ contract SendMTokenIndex is TaskBase {
         Deployment memory deployment_ = _readDeployment();
         address portal_ = deployment_.portal;
         uint16 destinationChainId_ = _promptForDestinationChainId(portal_);
+        address account_ = vm.parseAddress(vm.prompt("Enter account address"));
         uint256 deliveryPrice_ = _quoteDeliveryPrice(portal_, destinationChainId_);
         address signer_ = vm.rememberKey(vm.envUint("PRIVATE_KEY"));
 
         vm.startBroadcast(signer_);
 
-        _sendMTokenIndex(portal_, destinationChainId_, signer_.toBytes32(), deliveryPrice_);
-        console.log("M token index sent to Wormhole chain ID:", destinationChainId_);
+        _sendRegistrarListStatus(
+            portal_,
+            destinationChainId_,
+            EARNERS_LIST,
+            account_,
+            signer_.toBytes32(),
+            deliveryPrice_
+        );
+
+        console.log("Earner status sent to Wormhole chain ID:", destinationChainId_);
 
         vm.stopBroadcast();
     }

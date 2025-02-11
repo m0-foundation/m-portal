@@ -372,23 +372,23 @@ send-registrar-key-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
 send-registrar-key-prod-eth: send-registrar-key
 
 # 
-# Registrar list status
+# Earner status
 # 
 
-send-registrar-list-status: SCRIPT=script/tasks/SendRegistrarListStatus.s.sol:SendRegistrarListStatus
-send-registrar-list-status: task
+send-earner-status: SCRIPT=script/tasks/SendEarnerStatus.s.sol:SendEarnerStatus
+send-earner-status: task
 
 # Testnet
 
-send-registrar-list-status-dev-sepolia: SIGNER_PRIVATE_KEY=$(DEV_PRIVATE_KEY)
-send-registrar-list-status-dev-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
-send-registrar-list-status-dev-sepolia: send-registrar-list-status
+send-earner-status-dev-sepolia: SIGNER_PRIVATE_KEY=$(DEV_PRIVATE_KEY)
+send-earner-status-dev-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
+send-earner-status-dev-sepolia: send-earner-status
 
 # Mainnet
 
-send-registrar-list-status-prod-eth: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
-send-registrar-list-status-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
-send-registrar-list-status-prod-eth: send-registrar-list-status
+send-earner-status-prod-eth: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
+send-earner-status-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
+send-earner-status-prod-eth: send-earner-status
 
 # 
 # Transfer Excess M
