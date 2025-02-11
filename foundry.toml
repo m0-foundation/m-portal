@@ -9,19 +9,11 @@ gas_reports = ["HubPortal", "SpokePortal"]
 gas_reports_ignore = []
 ignored_error_codes = []
 optimizer = true
+version = "0.8.26"
+optimizer_runs = 1500
 verbosity = 3
 via_ir = false
 
-additional_compiler_profiles = [
-  { name = "protocol", optimizer_runs = 999999 },
-  { name = "m-portal", optimizer_runs = 1500 },
-]
-
-compilation_restrictions = [
-  { paths = "src/**", version = "=0.8.26", optimizer_runs = 1500 },
-  { paths = "lib/hub-protocol/src/MToken.sol", version = "=0.8.23", optimizer_runs = 999999 },
-  { paths = "lib/hub-wrapped-m-token/src/**", version = "=0.8.23", optimizer_runs = 999999 },
-]
 
 [profile.production]
 build_info = true
