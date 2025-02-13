@@ -198,14 +198,12 @@ upgrade-transceiver-prod-optimism: upgrade-transceiver-prod
 #
 
 upgrade-hub-portal:
-	FOUNDRY_PROFILE=production PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) CONFIG=$(CONFIG_PATH) forge script script/upgrade/UpgradeHubPortal.s.sol:UpgradeHubPortal --rpc-url $(RPC_URL) --skip test --broadcast --slow -v
+	FOUNDRY_PROFILE=production PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) forge script script/upgrade/UpgradeHubPortal.s.sol:UpgradeHubPortal --rpc-url $(RPC_URL) --skip test --broadcast --slow -v
 
-upgrade-hub-portal-dev-sepolia: CONFIG_PATH=config/upgrade/sepolia.json
 upgrade-hub-portal-dev-sepolia: SIGNER_PRIVATE_KEY=$(DEV_PRIVATE_KEY)
 upgrade-hub-portal-dev-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
 upgrade-hub-portal-dev-sepolia: upgrade-hub-portal
 
-upgrade-hub-portal-prod-eth: CONFIG_PATH=config/upgrade/mainnet.json
 upgrade-hub-portal-prod-eth: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
 upgrade-hub-portal-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
 upgrade-hub-portal-prod-eth: upgrade-hub-portal

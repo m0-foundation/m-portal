@@ -15,10 +15,6 @@ import { ForkTestBase } from "./ForkTestBase.t.sol";
 contract Configure is ForkTestBase {
     using TypeConverter for *;
 
-    function setUp() public override {
-        super.setUp();
-    }
-
     /// @dev Checks that peers were configured correctly for Hub
     function testFork_configure_hub() external {
         vm.selectFork(_mainnetForkId);

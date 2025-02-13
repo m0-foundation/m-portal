@@ -15,12 +15,9 @@ import { ForkTestBase } from "./ForkTestBase.t.sol";
 
 contract SpokePortalForkTests is ForkTestBase {
     using TypeConverter for *;
+
     uint256 internal _amount;
     uint128 internal _mainnetIndex;
-
-    function setUp() public override {
-        super.setUp();
-    }
 
     /* ============ transfer ============ */
 

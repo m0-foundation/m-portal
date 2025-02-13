@@ -15,10 +15,6 @@ contract SpokeVaultForkTests is ForkTestBase {
 
     uint256 internal _amount;
 
-    function setUp() public override {
-        super.setUp();
-    }
-
     /* ============ transfer ============ */
 
     function testFork_transferExcessM() external {

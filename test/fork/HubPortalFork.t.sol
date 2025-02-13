@@ -17,10 +17,6 @@ import { ForkTestBase } from "./ForkTestBase.t.sol";
 contract HubPortalForkTests is ForkTestBase {
     using TypeConverter for *;
 
-    function setUp() public override {
-        super.setUp();
-    }
-
     /* ============ transfer ============ */
 
     function testFork_transferToSpokePortal() external {
