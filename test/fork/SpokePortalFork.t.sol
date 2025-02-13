@@ -5,6 +5,7 @@ pragma solidity 0.8.26;
 import { IERC20 } from "../../lib/common/src/interfaces/IERC20.sol";
 import { IContinuousIndexing } from "../../lib/protocol/src/interfaces/IContinuousIndexing.sol";
 
+import { Chains } from "../../script/config/Chains.sol";
 import { IPortal } from "../../src/interfaces/IPortal.sol";
 import { ISpokePortal } from "../../src/interfaces/ISpokePortal.sol";
 import { IWrappedMTokenLike } from "../../src/interfaces/IWrappedMTokenLike.sol";
@@ -19,7 +20,6 @@ contract SpokePortalForkTests is ForkTestBase {
 
     function setUp() public override {
         super.setUp();
-        _configurePortals();
     }
 
     /* ============ transfer ============ */
@@ -28,27 +28,27 @@ contract SpokePortalForkTests is ForkTestBase {
         _beforeTest();
 
         vm.prank(_DEPLOYER);
-        IPortal(_baseSpokePortal).setDestinationMToken(_MAINNET_WORMHOLE_CHAIN_ID, _MAINNET_M_TOKEN.toBytes32());
+        IPortal(_arbitrumSpokePortal).setDestinationMToken(Chains.WORMHOLE_ETHEREUM, _MAINNET_M_TOKEN.toBytes32());
 
         vm.startPrank(_mHolder);
 
-        IERC20(_baseSpokeMToken).approve(_baseSpokePortal, _amount);
+        IERC20(_arbitrumSpokeMToken).approve(_arbitrumSpokePortal, _amount);
 
         // Then, transfer M tokens back to the Hub chain.
         _transfer(
-            _baseSpokePortal,
-            _MAINNET_WORMHOLE_CHAIN_ID,
+            _arbitrumSpokePortal,
+            Chains.WORMHOLE_ETHEREUM,
             _amount,
             _toUniversalAddress(_mHolder),
             _toUniversalAddress(_mHolder),
-            _quoteDeliveryPrice(_baseSpokePortal, _MAINNET_WORMHOLE_CHAIN_ID)
+            _quoteDeliveryPrice(_arbitrumSpokePortal, Chains.WORMHOLE_ETHEREUM)
         );
 
         vm.stopPrank();
 
-        assertEq(IERC20(_baseSpokeMToken).balanceOf(_mHolder), 0);
+        assertEq(IERC20(_arbitrumSpokeMToken).balanceOf(_mHolder), 0);
 
-        bytes memory spokeSignedMessage_ = _signMessage(_baseSpokeGuardian, _BASE_WORMHOLE_CHAIN_ID);
+        bytes memory spokeSignedMessage_ = _signMessage(_arbitrumSpokeGuardian, Chains.WORMHOLE_ARBITRUM);
 
         vm.selectFork(_mainnetForkId);
 
@@ -64,27 +64,27 @@ contract SpokePortalForkTests is ForkTestBase {
         _beforeTest();
 
         vm.prank(_DEPLOYER);
-        IPortal(_baseSpokePortal).setDestinationMToken(_OPTIMISM_WORMHOLE_CHAIN_ID, _optimismSpokeMToken.toBytes32());
+        IPortal(_arbitrumSpokePortal).setDestinationMToken(Chains.WORMHOLE_OPTIMISM, _optimismSpokeMToken.toBytes32());
 
         vm.startPrank(_mHolder);
 
-        IERC20(_baseSpokeMToken).approve(_baseSpokePortal, _amount);
+        IERC20(_arbitrumSpokeMToken).approve(_arbitrumSpokePortal, _amount);
 
         // Then, transfer M tokens to the other Spoke chain.
         _transfer(
-            _baseSpokePortal,
-            _OPTIMISM_WORMHOLE_CHAIN_ID,
+            _arbitrumSpokePortal,
+            Chains.WORMHOLE_OPTIMISM,
             _amount,
             _toUniversalAddress(_mHolder),
             _toUniversalAddress(_mHolder),
-            _quoteDeliveryPrice(_optimismSpokePortal, _OPTIMISM_WORMHOLE_CHAIN_ID)
+            _quoteDeliveryPrice(_optimismSpokePortal, Chains.WORMHOLE_OPTIMISM)
         );
 
         vm.stopPrank();
 
-        assertEq(IERC20(_baseSpokeMToken).balanceOf(_mHolder), 0);
+        assertEq(IERC20(_arbitrumSpokeMToken).balanceOf(_mHolder), 0);
 
-        bytes memory spokeSignedMessage_ = _signMessage(_baseSpokeGuardian, _BASE_WORMHOLE_CHAIN_ID);
+        bytes memory spokeSignedMessage_ = _signMessage(_arbitrumSpokeGuardian, Chains.WORMHOLE_ARBITRUM);
 
         vm.selectFork(_optimismForkId);
 
@@ -99,56 +99,56 @@ contract SpokePortalForkTests is ForkTestBase {
     /// @dev From $M on Spoke to $M on Hub
     function testFork_transferMLikeToken_M_to_M() external {
         _beforeTest();
-        _transferMLikeTokenToHub(_baseSpokeMToken, _MAINNET_M_TOKEN, _mHolder);
+        _transferMLikeTokenToHub(_arbitrumSpokeMToken, _MAINNET_M_TOKEN, _mHolder);
     }
 
     /// @dev From $M on Spoke to wrapped $M on Hub
     function testFork_transferMLikeToken_M_to_wrappedM() external {
         _beforeTest();
-        _transferMLikeTokenToHub(_baseSpokeMToken, _MAINNET_WRAPPED_M_TOKEN, _mHolder);
+        _transferMLikeTokenToHub(_arbitrumSpokeMToken, _MAINNET_WRAPPED_M_TOKEN, _mHolder);
     }
 
     /// @dev From wrapped $M on Spoke to $M on Hub
     function testFork_transferMLikeToken_wrappedM_to_M() external {
         _beforeTest();
         _amount = _wrapSpokeM(_mHolder, _amount);
-        _transferMLikeTokenToHub(_baseSpokeWrappedMTokenProxy, _MAINNET_M_TOKEN, _mHolder);
+        _transferMLikeTokenToHub(_arbitrumSpokeWrappedMTokenProxy, _MAINNET_M_TOKEN, _mHolder);
     }
 
     /// @dev From wrapped $M on Spoke to wrapped $M on Hub
     function testFork_transferMLikeToken_wrappedM_to_wrappedM() external {
         _beforeTest();
         _amount = _wrapSpokeM(_mHolder, _amount);
-        _transferMLikeTokenToHub(_baseSpokeWrappedMTokenProxy, _MAINNET_WRAPPED_M_TOKEN, _mHolder);
+        _transferMLikeTokenToHub(_arbitrumSpokeWrappedMTokenProxy, _MAINNET_WRAPPED_M_TOKEN, _mHolder);
     }
 
     function _wrapSpokeM(address recipient_, uint256 amount_) private returns (uint256 wrappedAmount_) {
         vm.startPrank(recipient_);
-        IERC20(_baseSpokeMToken).approve(_baseSpokeWrappedMTokenProxy, amount_);
-        IWrappedMTokenLike(_baseSpokeWrappedMTokenProxy).wrap(recipient_, amount_);
+        IERC20(_arbitrumSpokeMToken).approve(_arbitrumSpokeWrappedMTokenProxy, amount_);
+        IWrappedMTokenLike(_arbitrumSpokeWrappedMTokenProxy).wrap(recipient_, amount_);
         vm.stopPrank();
-        wrappedAmount_ = IERC20(_baseSpokeWrappedMTokenProxy).balanceOf(recipient_);
+        wrappedAmount_ = IERC20(_arbitrumSpokeWrappedMTokenProxy).balanceOf(recipient_);
     }
 
     function _transferMLikeTokenToHub(address sourceToken_, address destinationToken_, address user_) private {
         // Deployer sets supported path
         vm.prank(_DEPLOYER);
-        IPortal(_baseSpokePortal).setSupportedBridgingPath(
+        IPortal(_arbitrumSpokePortal).setSupportedBridgingPath(
             sourceToken_,
-            _MAINNET_WORMHOLE_CHAIN_ID,
+            Chains.WORMHOLE_ETHEREUM,
             destinationToken_.toBytes32(),
             true
         );
 
         // User approves source token and calls transferMLikeToken
         vm.startPrank(user_);
-        IERC20(sourceToken_).approve(_baseSpokePortal, _amount);
-        IPortal(_baseSpokePortal).transferMLikeToken{
-            value: _quoteDeliveryPrice(_baseSpokePortal, _MAINNET_WORMHOLE_CHAIN_ID)
+        IERC20(sourceToken_).approve(_arbitrumSpokePortal, _amount);
+        IPortal(_arbitrumSpokePortal).transferMLikeToken{
+            value: _quoteDeliveryPrice(_arbitrumSpokePortal, Chains.WORMHOLE_ETHEREUM)
         }(
             _amount,
             sourceToken_,
-            _MAINNET_WORMHOLE_CHAIN_ID,
+            Chains.WORMHOLE_ETHEREUM,
             destinationToken_.toBytes32(),
             user_.toBytes32(),
             user_.toBytes32()
@@ -158,7 +158,7 @@ contract SpokePortalForkTests is ForkTestBase {
         // User's source token balance is 0
         assertEq(IERC20(sourceToken_).balanceOf(user_), 0);
 
-        bytes memory signedMessage_ = _signMessage(_baseSpokeGuardian, _BASE_WORMHOLE_CHAIN_ID);
+        bytes memory signedMessage_ = _signMessage(_arbitrumSpokeGuardian, Chains.WORMHOLE_ARBITRUM);
 
         vm.selectFork(_mainnetForkId);
 
@@ -177,7 +177,7 @@ contract SpokePortalForkTests is ForkTestBase {
         vm.selectFork(_mainnetForkId);
 
         vm.prank(_DEPLOYER);
-        IPortal(_hubPortal).setDestinationMToken(_BASE_WORMHOLE_CHAIN_ID, _baseSpokeMToken.toBytes32());
+        IPortal(_hubPortal).setDestinationMToken(Chains.WORMHOLE_ARBITRUM, _arbitrumSpokeMToken.toBytes32());
 
         _mainnetIndex = IContinuousIndexing(_MAINNET_M_TOKEN).currentIndex();
 
@@ -188,24 +188,24 @@ contract SpokePortalForkTests is ForkTestBase {
 
         _transfer(
             _hubPortal,
-            _BASE_WORMHOLE_CHAIN_ID,
+            Chains.WORMHOLE_ARBITRUM,
             _amount,
             _toUniversalAddress(_mHolder),
             _toUniversalAddress(_mHolder),
-            _quoteDeliveryPrice(_hubPortal, _BASE_WORMHOLE_CHAIN_ID)
+            _quoteDeliveryPrice(_hubPortal, Chains.WORMHOLE_ARBITRUM)
         );
 
         vm.stopPrank();
 
         assertEq(IERC20(_MAINNET_M_TOKEN).balanceOf(_hubPortal), _amount = _amount - 1);
 
-        bytes memory hubSignedMessage_ = _signMessage(_hubGuardian, _MAINNET_WORMHOLE_CHAIN_ID);
+        bytes memory hubSignedMessage_ = _signMessage(_hubGuardian, Chains.WORMHOLE_ETHEREUM);
 
-        vm.selectFork(_baseForkId);
+        vm.selectFork(_arbitrumForkId);
 
-        _deliverMessage(_BASE_WORMHOLE_RELAYER, hubSignedMessage_);
+        _deliverMessage(_ARBITRUM_WORMHOLE_RELAYER, hubSignedMessage_);
 
-        assertEq(IERC20(_baseSpokeMToken).balanceOf(_mHolder), _amount);
-        assertEq(IContinuousIndexing(_baseSpokeMToken).currentIndex(), _mainnetIndex);
+        assertEq(IERC20(_arbitrumSpokeMToken).balanceOf(_mHolder), _amount);
+        assertEq(IContinuousIndexing(_arbitrumSpokeMToken).currentIndex(), _mainnetIndex);
     }
 }

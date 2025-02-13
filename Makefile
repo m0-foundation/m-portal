@@ -48,11 +48,8 @@ clean:
 # 
 # 
 
-DEV_DEPLOY_CONFIG=config/deploy/sepolia.json
-PROD_DEPLOY_CONFIG=config/deploy/mainnet.json
-
 deploy:
-	FOUNDRY_PROFILE=production MIGRATION_ADMIN=$(MIGRATION_ADMIN_ADDRESS) PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) CONFIG=$(CONFIG_PATH) forge script $(SCRIPT) --rpc-url $(RPC_URL) --etherscan-api-key $(SCAN_API_KEY) --skip test --broadcast --slow -v --verify
+	FOUNDRY_PROFILE=production MIGRATION_ADMIN=$(MIGRATION_ADMIN_ADDRESS) PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) forge script $(SCRIPT) --rpc-url $(RPC_URL) --etherscan-api-key $(SCAN_API_KEY) --skip test --broadcast --slow -v --verify
 
 # Deploy Hub
 
@@ -66,25 +63,21 @@ deploy-spoke: deploy
 
 # Deploy Hub Testnet
 
-deploy-hub-dev: CONFIG_PATH=$(DEV_DEPLOY_CONFIG)
 deploy-hub-dev: SIGNER_PRIVATE_KEY=$(DEV_PRIVATE_KEY)
 deploy-hub-dev: deploy-hub
 
 # Deploy Hub Mainnet
 
-deploy-hub-prod: CONFIG_PATH=$(PROD_DEPLOY_CONFIG)
 deploy-hub-prod: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
 deploy-hub-prod: deploy-hub
 
 # Deploy Spoke Testnet
 
-deploy-spoke-dev: CONFIG_PATH=$(DEV_DEPLOY_CONFIG)
 deploy-spoke-dev: SIGNER_PRIVATE_KEY=$(DEV_PRIVATE_KEY)
 deploy-spoke-dev: deploy-spoke
 
 # Deploy Spoke Mainnet
 
-deploy-spoke-prod: CONFIG_PATH=$(PROD_DEPLOY_CONFIG)
 deploy-spoke-prod: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
 deploy-spoke-prod: deploy-spoke
 
@@ -123,17 +116,15 @@ deploy-spoke-prod-optimism: deploy-spoke-prod
 # 
 
 configure:
-	FOUNDRY_PROFILE=production PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) CONFIG=$(CONFIG_PATH) forge script script/configure/Configure.s.sol:Configure --rpc-url $(RPC_URL) --skip test --broadcast --slow -v
+	FOUNDRY_PROFILE=production PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) forge script script/configure/Configure.s.sol:Configure --rpc-url $(RPC_URL) --skip test -v
 
 # Configure Testnet
 
-configure-dev: CONFIG_PATH=config/configure/sepolia.json
 configure-dev: SIGNER_PRIVATE_KEY=$(DEV_PRIVATE_KEY)
 configure-dev: configure
 
 # Configure Mainnet
 
-configure-prod: CONFIG_PATH=config/configure/mainnet.json
 configure-prod: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
 configure-prod: configure
 

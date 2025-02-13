@@ -84,12 +84,6 @@ contract TaskBase is ScriptBase {
         return ISpokeVault(spokeVault_).transferExcessM{ value: value_ }(refundAddress_);
     }
 
-    function _verifyDeploymentExist() internal {
-        if (!vm.isFile(_deployOutputPath())) {
-            revert("Deployment artifacts not found");
-        }
-    }
-
     function _promptForDestinationChainId(address portal_) internal returns (uint16 destinationChainId_) {
         destinationChainId_ = uint16(vm.parseUint(vm.prompt("Enter Wormhole destination chain ID")));
 

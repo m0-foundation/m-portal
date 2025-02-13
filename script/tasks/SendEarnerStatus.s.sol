@@ -14,10 +14,7 @@ contract SendEarnerStatus is TaskBase {
     bytes32 internal constant EARNERS_LIST = "earners";
 
     function run() public {
-        _verifyDeploymentExist();
-
-        Deployment memory deployment_ = _readDeployment();
-        address portal_ = deployment_.portal;
+        (, address portal_, , , , ) = _readDeployment(block.chainid);
         uint16 destinationChainId_ = _promptForDestinationChainId(portal_);
         address account_ = vm.parseAddress(vm.prompt("Enter account address"));
         uint256 deliveryPrice_ = _quoteDeliveryPrice(portal_, destinationChainId_);

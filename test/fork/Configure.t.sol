@@ -2,123 +2,292 @@
 
 pragma solidity 0.8.26;
 
-import { console } from "../../lib/forge-std/src/console.sol";
-import { Test } from "../../lib/forge-std/src/Test.sol";
-
-import {
-    ERC1967Proxy
-} from "../../lib/native-token-transfers/evm/lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol";
-
-import { IManagerBase } from "../../lib/native-token-transfers/evm/src/interfaces/IManagerBase.sol";
 import { INttManager } from "../../lib/native-token-transfers/evm/src/interfaces/INttManager.sol";
 import { IWormholeTransceiver } from "../../lib/native-token-transfers/evm/src/interfaces/IWormholeTransceiver.sol";
-import {
-    WormholeTransceiver
-} from "../../lib/native-token-transfers/evm/src/Transceiver/WormholeTransceiver/WormholeTransceiver.sol";
 
-import { ConfigureBase } from "../../script/configure/ConfigureBase.sol";
-import { ICreateXLike } from "../../script/deploy/interfaces/ICreateXLike.sol";
+import { Chains } from "../../script/config/Chains.sol";
 
-import { IRegistrarLike } from "../../src/interfaces/IRegistrarLike.sol";
-import { HubPortal } from "../../src/HubPortal.sol";
+import { TypeConverter } from "../../src/libs/TypeConverter.sol";
+import { IPortal } from "../../src/interfaces/IPortal.sol";
 
 import { ForkTestBase } from "./ForkTestBase.t.sol";
 
 contract Configure is ForkTestBase {
-    // TODO: replace by the actual multisig address.
-    address internal _governorAdmin = makeAddr("governor-admin");
+    using TypeConverter for *;
 
-    function testFork_configure() external {
-        vm.createSelectFork(vm.rpcUrl("mainnet"));
+    function setUp() public override {
+        super.setUp();
+    }
 
-        deal(_DEPLOYER, 10 ether);
+    /// @dev Checks that peers were configured correctly for Hub
+    function testFork_configure_hub() external {
+        vm.selectFork(_mainnetForkId);
 
-        vm.startPrank(_DEPLOYER);
+        IWormholeTransceiver transceiver_ = IWormholeTransceiver(_hubWormholeTransceiver);
+        INttManager ntt_ = INttManager(_hubPortal);
+        IPortal portal_ = IPortal(_hubPortal);
 
-        HubPortal hubPortalImplementation_ = new HubPortal(
-            _MAINNET_M_TOKEN,
-            _MAINNET_REGISTRAR,
-            _MAINNET_WORMHOLE_CHAIN_ID
-        );
+        assertEq(transceiver_.isWormholeEvmChain(Chains.WORMHOLE_ARBITRUM), true);
+        assertEq(transceiver_.isWormholeEvmChain(Chains.WORMHOLE_OPTIMISM), true);
 
-        HubPortal hubPortal_ = HubPortal(
-            ICreateXLike(_CREATE_X_FACTORY).deployCreate3(
-                _computeSalt(_DEPLOYER, "Portal"),
-                abi.encodePacked(type(ERC1967Proxy).creationCode, abi.encode(address(hubPortalImplementation_), ""))
-            )
-        );
+        assertEq(transceiver_.isWormholeRelayingEnabled(Chains.WORMHOLE_ARBITRUM), true);
+        assertEq(transceiver_.isWormholeRelayingEnabled(Chains.WORMHOLE_OPTIMISM), true);
 
-        hubPortal_.initialize();
+        assertEq(transceiver_.isSpecialRelayingEnabled(Chains.WORMHOLE_ARBITRUM), false);
+        assertEq(transceiver_.isSpecialRelayingEnabled(Chains.WORMHOLE_OPTIMISM), false);
 
-        WormholeTransceiver wormholeTransceiverImplementation_ = new WormholeTransceiver(
-            address(hubPortal_),
-            _MAINNET_WORMHOLE_CORE_BRIDGE,
-            _MAINNET_WORMHOLE_RELAYER,
-            address(0),
-            _INSTANT_CONSISTENCY_LEVEL,
-            _WORMHOLE_GAS_LIMIT
-        );
+        assertEq(transceiver_.getWormholePeer(Chains.WORMHOLE_ARBITRUM), _arbitrumSpokeWormholeTransceiver.toBytes32());
+        assertEq(transceiver_.getWormholePeer(Chains.WORMHOLE_OPTIMISM), _optimismSpokeWormholeTransceiver.toBytes32());
 
-        WormholeTransceiver wormholeTransceiver_ = WormholeTransceiver(
-            ICreateXLike(_CREATE_X_FACTORY).deployCreate3(
-                _computeSalt(_DEPLOYER, "WormholeTransceiver"),
-                abi.encodePacked(
-                    type(ERC1967Proxy).creationCode,
-                    abi.encode(address(wormholeTransceiverImplementation_), "")
-                )
-            )
-        );
+        assertEq(ntt_.getPeer(Chains.WORMHOLE_ARBITRUM).peerAddress, _arbitrumSpokePortal.toBytes32());
+        assertEq(ntt_.getPeer(Chains.WORMHOLE_OPTIMISM).peerAddress, _optimismSpokePortal.toBytes32());
 
-        wormholeTransceiver_.initialize();
+        assertEq(ntt_.getPeer(Chains.WORMHOLE_ARBITRUM).tokenDecimals, _M_TOKEN_DECIMALS);
+        assertEq(ntt_.getPeer(Chains.WORMHOLE_OPTIMISM).tokenDecimals, _M_TOKEN_DECIMALS);
 
-        IManagerBase(hubPortal_).setTransceiver(address(wormholeTransceiver_));
-        INttManager(hubPortal_).setThreshold(1);
-
-        ChainConfig[] memory chainsConfig_ = _loadChainConfig(
-            "test/fork/fixtures/configure-config.json",
-            block.chainid
-        );
-
-        uint256 chainsConfigLength_ = chainsConfig_.length;
-
-        for (uint256 i_; i_ < chainsConfigLength_; ++i_) {
-            ChainConfig memory chainConfig_ = chainsConfig_[i_];
-
-            console.log("block.chainid: %s", block.chainid);
-
-            if (chainConfig_.chainId == block.chainid) {
-                _configureWormholeTransceiver(
-                    IWormholeTransceiver(chainConfig_.transceiver),
-                    chainsConfig_,
-                    chainConfig_.wormholeChainId
-                );
-
-                _configurePortal(chainConfig_.portal, chainsConfig_, chainConfig_);
-            }
-        }
-
-        bytes32 portalUniversalAddress_ = _toUniversalAddress(address(hubPortal_));
-        bytes32 wormholeTransceiverUniversalAddress_ = _toUniversalAddress(address(wormholeTransceiver_));
-
-        assertEq(wormholeTransceiver_.isWormholeRelayingEnabled(_BASE_WORMHOLE_CHAIN_ID), true);
-        assertEq(wormholeTransceiver_.isWormholeRelayingEnabled(_OPTIMISM_WORMHOLE_CHAIN_ID), true);
-
-        // Same address across all networks.
-        assertEq(wormholeTransceiver_.getWormholePeer(_BASE_WORMHOLE_CHAIN_ID), wormholeTransceiverUniversalAddress_);
+        assertEq(portal_.destinationMToken(Chains.WORMHOLE_ARBITRUM), _arbitrumSpokeMToken.toBytes32());
+        assertEq(portal_.destinationMToken(Chains.WORMHOLE_OPTIMISM), _optimismSpokeMToken.toBytes32());
 
         assertEq(
-            wormholeTransceiver_.getWormholePeer(_OPTIMISM_WORMHOLE_CHAIN_ID),
-            wormholeTransceiverUniversalAddress_
+            portal_.supportedBridgingPath(_MAINNET_M_TOKEN, Chains.WORMHOLE_ARBITRUM, _arbitrumSpokeMToken.toBytes32()),
+            true
+        );
+        assertEq(
+            portal_.supportedBridgingPath(
+                _MAINNET_WRAPPED_M_TOKEN,
+                Chains.WORMHOLE_ARBITRUM,
+                _arbitrumSpokeMToken.toBytes32()
+            ),
+            true
+        );
+        assertEq(
+            portal_.supportedBridgingPath(
+                _MAINNET_M_TOKEN,
+                Chains.WORMHOLE_ARBITRUM,
+                _arbitrumSpokeWrappedMTokenProxy.toBytes32()
+            ),
+            true
+        );
+        assertEq(
+            portal_.supportedBridgingPath(
+                _MAINNET_WRAPPED_M_TOKEN,
+                Chains.WORMHOLE_ARBITRUM,
+                _arbitrumSpokeWrappedMTokenProxy.toBytes32()
+            ),
+            true
         );
 
-        assertEq(wormholeTransceiver_.isWormholeEvmChain(_BASE_WORMHOLE_CHAIN_ID), true);
-        assertEq(wormholeTransceiver_.isWormholeEvmChain(_OPTIMISM_WORMHOLE_CHAIN_ID), true);
+        assertEq(
+            portal_.supportedBridgingPath(_MAINNET_M_TOKEN, Chains.WORMHOLE_OPTIMISM, _optimismSpokeMToken.toBytes32()),
+            true
+        );
+        assertEq(
+            portal_.supportedBridgingPath(
+                _MAINNET_WRAPPED_M_TOKEN,
+                Chains.WORMHOLE_OPTIMISM,
+                _optimismSpokeMToken.toBytes32()
+            ),
+            true
+        );
+        assertEq(
+            portal_.supportedBridgingPath(
+                _MAINNET_M_TOKEN,
+                Chains.WORMHOLE_OPTIMISM,
+                _optimismSpokeWrappedMTokenProxy.toBytes32()
+            ),
+            true
+        );
+        assertEq(
+            portal_.supportedBridgingPath(
+                _MAINNET_WRAPPED_M_TOKEN,
+                Chains.WORMHOLE_OPTIMISM,
+                _optimismSpokeWrappedMTokenProxy.toBytes32()
+            ),
+            true
+        );
+    }
 
-        assertEq(hubPortal_.getPeer(_BASE_WORMHOLE_CHAIN_ID).peerAddress, portalUniversalAddress_);
-        assertEq(hubPortal_.getPeer(_BASE_WORMHOLE_CHAIN_ID).tokenDecimals, _M_TOKEN_DECIMALS);
-        assertEq(hubPortal_.getPeer(_OPTIMISM_WORMHOLE_CHAIN_ID).peerAddress, portalUniversalAddress_);
-        assertEq(hubPortal_.getPeer(_OPTIMISM_WORMHOLE_CHAIN_ID).tokenDecimals, _M_TOKEN_DECIMALS);
+    /// @dev Checks that peers were configured correctly for Arbitrum Spoke
+    function testFork_configure_arbitrumSpoke() external {
+        vm.selectFork(_arbitrumForkId);
 
-        vm.stopPrank();
+        IWormholeTransceiver transceiver_ = IWormholeTransceiver(_arbitrumSpokeWormholeTransceiver);
+        INttManager ntt_ = INttManager(_arbitrumSpokePortal);
+        IPortal portal_ = IPortal(_arbitrumSpokePortal);
+
+        assertEq(transceiver_.isWormholeEvmChain(Chains.WORMHOLE_ETHEREUM), true);
+        assertEq(transceiver_.isWormholeEvmChain(Chains.WORMHOLE_OPTIMISM), true);
+
+        assertEq(transceiver_.isWormholeRelayingEnabled(Chains.WORMHOLE_ETHEREUM), true);
+        assertEq(transceiver_.isWormholeRelayingEnabled(Chains.WORMHOLE_OPTIMISM), true);
+
+        assertEq(transceiver_.isSpecialRelayingEnabled(Chains.WORMHOLE_ETHEREUM), false);
+        assertEq(transceiver_.isSpecialRelayingEnabled(Chains.WORMHOLE_OPTIMISM), false);
+
+        assertEq(transceiver_.getWormholePeer(Chains.WORMHOLE_ETHEREUM), _hubWormholeTransceiver.toBytes32());
+        assertEq(transceiver_.getWormholePeer(Chains.WORMHOLE_OPTIMISM), _optimismSpokeWormholeTransceiver.toBytes32());
+
+        assertEq(ntt_.getPeer(Chains.WORMHOLE_ETHEREUM).peerAddress, _hubPortal.toBytes32());
+        assertEq(ntt_.getPeer(Chains.WORMHOLE_OPTIMISM).peerAddress, _optimismSpokePortal.toBytes32());
+
+        assertEq(ntt_.getPeer(Chains.WORMHOLE_ETHEREUM).tokenDecimals, _M_TOKEN_DECIMALS);
+        assertEq(ntt_.getPeer(Chains.WORMHOLE_OPTIMISM).tokenDecimals, _M_TOKEN_DECIMALS);
+
+        assertEq(portal_.destinationMToken(Chains.WORMHOLE_ETHEREUM), _MAINNET_M_TOKEN.toBytes32());
+        assertEq(portal_.destinationMToken(Chains.WORMHOLE_OPTIMISM), _optimismSpokeMToken.toBytes32());
+
+        assertEq(
+            portal_.supportedBridgingPath(_arbitrumSpokeMToken, Chains.WORMHOLE_ETHEREUM, _MAINNET_M_TOKEN.toBytes32()),
+            true
+        );
+        assertEq(
+            portal_.supportedBridgingPath(
+                _arbitrumSpokeWrappedMTokenProxy,
+                Chains.WORMHOLE_ETHEREUM,
+                _MAINNET_M_TOKEN.toBytes32()
+            ),
+            true
+        );
+        assertEq(
+            portal_.supportedBridgingPath(
+                _arbitrumSpokeMToken,
+                Chains.WORMHOLE_ETHEREUM,
+                _MAINNET_WRAPPED_M_TOKEN.toBytes32()
+            ),
+            true
+        );
+        assertEq(
+            portal_.supportedBridgingPath(
+                _arbitrumSpokeWrappedMTokenProxy,
+                Chains.WORMHOLE_ETHEREUM,
+                _MAINNET_WRAPPED_M_TOKEN.toBytes32()
+            ),
+            true
+        );
+
+        assertEq(
+            portal_.supportedBridgingPath(
+                _arbitrumSpokeMToken,
+                Chains.WORMHOLE_OPTIMISM,
+                _optimismSpokeMToken.toBytes32()
+            ),
+            true
+        );
+        assertEq(
+            portal_.supportedBridgingPath(
+                _arbitrumSpokeWrappedMTokenProxy,
+                Chains.WORMHOLE_OPTIMISM,
+                _optimismSpokeMToken.toBytes32()
+            ),
+            true
+        );
+        assertEq(
+            portal_.supportedBridgingPath(
+                _arbitrumSpokeMToken,
+                Chains.WORMHOLE_OPTIMISM,
+                _optimismSpokeWrappedMTokenProxy.toBytes32()
+            ),
+            true
+        );
+        assertEq(
+            portal_.supportedBridgingPath(
+                _arbitrumSpokeWrappedMTokenProxy,
+                Chains.WORMHOLE_OPTIMISM,
+                _optimismSpokeWrappedMTokenProxy.toBytes32()
+            ),
+            true
+        );
+    }
+
+    /// @dev Checks that peers were configured correctly for Optimism Spoke
+    function testFork_configure_optimismSpoke() external {
+        vm.selectFork(_optimismForkId);
+
+        IWormholeTransceiver transceiver_ = IWormholeTransceiver(_optimismSpokeWormholeTransceiver);
+        INttManager ntt_ = INttManager(_optimismSpokePortal);
+        IPortal portal_ = IPortal(_optimismSpokePortal);
+
+        assertEq(transceiver_.isWormholeEvmChain(Chains.WORMHOLE_ETHEREUM), true);
+        assertEq(transceiver_.isWormholeEvmChain(Chains.WORMHOLE_ARBITRUM), true);
+
+        assertEq(transceiver_.isWormholeRelayingEnabled(Chains.WORMHOLE_ETHEREUM), true);
+        assertEq(transceiver_.isWormholeRelayingEnabled(Chains.WORMHOLE_ARBITRUM), true);
+
+        assertEq(transceiver_.isSpecialRelayingEnabled(Chains.WORMHOLE_ETHEREUM), false);
+        assertEq(transceiver_.isSpecialRelayingEnabled(Chains.WORMHOLE_ARBITRUM), false);
+
+        assertEq(transceiver_.getWormholePeer(Chains.WORMHOLE_ETHEREUM), _hubWormholeTransceiver.toBytes32());
+        assertEq(transceiver_.getWormholePeer(Chains.WORMHOLE_ARBITRUM), _arbitrumSpokeWormholeTransceiver.toBytes32());
+
+        assertEq(ntt_.getPeer(Chains.WORMHOLE_ETHEREUM).peerAddress, _hubPortal.toBytes32());
+        assertEq(ntt_.getPeer(Chains.WORMHOLE_ARBITRUM).peerAddress, _arbitrumSpokePortal.toBytes32());
+
+        assertEq(ntt_.getPeer(Chains.WORMHOLE_ETHEREUM).tokenDecimals, _M_TOKEN_DECIMALS);
+        assertEq(ntt_.getPeer(Chains.WORMHOLE_ARBITRUM).tokenDecimals, _M_TOKEN_DECIMALS);
+
+        assertEq(portal_.destinationMToken(Chains.WORMHOLE_ETHEREUM), _MAINNET_M_TOKEN.toBytes32());
+        assertEq(portal_.destinationMToken(Chains.WORMHOLE_ARBITRUM), _arbitrumSpokeMToken.toBytes32());
+
+        assertEq(
+            portal_.supportedBridgingPath(_optimismSpokeMToken, Chains.WORMHOLE_ETHEREUM, _MAINNET_M_TOKEN.toBytes32()),
+            true
+        );
+        assertEq(
+            portal_.supportedBridgingPath(
+                _optimismSpokeWrappedMTokenProxy,
+                Chains.WORMHOLE_ETHEREUM,
+                _MAINNET_M_TOKEN.toBytes32()
+            ),
+            true
+        );
+        assertEq(
+            portal_.supportedBridgingPath(
+                _optimismSpokeMToken,
+                Chains.WORMHOLE_ETHEREUM,
+                _MAINNET_WRAPPED_M_TOKEN.toBytes32()
+            ),
+            true
+        );
+        assertEq(
+            portal_.supportedBridgingPath(
+                _optimismSpokeWrappedMTokenProxy,
+                Chains.WORMHOLE_ETHEREUM,
+                _MAINNET_WRAPPED_M_TOKEN.toBytes32()
+            ),
+            true
+        );
+
+        assertEq(
+            portal_.supportedBridgingPath(
+                _optimismSpokeMToken,
+                Chains.WORMHOLE_ARBITRUM,
+                _arbitrumSpokeMToken.toBytes32()
+            ),
+            true
+        );
+        assertEq(
+            portal_.supportedBridgingPath(
+                _arbitrumSpokeWrappedMTokenProxy,
+                Chains.WORMHOLE_ARBITRUM,
+                _arbitrumSpokeMToken.toBytes32()
+            ),
+            true
+        );
+        assertEq(
+            portal_.supportedBridgingPath(
+                _optimismSpokeMToken,
+                Chains.WORMHOLE_ARBITRUM,
+                _arbitrumSpokeWrappedMTokenProxy.toBytes32()
+            ),
+            true
+        );
+        assertEq(
+            portal_.supportedBridgingPath(
+                _arbitrumSpokeWrappedMTokenProxy,
+                Chains.WORMHOLE_ARBITRUM,
+                _arbitrumSpokeWrappedMTokenProxy.toBytes32()
+            ),
+            true
+        );
     }
 }

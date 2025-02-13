@@ -4,6 +4,7 @@ pragma solidity 0.8.26;
 
 import { IERC20 } from "../../lib/common/src/interfaces/IERC20.sol";
 
+import { Chains } from "../../script/config/Chains.sol";
 import { IPortal } from "../../src/interfaces/IPortal.sol";
 import { TypeConverter } from "../../src/libs/TypeConverter.sol";
 
@@ -16,7 +17,6 @@ contract SpokeVaultForkTests is ForkTestBase {
 
     function setUp() public override {
         super.setUp();
-        _configurePortals();
     }
 
     /* ============ transfer ============ */
@@ -25,22 +25,22 @@ contract SpokeVaultForkTests is ForkTestBase {
         _beforeTest();
 
         vm.prank(_DEPLOYER);
-        IPortal(_baseSpokePortal).setDestinationMToken(_MAINNET_WORMHOLE_CHAIN_ID, _MAINNET_M_TOKEN.toBytes32());
+        IPortal(_arbitrumSpokePortal).setDestinationMToken(Chains.WORMHOLE_ETHEREUM, _MAINNET_M_TOKEN.toBytes32());
 
         vm.startPrank(_mHolder);
 
         // Then, transfer excess M tokens to the Hub chain.
         _transferExcessM(
-            _baseSpokeVault,
+            _arbitrumSpokeVault,
             _toUniversalAddress(_mHolder),
-            _quoteDeliveryPrice(_baseSpokePortal, _MAINNET_WORMHOLE_CHAIN_ID)
+            _quoteDeliveryPrice(_arbitrumSpokePortal, Chains.WORMHOLE_ETHEREUM)
         );
 
         vm.stopPrank();
 
-        assertEq(IERC20(_baseSpokeMToken).balanceOf(_baseSpokeVault), 0);
+        assertEq(IERC20(_arbitrumSpokeMToken).balanceOf(_arbitrumSpokeVault), 0);
 
-        bytes memory spokeSignedMessage_ = _signMessage(_baseSpokeGuardian, _BASE_WORMHOLE_CHAIN_ID);
+        bytes memory spokeSignedMessage_ = _signMessage(_arbitrumSpokeGuardian, Chains.WORMHOLE_ARBITRUM);
 
         vm.selectFork(_mainnetForkId);
 
@@ -58,7 +58,7 @@ contract SpokeVaultForkTests is ForkTestBase {
         vm.selectFork(_mainnetForkId);
 
         vm.prank(_DEPLOYER);
-        IPortal(_hubPortal).setDestinationMToken(_BASE_WORMHOLE_CHAIN_ID, _MAINNET_M_TOKEN.toBytes32());
+        IPortal(_hubPortal).setDestinationMToken(Chains.WORMHOLE_ARBITRUM, _MAINNET_M_TOKEN.toBytes32());
 
         vm.startPrank(_mHolder);
 
@@ -69,29 +69,29 @@ contract SpokeVaultForkTests is ForkTestBase {
 
         _transfer(
             _hubPortal,
-            _BASE_WORMHOLE_CHAIN_ID,
+            Chains.WORMHOLE_ARBITRUM,
             _amount,
             _toUniversalAddress(_mHolder),
             _toUniversalAddress(_mHolder),
-            _quoteDeliveryPrice(_hubPortal, _BASE_WORMHOLE_CHAIN_ID)
+            _quoteDeliveryPrice(_hubPortal, Chains.WORMHOLE_ARBITRUM)
         );
 
         vm.stopPrank();
 
-        bytes memory hubSignedMessage_ = _signMessage(_hubGuardian, _MAINNET_WORMHOLE_CHAIN_ID);
+        bytes memory hubSignedMessage_ = _signMessage(_hubGuardian, Chains.WORMHOLE_ETHEREUM);
 
-        vm.selectFork(_baseForkId);
-        _deliverMessage(_BASE_WORMHOLE_RELAYER, hubSignedMessage_);
+        vm.selectFork(_arbitrumForkId);
+        _deliverMessage(_ARBITRUM_WORMHOLE_RELAYER, hubSignedMessage_);
 
-        assertEq(IERC20(_baseSpokeMToken).balanceOf(_baseSpokeVault), 0);
+        assertEq(IERC20(_arbitrumSpokeMToken).balanceOf(_arbitrumSpokeVault), 0);
 
-        _amount = IERC20(_baseSpokeMToken).balanceOf(_mHolder);
+        _amount = IERC20(_arbitrumSpokeMToken).balanceOf(_mHolder);
 
         vm.prank(_mHolder);
 
         // Then, transfer M tokens to the SpokeVault to simulate accrual of excess M
-        IERC20(_baseSpokeMToken).transfer(_baseSpokeVault, _amount);
+        IERC20(_arbitrumSpokeMToken).transfer(_arbitrumSpokeVault, _amount);
 
-        assertEq(IERC20(_baseSpokeMToken).balanceOf(_baseSpokeVault), _amount);
+        assertEq(IERC20(_arbitrumSpokeMToken).balanceOf(_arbitrumSpokeVault), _amount);
     }
 }

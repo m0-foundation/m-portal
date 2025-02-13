@@ -14,11 +14,7 @@ contract Transfer is TaskBase {
     using TypeConverter for address;
 
     function run() public {
-        _verifyDeploymentExist();
-
-        Deployment memory deployment_ = _readDeployment();
-        address portal_ = deployment_.portal;
-        address mToken_ = deployment_.mToken;
+        (address mToken_, address portal_, , , , ) = _readDeployment(block.chainid);
         address signer_ = vm.rememberKey(vm.envUint("PRIVATE_KEY"));
         uint16 destinationChainId_ = _promptForDestinationChainId(portal_);
         uint256 amount_ = _promptForTransferAmount(mToken_, signer_);

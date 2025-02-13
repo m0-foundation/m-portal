@@ -10,16 +10,17 @@ import { ContractHelper } from "../../lib/common/src/libs/ContractHelper.sol";
 import { MToken as SpokeMToken } from "../../lib/protocol/src/MToken.sol";
 import { Registrar as SpokeRegistrar } from "../../lib/ttg/src/Registrar.sol";
 
+import { Chains } from "../../script/config/Chains.sol";
+
 import { ForkTestBase } from "./ForkTestBase.t.sol";
 
 contract Deploy is ForkTestBase {
     function setUp() public override {
         super.setUp();
-        _configurePortals();
     }
 
     function testFork_deployHub() external {
-        vm.selectFork(_forkIds[0]);
+        vm.selectFork(_mainnetForkId);
 
         assertEq(_hubPortal, _getCreate3Address(_DEPLOYER, _computeSalt(_DEPLOYER, "Portal")));
         assertEq(
@@ -28,8 +29,8 @@ contract Deploy is ForkTestBase {
         );
     }
 
-    function testFork_deploySpoke() external {
-        vm.selectFork(_forkIds[1]);
+    function testFork_deployArbitrumSpoke() external {
+        vm.selectFork(_arbitrumForkId);
 
         // Contracts addresses should be the same across all networks.
         address expectedSpokePortal_ = _getCreate3Address(_DEPLOYER, _computeSalt(_DEPLOYER, "Portal"));
@@ -42,19 +43,32 @@ contract Deploy is ForkTestBase {
         address _expectedSpokeWrappedMTokenImplementation = ContractHelper.getContractFrom(_DEPLOYER, 39);
         address _expectedSpokeWrappedMTokenProxy = ContractHelper.getContractFrom(_DEPLOYER, 40);
 
-        assertEq(_baseSpokePortal, expectedSpokePortal_);
-        assertEq(_baseSpokeWormholeTransceiver, expectedSpokeWormholeTransceiver_);
-        assertEq(_baseSpokeRegistrar, _MAINNET_REGISTRAR);
-        assertEq(_baseSpokeMToken, _MAINNET_M_TOKEN);
-        assertEq(_baseSpokeVault, expectedSpokeVault_);
+        assertEq(_arbitrumSpokePortal, expectedSpokePortal_);
+        assertEq(_arbitrumSpokeWormholeTransceiver, expectedSpokeWormholeTransceiver_);
+        assertEq(_arbitrumSpokeRegistrar, _MAINNET_REGISTRAR);
+        assertEq(_arbitrumSpokeMToken, _MAINNET_M_TOKEN);
+        assertEq(_arbitrumSpokeVault, expectedSpokeVault_);
 
-        assertEq(_baseSpokeWrappedMTokenProxy, _expectedSpokeWrappedMTokenProxy);
+        assertEq(_arbitrumSpokeWrappedMTokenProxy, _expectedSpokeWrappedMTokenProxy);
 
-        assertEq(SpokeMToken(_baseSpokeMToken).portal(), _baseSpokePortal);
-        assertEq(SpokeMToken(_baseSpokeMToken).registrar(), _baseSpokeRegistrar);
-        assertEq(SpokeRegistrar(_baseSpokeRegistrar).portal(), _baseSpokePortal);
+        assertEq(SpokeMToken(_arbitrumSpokeMToken).portal(), _arbitrumSpokePortal);
+        assertEq(SpokeMToken(_arbitrumSpokeMToken).registrar(), _arbitrumSpokeRegistrar);
+        assertEq(SpokeRegistrar(_arbitrumSpokeRegistrar).portal(), _arbitrumSpokePortal);
+    }
 
-        vm.selectFork(_forkIds[2]);
+    function testFork_deployOptimismSpoke() external {
+        vm.selectFork(_optimismForkId);
+
+        // Contracts addresses should be the same across all networks.
+        address expectedSpokePortal_ = _getCreate3Address(_DEPLOYER, _computeSalt(_DEPLOYER, "Portal"));
+        address expectedSpokeVault_ = _getCreate3Address(_DEPLOYER, _computeSalt(_DEPLOYER, "Vault"));
+        address expectedSpokeWormholeTransceiver_ = _getCreate3Address(
+            _DEPLOYER,
+            _computeSalt(_DEPLOYER, "WormholeTransceiver")
+        );
+
+        address _expectedSpokeWrappedMTokenImplementation = ContractHelper.getContractFrom(_DEPLOYER, 39);
+        address _expectedSpokeWrappedMTokenProxy = ContractHelper.getContractFrom(_DEPLOYER, 40);
 
         assertEq(_optimismSpokePortal, expectedSpokePortal_);
         assertEq(_optimismSpokeWormholeTransceiver, expectedSpokeWormholeTransceiver_);

@@ -6,12 +6,16 @@ import { console } from "../../lib/forge-std/src/console.sol";
 import { Test } from "../../lib/forge-std/src/Test.sol";
 
 import { DeployBase } from "../../script/deploy/DeployBase.sol";
+import { DeployConfig, HubDeployConfig } from "../../script/config/DeployConfig.sol";
+import { WormholeConfig, WormholeTransceiverConfig } from "../../script/config/WormholeConfig.sol";
 
 import { IHubPortal } from "../../src/interfaces/IHubPortal.sol";
 import { IMTokenLike } from "../../src/interfaces/IMTokenLike.sol";
 import { IRegistrarLike } from "../../src/interfaces/IRegistrarLike.sol";
 
 contract DeployIntegrationTests is Test, DeployBase {
+    using WormholeConfig for uint256;
+
     address internal constant _DEPLOYER = 0xF2f1ACbe0BA726fEE8d75f3E32900526874740BB;
     address internal constant _EXPECTED_HUB_PORTAL_ADDRESS = 0xD925C84b55E4e44a53749fF5F2a5A13F63D128fd;
 
@@ -28,8 +32,17 @@ contract DeployIntegrationTests is Test, DeployBase {
 
         vm.startPrank(_DEPLOYER);
 
-        HubConfiguration memory hubConfig_ = _loadHubConfig("test/fork/fixtures/deploy-config.json", block.chainid);
-        (address hubPortal_, ) = _deployHubComponents(_DEPLOYER, hubConfig_);
+        HubDeployConfig memory hubDeployConfig_ = DeployConfig.getHubDeployConfig(block.chainid);
+        WormholeTransceiverConfig memory hubTransceiverConfig_ = WormholeConfig.getWormholeTransceiverConfig(
+            block.chainid
+        );
+
+        (address hubPortal_, ) = _deployHubComponents(
+            _DEPLOYER,
+            block.chainid.toWormholeChainId(),
+            hubDeployConfig_,
+            hubTransceiverConfig_
+        );
 
         assertEq(hubPortal_, _EXPECTED_HUB_PORTAL_ADDRESS);
 

@@ -12,10 +12,7 @@ contract SendMTokenIndex is TaskBase {
     using TypeConverter for address;
 
     function run() public {
-        _verifyDeploymentExist();
-
-        Deployment memory deployment_ = _readDeployment();
-        address portal_ = deployment_.portal;
+        (, address portal_, , , , ) = _readDeployment(block.chainid);
         uint16 destinationChainId_ = _promptForDestinationChainId(portal_);
         uint256 deliveryPrice_ = _quoteDeliveryPrice(portal_, destinationChainId_);
         address signer_ = vm.rememberKey(vm.envUint("PRIVATE_KEY"));
