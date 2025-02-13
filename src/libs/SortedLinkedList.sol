@@ -8,7 +8,7 @@ struct LinkedList {
 }
 
 library SortedLinkedList {
-    function contains(LinkedList storage list, bytes32 value) internal returns (bool) {
+    function contains(LinkedList storage list, bytes32 value) internal view returns (bool) {
         return value == bytes32(0) || list.next[value] != bytes32(0);
     }
 

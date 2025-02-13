@@ -86,7 +86,9 @@ contract MerkleTreeBuilder {
             two = keccak256(abi.encodePacked(BIT, two));
 
             // We sort the values when hashing to not require additional data to construct proofs
-            tree[i / 2] = one < two ? keccak256(abi.encodePacked(one, two)) : keccak256(abi.encodePacked(two, one));
+            tree[i / 2] = one < two
+                ? keccak256(abi.encodePacked(BIT, one, two))
+                : keccak256(abi.encodePacked(BIT, two, one));
             previous = two;
         }
 
@@ -94,7 +96,7 @@ contract MerkleTreeBuilder {
         // We hash the last leaf with itself to avoid zero values in the tree
         if (leafCount % 2 != 0) {
             bytes32 one = keccak256(abi.encodePacked(BIT, sortedList.next[previous]));
-            tree[len - 1] = keccak256(abi.encodePacked(one, one));
+            tree[len - 1] = keccak256(abi.encodePacked(BIT, one, one));
         }
 
         // Now, we iteratively combine every 2 nodes until the length of the tree is 1
@@ -109,12 +111,14 @@ contract MerkleTreeBuilder {
                 bytes32 two = tree[i + 1];
 
                 // We sort the values when hashing to not require additional data to construct proofs
-                tree[i / 2] = one < two ? keccak256(abi.encodePacked(one, two)) : keccak256(abi.encodePacked(two, one));
+                tree[i / 2] = one < two
+                    ? keccak256(abi.encodePacked(BIT, one, two))
+                    : keccak256(abi.encodePacked(BIT, two, one));
             }
 
             // If the length of the current level is odd, we hash the final node with itself
             if (nextLen % 2 != 0) {
-                tree[nextLen - 1] = keccak256(abi.encodePacked(tree[len - 1], tree[len - 1]));
+                tree[nextLen - 1] = keccak256(abi.encodePacked(BIT, tree[len - 1], tree[len - 1]));
             }
 
             // Update the length of the tree
@@ -129,7 +133,7 @@ contract MerkleTreeBuilder {
 
     /* ========== HELPERS ========== */
 
-    function _isSetOnRegistrar(bytes32 list, bytes32 value) internal returns (bool) {
+    function _isSetOnRegistrar(bytes32 list, bytes32 value) internal view returns (bool) {
         bytes32 key = keccak256(abi.encode(list, value));
 
         bytes32 isSet = IRegistrarLike(registrar).get(key);
