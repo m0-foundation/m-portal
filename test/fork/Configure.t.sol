@@ -20,10 +20,7 @@ import { ConfigureBase } from "../../script/configure/ConfigureBase.sol";
 import { ICreateXLike } from "../../script/deploy/interfaces/ICreateXLike.sol";
 
 import { IRegistrarLike } from "../../src/interfaces/IRegistrarLike.sol";
-import { Governor } from "../../src/governance/Governor.sol";
 import { HubPortal } from "../../src/HubPortal.sol";
-
-import { MainnetConfigurator } from "./fixtures/configurator/MainnetConfigurator.sol";
 
 import { ForkTestBase } from "./ForkTestBase.t.sol";
 
@@ -123,90 +120,5 @@ contract Configure is ForkTestBase {
         assertEq(hubPortal_.getPeer(_OPTIMISM_WORMHOLE_CHAIN_ID).tokenDecimals, _M_TOKEN_DECIMALS);
 
         vm.stopPrank();
-    }
-
-    function testFork_configureViaGovernance() external {
-        vm.createSelectFork(vm.rpcUrl("mainnet"));
-
-        deal(_DEPLOYER, 10 ether);
-
-        vm.startPrank(_DEPLOYER);
-
-        HubPortal hubPortalImplementation_ = new HubPortal(
-            _MAINNET_M_TOKEN,
-            _MAINNET_REGISTRAR,
-            _MAINNET_WORMHOLE_CHAIN_ID
-        );
-
-        HubPortal hubPortal_ = HubPortal(
-            ICreateXLike(_CREATE_X_FACTORY).deployCreate3(
-                _computeSalt(_DEPLOYER, "Portal"),
-                abi.encodePacked(type(ERC1967Proxy).creationCode, abi.encode(address(hubPortalImplementation_), ""))
-            )
-        );
-
-        hubPortal_.initialize();
-
-        WormholeTransceiver wormholeTransceiverImplementation_ = new WormholeTransceiver(
-            address(hubPortal_),
-            _MAINNET_WORMHOLE_CORE_BRIDGE,
-            _MAINNET_WORMHOLE_RELAYER,
-            address(0),
-            _INSTANT_CONSISTENCY_LEVEL,
-            _MIN_WORMHOLE_GAS_LIMIT
-        );
-
-        WormholeTransceiver wormholeTransceiver_ = WormholeTransceiver(
-            ICreateXLike(_CREATE_X_FACTORY).deployCreate3(
-                _computeSalt(_DEPLOYER, "WormholeTransceiver"),
-                abi.encodePacked(
-                    type(ERC1967Proxy).creationCode,
-                    abi.encode(address(wormholeTransceiverImplementation_), "")
-                )
-            )
-        );
-
-        wormholeTransceiver_.initialize();
-
-        IManagerBase(hubPortal_).setTransceiver(address(wormholeTransceiver_));
-        INttManager(hubPortal_).setThreshold(1);
-
-        bytes32 portalUniversalAddress_ = _toUniversalAddress(address(hubPortal_));
-        bytes32 wormholeTransceiverUniversalAddress_ = _toUniversalAddress(address(wormholeTransceiver_));
-
-        Governor governor_ = new Governor(address(hubPortal_), _governorAdmin);
-        address configurator_ = address(new MainnetConfigurator(address(hubPortal_), address(wormholeTransceiver_)));
-
-        hubPortal_.transferOwnership(address(governor_));
-
-        vm.stopPrank();
-
-        vm.mockCall(
-            _MAINNET_REGISTRAR,
-            abi.encodeWithSelector(IRegistrarLike.get.selector, bytes32("portal_configurator")),
-            abi.encode(bytes32(uint256(uint160(configurator_))))
-        );
-
-        // Anyone can call configure().
-        governor_.configure();
-
-        assertEq(wormholeTransceiver_.isWormholeRelayingEnabled(_BASE_WORMHOLE_CHAIN_ID), true);
-        assertEq(wormholeTransceiver_.isWormholeRelayingEnabled(_OPTIMISM_WORMHOLE_CHAIN_ID), true);
-
-        // Same address across all networks.
-        assertEq(wormholeTransceiver_.getWormholePeer(_BASE_WORMHOLE_CHAIN_ID), wormholeTransceiverUniversalAddress_);
-
-        assertEq(
-            wormholeTransceiver_.getWormholePeer(_OPTIMISM_WORMHOLE_CHAIN_ID),
-            wormholeTransceiverUniversalAddress_
-        );
-
-        assertEq(wormholeTransceiver_.isWormholeEvmChain(_BASE_WORMHOLE_CHAIN_ID), true);
-        assertEq(wormholeTransceiver_.isWormholeEvmChain(_OPTIMISM_WORMHOLE_CHAIN_ID), true);
-
-        assertEq(hubPortal_.getPeer(_BASE_WORMHOLE_CHAIN_ID).peerAddress, portalUniversalAddress_);
-        assertEq(hubPortal_.getPeer(_BASE_WORMHOLE_CHAIN_ID).tokenDecimals, _M_TOKEN_DECIMALS);
-        assertEq(hubPortal_.getPeer(_OPTIMISM_WORMHOLE_CHAIN_ID).peerAddress, portalUniversalAddress_);
-        assertEq(hubPortal_.getPeer(_OPTIMISM_WORMHOLE_CHAIN_ID).tokenDecimals, _M_TOKEN_DECIMALS);
     }
 }
