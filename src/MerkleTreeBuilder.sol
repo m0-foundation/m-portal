@@ -130,8 +130,8 @@ contract MerkleTreeBuilder {
         uint256 len = currentLevel.length;
 
         // If the length is odd, we need to add one to the length of the resulting level
-        bool lenOdd = len % 2 == 0;
-        uint256 nextLen = lenOdd ? len / 2 : len / 2 + 1;
+        bool lenOdd = len % 2 != 0;
+        uint256 nextLen = lenOdd ? len / 2 + 1 : len / 2;
         nextLevel = new bytes32[](nextLen);
 
         // Iterate through the current level and construct the next level
