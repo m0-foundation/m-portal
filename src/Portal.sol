@@ -280,7 +280,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         bytes32 recipient_,
         uint128 index_,
         uint64 sequence_
-    ) internal returns (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) {
+    ) internal view returns (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) {
         TransceiverStructs.NativeTokenTransfer memory nativeTokenTransfer_ = TransceiverStructs.NativeTokenTransfer(
             amount_,
             token.toBytes32(),
@@ -449,7 +449,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
     }
 
     /// @dev Verifies that the transfer amount isn't zero.
-    function _verifyTransferAmount(uint256 amount_) private view {
+    function _verifyTransferAmount(uint256 amount_) private pure {
         if (amount_ == 0) revert ZeroAmount();
     }
 
