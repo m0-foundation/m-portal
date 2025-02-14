@@ -17,7 +17,7 @@ import { PayloadType, PayloadEncoder } from "./libs/PayloadEncoder.sol";
 
 /**
  * @title  Base Portal contract inherited by HubPortal and SpokePortal.
- * @author M^0 Labs
+ * @author M^0 Labs.
  */
 abstract contract Portal is NttManagerNoRateLimiting, IPortal {
     using TypeConverter for *;
