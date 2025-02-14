@@ -11,6 +11,7 @@ import { TrimmedAmountLib } from "../../lib/native-token-transfers/evm/src/libra
 import { TransceiverStructs } from "../../lib/native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
 
 import { TypeConverter } from "../../src/libs/TypeConverter.sol";
+import { PayloadEncoder } from "../../src/libs/PayloadEncoder.sol";
 import { Portal } from "../../src/Portal.sol";
 
 import { MockTransceiver } from "../mocks/MockTransceiver.sol";
@@ -79,7 +80,7 @@ contract UnitTestBase is Test {
             _tokenAddress.toBytes32(),
             recipient_,
             destinationChainId_,
-            abi.encodePacked(index_.toUint64(), destinationToken_)
+            PayloadEncoder.encodeAdditionalPayload(index_, destinationToken_)
         );
         bytes memory payload_ = TransceiverStructs.encodeNativeTokenTransfer(nativeTokenTransfer_);
         message_ = TransceiverStructs.NttManagerMessage(bytes32(0), _alice.toBytes32(), payload_);

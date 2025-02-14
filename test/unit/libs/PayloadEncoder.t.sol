@@ -26,6 +26,7 @@ contract PayloadEncoderTest is Test {
     address internal immutable _token = makeAddr("token");
     address internal immutable _recipient = makeAddr("recipient");
 
+    /// forge-config: default.allow_internal_expect_revert = true
     function testFuzz_getPayloadType_invalidPayloadPrefixLength(bytes3 randomBytes_) external {
         bytes memory payload_ = abi.encodePacked(randomBytes_);
 
@@ -33,6 +34,7 @@ contract PayloadEncoderTest is Test {
         PayloadEncoder.getPayloadType(payload_);
     }
 
+    /// forge-config: default.allow_internal_expect_revert = true
     function testFuzz_getPayloadType_invalidPayloadPrefix(bytes4 randomBytes_) external {
         vm.assume(randomBytes_ != TransceiverStructs.NTT_PREFIX);
         vm.assume(randomBytes_ != PayloadEncoder.INDEX_TRANSFER_PREFIX);
