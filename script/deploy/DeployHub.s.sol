@@ -28,7 +28,7 @@ contract DeployHub is DeployBase {
             transceiverConfig_
         );
 
-        // HubPortal is already an approve earner
+        // HubPortal is already an approved earner
         IHubPortal(portal_).enableEarning();
 
         vm.stopBroadcast();
