@@ -26,7 +26,7 @@ jobs:
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
-          version: 0.3.0
+          version: nightly
 
       - name: Install lcov
         uses: hrishikesh-kadam/setup-lcov@v1
