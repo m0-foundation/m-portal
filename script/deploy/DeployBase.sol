@@ -131,7 +131,7 @@ contract DeployBase is ScriptBase {
         address mToken_,
         address registrar_,
         uint16 wormholeChainId_
-    ) internal returns (address pokePortal_) {
+    ) internal returns (address spokePortal_) {
         SpokePortal implementation_ = new SpokePortal(mToken_, registrar_, wormholeChainId_);
         SpokePortal spokePortalProxy_ = SpokePortal(
             _deployCreate3Proxy(address(implementation_), _computeSalt(deployer_, "Portal"))
