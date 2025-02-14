@@ -153,6 +153,7 @@ contract PortalTests is UnitTestBase {
         _portal.transfer(1_000e6, _REMOTE_CHAIN_ID, bytes32(0));
     }
 
+    /// forge-config: default.allow_internal_expect_revert = true
     function test_transfer_indexOverflow() external {
         vm.expectRevert(TypeConverter.Uint64Overflow.selector);
 

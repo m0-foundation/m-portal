@@ -8,7 +8,7 @@ pragma solidity 0.8.26;
  */
 interface IMTokenLike {
     /// @notice The current index that would be written to storage if `updateIndex` is called.
-    function currentIndex() external view returns (uint128 currentIndex);
+    function currentIndex() external view returns (uint128);
 
     /**
      * @notice Checks if account is an earner.
@@ -21,5 +21,5 @@ interface IMTokenLike {
     function startEarning() external;
 
     /// @notice Stops earning for the account.
-    function stopEarning(address account_) external;
+    function stopEarning(address account) external;
 }
