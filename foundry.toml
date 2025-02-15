@@ -8,12 +8,12 @@ fs_permissions = [
 gas_reports = ["HubPortal", "SpokePortal"]
 gas_reports_ignore = []
 ignored_error_codes = []
+ignored_warnings_from = ["lib", "test", "script"]
 optimizer = true
-version = "0.8.26"
 optimizer_runs = 1500
+version = "0.8.26"
 verbosity = 3
 via_ir = false
-
 
 [profile.production]
 build_info = true
