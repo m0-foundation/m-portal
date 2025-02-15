@@ -32,7 +32,7 @@ library PeersConfig {
     address internal constant TESTNET_WRAPPED_M_ADDRESS = 0x71c72Ee9F587DAC1df749940c7581E4BbC789F85;
 
     function getPeersConfig(uint256 sourceChainId_) internal pure returns (PeerConfig[] memory _portalPeerConfig) {
-        uint256[] memory peers_ = _getPeers(sourceChainId_);
+        uint256[] memory peers_ = getPeerChains(sourceChainId_);
         return getPeersConfig(peers_);
     }
 
@@ -97,7 +97,7 @@ library PeersConfig {
             });
     }
 
-    function _getPeers(uint256 chainId_) private pure returns (uint256[] memory peers_) {
+    function getPeerChains(uint256 chainId_) internal pure returns (uint256[] memory peers_) {
         if (chainId_ == Chains.ETHEREUM) {
             peers_ = new uint256[](2);
             peers_[0] = Chains.ARBITRUM;

@@ -406,3 +406,42 @@ transfer-excess-m-prod-optimism: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
 transfer-excess-m-prod-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
 transfer-excess-m-prod-optimism: transfer-excess-m
 
+#
+#
+# QUERIES
+#
+#
+
+query:
+	forge script $(SCRIPT) --rpc-url $(RPC_URL) --skip test -v
+
+#
+# Get Portal Info
+#
+
+get-portal-info: SCRIPT=script/queries/GetPortalInfo.s.sol:GetPortalInfo
+get-portal-info: query
+
+# Chain-specific transfers Testnet
+
+get-portal-info-dev-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
+get-portal-info-dev-sepolia: get-portal-info
+
+get-portal-info-dev-optimism-sepolia: RPC_URL=$(OPTIMISM_SEPOLIA_RPC_URL)
+get-portal-info-dev-optimism-sepolia: get-portal-info
+
+get-portal-info-dev-arbitrum-sepolia: RPC_URL=$(ARBITRUM_SEPOLIA_RPC_URL)
+get-portal-info-dev-arbitrum-sepolia: get-portal-info
+
+# Chain-specific transfers Mainnet
+
+get-portal-info-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
+get-portal-info-prod-eth: get-portal-info
+
+get-portal-info-prod-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
+get-portal-info-prod-optimism: get-portal-info
+
+get-portal-info-prod-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
+get-portal-info-prod-arbitrum: get-portal-info
+
+

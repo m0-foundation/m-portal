@@ -34,12 +34,6 @@ contract TransferMLikeToken is TaskBase {
 
         vm.startBroadcast(signer_);
 
-        // wrap $M first
-        if (sourceToken_ != mToken_) {
-            IERC20(mToken_).approve(sourceToken_, amount_);
-            amount_ = IWrappedMTokenLike(sourceToken_).wrap(signer_, amount_);
-        }
-
         IERC20(sourceToken_).approve(portal_, amount_);
         IPortal(portal_).transferMLikeToken{ value: deliveryPrice_ }(
             amount_,
