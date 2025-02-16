@@ -6,9 +6,9 @@ import { console } from "../../lib/forge-std/src/console.sol";
 
 import { ISpokeVault } from "../../src/interfaces/ISpokeVault.sol";
 
-import { CastBase } from "./CastBase.sol";
+import { TaskBase } from "./TaskBase.sol";
 
-contract CastTransferExcessM is CastBase {
+contract TransferExcessM is TaskBase {
     function run() public {
         address signer_ = vm.rememberKey(vm.envUint("PRIVATE_KEY"));
 
