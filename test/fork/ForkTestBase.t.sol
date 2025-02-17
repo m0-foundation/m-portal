@@ -5,6 +5,8 @@ pragma solidity 0.8.26;
 import { Test } from "../../lib/forge-std/src/Test.sol";
 import { Vm } from "../../lib/forge-std/src/Test.sol";
 
+import { IERC20 } from "../../lib/common/src/interfaces/IERC20.sol";
+
 import {
     IWormholeRelayer
 } from "../../lib/native-token-transfers/evm/lib/wormhole-solidity-sdk/src/interfaces/IWormholeRelayer.sol";
@@ -16,6 +18,7 @@ import { INttManager } from "../../lib/native-token-transfers/evm/src/interfaces
 import { IWormholeTransceiver } from "../../lib/native-token-transfers/evm/src/interfaces/IWormholeTransceiver.sol";
 import { TransceiverStructs } from "../../lib/native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
 
+import { Chains } from "../../script/config/Chains.sol";
 import { TaskBase } from "../../script/tasks/TaskBase.sol";
 import { ConfigureBase } from "../../script/configure/ConfigureBase.sol";
 import { DeployBase } from "../../script/deploy/DeployBase.sol";
@@ -24,6 +27,7 @@ import { WormholeConfig, WormholeTransceiverConfig } from "../../script/config/W
 import { PeersConfig, PeerConfig } from "../../script/config/PeersConfig.sol";
 
 import { TypeConverter } from "../../src/libs/TypeConverter.sol";
+import { IMTokenLike } from "../../src/interfaces/IMTokenLike.sol";
 import { IHubPortal } from "../../src/interfaces/IHubPortal.sol";
 import { IRegistrarLike } from "../../src/interfaces/IRegistrarLike.sol";
 
@@ -282,6 +286,67 @@ contract ForkTestBase is TaskBase, ConfigureBase, DeployBase, Test {
             payable(address(this)),
             new bytes(0)
         );
+    }
+
+    function _enableUserEarning(address mToken_, address registrar_, address user_) internal {
+        vm.mockCall(
+            registrar_,
+            abi.encodeWithSelector(IRegistrarLike.listContains.selector, bytes32("earners"), user_),
+            abi.encode(true)
+        );
+
+        vm.prank(user_);
+        IMTokenLike(mToken_).startEarning();
+    }
+
+    function _disablePortalEarning() internal {
+        // Disable earning for the Hub Portal
+        vm.mockCall(
+            _MAINNET_REGISTRAR,
+            abi.encodeWithSelector(IRegistrarLike.listContains.selector, bytes32("earners"), _hubPortal),
+            abi.encode(false)
+        );
+
+        IHubPortal(_hubPortal).disableEarning();
+    }
+
+    function _deliverMessageToSpoke(uint256 spokeForkId_, address spokeRelayer_) internal {
+        bytes memory signedMessage_ = _signMessage(_hubGuardian, Chains.WORMHOLE_ETHEREUM);
+
+        vm.selectFork(spokeForkId_);
+
+        _deliverMessage(spokeRelayer_, signedMessage_);
+    }
+
+    function _propagateMIndex(uint16 spokeChainId_, uint256 spokeForkId_, address spokeRelayer_) internal {
+        vm.recordLogs();
+
+        _sendMTokenIndex(
+            _hubPortal,
+            spokeChainId_,
+            address(this).toBytes32(),
+            _quoteDeliveryPrice(_hubPortal, spokeChainId_)
+        );
+
+        _deliverMessageToSpoke(spokeForkId_, spokeRelayer_);
+    }
+
+    function _transfer(uint256 amount_, address user_, address portal_, uint16 destinationChainId_) internal {
+        vm.startPrank(user_);
+        vm.recordLogs();
+
+        IERC20(_MAINNET_M_TOKEN).approve(portal_, amount_);
+
+        _transfer(
+            portal_,
+            destinationChainId_,
+            amount_,
+            user_.toBytes32(),
+            user_.toBytes32(),
+            _quoteDeliveryPrice(portal_, destinationChainId_)
+        );
+
+        vm.stopPrank();
     }
 
     // Fallback function to receive refund from Wormhole relayer

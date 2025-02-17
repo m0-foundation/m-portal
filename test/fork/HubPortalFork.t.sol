@@ -3,6 +3,7 @@
 pragma solidity 0.8.26;
 
 import { IERC20 } from "../../lib/common/src/interfaces/IERC20.sol";
+import { IndexingMath } from "../../lib/common/src/libs/IndexingMath.sol";
 import { IContinuousIndexing } from "../../lib/protocol/src/interfaces/IContinuousIndexing.sol";
 import { IMToken } from "../../lib/protocol/src/interfaces/IMToken.sol";
 
@@ -30,33 +31,227 @@ contract HubPortalForkTests is ForkTestBase {
 
         uint128 mainnetIndex_ = IContinuousIndexing(_MAINNET_M_TOKEN).currentIndex();
 
-        vm.startPrank(_mHolder);
-        vm.recordLogs();
-
         uint256 amount_ = 1_000e6;
+        _transfer(amount_, _mHolder, _hubPortal, Chains.WORMHOLE_ARBITRUM);
 
         IERC20(_MAINNET_M_TOKEN).approve(_hubPortal, amount_);
 
-        _transfer(
-            _hubPortal,
-            Chains.WORMHOLE_ARBITRUM,
-            amount_,
-            _toUniversalAddress(_mHolder),
-            _toUniversalAddress(_mHolder),
-            _quoteDeliveryPrice(_hubPortal, Chains.WORMHOLE_ARBITRUM)
-        );
-
-        vm.stopPrank();
-
         assertEq(IERC20(_MAINNET_M_TOKEN).balanceOf(_hubPortal), amount_ = amount_ - 1);
 
-        bytes memory signedMessage_ = _signMessage(_hubGuardian, Chains.WORMHOLE_ETHEREUM);
-
-        vm.selectFork(_arbitrumForkId);
-        _deliverMessage(_ARBITRUM_WORMHOLE_RELAYER, signedMessage_);
+        // Deliver message
+        _deliverMessageToSpoke(_arbitrumForkId, _ARBITRUM_WORMHOLE_RELAYER);
 
         assertEq(IERC20(_arbitrumSpokeMToken).balanceOf(_mHolder), amount_);
         assertEq(IContinuousIndexing(_arbitrumSpokeMToken).currentIndex(), mainnetIndex_);
+    }
+
+    /// @dev Sender is non-earner, Hub is non-earner, recipient is non-earner
+    ///      The transferred amount is exact, no rounding errors
+    function testFork_transfer_hubNonEarner_senderNonEarner_recipientNonEarner() external {
+        uint256 amount_ = 1_000e6;
+        _testTransferScenario({
+            isHubEarner: false,
+            isSenderEarner: false,
+            isRecipientEarner: false,
+            amount: amount_,
+            expectedHubBalance: amount_,
+            expectedRecipientBalance: amount_
+        });
+    }
+
+    /// @dev Sender is non-earner, Hub is earner, recipient is non-earner
+    ///      The transferred amount is rounded down on the source, recipient gets less
+    function testFork_transfer_hubEarner_senderNonEarner_recipientNonEarner() external {
+        uint256 amount_ = 15399539920;
+        _testTransferScenario({
+            isHubEarner: true,
+            isSenderEarner: false,
+            isRecipientEarner: false,
+            amount: amount_,
+            expectedHubBalance: amount_ - 2,
+            expectedRecipientBalance: amount_ - 2
+        });
+    }
+
+    /// @dev Sender is earner, Hub is non-earner, recipient is non-earner
+    ///      The transferred amount is exact, no rounding errors
+    function testFork_transfer_hubNonEarner_senderEarner_recipientNonEarner() external {
+        uint256 amount_ = 1_000e6;
+        _testTransferScenario({
+            isHubEarner: false,
+            isSenderEarner: true,
+            isRecipientEarner: false,
+            amount: amount_,
+            expectedHubBalance: amount_,
+            expectedRecipientBalance: amount_
+        });
+    }
+
+    /// @dev Sender is non-earner, Hub is non-earner, recipient is earner
+    ///      The transferred amount is rounded down on the destination, recipient gets less
+    function testFork_transfer_hubNonEarner_senderNonEarner_recipientEarner() external {
+        uint256 amount_ = 1_000e6;
+        _testTransferScenario({
+            isHubEarner: false,
+            isSenderEarner: false,
+            isRecipientEarner: true,
+            amount: amount_,
+            expectedHubBalance: amount_,
+            expectedRecipientBalance: amount_ - 1
+        });
+    }
+
+    /// @dev Sender is earner, Hub is earner, recipient is non-earner
+    ///      The transferred amount is exact or rounded up
+    function testFork_transfer_hubEarner_senderEarner_recipientNonEarner() external {
+        uint256 amount_ = 38962247;
+        _testTransferScenario({
+            isHubEarner: true,
+            isSenderEarner: true,
+            isRecipientEarner: false,
+            amount: amount_,
+            expectedHubBalance: amount_ + 1,
+            expectedRecipientBalance: amount_ + 1
+        });
+    }
+
+    /// @dev Sender is non-earner, Hub is earner, recipient is earner
+    ///      The transferred amount is rounded down twice, recipient gets less
+    function testFork_transfer_hubEarner_senderNonEarner_recipientEarner() external {
+        uint256 amount_ = 1_000e6;
+        // Amount locked in HubPortal is less than the transfer amount due to the rounding
+        // when transferring $M from a non-earner sender to the earner HubPortal.
+        // Recipient's balance is less than the amount locked in HubPortal due to the rounding
+        // when transferring $M from the non-earner SpokePortal to an earner recipient.
+        _testTransferScenario({
+            isHubEarner: true,
+            isSenderEarner: false,
+            isRecipientEarner: true,
+            amount: amount_,
+            expectedHubBalance: amount_ - 1,
+            expectedRecipientBalance: amount_ - 2
+        });
+    }
+
+    /// @dev Sender is earner, Hub is non-earner, recipient is earner
+    ///      The transferred amount is rounded down on the destination, recipient gets less
+    function testFork_transfer_hubNonEarner_senderEarner_recipientEarner() external {
+        uint256 amount_ = 1_000e6;
+        _testTransferScenario({
+            isHubEarner: false,
+            isSenderEarner: true,
+            isRecipientEarner: true,
+            amount: amount_,
+            expectedHubBalance: amount_,
+            expectedRecipientBalance: amount_ - 1
+        });
+    }
+
+    /// @dev Sender is earner, Hub is earner, recipient is earner
+    ///      The transferred amount is rounded down on the destination, recipient gets less
+    function testFork_transfer_hubEarner_senderEarner_recipientEarner() external {
+        uint256 amount_ = 1_000e6;
+        _testTransferScenario({
+            isHubEarner: true,
+            isSenderEarner: true,
+            isRecipientEarner: true,
+            amount: amount_,
+            expectedHubBalance: amount_,
+            expectedRecipientBalance: amount_ - 1
+        });
+    }
+
+    /// @dev Using lower fuzz runs and depth to avoid burning through RPC requests in CI
+    /// forge-config: default.fuzz.runs = 10
+    /// forge-config: default.fuzz.depth = 2
+    /// forge-config: ci.fuzz.runs = 10
+    /// forge-config: ci.fuzz.depth = 2
+    function testFuzz_transfer_earningStatusScenarios(
+        bool isHubEarner_,
+        bool isSenderEarner_,
+        bool isRecipientEarner_,
+        uint256 amount_
+    ) external {
+        vm.assume(amount_ > 1e6 && amount_ <= 100_000e6);
+
+        uint256 expectedHubBalance_ = amount_;
+        uint256 expectedRecipientBalance_ = amount_;
+
+        vm.selectFork(_mainnetForkId);
+        uint128 index_ = IContinuousIndexing(_MAINNET_M_TOKEN).currentIndex();
+
+        // Adjust expected balances based on earning scenarios
+        if (isHubEarner_) {
+            uint112 principalAmount_ = isSenderEarner_
+                ? IndexingMath.getPrincipalAmountRoundedUp(uint240(amount_), index_)
+                : IndexingMath.getPrincipalAmountRoundedDown(uint240(amount_), index_);
+            expectedHubBalance_ = IndexingMath.getPresentAmountRoundedDown(principalAmount_, index_);
+            expectedRecipientBalance_ = expectedHubBalance_;
+        }
+
+        // SpokePortal is always non-earner
+        // Transferring to earner results in rounding down
+        if (isRecipientEarner_) {
+            uint112 principalAmount_ = IndexingMath.getPrincipalAmountRoundedDown(uint240(expectedHubBalance_), index_);
+            expectedRecipientBalance_ = IndexingMath.getPresentAmountRoundedDown(principalAmount_, index_);
+        }
+
+        _testTransferScenario(
+            isHubEarner_,
+            isSenderEarner_,
+            isRecipientEarner_,
+            amount_,
+            expectedHubBalance_,
+            expectedRecipientBalance_
+        );
+    }
+
+    function _testTransferScenario(
+        bool isHubEarner,
+        bool isSenderEarner,
+        bool isRecipientEarner,
+        uint256 amount,
+        uint256 expectedHubBalance,
+        uint256 expectedRecipientBalance
+    ) private {
+        address sender_ = _mHolder;
+        address recipient_ = _mHolder;
+
+        if (isRecipientEarner) {
+            vm.selectFork(_mainnetForkId);
+            // Propagate index
+            _propagateMIndex(Chains.WORMHOLE_ARBITRUM, _arbitrumForkId, _ARBITRUM_WORMHOLE_RELAYER);
+
+            vm.selectFork(_arbitrumForkId);
+            // Recipient is earning on Spoke
+            _enableUserEarning(_arbitrumSpokeMToken, _arbitrumSpokeRegistrar, recipient_);
+        }
+        assertEq(IMToken(_arbitrumSpokeMToken).isEarning(recipient_), isRecipientEarner);
+
+        // Set HubPortal and sender earning status
+        vm.selectFork(_mainnetForkId);
+        if (!isHubEarner) {
+            _disablePortalEarning();
+        }
+        if (isSenderEarner) {
+            // Sender is earning on Hub
+            _enableUserEarning(_MAINNET_M_TOKEN, _MAINNET_REGISTRAR, sender_);
+        }
+        assertEq(IMToken(_MAINNET_M_TOKEN).isEarning(_hubPortal), isHubEarner);
+        assertEq(IMToken(_MAINNET_M_TOKEN).isEarning(sender_), isSenderEarner);
+
+        // Execute transfer
+        _transfer(amount, recipient_, _hubPortal, Chains.WORMHOLE_ARBITRUM);
+
+        // Verify hub balance
+        assertEq(IERC20(_MAINNET_M_TOKEN).balanceOf(_hubPortal), expectedHubBalance);
+
+        // Deliver message
+        _deliverMessageToSpoke(_arbitrumForkId, _ARBITRUM_WORMHOLE_RELAYER);
+
+        // Verify recipient balance
+        vm.selectFork(_arbitrumForkId);
+        assertEq(IERC20(_arbitrumSpokeMToken).balanceOf(recipient_), expectedRecipientBalance);
     }
 
     /* ============ transferMLikeToken ============ */
