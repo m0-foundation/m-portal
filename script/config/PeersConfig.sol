@@ -21,15 +21,10 @@ library PeersConfig {
     using WormholeConfig for uint256;
     using TypeConverter for address;
 
-    address internal constant MAINNET_M_TOKEN_ADDRESS = 0x866A2BF4E572CbcF37D5071A7a58503Bfb36be1b;
-    address internal constant MAINNET_PORTAL_ADDRESS = 0xD925C84b55E4e44a53749fF5F2a5A13F63D128fd;
-    address internal constant MAINNET_TRANSCEIVER_ADDRESS = 0x0763196A091575adF99e2306E5e90E0Be5154841;
-    address internal constant MAINNET_WRAPPED_M_ADDRESS = 0x437cc33344a0B27A429f795ff6B469C72698B291;
-
-    address internal constant TESTNET_M_TOKEN_ADDRESS = 0x58582438ab47FfA2206570AC93E85B42640bef09;
-    address internal constant TESTNET_PORTAL_ADDRESS = 0xf1669804140fA31cdAA805A1B3Be91e6282D5e41;
-    address internal constant TESTNET_TRANSCEIVER_ADDRESS = 0xb1725758f7255B025cdbF2814Bc428B403623562;
-    address internal constant TESTNET_WRAPPED_M_ADDRESS = 0x71c72Ee9F587DAC1df749940c7581E4BbC789F85;
+    address internal constant M_TOKEN = 0x866A2BF4E572CbcF37D5071A7a58503Bfb36be1b;
+    address internal constant PORTAL = 0xD925C84b55E4e44a53749fF5F2a5A13F63D128fd;
+    address internal constant TRANSCEIVER = 0x0763196A091575adF99e2306E5e90E0Be5154841;
+    address internal constant WRAPPED_M_TOKEN = 0x437cc33344a0B27A429f795ff6B469C72698B291;
 
     function getPeersConfig(uint256 sourceChainId_) internal pure returns (PeerConfig[] memory _portalPeerConfig) {
         uint256[] memory peers_ = getPeerChains(sourceChainId_);
@@ -46,51 +41,25 @@ library PeersConfig {
     }
 
     function getPeerConfig(uint256 peerChainId_) internal pure returns (PeerConfig memory _portalPeerConfig) {
-        if (peerChainId_ == Chains.ETHEREUM) return _getMainnetPeerConfig(peerChainId_);
-        if (peerChainId_ == Chains.ARBITRUM) return _getMainnetPeerConfig(peerChainId_);
-        if (peerChainId_ == Chains.OPTIMISM) return _getMainnetPeerConfig(peerChainId_);
+        if (peerChainId_ == Chains.ETHEREUM) return _getEvmPeerConfig(peerChainId_);
+        if (peerChainId_ == Chains.ARBITRUM) return _getEvmPeerConfig(peerChainId_);
+        if (peerChainId_ == Chains.OPTIMISM) return _getEvmPeerConfig(peerChainId_);
 
-        if (peerChainId_ == Chains.ETHEREUM_SEPOLIA)
-            return
-                PeerConfig({
-                    wormholeChainId: peerChainId_.toWormholeChainId(),
-                    mToken: 0x245902cAB620E32DF09DA4a26094064e096dd480.toBytes32(),
-                    portal: TESTNET_PORTAL_ADDRESS.toBytes32(),
-                    wrappedMToken: 0xe91A93a2B782781744a07118bab5855fb256b881.toBytes32(),
-                    transceiver: TESTNET_TRANSCEIVER_ADDRESS.toBytes32(),
-                    isEvm: true,
-                    specialRelaying: false,
-                    wormholeRelaying: true
-                });
-
-        if (peerChainId_ == Chains.ARBITRUM_SEPOLIA) return _getTestnetPeerConfig(peerChainId_);
-        if (peerChainId_ == Chains.OPTIMISM_SEPOLIA) return _getTestnetPeerConfig(peerChainId_);
+        if (peerChainId_ == Chains.ETHEREUM_SEPOLIA) return _getEvmPeerConfig(peerChainId_);
+        if (peerChainId_ == Chains.ARBITRUM_SEPOLIA) return _getEvmPeerConfig(peerChainId_);
+        if (peerChainId_ == Chains.OPTIMISM_SEPOLIA) return _getEvmPeerConfig(peerChainId_);
     }
 
-    /// @dev Returns the configuration for Mainnet chains
+    /// @dev Returns the configuration for EVM chains
     ///      Assumes the same addresses on all chains
-    function _getMainnetPeerConfig(uint256 peerChainId_) private pure returns (PeerConfig memory _portalPeerConfig) {
+    function _getEvmPeerConfig(uint256 peerChainId_) private pure returns (PeerConfig memory _portalPeerConfig) {
         return
             PeerConfig({
                 wormholeChainId: peerChainId_.toWormholeChainId(),
-                mToken: MAINNET_M_TOKEN_ADDRESS.toBytes32(),
-                portal: MAINNET_PORTAL_ADDRESS.toBytes32(),
-                wrappedMToken: MAINNET_WRAPPED_M_ADDRESS.toBytes32(),
-                transceiver: MAINNET_TRANSCEIVER_ADDRESS.toBytes32(),
-                isEvm: true,
-                specialRelaying: false,
-                wormholeRelaying: true
-            });
-    }
-
-    function _getTestnetPeerConfig(uint256 peerChainId_) private pure returns (PeerConfig memory _portalPeerConfig) {
-        return
-            PeerConfig({
-                wormholeChainId: peerChainId_.toWormholeChainId(),
-                mToken: TESTNET_M_TOKEN_ADDRESS.toBytes32(),
-                portal: TESTNET_PORTAL_ADDRESS.toBytes32(),
-                wrappedMToken: TESTNET_WRAPPED_M_ADDRESS.toBytes32(),
-                transceiver: TESTNET_TRANSCEIVER_ADDRESS.toBytes32(),
+                mToken: M_TOKEN.toBytes32(),
+                portal: PORTAL.toBytes32(),
+                wrappedMToken: WRAPPED_M_TOKEN.toBytes32(),
+                transceiver: TRANSCEIVER.toBytes32(),
                 isEvm: true,
                 specialRelaying: false,
                 wormholeRelaying: true
