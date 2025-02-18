@@ -49,7 +49,7 @@
         <td><a href="https://sepolia.arbiscan.io/address/0x119FbeeDD4F4f4298Fb59B720d5654442b81ae2c" target="_blank">0x119FbeeDD4F4f4298Fb59B720d5654442b81ae2c</a></td>
     </tr>
     <tr>
-        <td>Hub Portal</td>
+        <td>Spoke Portal</td>
         <td><a href="https://sepolia.arbiscan.io/address/0xD925C84b55E4e44a53749fF5F2a5A13F63D128fd" target="_blank">0xD925C84b55E4e44a53749fF5F2a5A13F63D128fd</a></td>
     </tr>
     <tr>
@@ -82,7 +82,7 @@
         <td><a href="https://sepolia-optimism.etherscan.io/address/0x119FbeeDD4F4f4298Fb59B720d5654442b81ae2c" target="_blank">0x119FbeeDD4F4f4298Fb59B720d5654442b81ae2c</a></td>
     </tr>
     <tr>
-        <td>Hub Portal</td>
+        <td>Spoke Portal</td>
         <td><a href="https://sepolia-optimism.etherscan.io/address/0xD925C84b55E4e44a53749fF5F2a5A13F63D128fd" target="_blank">0xD925C84b55E4e44a53749fF5F2a5A13F63D128fd</a></td>
     </tr>
     <tr>
