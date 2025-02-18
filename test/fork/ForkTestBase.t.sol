@@ -27,6 +27,7 @@ import { WormholeConfig, WormholeTransceiverConfig } from "../../script/config/W
 import { PeersConfig, PeerConfig } from "../../script/config/PeersConfig.sol";
 
 import { TypeConverter } from "../../src/libs/TypeConverter.sol";
+import { IPortal } from "../../src/interfaces/IPortal.sol";
 import { IMTokenLike } from "../../src/interfaces/IMTokenLike.sol";
 import { IHubPortal } from "../../src/interfaces/IHubPortal.sol";
 import { IRegistrarLike } from "../../src/interfaces/IRegistrarLike.sol";
@@ -59,7 +60,7 @@ contract ForkTestBase is TaskBase, ConfigureBase, DeployBase, Test {
     address internal immutable _alice = makeAddr("alice");
     address internal immutable _bob = makeAddr("bob");
     address internal immutable _mHolder = 0x3f0376da3Ae4313E7a5F1dA184BAFC716252d759;
-    address internal immutable _wrappedMHolder = 0x6AaA90D689942b5eaB3D8433f2E02B32a0214390;
+    address internal immutable _wrappedMHolder = 0x13Ccb6E28F22E2f6783BaDedCe32cc74583A3647;
 
     TransceiverStructs.TransceiverInstruction internal _emptyTransceiverInstruction =
         TransceiverStructs.TransceiverInstruction({ index: 0, payload: "" });
@@ -356,6 +357,31 @@ contract ForkTestBase is TaskBase, ConfigureBase, DeployBase, Test {
             _quoteDeliveryPrice(portal_, destinationChainId_)
         );
 
+        vm.stopPrank();
+    }
+
+    function _transferMLikeToken(
+        address sourceToken_,
+        address destinationToken_,
+        uint256 amount_,
+        address sender_,
+        address recipient_,
+        address portal_,
+        uint16 destinationChainId_
+    ) internal {
+        vm.startPrank(sender_);
+        vm.recordLogs();
+
+        IERC20(sourceToken_).approve(_hubPortal, amount_);
+
+        IPortal(portal_).transferMLikeToken{ value: _quoteDeliveryPrice(portal_, destinationChainId_) }(
+            amount_,
+            sourceToken_,
+            destinationChainId_,
+            destinationToken_.toBytes32(),
+            recipient_.toBytes32(),
+            recipient_.toBytes32()
+        );
         vm.stopPrank();
     }
 
