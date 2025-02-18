@@ -274,6 +274,126 @@ contract SpokePortalForkTests is ForkTestBase {
         assertEq(IERC20(_MAINNET_M_TOKEN).balanceOf(recipient_), expectedRecipientBalance_);
     }
 
+    /// @dev Sender is non-earner, recipient is non-earner
+    ///      The transferred amount is exact, no rounding errors
+    function testFork_transferToSpoke_senderNonEarner_recipientNonEarner() external {
+        uint256 amount_ = 1e6;
+        _testTransferToSpokeScenario({
+            isSenderEarner_: false,
+            isRecipientEarner_: false,
+            amount_: amount_,
+            expectedRecipientBalance_: amount_
+        });
+    }
+
+    /// @dev Sender is earner, recipient is non-earner
+    ///      The transferred amount is exact, no rounding errors
+    function testFork_transferToSpoke_senderEarner_recipientNonEarner(uint256 amount_) external {
+        uint256 amount_ = 1e6;
+        _testTransferToSpokeScenario({
+            isSenderEarner_: true,
+            isRecipientEarner_: false,
+            amount_: amount_,
+            expectedRecipientBalance_: amount_
+        });
+    }
+
+    /// @dev Sender is non-earner, recipient is earner
+    ///      The transferred amount is rounded down, recipient gets less
+    function testFork_transferToSpoke_senderNonEarner_recipientEarner() external {
+        uint256 amount_ = 1e6;
+        _testTransferToSpokeScenario({
+            isSenderEarner_: false,
+            isRecipientEarner_: true,
+            amount_: amount_,
+            expectedRecipientBalance_: amount_ - 1
+        });
+    }
+
+    /// @dev Sender is earner, recipient is earner
+    ///      The transferred amount is rounded down, recipient gets less
+    function testFork_transferToSpoke_senderEarner_recipientEarner() external {
+        uint256 amount_ = 1e6;
+        _testTransferToSpokeScenario({
+            isSenderEarner_: true,
+            isRecipientEarner_: true,
+            amount_: amount_,
+            expectedRecipientBalance_: amount_ - 1
+        });
+    }
+
+    /// @dev Using lower fuzz runs and depth to avoid burning through RPC requests in CI
+    /// forge-config: default.fuzz.runs = 10
+    /// forge-config: default.fuzz.depth = 2
+    /// forge-config: ci.fuzz.runs = 10
+    /// forge-config: ci.fuzz.depth = 2
+    function testFuzz_transferToSpoke_earningStatusScenarios(
+        bool isSenderEarner_,
+        bool isRecipientEarner_,
+        uint256 amount_
+    ) external {
+        vm.assume(amount_ > 1e6 && amount_ <= 100_000e6);
+
+        uint256 expectedRecipientBalance_ = amount_;
+
+        vm.selectFork(_mainnetForkId);
+        uint128 index_ = IMToken(_MAINNET_M_TOKEN).currentIndex();
+
+        // Adjust expected balance based on earning scenarios
+        if (isRecipientEarner_) {
+            uint112 principalAmount_ = IndexingMath.getPrincipalAmountRoundedDown(uint240(amount_), index_);
+            expectedRecipientBalance_ = IndexingMath.getPresentAmountRoundedDown(principalAmount_, index_);
+        }
+
+        _testTransferToSpokeScenario(isSenderEarner_, isRecipientEarner_, amount_, expectedRecipientBalance_);
+    }
+
+    function _testTransferToSpokeScenario(
+        bool isSenderEarner_,
+        bool isRecipientEarner_,
+        uint256 amount_,
+        uint256 expectedRecipientBalance_
+    ) private {
+        address sender_ = _mHolder;
+        address recipient_ = _alice;
+
+        // seed sender's balance on Spoke by transferring from Hub first
+        _transferFromHub(1_000_000e6);
+
+        // sender has enough $M on spoke to perform transfer
+        vm.selectFork(_arbitrumForkId);
+        assertGt(IERC20(_arbitrumSpokeMToken).balanceOf(sender_), amount_);
+
+        if (isSenderEarner_) {
+            // Sender is earning on Arbitrum
+            _enableUserEarning(_arbitrumSpokeMToken, _arbitrumSpokeRegistrar, sender_);
+        }
+        assertEq(IMToken(_arbitrumSpokeMToken).isEarning(sender_), isSenderEarner_);
+
+        vm.selectFork(_optimismForkId);
+        if (isRecipientEarner_) {
+            vm.selectFork(_mainnetForkId);
+            // Propagate index
+            _propagateMIndex(Chains.WORMHOLE_OPTIMISM, _optimismForkId, _OPTIMISM_WORMHOLE_RELAYER);
+
+            vm.selectFork(_optimismForkId);
+            // Recipient is earning on Optimism
+            _enableUserEarning(_optimismSpokeMToken, _optimismSpokeRegistrar, recipient_);
+        }
+        assertEq(IMToken(_optimismSpokeMToken).isEarning(recipient_), isRecipientEarner_);
+
+        vm.selectFork(_arbitrumForkId);
+        // Execute transfer
+        _transfer(amount_, sender_, recipient_, _arbitrumSpokePortal, Chains.WORMHOLE_OPTIMISM);
+
+        // Deliver message
+        _deliverMessage(_arbitrumSpokeGuardian, Chains.WORMHOLE_ARBITRUM, _optimismForkId, _OPTIMISM_WORMHOLE_RELAYER);
+
+        // Verify recipient balance
+        vm.selectFork(_optimismForkId);
+        assertEq(IERC20(_optimismSpokeMToken).balanceOf(recipient_), expectedRecipientBalance_);
+    }
+
     /* ============ transferMLikeToken ============ */
 
     /// @dev From $M on Spoke to $M on Hub
