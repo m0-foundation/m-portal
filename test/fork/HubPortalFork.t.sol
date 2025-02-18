@@ -290,30 +290,15 @@ contract HubPortalForkTests is ForkTestBase {
         uint128 mainnetIndex_ = IContinuousIndexing(_MAINNET_M_TOKEN).currentIndex();
         uint256 amount_ = 1e6;
 
-        // Deployer sets supported path
-        vm.prank(_DEPLOYER);
-        IPortal(_hubPortal).setSupportedBridgingPath(
+        _transferMLikeToken(
             sourceToken_,
-            Chains.WORMHOLE_ARBITRUM,
-            destinationToken_.toBytes32(),
-            true
-        );
-
-        // Recording logs for Wormhole simulation
-        vm.recordLogs();
-
-        // User approves source token and calls transferMLikeToken
-        vm.startPrank(user_);
-        IERC20(sourceToken_).approve(_hubPortal, amount_);
-        IPortal(_hubPortal).transferMLikeToken{ value: _quoteDeliveryPrice(_hubPortal, Chains.WORMHOLE_ARBITRUM) }(
+            destinationToken_,
             amount_,
-            sourceToken_,
-            Chains.WORMHOLE_ARBITRUM,
-            destinationToken_.toBytes32(),
-            user_.toBytes32(),
-            user_.toBytes32()
+            user_,
+            user_,
+            _hubPortal,
+            Chains.WORMHOLE_ARBITRUM
         );
-        vm.stopPrank();
 
         // amount is decreased due to the rounding errors when transferring M from non-earner
         amount_ = amount_ - 1;
@@ -329,6 +314,101 @@ contract HubPortalForkTests is ForkTestBase {
 
         // Spoke M index updated
         assertEq(IContinuousIndexing(_arbitrumSpokeMToken).currentIndex(), mainnetIndex_);
+    }
+
+    /// @dev Transferring WrappedM to M
+    ///      Sender is non-earner, Hub is non-earner, recipient is non-earner
+    ///      The transferred amount is rounded down, recipient gets less
+    function testFork_transferMLikeToken_wrappedM_to_M_hubNonEarner_senderNonEarner_recipientNonEarner() external {
+        uint256 amount_ = 23_242_957_645;
+        _testTransferMLikeTokenScenario({
+            isHubEarner_: false,
+            isSenderEarner_: false,
+            isRecipientEarner_: false,
+            sender_: _wrappedMHolder,
+            sourceToken_: _MAINNET_WRAPPED_M_TOKEN,
+            destinationToken_: _arbitrumSpokeMToken,
+            amount_: amount_,
+            expectedHubBalance_: amount_ - 2,
+            expectedRecipientBalance_: amount_ - 2
+        });
+    }
+
+    /// @dev Transferring WrappedM to M
+    ///      Sender is non-earner, Hub is earner, recipient is non-earner
+    ///      The transferred amount is rounded down, recipient gets less
+    function testFork_transferMLikeToken_wrappedM_to_M_hubEarner_senderNonEarner_recipientNonEarner() external {
+        uint256 amount_ = 23_242_957_645;
+        _testTransferMLikeTokenScenario({
+            isHubEarner_: true,
+            isSenderEarner_: false,
+            isRecipientEarner_: false,
+            sender_: _wrappedMHolder,
+            sourceToken_: _MAINNET_WRAPPED_M_TOKEN,
+            destinationToken_: _arbitrumSpokeMToken,
+            amount_: amount_,
+            expectedHubBalance_: amount_ - 2,
+            expectedRecipientBalance_: amount_ - 2
+        });
+    }
+
+    function _testTransferMLikeTokenScenario(
+        bool isHubEarner_,
+        bool isSenderEarner_,
+        bool isRecipientEarner_,
+        address sender_,
+        address sourceToken_,
+        address destinationToken_,
+        uint256 amount_,
+        uint256 expectedHubBalance_,
+        uint256 expectedRecipientBalance_
+    ) private {
+        address recipient_ = _alice;
+
+        if (isRecipientEarner_) {
+            vm.selectFork(_mainnetForkId);
+            // Propagate index
+            _propagateMIndex(Chains.WORMHOLE_ARBITRUM, _arbitrumForkId, _ARBITRUM_WORMHOLE_RELAYER);
+
+            vm.selectFork(_arbitrumForkId);
+            // Recipient is earning on Spoke
+            _enableUserEarning(_arbitrumSpokeMToken, _arbitrumSpokeRegistrar, recipient_);
+        }
+        assertEq(IMToken(_arbitrumSpokeMToken).isEarning(recipient_), isRecipientEarner_);
+
+        // Set HubPortal and sender earning status
+        vm.selectFork(_mainnetForkId);
+        if (!isHubEarner_) {
+            _disablePortalEarning();
+        }
+        if (isSenderEarner_) {
+            // Sender is earning on Hub
+            _enableUserEarning(_MAINNET_M_TOKEN, _MAINNET_REGISTRAR, sender_);
+        }
+
+        assertEq(IMToken(_MAINNET_M_TOKEN).isEarning(_hubPortal), isHubEarner_);
+        assertEq(IMToken(_MAINNET_M_TOKEN).isEarning(sender_), isSenderEarner_);
+
+        // Execute transfer
+        _transferMLikeToken(
+            sourceToken_,
+            destinationToken_,
+            amount_,
+            sender_,
+            recipient_,
+            _hubPortal,
+            Chains.WORMHOLE_ARBITRUM
+        );
+
+        // Verify hub balance
+        assertEq(IERC20(_MAINNET_M_TOKEN).balanceOf(_hubPortal), expectedHubBalance_);
+
+        // Deliver message
+        _deliverMessage(_hubGuardian, Chains.WORMHOLE_ETHEREUM, _arbitrumForkId, _ARBITRUM_WORMHOLE_RELAYER);
+
+        // Verify recipient balance
+        vm.selectFork(_arbitrumForkId);
+        assertEq(IERC20(destinationToken_).balanceOf(recipient_), expectedRecipientBalance_);
     }
 
     /* ============ sendMTokenIndex ============ */
