@@ -310,12 +310,16 @@ contract ForkTestBase is TaskBase, ConfigureBase, DeployBase, Test {
         IHubPortal(_hubPortal).disableEarning();
     }
 
-    function _deliverMessageToSpoke(uint256 spokeForkId_, address spokeRelayer_) internal {
-        bytes memory signedMessage_ = _signMessage(_hubGuardian, Chains.WORMHOLE_ETHEREUM);
+    function _deliverMessage(
+        WormholeSimulator sourceGuardian_,
+        uint16 sourceWormholeChainId_,
+        uint256 destinationForkId_,
+        address destinationRelayer_
+    ) internal {
+        bytes memory signedMessage_ = _signMessage(sourceGuardian_, sourceWormholeChainId_);
 
-        vm.selectFork(spokeForkId_);
-
-        _deliverMessage(spokeRelayer_, signedMessage_);
+        vm.selectFork(destinationForkId_);
+        _deliverMessage(destinationRelayer_, signedMessage_);
     }
 
     function _propagateMIndex(uint16 spokeChainId_, uint256 spokeForkId_, address spokeRelayer_) internal {
@@ -328,11 +332,17 @@ contract ForkTestBase is TaskBase, ConfigureBase, DeployBase, Test {
             _quoteDeliveryPrice(_hubPortal, spokeChainId_)
         );
 
-        _deliverMessageToSpoke(spokeForkId_, spokeRelayer_);
+        _deliverMessage(_hubGuardian, Chains.WORMHOLE_ETHEREUM, spokeForkId_, spokeRelayer_);
     }
 
-    function _transfer(uint256 amount_, address user_, address portal_, uint16 destinationChainId_) internal {
-        vm.startPrank(user_);
+    function _transfer(
+        uint256 amount_,
+        address sender_,
+        address recipient_,
+        address portal_,
+        uint16 destinationChainId_
+    ) internal {
+        vm.startPrank(sender_);
         vm.recordLogs();
 
         IERC20(_MAINNET_M_TOKEN).approve(portal_, amount_);
@@ -341,8 +351,8 @@ contract ForkTestBase is TaskBase, ConfigureBase, DeployBase, Test {
             portal_,
             destinationChainId_,
             amount_,
-            user_.toBytes32(),
-            user_.toBytes32(),
+            recipient_.toBytes32(),
+            recipient_.toBytes32(),
             _quoteDeliveryPrice(portal_, destinationChainId_)
         );
 
