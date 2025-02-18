@@ -49,7 +49,7 @@ clean:
 # 
 
 deploy:
-	FOUNDRY_PROFILE=production MIGRATION_ADMIN=$(MIGRATION_ADMIN_ADDRESS) PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) forge script $(SCRIPT) --rpc-url $(RPC_URL) --etherscan-api-key $(SCAN_API_KEY) --skip test --broadcast --slow -v --verify
+	FOUNDRY_PROFILE=production MIGRATION_ADMIN=$(MIGRATION_ADMIN_ADDRESS) PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) forge script $(SCRIPT) --rpc-url $(RPC_URL) --etherscan-api-key $(SCAN_API_KEY) --skip test --broadcast --slow --non-interactive -v --verify
 
 # Deploy Hub
 
@@ -116,7 +116,7 @@ deploy-spoke-prod-optimism: deploy-spoke-prod
 # 
 
 configure:
-	FOUNDRY_PROFILE=production PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) forge script script/configure/Configure.s.sol:Configure --rpc-url $(RPC_URL) --skip test -v
+	FOUNDRY_PROFILE=production PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) forge script script/configure/Configure.s.sol:Configure --rpc-url $(RPC_URL) --skip test -v --slow --broadcast
 
 # Configure Testnet
 

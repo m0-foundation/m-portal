@@ -51,7 +51,7 @@ contract DeploySpoke is DeployBase {
         console.log("Portal:       ", portal_);
         console.log("Registrar:    ", registrar_);
         console.log("Transceiver:  ", transceiver_);
-        console.log("Vault_:       ", vault_);
+        console.log("Vault:        ", vault_);
         console.log("WrappedM Token", wrappedMToken_);
 
         _serializeSpokeDeployments(chainId_, mToken_, registrar_, portal_, transceiver_, vault_, wrappedMToken_);
