@@ -352,6 +352,114 @@ contract HubPortalForkTests is ForkTestBase {
         });
     }
 
+    /// @dev Transferring WrappedM to M
+    ///      Sender is earner, Hub is non-earner, recipient is non-earner
+    ///      The transferred amount is rounded down, recipient gets less
+    function testFork_transferMLikeToken_wrappedM_to_M_hubNonEarner_senderEarner_recipientNonEarner() external {
+        uint256 amount_ = 23_242_957_645;
+        _testTransferMLikeTokenScenario({
+            isHubEarner_: false,
+            isSenderEarner_: true,
+            isRecipientEarner_: false,
+            sender_: _wrappedMHolder,
+            sourceToken_: _MAINNET_WRAPPED_M_TOKEN,
+            destinationToken_: _arbitrumSpokeMToken,
+            amount_: amount_,
+            expectedHubBalance_: amount_ - 2,
+            expectedRecipientBalance_: amount_ - 2
+        });
+    }
+
+    /// @dev Transferring WrappedM to M
+    ///      Sender is non-earner, Hub is non-earner, recipient is earner
+    ///      The transferred amount is rounded down twice, on source and destination, recipient gets less
+    function testFork_transferMLikeToken_wrappedM_to_M_hubNonEarner_senderNonEarner_recipientEarner() external {
+        uint256 amount_ = 23_242_957_645;
+        _testTransferMLikeTokenScenario({
+            isHubEarner_: false,
+            isSenderEarner_: false,
+            isRecipientEarner_: true,
+            sender_: _wrappedMHolder,
+            sourceToken_: _MAINNET_WRAPPED_M_TOKEN,
+            destinationToken_: _arbitrumSpokeMToken,
+            amount_: amount_,
+            expectedHubBalance_: amount_ - 2,
+            expectedRecipientBalance_: amount_ - 3
+        });
+    }
+
+    /// @dev Transferring WrappedM to M
+    ///      Sender is earner, Hub is earner, recipient is non-earner
+    ///      The transferred amount is rounded down on source during unwrap(), recipient gets less
+    function testFork_transferMLikeToken_wrappedM_to_M_hubEarner_senderEarner_recipientNonEarner() external {
+        uint256 amount_ = 23_242_957_645;
+        _testTransferMLikeTokenScenario({
+            isHubEarner_: true,
+            isSenderEarner_: true,
+            isRecipientEarner_: false,
+            sender_: _wrappedMHolder,
+            sourceToken_: _MAINNET_WRAPPED_M_TOKEN,
+            destinationToken_: _arbitrumSpokeMToken,
+            amount_: amount_,
+            expectedHubBalance_: amount_ - 2,
+            expectedRecipientBalance_: amount_ - 2
+        });
+    }
+
+    /// @dev Transferring WrappedM to M
+    ///      Sender is non-earner, Hub is earner, recipient is earner
+    ///      The transferred amount is rounded down twice, on source and destination, recipient gets less
+    function testFork_transferMLikeToken_wrappedM_to_M_hubEarner_senderNonEarner_recipientEarner() external {
+        uint256 amount_ = 23_242_957_645;
+        _testTransferMLikeTokenScenario({
+            isHubEarner_: true,
+            isSenderEarner_: false,
+            isRecipientEarner_: true,
+            sender_: _wrappedMHolder,
+            sourceToken_: _MAINNET_WRAPPED_M_TOKEN,
+            destinationToken_: _arbitrumSpokeMToken,
+            amount_: amount_,
+            expectedHubBalance_: amount_ - 2,
+            expectedRecipientBalance_: amount_ - 3
+        });
+    }
+
+    /// @dev Transferring WrappedM to M
+    ///      Sender is earner, Hub is non-earner, recipient is earner
+    ///      The transferred amount is rounded down twice, on source and destination, recipient gets less
+    function testFork_transferMLikeToken_wrappedM_to_M_hubNonEarner_senderEarner_recipientEarner() external {
+        uint256 amount_ = 23_242_957_645;
+        _testTransferMLikeTokenScenario({
+            isHubEarner_: false,
+            isSenderEarner_: true,
+            isRecipientEarner_: true,
+            sender_: _wrappedMHolder,
+            sourceToken_: _MAINNET_WRAPPED_M_TOKEN,
+            destinationToken_: _arbitrumSpokeMToken,
+            amount_: amount_,
+            expectedHubBalance_: amount_ - 2,
+            expectedRecipientBalance_: amount_ - 3
+        });
+    }
+
+    /// @dev Transferring WrappedM to M
+    ///      Sender is earner, Hub is earner, recipient is earner
+    ///      The transferred amount is rounded down twice, on source and destination, recipient gets less
+    function testFork_transferMLikeToken_wrappedM_to_M_hubEarner_senderEarner_recipientEarner() external {
+        uint256 amount_ = 23_242_957_645;
+        _testTransferMLikeTokenScenario({
+            isHubEarner_: true,
+            isSenderEarner_: true,
+            isRecipientEarner_: true,
+            sender_: _wrappedMHolder,
+            sourceToken_: _MAINNET_WRAPPED_M_TOKEN,
+            destinationToken_: _arbitrumSpokeMToken,
+            amount_: amount_,
+            expectedHubBalance_: amount_ - 2,
+            expectedRecipientBalance_: amount_ - 3
+        });
+    }
+
     function _testTransferMLikeTokenScenario(
         bool isHubEarner_,
         bool isSenderEarner_,
