@@ -6,6 +6,7 @@ import { Test } from "../../lib/forge-std/src/Test.sol";
 import { Vm } from "../../lib/forge-std/src/Test.sol";
 
 import { IERC20 } from "../../lib/common/src/interfaces/IERC20.sol";
+import { WrappedMToken } from "../../lib/wrapped-m-token/src/WrappedMToken.sol";
 
 import {
     IWormholeRelayer
@@ -334,6 +335,16 @@ contract ForkTestBase is TaskBase, ConfigureBase, DeployBase, Test {
         );
 
         _deliverMessage(_hubGuardian, Chains.WORMHOLE_ETHEREUM, spokeForkId_, spokeRelayer_);
+    }
+
+    function _enableWrappedMEarning(address wrappedMToken_, address registrar_) internal {
+        vm.mockCall(
+            registrar_,
+            abi.encodeWithSelector(IRegistrarLike.listContains.selector, bytes32("earners"), wrappedMToken_),
+            abi.encode(true)
+        );
+
+        WrappedMToken(wrappedMToken_).enableEarning();
     }
 
     function _transfer(
