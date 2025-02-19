@@ -81,12 +81,11 @@ contract SpokePortalForkTests is ForkTestBase {
         assertEq(IMToken(_optimismSpokeMToken).currentIndex(), arbitrumIndex);
     }
 
-    /// @dev Sender is non-earner, Hub is non-earner, recipient is non-earner
+    /// @dev Sender is non-earner, recipient is non-earner
     ///      The transferred amount is exact, no rounding errors
-    function testFork_transferToHub_hubNonEarner_senderNonEarner_recipientNonEarner() external {
+    function testFork_transferToHub_senderNonEarner_recipientNonEarner() external {
         uint256 amount_ = 1e6;
         _testTransferToHubScenario({
-            isHubEarner_: false,
             isSenderEarner_: false,
             isRecipientEarner_: false,
             amount_: amount_,
@@ -94,64 +93,23 @@ contract SpokePortalForkTests is ForkTestBase {
         });
     }
 
-    /// @dev Sender is non-earner, Hub is earner, recipient is non-earner
+    /// @dev Sender is earner, recipient is non-earner
     ///      The transferred amount is exact, no rounding errors
-    function testFork_transferToHub_hubEarner_senderNonEarner_recipientNonEarner() external {
-        uint256 amount_ = 1e6;
-        _testTransferToHubScenario({
-            isHubEarner_: true,
-            isSenderEarner_: false,
-            isRecipientEarner_: false,
-            amount_: amount_,
-            expectedRecipientBalance_: amount_
-        });
-    }
-
-    /// @dev Sender is earner, Hub is non-earner, recipient is non-earner
-    ///      The transferred amount is exact, no rounding errors
-    function testFork_transferToHub_hubNonEarner_senderEarner_recipientNonEarner() external {
-        uint256 amount_ = 1e6;
-        _testTransferToHubScenario({
-            isHubEarner_: false,
-            isSenderEarner_: true,
-            isRecipientEarner_: false,
-            amount_: amount_,
-            expectedRecipientBalance_: amount_
-        });
-    }
-
-    /// @dev Sender is non-earner, Hub is non-earner, recipient is earner
-    ///      The transferred amount is rounded down on the destination, recipient gets less
-    function testFork_transferToHub_hubNonEarner_senderNonEarner_recipientEarner() external {
-        uint256 amount_ = 1e6;
-        _testTransferToHubScenario({
-            isHubEarner_: false,
-            isSenderEarner_: false,
-            isRecipientEarner_: true,
-            amount_: amount_,
-            expectedRecipientBalance_: amount_ - 1
-        });
-    }
-
-    /// @dev Sender is earner, Hub is earner, recipient is non-earner
-    ///      The transferred amount is exact, no rounding errors
-    function testFork_transferToHub_hubEarner_senderEarner_recipientNonEarner() external {
-        uint256 amount_ = 1e6;
-        _testTransferToHubScenario({
-            isHubEarner_: true,
-            isSenderEarner_: true,
-            isRecipientEarner_: false,
-            amount_: amount_,
-            expectedRecipientBalance_: amount_
-        });
-    }
-
-    /// @dev Sender is non-earner, Hub is earner, recipient is earner
-    ///      The transferred amount is exact or rounded up
-    function testFork_transferToHub_hubEarner_senderNonEarner_recipientEarner() external {
+    function testFork_transferToHub_senderEarner_recipientNonEarner() external {
         uint256 amount_ = 45_269_208;
         _testTransferToHubScenario({
-            isHubEarner_: true,
+            isSenderEarner_: true,
+            isRecipientEarner_: false,
+            amount_: amount_,
+            expectedRecipientBalance_: amount_
+        });
+    }
+
+    /// @dev Sender is non-earner, recipient is earner
+    ///      The transferred amount is exact or rounded up
+    function testFork_transferToHub_senderNonEarner_recipientEarner() external {
+        uint256 amount_ = 45_269_208;
+        _testTransferToHubScenario({
             isSenderEarner_: false,
             isRecipientEarner_: true,
             amount_: amount_,
@@ -159,25 +117,11 @@ contract SpokePortalForkTests is ForkTestBase {
         });
     }
 
-    /// @dev Sender is earner, Hub is non-earner, recipient is earner
-    ///      The transferred amount is rounded down, recipient gets less
-    function testFork_transferToHub_hubNonEarner_senderEarner_recipientEarner() external {
-        uint256 amount_ = 1e6;
-        _testTransferToHubScenario({
-            isHubEarner_: false,
-            isSenderEarner_: true,
-            isRecipientEarner_: true,
-            amount_: amount_,
-            expectedRecipientBalance_: amount_ - 1
-        });
-    }
-
-    /// @dev Sender is earner, Hub is earner, recipient is earner
+    /// @dev Sender is earner, recipient is earner
     ///      The transferred amount is exact or rounded up
-    function testFork_transferToHub_hubEarner_senderEarner_recipientEarner() external {
+    function testFork_transferToHub_senderEarner_recipientEarner() external {
         uint256 amount_ = 45_269_208;
         _testTransferToHubScenario({
-            isHubEarner_: true,
             isSenderEarner_: true,
             isRecipientEarner_: true,
             amount_: amount_,
@@ -187,11 +131,10 @@ contract SpokePortalForkTests is ForkTestBase {
 
     /// @dev Using lower fuzz runs and depth to avoid burning through RPC requests in CI
     /// forge-config: default.fuzz.runs = 10
-    /// forge-config: default.fuzz.depth = 2
+    /// forge-config: default.fuzz.depth = 20
     /// forge-config: ci.fuzz.runs = 10
     /// forge-config: ci.fuzz.depth = 2
     function testFuzz_transferToHub_earningStatusScenarios(
-        bool isHubEarner_,
         bool isSenderEarner_,
         bool isRecipientEarner_,
         uint256 amount_
@@ -205,23 +148,14 @@ contract SpokePortalForkTests is ForkTestBase {
 
         // Adjust expected balance based on earning scenarios
         if (isRecipientEarner_) {
-            uint112 principalAmount_ = isHubEarner_
-                ? IndexingMath.getPrincipalAmountRoundedUp(uint240(amount_), index_)
-                : IndexingMath.getPrincipalAmountRoundedDown(uint240(amount_), index_);
+            uint112 principalAmount_ = IndexingMath.getPrincipalAmountRoundedUp(uint240(amount_), index_);
             expectedRecipientBalance_ = IndexingMath.getPresentAmountRoundedDown(principalAmount_, index_);
         }
 
-        _testTransferToHubScenario(
-            isHubEarner_,
-            isSenderEarner_,
-            isRecipientEarner_,
-            amount_,
-            expectedRecipientBalance_
-        );
+        _testTransferToHubScenario(isSenderEarner_, isRecipientEarner_, amount_, expectedRecipientBalance_);
     }
 
     function _testTransferToHubScenario(
-        bool isHubEarner_,
         bool isSenderEarner_,
         bool isRecipientEarner_,
         uint256 amount_,
@@ -251,15 +185,11 @@ contract SpokePortalForkTests is ForkTestBase {
         assertEq(IMToken(_arbitrumSpokeMToken).isEarning(sender_), isSenderEarner_);
 
         vm.selectFork(_mainnetForkId);
-        if (!isHubEarner_) {
-            _disablePortalEarning();
-        }
         if (isRecipientEarner_) {
             // Recipient is earning on Hub
             _enableUserEarning(_MAINNET_M_TOKEN, _MAINNET_REGISTRAR, recipient_);
         }
 
-        assertEq(IMToken(_MAINNET_M_TOKEN).isEarning(_hubPortal), isHubEarner_);
         assertEq(IMToken(_MAINNET_M_TOKEN).isEarning(recipient_), isRecipientEarner_);
 
         vm.selectFork(_arbitrumForkId);
