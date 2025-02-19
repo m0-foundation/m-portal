@@ -19,7 +19,8 @@ contract MerkleTreeBuilder {
 
     /* ========== STATE ========== */
 
-    uint8 internal constant BIT = 1;
+    uint8 internal constant ZERO_BIT = 0;
+    uint8 internal constant ONE_BIT = 1;
     address public immutable registrar;
     mapping(bytes32 => LinkedList) public lists;
     mapping(bytes32 => bytes32) public roots;
@@ -56,7 +57,7 @@ contract MerkleTreeBuilder {
 
         // If the list has only one member, then the root is the hash of the member
         if (lists[list].count == 1) {
-            roots[list] = keccak256(abi.encodePacked(BIT, lists[list].next[bytes32(0)]));
+            roots[list] = keccak256(abi.encodePacked(ZERO_BIT, lists[list].next[bytes32(0)]));
             return;
         }
 
@@ -82,21 +83,21 @@ contract MerkleTreeBuilder {
             bytes32 two = sortedList.next[one];
 
             // Hash to get leaves
-            one = keccak256(abi.encodePacked(BIT, one));
-            two = keccak256(abi.encodePacked(BIT, two));
+            one = keccak256(abi.encodePacked(ZERO_BIT, one));
+            two = keccak256(abi.encodePacked(ZERO_BIT, two));
 
             // We sort the values when hashing to not require additional data to construct proofs
             tree[i / 2] = one < two
-                ? keccak256(abi.encodePacked(BIT, one, two))
-                : keccak256(abi.encodePacked(BIT, two, one));
+                ? keccak256(abi.encodePacked(ONE_BIT, one, two))
+                : keccak256(abi.encodePacked(ONE_BIT, two, one));
             previous = two;
         }
 
         // If the leaf count is odd, we have to populate the last node
         // We hash the last leaf with itself to avoid zero values in the tree
         if (leafCount % 2 != 0) {
-            bytes32 one = keccak256(abi.encodePacked(BIT, sortedList.next[previous]));
-            tree[len - 1] = keccak256(abi.encodePacked(BIT, one, one));
+            bytes32 one = keccak256(abi.encodePacked(ZERO_BIT, sortedList.next[previous]));
+            tree[len - 1] = keccak256(abi.encodePacked(ONE_BIT, one, one));
         }
 
         // Now, we iteratively combine every 2 nodes until the length of the tree is 1
@@ -112,13 +113,13 @@ contract MerkleTreeBuilder {
 
                 // We sort the values when hashing to not require additional data to construct proofs
                 tree[i / 2] = one < two
-                    ? keccak256(abi.encodePacked(BIT, one, two))
-                    : keccak256(abi.encodePacked(BIT, two, one));
+                    ? keccak256(abi.encodePacked(ONE_BIT, one, two))
+                    : keccak256(abi.encodePacked(ONE_BIT, two, one));
             }
 
             // If the length of the current level is odd, we hash the final node with itself
             if (nextLen % 2 != 0) {
-                tree[nextLen - 1] = keccak256(abi.encodePacked(BIT, tree[len - 1], tree[len - 1]));
+                tree[nextLen - 1] = keccak256(abi.encodePacked(ONE_BIT, tree[len - 1], tree[len - 1]));
             }
 
             // Update the length of the tree
