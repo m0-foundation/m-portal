@@ -22,6 +22,16 @@ library Chains {
     uint256 internal constant ARBITRUM_SEPOLIA = 421614;
 
     /*****************************************************************/
+    /*                      NOBLE CHAIN IDs                          */
+    /*****************************************************************/
+
+    // Mainnet (noble-1)
+    uint256 internal constant NOBLE = 110111981081014549;
+
+    // Testnet (grand-1)
+    uint256 internal constant NOBLE_TESTNET = 103114971101004549;
+
+    /*****************************************************************/
     /*                     WORMHOLE CHAIN IDs                        */
     /*****************************************************************/
 
@@ -29,9 +39,11 @@ library Chains {
     uint16 internal constant WORMHOLE_ETHEREUM = 2;
     uint16 internal constant WORMHOLE_OPTIMISM = 24;
     uint16 internal constant WORMHOLE_ARBITRUM = 23;
+    uint16 internal constant WORMHOLE_NOBLE = 4009;
 
     // Testnet
     uint16 internal constant WORMHOLE_ETHEREUM_SEPOLIA = 10002;
     uint16 internal constant WORMHOLE_OPTIMISM_SEPOLIA = 10005;
     uint16 internal constant WORMHOLE_ARBITRUM_SEPOLIA = 10003;
+    uint16 internal constant WORMHOLE_NOBLE_TESTNET = 4009;
 }

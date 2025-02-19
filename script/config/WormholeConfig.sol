@@ -28,9 +28,11 @@ library WormholeConfig {
         if (chainId_ == Chains.ETHEREUM) return Chains.WORMHOLE_ETHEREUM;
         if (chainId_ == Chains.ARBITRUM) return Chains.WORMHOLE_ARBITRUM;
         if (chainId_ == Chains.OPTIMISM) return Chains.WORMHOLE_OPTIMISM;
+        if (chainId_ == Chains.NOBLE) return Chains.WORMHOLE_NOBLE;
         if (chainId_ == Chains.ETHEREUM_SEPOLIA) return Chains.WORMHOLE_ETHEREUM_SEPOLIA;
         if (chainId_ == Chains.ARBITRUM_SEPOLIA) return Chains.WORMHOLE_ARBITRUM_SEPOLIA;
         if (chainId_ == Chains.OPTIMISM_SEPOLIA) return Chains.WORMHOLE_OPTIMISM_SEPOLIA;
+        if (chainId_ == Chains.NOBLE_TESTNET) return Chains.WORMHOLE_NOBLE_TESTNET;
 
         revert Chains.UnsupportedChain(chainId_);
     }
