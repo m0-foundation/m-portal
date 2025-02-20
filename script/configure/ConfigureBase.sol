@@ -8,10 +8,13 @@ import { INttManager } from "../../lib/native-token-transfers/evm/src/interfaces
 import { IWormholeTransceiver } from "../../lib/native-token-transfers/evm/src/interfaces/IWormholeTransceiver.sol";
 
 import { IPortal } from "../../src/interfaces/IPortal.sol";
+import { TypeConverter } from "../../src/libs/TypeConverter.sol";
 import { ScriptBase } from "../ScriptBase.sol";
 import { PeersConfig, PeerConfig } from "../config/PeersConfig.sol";
 
 contract ConfigureBase is ScriptBase {
+    using TypeConverter for address;
+
     function _configurePeers(
         address portal_,
         address mToken_,
@@ -32,11 +35,15 @@ contract ConfigureBase is ScriptBase {
             // M => M
             IPortal(portal_).setSupportedBridgingPath(mToken_, destinationChainId_, peer_.mToken, true);
             // M => Wrapped M
-            IPortal(portal_).setSupportedBridgingPath(mToken_, destinationChainId_, peer_.wrappedMToken, true);
+            if (peer_.wrappedMToken != address(0).toBytes32()) {
+                IPortal(portal_).setSupportedBridgingPath(mToken_, destinationChainId_, peer_.wrappedMToken, true);
+            }
             // Wrapped M => M
             IPortal(portal_).setSupportedBridgingPath(wrappedMToken_, destinationChainId_, peer_.mToken, true);
             // Wrapped M => Wrapped M
-            IPortal(portal_).setSupportedBridgingPath(wrappedMToken_, destinationChainId_, peer_.wrappedMToken, true);
+            if (peer_.wrappedMToken != address(0).toBytes32()) {
+                IPortal(portal_).setSupportedBridgingPath(wrappedMToken_, destinationChainId_, peer_.wrappedMToken, true);
+            }
 
             // Transceiver Peer Setup
             if (peer_.wormholeRelaying) {
