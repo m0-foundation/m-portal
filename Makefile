@@ -406,6 +406,24 @@ transfer-excess-m-prod-optimism: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
 transfer-excess-m-prod-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
 transfer-excess-m-prod-optimism: transfer-excess-m
 
+# 
+# Transfer Portal and Transceiver Ownership
+# 
+
+transfer-ownership: SCRIPT=script/tasks/TransferOwnership.s.sol:TransferOwnership
+transfer-ownership: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
+transfer-ownership: task
+
+# Mainnet
+transfer-ownership-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
+transfer-ownership-prod-eth: transfer-ownership
+
+transfer-ownership-prod-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
+transfer-ownership-prod-arbitrum: transfer-ownership
+
+transfer-ownership-prod-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
+transfer-ownership-prod-optimism: transfer-ownership
+
 #
 #
 # QUERIES
