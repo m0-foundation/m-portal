@@ -16,6 +16,8 @@ import { IRegistrarLike } from "../../src/interfaces/IRegistrarLike.sol";
 contract DeployIntegrationTests is Test, DeployBase {
     using WormholeConfig for uint256;
 
+    uint256 internal constant _MAINNET_FORK_BLOCK = 21_828_330;
+
     address internal constant _DEPLOYER = 0xF2f1ACbe0BA726fEE8d75f3E32900526874740BB;
     address internal constant _EXPECTED_HUB_PORTAL_ADDRESS = 0xD925C84b55E4e44a53749fF5F2a5A13F63D128fd;
 
@@ -23,7 +25,7 @@ contract DeployIntegrationTests is Test, DeployBase {
     address internal constant _STANDARD_GOVERNOR = 0xB024aC5a7c6bC92fbACc8C3387E628a07e1Da016;
 
     function testIntegration_deployHub() external {
-        vm.createSelectFork(vm.rpcUrl("mainnet"));
+        vm.createSelectFork({ urlOrAlias: "mainnet", blockNumber: _MAINNET_FORK_BLOCK });
 
         deal(_DEPLOYER, 10 ether);
 
