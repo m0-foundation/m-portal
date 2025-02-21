@@ -34,4 +34,8 @@ library Chains {
     uint16 internal constant WORMHOLE_ETHEREUM_SEPOLIA = 10002;
     uint16 internal constant WORMHOLE_OPTIMISM_SEPOLIA = 10005;
     uint16 internal constant WORMHOLE_ARBITRUM_SEPOLIA = 10003;
+
+    function isHub(uint256 chainId_) internal pure returns (bool) {
+        return chainId_ == ETHEREUM || chainId_ == ETHEREUM_SEPOLIA;
+    }
 }
