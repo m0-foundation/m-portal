@@ -52,8 +52,11 @@ contract MerkleTreeBuilder {
     /* ========== MERKLE TREE ========== */
 
     function updateRoot(bytes32 list) external {
-        // Check that the list has atleast one member
-        if (lists[list].count == 0) revert InvalidList();
+        // If the list has no members, then the root is the zero value
+        if (lists[list].count == 0) {
+            roots[list] = bytes32(0);
+            return;
+        }
 
         // If the list has only one member, then the root is the hash of the member
         if (lists[list].count == 1) {
