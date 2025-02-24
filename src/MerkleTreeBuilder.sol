@@ -86,10 +86,8 @@ contract MerkleTreeBuilder {
             one = keccak256(abi.encodePacked(ZERO_BIT, one));
             two = keccak256(abi.encodePacked(ZERO_BIT, two));
 
-            // We sort the values when hashing to not require additional data to construct proofs
-            tree[i / 2] = one < two
-                ? keccak256(abi.encodePacked(ONE_BIT, one, two))
-                : keccak256(abi.encodePacked(ONE_BIT, two, one));
+            // Hash neighboring leaves to construct the first level of the tree
+            tree[i / 2] = keccak256(abi.encodePacked(ONE_BIT, one, two));
             previous = two;
         }
 
@@ -111,10 +109,8 @@ contract MerkleTreeBuilder {
                 bytes32 one = tree[i];
                 bytes32 two = tree[i + 1];
 
-                // We sort the values when hashing to not require additional data to construct proofs
-                tree[i / 2] = one < two
-                    ? keccak256(abi.encodePacked(ONE_BIT, one, two))
-                    : keccak256(abi.encodePacked(ONE_BIT, two, one));
+                // Hash the neighbors to get the next level
+                tree[i / 2] = keccak256(abi.encodePacked(ONE_BIT, one, two));
             }
 
             // If the length of the current level is odd, we hash the final node with itself
