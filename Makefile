@@ -115,8 +115,9 @@ deploy-spoke-prod-optimism: deploy-spoke-prod
 # 
 # 
 
+configure: PEERS ?= []
 configure:
-	FOUNDRY_PROFILE=production PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) forge script script/configure/Configure.s.sol:Configure --rpc-url $(RPC_URL) --skip test -v --slow --broadcast
+	FOUNDRY_PROFILE=production PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) forge script script/configure/Configure.s.sol:Configure --sig "run(uint256[])" $(PEERS) --rpc-url $(RPC_URL) --skip test -v --slow --broadcast
 
 # Configure Testnet
 
