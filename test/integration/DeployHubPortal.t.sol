@@ -13,7 +13,7 @@ import { IHubPortal } from "../../src/interfaces/IHubPortal.sol";
 import { IMTokenLike } from "../../src/interfaces/IMTokenLike.sol";
 import { IRegistrarLike } from "../../src/interfaces/IRegistrarLike.sol";
 
-contract DeployIntegrationTests is Test, DeployBase {
+contract DeployHubPortalTests is Test, DeployBase {
     using WormholeConfig for uint256;
 
     uint256 internal constant _MAINNET_FORK_BLOCK = 21_828_330;

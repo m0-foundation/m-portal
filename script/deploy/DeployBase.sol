@@ -26,6 +26,15 @@ import { WormholeTransceiverConfig } from "../config/WormholeConfig.sol";
 import { HubDeployConfig, SpokeDeployConfig } from "../config/DeployConfig.sol";
 
 contract DeployBase is ScriptBase {
+    /// @dev Contract names used for deterministic deployment
+    string internal constant _PORTAL_CONTRACT_NAME = "Portal";
+    string internal constant _TRANSCEIVER_CONTRACT_NAME = "WormholeTransceiver";
+    string internal constant _VAULT_CONTRACT_NAME = "Vault";
+
+    /// @dev Contract names used for deterministic deployment of Noble Portal
+    string internal constant _NOBLE_PORTAL_CONTRACT_NAME = "NoblePortal";
+    string internal constant _NOBLE_TRANSCEIVER_CONTRACT_NAME = "NobleWormholeTransceiver";
+
     /* ============ Custom Errors ============ */
 
     error DeployerNonceTooHigh(uint64 expected, uint64 actual);
@@ -48,8 +57,39 @@ contract DeployBase is ScriptBase {
         HubDeployConfig memory hubConfig_,
         WormholeTransceiverConfig memory transceiverConfig_
     ) internal returns (address hubPortal_, address hubTransceiver_) {
-        hubPortal_ = _deployHubPortal(deployer_, wormholeChainId_, hubConfig_);
-        hubTransceiver_ = _deployWormholeTransceiver(deployer_, transceiverConfig_, hubPortal_);
+        hubPortal_ = _deployHubPortal(deployer_, wormholeChainId_, hubConfig_, _PORTAL_CONTRACT_NAME);
+        hubTransceiver_ = _deployWormholeTransceiver(
+            deployer_,
+            transceiverConfig_,
+            hubPortal_,
+            _TRANSCEIVER_CONTRACT_NAME
+        );
+
+        _configurePortal(hubPortal_, hubTransceiver_);
+    }
+
+    /**
+     * @dev    Deploys Hub Portal and Wormhole Transceiver for Noble.
+     * @param  deployer_          The address of the deployer.
+     * @param  wormholeChainId_   The Wormhole Chain Id where Hub is deployed.
+     * @param  hubConfig_         The configuration to deploy Hub Portal.
+     * @param  transceiverConfig_ The configuration to deploy Wormhole Transceiver.
+     * @return hubPortal_         The address of the deployed Noble Portal.
+     * @return hubTransceiver_    The address of the deployed Noble WormholeTransceiver.
+     */
+    function _deployNobleHubComponents(
+        address deployer_,
+        uint16 wormholeChainId_,
+        HubDeployConfig memory hubConfig_,
+        WormholeTransceiverConfig memory transceiverConfig_
+    ) internal returns (address hubPortal_, address hubTransceiver_) {
+        hubPortal_ = _deployHubPortal(deployer_, wormholeChainId_, hubConfig_, _NOBLE_PORTAL_CONTRACT_NAME);
+        hubTransceiver_ = _deployWormholeTransceiver(
+            deployer_,
+            transceiverConfig_,
+            hubPortal_,
+            _NOBLE_TRANSCEIVER_CONTRACT_NAME
+        );
 
         _configurePortal(hubPortal_, hubTransceiver_);
     }
@@ -78,7 +118,12 @@ contract DeployBase is ScriptBase {
         (spokeRegistrar_, spokeMToken_) = _deploySpokeProtocol(deployer_, burnNonces_);
 
         spokePortal_ = _deploySpokePortal(deployer_, spokeMToken_, spokeRegistrar_, wormholeChainId_);
-        spokeTransceiver_ = _deployWormholeTransceiver(deployer_, transceiverConfig_, spokePortal_);
+        spokeTransceiver_ = _deployWormholeTransceiver(
+            deployer_,
+            transceiverConfig_,
+            spokePortal_,
+            _TRANSCEIVER_CONTRACT_NAME
+        );
 
         _configurePortal(spokePortal_, spokeTransceiver_);
     }
@@ -101,7 +146,9 @@ contract DeployBase is ScriptBase {
         }
 
         // Pre-compute the expected SpokePortal proxy address.
-        spokeRegistrar_ = _deploySpokeRegistrar(_getCreate3Address(deployer_, _computeSalt(deployer_, "Portal")));
+        spokeRegistrar_ = _deploySpokeRegistrar(
+            _getCreate3Address(deployer_, _computeSalt(deployer_, _PORTAL_CONTRACT_NAME))
+        );
 
         deployerNonce_ = vm.getNonce(deployer_);
         if (deployerNonce_ != _SPOKE_M_TOKEN_NONCE) {
@@ -114,11 +161,12 @@ contract DeployBase is ScriptBase {
     function _deployHubPortal(
         address deployer_,
         uint16 wormholeChainId_,
-        HubDeployConfig memory config_
+        HubDeployConfig memory config_,
+        string memory contractName_
     ) internal returns (address hubPortal_) {
         HubPortal implementation_ = new HubPortal(config_.mToken, config_.registrar, wormholeChainId_);
         HubPortal hubPortalProxy_ = HubPortal(
-            _deployCreate3Proxy(address(implementation_), _computeSalt(deployer_, "Portal"))
+            _deployCreate3Proxy(address(implementation_), _computeSalt(deployer_, contractName_))
         );
 
         hubPortalProxy_.initialize();
@@ -134,7 +182,7 @@ contract DeployBase is ScriptBase {
     ) internal returns (address pokePortal_) {
         SpokePortal implementation_ = new SpokePortal(mToken_, registrar_, wormholeChainId_);
         SpokePortal spokePortalProxy_ = SpokePortal(
-            _deployCreate3Proxy(address(implementation_), _computeSalt(deployer_, "Portal"))
+            _deployCreate3Proxy(address(implementation_), _computeSalt(deployer_, _PORTAL_CONTRACT_NAME))
         );
 
         spokePortalProxy_.initialize();
@@ -145,7 +193,8 @@ contract DeployBase is ScriptBase {
     function _deployWormholeTransceiver(
         address deployer_,
         WormholeTransceiverConfig memory config_,
-        address nttManager_
+        address nttManager_,
+        string memory contractName_
     ) internal returns (address) {
         WormholeTransceiver implementation_ = new WormholeTransceiver(
             nttManager_,
@@ -157,7 +206,7 @@ contract DeployBase is ScriptBase {
         );
 
         WormholeTransceiver transceiverProxy_ = WormholeTransceiver(
-            _deployCreate3Proxy(address(implementation_), _computeSalt(deployer_, "WormholeTransceiver"))
+            _deployCreate3Proxy(address(implementation_), _computeSalt(deployer_, contractName_))
         );
 
         transceiverProxy_.initialize();
@@ -184,7 +233,10 @@ contract DeployBase is ScriptBase {
             new SpokeVault(spokePortal_, hubVault_, destinationChainId_, migrationAdmin_)
         );
 
-        spokeVaultProxy_ = _deployCreate3Proxy(address(spokeVaultImplementation_), _computeSalt(deployer_, "Vault"));
+        spokeVaultProxy_ = _deployCreate3Proxy(
+            address(spokeVaultImplementation_),
+            _computeSalt(deployer_, _VAULT_CONTRACT_NAME)
+        );
     }
 
     function _deploySpokeWrappedMToken(
