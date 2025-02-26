@@ -31,12 +31,22 @@ contract ConfigureBase is ScriptBase {
             // Supported Bridging Paths
             // M => M
             IPortal(portal_).setSupportedBridgingPath(mToken_, destinationChainId_, peer_.mToken, true);
-            // M => Wrapped M
-            IPortal(portal_).setSupportedBridgingPath(mToken_, destinationChainId_, peer_.wrappedMToken, true);
+
+            if (peer_.wrappedMToken != bytes32(0)) {
+                // M => Wrapped M
+                IPortal(portal_).setSupportedBridgingPath(mToken_, destinationChainId_, peer_.wrappedMToken, true);
+            }
             // Wrapped M => M
             IPortal(portal_).setSupportedBridgingPath(wrappedMToken_, destinationChainId_, peer_.mToken, true);
-            // Wrapped M => Wrapped M
-            IPortal(portal_).setSupportedBridgingPath(wrappedMToken_, destinationChainId_, peer_.wrappedMToken, true);
+            if (peer_.wrappedMToken != bytes32(0)) {
+                // Wrapped M => Wrapped M
+                IPortal(portal_).setSupportedBridgingPath(
+                    wrappedMToken_,
+                    destinationChainId_,
+                    peer_.wrappedMToken,
+                    true
+                );
+            }
 
             // Transceiver Peer Setup
             if (peer_.wormholeRelaying) {
