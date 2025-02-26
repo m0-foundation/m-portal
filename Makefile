@@ -109,6 +109,21 @@ deploy-spoke-prod-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
 deploy-spoke-prod-optimism: SCAN_API_KEY=$(OPTIMISM_ETHERSCAN_API_KEY)
 deploy-spoke-prod-optimism: deploy-spoke-prod
 
+#
+# Deploy Noble Hub Portal and Transceiver
+#
+
+deploy-noble: SCRIPT=script/deploy/DeployNobleHub.s.sol:DeployNobleHub
+deploy-noble: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
+deploy-noble: SCAN_API_KEY=$(ETHERSCAN_API_KEY)
+deploy-noble: deploy
+
+deploy-noble-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
+deploy-noble-prod-eth: deploy-noble
+
+deploy-noble-dev-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
+deploy-noble-dev-sepolia: deploy-noble
+
 # 
 # 
 # CONFIGURE
