@@ -37,6 +37,9 @@ contract MerkleTreeBuilder {
         // Check that the value is set on the list in the registrar
         if (!_isSetOnRegistrar(list, value)) revert InvalidAdd();
 
+        // Initialize the list, if needed
+        if (lists[list].count == 0) lists[list].initialize();
+
         // Add the value to the list
         lists[list].add(before, value);
     }
