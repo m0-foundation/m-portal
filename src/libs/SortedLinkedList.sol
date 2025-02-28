@@ -8,12 +8,17 @@ struct LinkedList {
 }
 
 library SortedLinkedList {
+    error AlreadyInitialized();
     error ValueInList();
     error ValueNotInList();
     error InvalidPreviousValue();
     error InvalidValue();
 
     function initialize(LinkedList storage list) internal {
+        // Prevent re-initializing the list if values are currently in it
+        // Re-initializing an empty list does not matter
+        if (list.count > 0) revert AlreadyInitialized();
+
         // Initialize the starting point of the list with the max value
         // We need this to ensure our value checks are valid when adding
         // a value to the end of the list.
@@ -25,6 +30,10 @@ library SortedLinkedList {
     }
 
     function add(LinkedList storage list, bytes32 previous, bytes32 value) internal {
+        // We don't need to check if the list is initialized
+        // If a list is not initialized then there is no "previous" that is in the list
+        // Therefore, this will revert.
+
         // Check that the value is not already if the list
         if (contains(list, value)) revert ValueInList();
 
@@ -36,7 +45,9 @@ library SortedLinkedList {
 
         // The list is sorted smallest to largest.
         // Therefore, we need previous < value < next
-        if (previous >= value || value >= next) revert InvalidValue();
+        // We know it cannot be equal because the above checks would not pass
+        // i.e. a value cannot be both in and not in the list
+        if (previous > value || value > next) revert InvalidValue();
 
         // Insert the value
         list.next[previous] = value;
@@ -54,7 +65,9 @@ library SortedLinkedList {
         if (list.next[previous] != value) revert InvalidPreviousValue();
 
         // Delete the value by removing it from the link chain
+        // and removing its pointer to a non-zero value
         list.next[previous] = list.next[value];
+        delete list.next[value];
 
         // Decrement the count
         list.count--;
