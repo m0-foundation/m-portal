@@ -38,10 +38,11 @@ contract MerkleTreeBuilder {
         if (!_isSetOnRegistrar(list, value)) revert InvalidAdd();
 
         // Initialize the list, if needed
-        if (lists[list].count == 0) lists[list].initialize();
+        LinkedList storage sortedList = lists[list];
+        if (sortedList.count == 0) sortedList.initialize();
 
         // Add the value to the list
-        lists[list].add(before, value);
+        sortedList.add(before, value);
     }
 
     function removeFromList(bytes32 list, bytes32 before, bytes32 value) external {
