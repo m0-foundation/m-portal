@@ -18,7 +18,6 @@ struct PeerConfig {
 }
 
 library PeersConfig {
-    using WormholeConfig for uint256;
     using TypeConverter for address;
 
     address internal constant M_TOKEN = 0x866A2BF4E572CbcF37D5071A7a58503Bfb36be1b;
@@ -26,37 +25,39 @@ library PeersConfig {
     address internal constant TRANSCEIVER = 0x0763196A091575adF99e2306E5e90E0Be5154841;
     address internal constant WRAPPED_M_TOKEN = 0x437cc33344a0B27A429f795ff6B469C72698B291;
 
-    function getPeersConfig(uint256 sourceChainId_) internal pure returns (PeerConfig[] memory _portalPeerConfig) {
-        uint256[] memory peers_ = getPeerChains(sourceChainId_);
-        return getPeersConfig(peers_);
+    function getPeersConfig(uint16 sourceWormholeChainId_) internal pure returns (PeerConfig[] memory _peersConfig) {
+        uint16[] memory peerChainIds_ = getPeerChainIds(sourceWormholeChainId_);
+        return getPeersConfig(peerChainIds_);
     }
 
-    function getPeersConfig(uint256[] memory peers_) internal pure returns (PeerConfig[] memory _portalPeerConfig) {
-        uint256 peersCount_ = peers_.length;
-        _portalPeerConfig = new PeerConfig[](peersCount_);
+    function getPeersConfig(uint16[] memory peerChainIds_) internal pure returns (PeerConfig[] memory _peersConfig) {
+        uint256 peersCount_ = peerChainIds_.length;
+        _peersConfig = new PeerConfig[](peersCount_);
 
         for (uint256 i = 0; i < peersCount_; i++) {
-            _portalPeerConfig[i] = getPeerConfig(peers_[i]);
+            _peersConfig[i] = getPeerConfig(peerChainIds_[i]);
         }
     }
 
-    function getPeerConfig(uint256 peerChainId_) internal pure returns (PeerConfig memory _portalPeerConfig) {
-        if (peerChainId_ == Chains.ETHEREUM) return _getEvmPeerConfig(peerChainId_);
-        if (peerChainId_ == Chains.ARBITRUM) return _getEvmPeerConfig(peerChainId_);
-        if (peerChainId_ == Chains.OPTIMISM) return _getEvmPeerConfig(peerChainId_);
-        if (peerChainId_ == Chains.NOBLE) return getNoblePeerConfig(peerChainId_);
+    function getPeerConfig(uint16 peerWormholeChainId_) internal pure returns (PeerConfig memory _portalPeerConfig) {
+        if (peerWormholeChainId_ == Chains.WORMHOLE_ETHEREUM) return _getEvmPeerConfig(peerWormholeChainId_);
+        if (peerWormholeChainId_ == Chains.WORMHOLE_ARBITRUM) return _getEvmPeerConfig(peerWormholeChainId_);
+        if (peerWormholeChainId_ == Chains.WORMHOLE_OPTIMISM) return _getEvmPeerConfig(peerWormholeChainId_);
+        if (peerWormholeChainId_ == Chains.WORMHOLE_NOBLE) return getNoblePeerConfig(peerWormholeChainId_);
 
-        if (peerChainId_ == Chains.ETHEREUM_SEPOLIA) return _getEvmPeerConfig(peerChainId_);
-        if (peerChainId_ == Chains.ARBITRUM_SEPOLIA) return _getEvmPeerConfig(peerChainId_);
-        if (peerChainId_ == Chains.OPTIMISM_SEPOLIA) return _getEvmPeerConfig(peerChainId_);
-        if (peerChainId_ == Chains.NOBLE_TESTNET) return getNoblePeerConfig(peerChainId_);
+        if (peerWormholeChainId_ == Chains.WORMHOLE_ETHEREUM_SEPOLIA) return _getEvmPeerConfig(peerWormholeChainId_);
+        if (peerWormholeChainId_ == Chains.WORMHOLE_ARBITRUM_SEPOLIA) return _getEvmPeerConfig(peerWormholeChainId_);
+        if (peerWormholeChainId_ == Chains.WORMHOLE_OPTIMISM_SEPOLIA) return _getEvmPeerConfig(peerWormholeChainId_);
+        if (peerWormholeChainId_ == Chains.WORMHOLE_NOBLE_TESTNET) return getNoblePeerConfig(peerWormholeChainId_);
     }
 
     /// @dev Returns the configuration for Noble chains. The same addresses are used on testnet and mainnet
-    function getNoblePeerConfig(uint256 peerChainId_) internal pure returns (PeerConfig memory _portalPeerConfig) {
+    function getNoblePeerConfig(
+        uint16 peerWormholeChainId_
+    ) internal pure returns (PeerConfig memory _portalPeerConfig) {
         return
             PeerConfig({
-                wormholeChainId: peerChainId_.toWormholeChainId(),
+                wormholeChainId: peerWormholeChainId_,
                 mToken: 0x000000000000000000000000000000000000000000000000000000757573646e,
                 portal: 0x0000000000000000000000002e859506ba229c183f8985d54fe7210923fb9bca,
                 wrappedMToken: bytes32(0),
@@ -68,10 +69,10 @@ library PeersConfig {
     }
 
     /// @dev Returns the configuration for EVM chains. Assumes the same addresses on all chains
-    function _getEvmPeerConfig(uint256 peerChainId_) private pure returns (PeerConfig memory _portalPeerConfig) {
+    function _getEvmPeerConfig(uint16 peerWormholeChainId_) private pure returns (PeerConfig memory _portalPeerConfig) {
         return
             PeerConfig({
-                wormholeChainId: peerChainId_.toWormholeChainId(),
+                wormholeChainId: peerWormholeChainId_,
                 mToken: M_TOKEN.toBytes32(),
                 portal: PORTAL.toBytes32(),
                 wrappedMToken: WRAPPED_M_TOKEN.toBytes32(),
@@ -82,42 +83,43 @@ library PeersConfig {
             });
     }
 
-    function getPeerChains(uint256 chainId_) internal pure returns (uint256[] memory peers_) {
-        if (chainId_ == Chains.ETHEREUM) {
-            peers_ = new uint256[](2);
-            peers_[0] = Chains.ARBITRUM;
-            peers_[1] = Chains.OPTIMISM;
+    /// @dev Returns a list of Wormhole Chain IDs where peer Portals are deployed
+    function getPeerChainIds(uint16 wormholeChainId_) internal pure returns (uint16[] memory peerChainIds_) {
+        if (wormholeChainId_ == Chains.WORMHOLE_ETHEREUM) {
+            peerChainIds_ = new uint16[](2);
+            peerChainIds_[0] = Chains.WORMHOLE_ARBITRUM;
+            peerChainIds_[1] = Chains.WORMHOLE_OPTIMISM;
         }
 
-        if (chainId_ == Chains.ARBITRUM) {
-            peers_ = new uint256[](2);
-            peers_[0] = Chains.ETHEREUM;
-            peers_[1] = Chains.OPTIMISM;
+        if (wormholeChainId_ == Chains.WORMHOLE_ARBITRUM) {
+            peerChainIds_ = new uint16[](2);
+            peerChainIds_[0] = Chains.WORMHOLE_ETHEREUM;
+            peerChainIds_[1] = Chains.WORMHOLE_OPTIMISM;
         }
 
-        if (chainId_ == Chains.OPTIMISM) {
-            peers_ = new uint256[](2);
-            peers_[0] = Chains.ETHEREUM;
-            peers_[1] = Chains.ARBITRUM;
+        if (wormholeChainId_ == Chains.WORMHOLE_OPTIMISM) {
+            peerChainIds_ = new uint16[](2);
+            peerChainIds_[0] = Chains.WORMHOLE_ETHEREUM;
+            peerChainIds_[1] = Chains.WORMHOLE_ARBITRUM;
         }
 
-        if (chainId_ == Chains.ETHEREUM_SEPOLIA) {
-            peers_ = new uint256[](3);
-            peers_[0] = Chains.ARBITRUM_SEPOLIA;
-            peers_[1] = Chains.OPTIMISM_SEPOLIA;
-            peers_[2] = Chains.NOBLE_TESTNET;
+        if (wormholeChainId_ == Chains.WORMHOLE_ETHEREUM_SEPOLIA) {
+            peerChainIds_ = new uint16[](3);
+            peerChainIds_[0] = Chains.WORMHOLE_ARBITRUM_SEPOLIA;
+            peerChainIds_[1] = Chains.WORMHOLE_OPTIMISM_SEPOLIA;
+            peerChainIds_[2] = Chains.WORMHOLE_NOBLE_TESTNET;
         }
 
-        if (chainId_ == Chains.ARBITRUM_SEPOLIA) {
-            peers_ = new uint256[](2);
-            peers_[0] = Chains.ETHEREUM_SEPOLIA;
-            peers_[1] = Chains.OPTIMISM_SEPOLIA;
+        if (wormholeChainId_ == Chains.WORMHOLE_ARBITRUM_SEPOLIA) {
+            peerChainIds_ = new uint16[](2);
+            peerChainIds_[0] = Chains.WORMHOLE_ETHEREUM_SEPOLIA;
+            peerChainIds_[1] = Chains.WORMHOLE_OPTIMISM_SEPOLIA;
         }
 
-        if (chainId_ == Chains.OPTIMISM_SEPOLIA) {
-            peers_ = new uint256[](2);
-            peers_[0] = Chains.ETHEREUM_SEPOLIA;
-            peers_[1] = Chains.ARBITRUM_SEPOLIA;
+        if (wormholeChainId_ == Chains.WORMHOLE_OPTIMISM_SEPOLIA) {
+            peerChainIds_ = new uint16[](2);
+            peerChainIds_[0] = Chains.WORMHOLE_ETHEREUM_SEPOLIA;
+            peerChainIds_[1] = Chains.WORMHOLE_ARBITRUM_SEPOLIA;
         }
     }
 }

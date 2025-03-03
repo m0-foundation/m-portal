@@ -132,7 +132,7 @@ deploy-noble-dev-sepolia: deploy-noble
 
 configure: PEERS ?= []
 configure:
-	FOUNDRY_PROFILE=production PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) forge script script/configure/Configure.s.sol:Configure --sig "run(uint256[])" $(PEERS) --rpc-url $(RPC_URL) --skip test -v --slow --broadcast
+	FOUNDRY_PROFILE=production PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) forge script script/configure/Configure.s.sol:Configure --sig "run(uint16[])" $(PEERS) --rpc-url $(RPC_URL) --skip test -v --slow --broadcast
 
 # Configure Testnet
 
@@ -170,9 +170,8 @@ configure-prod-optimism: configure-prod
 # Configure Noble Portal
 #
 
-configure-noble-prod-eth: PEERS ?= []
 configure-noble-prod-eth:
-	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) forge script script/configure/ConfigureNobleHub.s.sol:ConfigureNobleHub --sig "run(uint256[])" $(PEERS) --rpc-url $(MAINNET_RPC_URL) --skip test --broadcast -v --slow
+	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) forge script script/configure/ConfigureNobleHub.s.sol:ConfigureNobleHub --rpc-url $(MAINNET_RPC_URL) --skip test --broadcast -v --slow
 
 # 
 # 
