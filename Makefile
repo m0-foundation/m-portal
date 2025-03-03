@@ -166,6 +166,14 @@ configure-prod-arbitrum: configure-prod
 configure-prod-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
 configure-prod-optimism: configure-prod
 
+#
+# Configure Noble Portal
+#
+
+configure-noble-prod-eth: PEERS ?= []
+configure-noble-prod-eth:
+	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) forge script script/configure/ConfigureNobleHub.s.sol:ConfigureNobleHub --sig "run(uint256[])" $(PEERS) --rpc-url $(MAINNET_RPC_URL) --skip test --broadcast -v --slow
+
 # 
 # 
 # UPGRADE
