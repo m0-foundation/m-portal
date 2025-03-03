@@ -17,13 +17,18 @@ contract MerkleTreeBuilder {
     error ValueInList();
     error ValueNotInList();
 
+    /* ========== EVENTS ========== */
+
+    event RootUpdated(bytes32 indexed list, bytes32 root);
+
     /* ========== STATE ========== */
 
     uint8 internal constant ZERO_BIT = 0;
     uint8 internal constant ONE_BIT = 1;
     address public immutable registrar;
-    mapping(bytes32 => LinkedList) public lists;
-    mapping(bytes32 => bytes32) public roots;
+    bytes32 internal constant ZERO_WORD = bytes32(0);
+    mapping(bytes32 => LinkedList) internal _lists;
+    mapping(bytes32 => bytes32) internal _roots;
 
     /* ========== CONSTRUCTOR ========== */
 
@@ -38,10 +43,12 @@ contract MerkleTreeBuilder {
         if (!_isSetOnRegistrar(list, value)) revert InvalidAdd();
 
         // Initialize the list, if needed
-        LinkedList storage sortedList = lists[list];
+        LinkedList storage sortedList = _lists[list];
         if (sortedList.count == 0) sortedList.initialize();
 
         // Add the value to the list
+        // If the value is already in the list, it will revert
+        // If the before value is not immediately before where the value should be inserted, it will revert
         sortedList.add(before, value);
     }
 
@@ -50,21 +57,29 @@ contract MerkleTreeBuilder {
         if (_isSetOnRegistrar(list, value)) revert InvalidRemove();
 
         // Remove the leaf from the list
-        lists[list].remove(before, value);
+        // If the value is not in the list, it will revert
+        // If the before value is not immediately before the value, it will revert
+        _lists[list].remove(before, value);
     }
 
     /* ========== MERKLE TREE ========== */
 
     function updateRoot(bytes32 list) external {
+        LinkedList storage sortedList = _lists[list];
+        uint256 leafCount = _lists[list].count;
+
         // If the list has no members, then the root is the zero value
-        if (lists[list].count == 0) {
-            roots[list] = bytes32(0);
+        if (leafCount == 0) {
+            // Set the root to the hash of the zero value so exclusion proofs
+            // can be performed against it using the zero value as the neighbor
+            _roots[list] = keccak256(abi.encodePacked(ZERO_BIT, ZERO_WORD));
             return;
         }
 
-        // If the list has only one member, then the root is the hash of the member
-        if (lists[list].count == 1) {
-            roots[list] = keccak256(abi.encodePacked(ZERO_BIT, lists[list].next[bytes32(0)]));
+        // If the list has only one member, then we duplicate the member and treat it like an odd layer
+        if (leafCount == 1) {
+            bytes32 leaf = keccak256(abi.encodePacked(ZERO_BIT, sortedList.next[ZERO_WORD]));
+            _roots[list] = keccak256(abi.encodePacked(ONE_BIT, leaf, leaf));
             return;
         }
 
@@ -75,16 +90,13 @@ contract MerkleTreeBuilder {
         // We do this at the same time to reduce the total memory required by a factor of 2
 
         // Calculate the size of array required
-        // Reduce the count by a power of two and add one if the count is odd
-        uint256 leafCount = lists[list].count;
         uint256 len = leafCount % 2 == 0 ? leafCount / 2 : leafCount / 2 + 1;
 
         // Create the array
         bytes32[] memory tree = new bytes32[](len);
 
         // Create the leaves, then has with the neighbor to populate the first level of the tree
-        LinkedList storage sortedList = lists[list];
-        bytes32 previous = sortedList.next[bytes32(0)];
+        bytes32 previous = ZERO_WORD;
         for (uint256 i = 0; i < leafCount - 1; i = i + 2) {
             bytes32 one = sortedList.next[previous];
             bytes32 two = sortedList.next[one];
@@ -130,20 +142,52 @@ contract MerkleTreeBuilder {
         }
 
         // The tree's root is now at the first index of the array
-        roots[list] = tree[0];
+        _roots[list] = tree[0];
 
-        // Emit event?
+        // Emit event
+        emit RootUpdated(list, _roots[list]);
+    }
+
+    /* ========== VIEWS ========== */
+
+    function getNext(bytes32 list, bytes32 value) external view returns (bytes32) {
+        return _lists[list].next[value];
+    }
+
+    function getLen(bytes32 list) external view returns (uint256) {
+        return _lists[list].count;
+    }
+
+    function getList(bytes32 list) external view returns (bytes32[] memory) {
+        LinkedList storage sortedList = _lists[list];
+        bytes32[] memory result = new bytes32[](sortedList.count);
+
+        bytes32 current = sortedList.next[ZERO_WORD];
+        for (uint256 i = 0; i < sortedList.count; i++) {
+            result[i] = current;
+            current = sortedList.next[current];
+        }
+
+        return result;
+    }
+
+    function contains(bytes32 list, bytes32 value) external view returns (bool) {
+        return _lists[list].contains(value);
+    }
+
+    function getRoot(bytes32 list) external view returns (bytes32) {
+        return _roots[list];
     }
 
     /* ========== HELPERS ========== */
 
     function _isSetOnRegistrar(bytes32 list, bytes32 value) internal view returns (bool) {
-        bytes32 key = keccak256(abi.encode(list, value));
+        bytes32 key = keccak256(abi.encodePacked(list, value));
 
         bytes32 isSet = IRegistrarLike(registrar).get(key);
 
         // Note: the idea is that these values would be set to 0 or 1,
         // but they don't necessarily have to be, so we check if not 0
-        return isSet != bytes32(0);
+        return isSet != ZERO_WORD;
     }
 }
