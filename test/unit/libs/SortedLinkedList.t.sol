@@ -123,7 +123,7 @@ contract SortedLinkedListTest is Test {
         list = new MockListUser();
     }
 
-    // initialize
+    /* ========== initialize ========== */
 
     // given the list hasn't been initialized before
     // it sets the start value's next value to the max value
@@ -167,7 +167,7 @@ contract SortedLinkedListTest is Test {
         assertEq(list.next(ZERO), MAX);
     }
 
-    // contains
+    /* ========== contains ========== */
 
     // given the list is empty
     // given the value is not in the list
@@ -220,7 +220,7 @@ contract SortedLinkedListTest is Test {
         assert(list.contains(testValue));
     }
 
-    // add
+    /* ========== add ========== */
 
     // given the list is empty
     // given the value is already in the list (start value)
@@ -395,7 +395,7 @@ contract SortedLinkedListTest is Test {
         assertEq(list.count(), valuesToAdd + 2);
     }
 
-    // remove
+    /* ========== remove ========== */
 
     // given the value is not in the list
     // it reverts with a ValueNotInList error
