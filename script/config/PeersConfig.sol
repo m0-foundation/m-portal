@@ -44,14 +44,30 @@ library PeersConfig {
         if (peerChainId_ == Chains.ETHEREUM) return _getEvmPeerConfig(peerChainId_);
         if (peerChainId_ == Chains.ARBITRUM) return _getEvmPeerConfig(peerChainId_);
         if (peerChainId_ == Chains.OPTIMISM) return _getEvmPeerConfig(peerChainId_);
+        if (peerChainId_ == Chains.NOBLE) return getNoblePeerConfig(peerChainId_);
 
         if (peerChainId_ == Chains.ETHEREUM_SEPOLIA) return _getEvmPeerConfig(peerChainId_);
         if (peerChainId_ == Chains.ARBITRUM_SEPOLIA) return _getEvmPeerConfig(peerChainId_);
         if (peerChainId_ == Chains.OPTIMISM_SEPOLIA) return _getEvmPeerConfig(peerChainId_);
+        if (peerChainId_ == Chains.NOBLE_TESTNET) return getNoblePeerConfig(peerChainId_);
     }
 
-    /// @dev Returns the configuration for EVM chains
-    ///      Assumes the same addresses on all chains
+    /// @dev Returns the configuration for Noble chains. The same addresses are used on testnet and mainnet
+    function getNoblePeerConfig(uint256 peerChainId_) internal pure returns (PeerConfig memory _portalPeerConfig) {
+        return
+            PeerConfig({
+                wormholeChainId: peerChainId_.toWormholeChainId(),
+                mToken: 0x000000000000000000000000000000000000000000000000000000757573646e,
+                portal: 0x0000000000000000000000002e859506ba229c183f8985d54fe7210923fb9bca,
+                wrappedMToken: bytes32(0),
+                transceiver: 0x000000000000000000000000d1c9983597b8e45859df215dedad924b0f8505e3,
+                isEvm: false,
+                specialRelaying: false,
+                wormholeRelaying: false
+            });
+    }
+
+    /// @dev Returns the configuration for EVM chains. Assumes the same addresses on all chains
     function _getEvmPeerConfig(uint256 peerChainId_) private pure returns (PeerConfig memory _portalPeerConfig) {
         return
             PeerConfig({
@@ -86,9 +102,10 @@ library PeersConfig {
         }
 
         if (chainId_ == Chains.ETHEREUM_SEPOLIA) {
-            peers_ = new uint256[](2);
+            peers_ = new uint256[](3);
             peers_[0] = Chains.ARBITRUM_SEPOLIA;
             peers_[1] = Chains.OPTIMISM_SEPOLIA;
+            peers_[2] = Chains.NOBLE_TESTNET;
         }
 
         if (chainId_ == Chains.ARBITRUM_SEPOLIA) {
