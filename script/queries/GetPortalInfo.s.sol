@@ -37,6 +37,8 @@ contract GetPortalInfo is ScriptBase {
             address wrappedMToken_
         ) = _readDeployment(chainId_);
 
+        uint16 wormholeChainId_ = ManagerBase(portal_).chainId();
+
         console.log("Chain Id:                ", chainId_);
         console.log("M Token:                 ", mToken_);
         console.log("Portal:                  ", portal_);
@@ -47,7 +49,7 @@ contract GetPortalInfo is ScriptBase {
         console.log("");
         console.log("WORMHOLE SETTINGS");
         console.log("====================================================================");
-        console.log("Wormhole Chain Id:       ", ManagerBase(portal_).chainId());
+        console.log("Wormhole Chain Id:       ", wormholeChainId_);
         console.log("Transceiver:             ", transceiver_);
         console.log("Consistency Level:       ", WormholeTransceiver(transceiver_).consistencyLevel());
         console.log("Gas Limit:               ", WormholeTransceiver(transceiver_).gasLimit());
@@ -73,11 +75,11 @@ contract GetPortalInfo is ScriptBase {
             console.log("Vault Migration Admin:   ", SpokeVault(payable(vault_)).migrationAdmin());
         }
 
-        _listPeers(chainId_, portal_, transceiver_, mToken_, wrappedMToken_);
+        _listPeers(wormholeChainId_, portal_, transceiver_, mToken_, wrappedMToken_);
     }
 
     function _listPeers(
-        uint256 chainId_,
+        uint16 wormholeChainId_,
         address portal_,
         address transceiver_,
         address mToken_,
@@ -86,17 +88,15 @@ contract GetPortalInfo is ScriptBase {
         console.log("");
         console.log("PEERS");
         console.log("====================================================================");
-        uint256[] memory peers_ = PeersConfig.getPeerChains(chainId_);
-        uint256 peersCount_ = peers_.length;
+        uint16[] memory peerChainIds_ = PeersConfig.getPeerChainIds(wormholeChainId_);
+        uint256 peersCount_ = peerChainIds_.length;
         for (uint256 i = 0; i < peersCount_; i++) {
-            uint256 peerChainId_ = peers_[i];
-            uint16 peerWormholeChainId_ = peerChainId_.toWormholeChainId();
+            uint16 peerWormholeChainId_ = peerChainIds_[i];
             bool isEvm_ = WormholeTransceiver(transceiver_).isWormholeEvmChain(peerWormholeChainId_);
             bytes32 peerPortal_ = INttManager(portal_).getPeer(peerWormholeChainId_).peerAddress;
             bytes32 peerTransceiver_ = WormholeTransceiver(transceiver_).getWormholePeer(peerWormholeChainId_);
             bytes32 peerMToken_ = IPortal(portal_).destinationMToken(peerWormholeChainId_);
 
-            console.log("Peer ChainId:            ", peerChainId_);
             console.log("Peer Wormhole ChainId:   ", peerWormholeChainId_);
             if (isEvm_) {
                 console.log("Peer Portal:             ", peerPortal_.toAddress());
@@ -121,7 +121,8 @@ contract GetPortalInfo is ScriptBase {
                 IPortal(portal_).supportedBridgingPath(wrappedMToken_, peerWormholeChainId_, peerMToken_)
             );
             if (isEvm_) {
-                (, , , , , address peerWrappedMToken_) = _readDeployment(peerChainId_);
+                // same address for EVM chains
+                address peerWrappedMToken_ = wrappedMToken_;
                 console.log(
                     "Bridging M => wM:        ",
                     IPortal(portal_).supportedBridgingPath(

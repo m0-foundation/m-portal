@@ -141,7 +141,7 @@ contract ForkTestBase is TaskBase, ConfigureBase, DeployBase, Test {
             _MAINNET_M_TOKEN,
             _MAINNET_WRAPPED_M_TOKEN,
             _hubWormholeTransceiver,
-            PeersConfig.getPeersConfig(ethereumChainId_)
+            PeersConfig.getPeersConfig(ethereumWormholeChainId_)
         );
 
         vm.stopPrank();
@@ -205,7 +205,7 @@ contract ForkTestBase is TaskBase, ConfigureBase, DeployBase, Test {
             _arbitrumSpokeMToken,
             _arbitrumSpokeWrappedMTokenProxy,
             _arbitrumSpokeWormholeTransceiver,
-            PeersConfig.getPeersConfig(arbitrumChainId_)
+            PeersConfig.getPeersConfig(arbitrumWormholeChainId_)
         );
 
         vm.stopPrank();
@@ -260,7 +260,7 @@ contract ForkTestBase is TaskBase, ConfigureBase, DeployBase, Test {
             _optimismSpokeMToken,
             _optimismSpokeWrappedMTokenProxy,
             _optimismSpokeWormholeTransceiver,
-            PeersConfig.getPeersConfig(optimismChainId_)
+            PeersConfig.getPeersConfig(optimismWormholeChainId_)
         );
 
         vm.stopPrank();
