@@ -72,10 +72,10 @@ library PeersConfig {
         return
             PeerConfig({
                 wormholeChainId: peerWormholeChainId_,
-                mToken: 0x000000000000000000000000000000000000000000000000000000757573646e,
-                portal: 0x0000000000000000000000002e859506ba229c183f8985d54fe7210923fb9bca,
+                mToken: NOBLE_M_TOKEN,
+                portal: NOBLE_PORTAL,
                 wrappedMToken: bytes32(0),
-                transceiver: 0x000000000000000000000000d1c9983597b8e45859df215dedad924b0f8505e3,
+                transceiver: NOBLE_TRANSCEIVER,
                 isEvm: false,
                 specialRelaying: false,
                 wormholeRelaying: false
