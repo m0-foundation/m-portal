@@ -135,7 +135,7 @@ library PeersConfig {
         }
 
         if (wormholeChainId_ == Chains.WORMHOLE_ETHEREUM_SEPOLIA) {
-            peerChainIds_ = new uint16[](3);
+            peerChainIds_ = new uint16[](4);
             peerChainIds_[0] = Chains.WORMHOLE_ARBITRUM_SEPOLIA;
             peerChainIds_[1] = Chains.WORMHOLE_OPTIMISM_SEPOLIA;
             peerChainIds_[2] = Chains.WORMHOLE_NOBLE_TESTNET;
@@ -143,14 +143,14 @@ library PeersConfig {
         }
 
         if (wormholeChainId_ == Chains.WORMHOLE_ARBITRUM_SEPOLIA) {
-            peerChainIds_ = new uint16[](2);
+            peerChainIds_ = new uint16[](3);
             peerChainIds_[0] = Chains.WORMHOLE_ETHEREUM_SEPOLIA;
             peerChainIds_[1] = Chains.WORMHOLE_OPTIMISM_SEPOLIA;
             peerChainIds_[2] = Chains.WORMHOLE_SOLANA_TESTNET;
         }
 
         if (wormholeChainId_ == Chains.WORMHOLE_OPTIMISM_SEPOLIA) {
-            peerChainIds_ = new uint16[](2);
+            peerChainIds_ = new uint16[](3);
             peerChainIds_[0] = Chains.WORMHOLE_ETHEREUM_SEPOLIA;
             peerChainIds_[1] = Chains.WORMHOLE_ARBITRUM_SEPOLIA;
             peerChainIds_[2] = Chains.WORMHOLE_SOLANA_TESTNET;
