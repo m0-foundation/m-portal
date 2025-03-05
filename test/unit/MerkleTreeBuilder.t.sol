@@ -2,6 +2,7 @@
 pragma solidity 0.8.26;
 
 import { Test } from "../../lib/forge-std/src/Test.sol";
+import { console } from "../../lib/forge-std/src/console.sol";
 
 import { Registrar } from "../../lib/ttg/src/Registrar.sol";
 import { MerkleTreeBuilder } from "../../src/MerkleTreeBuilder.sol";
@@ -11,8 +12,8 @@ contract MerkleTreeBuilderTest is Test {
     MerkleTreeBuilder public merkleTreeBuilder;
     Registrar public registrar;
 
-    uint8 public constant ZERO_BIT = 0;
-    uint8 public constant ONE_BIT = 1;
+    uint8 internal constant ZERO_BIT = 0;
+    uint8 internal constant ONE_BIT = 1;
     bytes32 public constant LIST = bytes32("m-earners");
     bytes32 public constant ZERO = bytes32(0);
     bytes32 public constant ONE = bytes32(uint256(1));
@@ -41,9 +42,9 @@ contract MerkleTreeBuilderTest is Test {
         return before;
     }
 
-    function _addRandomValues(uint16 number, bytes32 list, bytes32 start) internal {
+    function _addRandomValues(uint256 number, bytes32 list, bytes32 start) internal {
         bytes32 current = start;
-        for (uint8 i = 0; i < number; i++) {
+        for (uint256 i = 0; i < number; i++) {
             registrar.setKey(keccak256(abi.encodePacked(list, current)), ONE);
             bytes32 before = _getValueBefore(list, current);
             merkleTreeBuilder.addToList(list, before, current);
@@ -94,12 +95,12 @@ contract MerkleTreeBuilderTest is Test {
     //     [X] it sets the root to the hash of the zero bytes32 value
     //   [X] given the list has one member
     //     [X] it sets the root to the hash of the member
-    //   [ ] given the list has a power-of-two number of members
-    //     [ ] it sets the root correctly
-    //   [ ] given the list has an even, none-power-of-two number of members
-    //     [ ] it sets the root correctly
-    //   [ ] given the list has an odd number of members
-    //     [ ] it sets the root correctly
+    //   [X] given the list has a power-of-two number of members
+    //     [X] it sets the root correctly
+    //   [X] given the list has an even, none-power-of-two number of members
+    //     [X] it sets the root correctly
+    //   [X] given the list has an odd number of members
+    //     [X] it sets the root correctly
 
     /* ========== addToList ========== */
 
@@ -363,6 +364,7 @@ contract MerkleTreeBuilderTest is Test {
     // it reverts with error 'InvalidPreviousValue'
     function testFuzz_removeFromList_valueNotSet_valueInList_beforeNotInList_reverts(
         uint8 valuesToAdd,
+        bytes32 before,
         bytes32 value
     ) public {
         vm.assume(valuesToAdd > 0 && valuesToAdd <= 20);
@@ -371,8 +373,6 @@ contract MerkleTreeBuilderTest is Test {
         // Add random values to the list including the one we want to remove
         _addRandomValues(valuesToAdd, LIST, value);
 
-        // Create a random before value
-        bytes32 before = keccak256(abi.encodePacked(value));
         vm.assume(!merkleTreeBuilder.contains(LIST, before));
 
         // Remove the value from the registrar
@@ -466,9 +466,9 @@ contract MerkleTreeBuilderTest is Test {
         // The list has one member so the root should be the hash of the member
         merkleTreeBuilder.updateRoot(LIST);
 
-        bytes32 leaf = keccak256(abi.encodePacked(ZERO_BIT, value));
+        bytes32 expectedRoot = keccak256(abi.encodePacked(ZERO_BIT, value));
 
-        assertEq(merkleTreeBuilder.getRoot(LIST), keccak256(abi.encodePacked(ONE_BIT, leaf, leaf)));
+        assertEq(merkleTreeBuilder.getRoot(LIST), expectedRoot);
     }
 
     // given the list has two members
@@ -502,20 +502,20 @@ contract MerkleTreeBuilderTest is Test {
 
     // given the list has a power-of-two number of members
     // it sets the root correctly
-    function test_updateRoot_listPowerOfTwoMembers(uint8 power, bytes32 seed) public {
-        vm.assume(power > 0 && power <= 10);
+    function testFuzz_updateRoot_listPowerOfTwoMembers(uint8 power, bytes32 seed) public {
+        vm.assume(power > 0 && power <= 8);
         vm.assume(seed != ZERO);
 
-        uint256 num = 2 ** power;
-        // safe to cast down since power is <= 10
-        _addRandomValues(uint16(num), LIST, seed);
+        uint256 leaves = 2 ** power;
+        _addRandomValues(leaves, LIST, seed);
 
         merkleTreeBuilder.updateRoot(LIST);
 
         // Check the size of the list
-        assertEq(merkleTreeBuilder.getLen(LIST), num);
+        assertEq(merkleTreeBuilder.getLen(LIST), leaves);
 
         // Calculate the root
+        uint256 num = leaves;
         bytes32[] memory tree = new bytes32[](num);
 
         bytes32 previous = ZERO;
@@ -526,15 +526,269 @@ contract MerkleTreeBuilderTest is Test {
         }
 
         while (num > 1) {
-            uint256 nextLen = num / 2;
-            for (uint256 i = 0; i < num; i = i + 2) {
+            for (uint256 i = 0; i < num - 1; i = i + 2) {
                 bytes32 one = tree[i];
                 bytes32 two = tree[i + 1];
+
                 tree[i / 2] = keccak256(abi.encodePacked(ONE_BIT, one, two));
             }
-            num = nextLen;
+            num = num / 2;
+        }
+        bytes32 root = merkleTreeBuilder.getRoot(LIST);
+
+        assertEq(root, tree[0]);
+    }
+
+    // given the list has an even, none-power-of-two number of members
+    // it sets the root correctly
+    function testFuzz_updateRoot_listEvenNonPowerOfTwoMembers(uint8 power, uint8 selector, bytes32 seed) public {
+        vm.assume(power > 0 && power <= 5);
+        vm.assume(seed != ZERO);
+
+        selector = selector % 5;
+        uint256 prime;
+        if (selector == 0) prime = 3;
+        else if (selector == 1) prime = 5;
+        else if (selector == 2) prime = 7;
+        else if (selector == 3) prime = 11;
+        else prime = 13;
+
+        uint256 leaves = 2 ** power * prime;
+        _addRandomValues(leaves, LIST, seed);
+
+        merkleTreeBuilder.updateRoot(LIST);
+
+        // Check the size of the list
+        assertEq(merkleTreeBuilder.getLen(LIST), leaves);
+
+        // Calculate the root
+        uint256 num = leaves;
+        bytes32[] memory tree = new bytes32[](num);
+
+        bytes32 previous = ZERO;
+        for (uint256 i = 0; i < num; i++) {
+            bytes32 value = merkleTreeBuilder.getNext(LIST, previous);
+            tree[i] = keccak256(abi.encodePacked(ZERO_BIT, value));
+            previous = value;
         }
 
-        assertEq(merkleTreeBuilder.getRoot(LIST), tree[0]);
+        while (num > 1) {
+            for (uint256 i = 0; i < num - 1; i = i + 2) {
+                bytes32 one = tree[i];
+                bytes32 two = tree[i + 1];
+
+                tree[i / 2] = keccak256(abi.encodePacked(ONE_BIT, one, two));
+            }
+
+            uint256 nextNum = num % 2 == 0 ? num / 2 : num / 2 + 1;
+
+            if (num % 2 != 0) {
+                tree[nextNum - 1] = keccak256(abi.encodePacked(ONE_BIT, tree[num - 1], tree[num - 1]));
+            }
+
+            num = nextNum;
+        }
+
+        bytes32 root = merkleTreeBuilder.getRoot(LIST);
+
+        assertEq(root, tree[0]);
+    }
+
+    // given the list has an odd number of members
+    // it sets the root correctly
+    function testFuzz_updateRoot_listOddMembers(uint8 leaves, bytes32 seed) public {
+        vm.assume(leaves % 2 != 0);
+        vm.assume(seed != ZERO);
+
+        _addRandomValues(leaves, LIST, seed);
+
+        merkleTreeBuilder.updateRoot(LIST);
+
+        // Check the size of the list
+        assertEq(merkleTreeBuilder.getLen(LIST), leaves);
+
+        // Calculate the root
+        uint256 num = leaves;
+        bytes32[] memory tree = new bytes32[](num);
+
+        bytes32 previous = ZERO;
+        for (uint256 i = 0; i < num; i++) {
+            bytes32 value = merkleTreeBuilder.getNext(LIST, previous);
+            tree[i] = keccak256(abi.encodePacked(ZERO_BIT, value));
+            previous = value;
+        }
+
+        while (num > 1) {
+            for (uint256 i = 0; i < num - 1; i = i + 2) {
+                bytes32 one = tree[i];
+                bytes32 two = tree[i + 1];
+
+                tree[i / 2] = keccak256(abi.encodePacked(ONE_BIT, one, two));
+            }
+
+            uint256 nextNum = num % 2 == 0 ? num / 2 : num / 2 + 1;
+
+            if (num % 2 != 0) {
+                tree[nextNum - 1] = keccak256(abi.encodePacked(ONE_BIT, tree[num - 1], tree[num - 1]));
+            }
+
+            num = nextNum;
+        }
+
+        bytes32 root = merkleTreeBuilder.getRoot(LIST);
+
+        assertEq(root, tree[0]);
+    }
+
+    // specific cases to avoid incorrect logic in the test logic vs implementations
+    function test_updateRoot_powerOfTwoCase() public {
+        uint256 len = 4;
+        bytes32[] memory values = new bytes32[](len);
+        values[0] = bytes32(uint256(1e10));
+        values[1] = bytes32(uint256(1e20));
+        values[2] = bytes32(uint256(1e40));
+        values[3] = bytes32(uint256(1e60));
+
+        // Add the values to the registrar and contract
+        // and update the root
+        for (uint256 i = 0; i < len; i++) {
+            registrar.setKey(keccak256(abi.encodePacked(LIST, values[i])), ONE);
+            merkleTreeBuilder.addToList(LIST, i == 0 ? ZERO : values[i - 1], values[i]);
+        }
+
+        merkleTreeBuilder.updateRoot(LIST);
+
+        // Calculate the expected root
+        bytes32 one = keccak256(
+            abi.encodePacked(
+                ONE_BIT,
+                keccak256(abi.encodePacked(ZERO_BIT, values[0])),
+                keccak256(abi.encodePacked(ZERO_BIT, values[1]))
+            )
+        );
+        bytes32 two = keccak256(
+            abi.encodePacked(
+                ONE_BIT,
+                keccak256(abi.encodePacked(ZERO_BIT, values[2])),
+                keccak256(abi.encodePacked(ZERO_BIT, values[3]))
+            )
+        );
+        bytes32 root = keccak256(abi.encodePacked(ONE_BIT, one, two));
+
+        assertEq(merkleTreeBuilder.getRoot(LIST), root);
+    }
+
+    function test_updateRoot_evenNonPowerOfTwoCase() public {
+        uint256 len = 6;
+        bytes32[] memory values = new bytes32[](len);
+        values[0] = bytes32(uint256(1e10));
+        values[1] = bytes32(uint256(1e20));
+        values[2] = bytes32(uint256(1e30));
+        values[3] = bytes32(uint256(1e40));
+        values[4] = bytes32(uint256(1e50));
+        values[5] = bytes32(uint256(1e60));
+
+        // Add the values to the registrar and contract
+        // and update the root
+        for (uint256 i = 0; i < len; i++) {
+            registrar.setKey(keccak256(abi.encodePacked(LIST, values[i])), ONE);
+            merkleTreeBuilder.addToList(LIST, i == 0 ? ZERO : values[i - 1], values[i]);
+        }
+
+        merkleTreeBuilder.updateRoot(LIST);
+
+        // Calculate the expected root
+        bytes32 one = keccak256(
+            abi.encodePacked(
+                ONE_BIT,
+                keccak256(abi.encodePacked(ZERO_BIT, values[0])),
+                keccak256(abi.encodePacked(ZERO_BIT, values[1]))
+            )
+        );
+        bytes32 two = keccak256(
+            abi.encodePacked(
+                ONE_BIT,
+                keccak256(abi.encodePacked(ZERO_BIT, values[2])),
+                keccak256(abi.encodePacked(ZERO_BIT, values[3]))
+            )
+        );
+        bytes32 three = keccak256(
+            abi.encodePacked(
+                ONE_BIT,
+                keccak256(abi.encodePacked(ZERO_BIT, values[4])),
+                keccak256(abi.encodePacked(ZERO_BIT, values[5]))
+            )
+        );
+
+        bytes32 oneTwo = keccak256(abi.encodePacked(ONE_BIT, one, two));
+        bytes32 threeThree = keccak256(abi.encodePacked(ONE_BIT, three, three));
+
+        bytes32 root = keccak256(abi.encodePacked(ONE_BIT, oneTwo, threeThree));
+
+        assertEq(merkleTreeBuilder.getRoot(LIST), root);
+    }
+
+    function test_updateRoot_oddCase() public {
+        uint256 len = 5;
+        bytes32[] memory values = new bytes32[](len);
+        values[0] = bytes32(uint256(1e10));
+        values[1] = bytes32(uint256(1e20));
+        values[2] = bytes32(uint256(1e30));
+        values[3] = bytes32(uint256(1e40));
+        values[4] = bytes32(uint256(1e50));
+
+        // Add the values to the registrar and contract
+        // and update the root
+        for (uint256 i = 0; i < len; i++) {
+            registrar.setKey(keccak256(abi.encodePacked(LIST, values[i])), ONE);
+            merkleTreeBuilder.addToList(LIST, i == 0 ? ZERO : values[i - 1], values[i]);
+        }
+
+        merkleTreeBuilder.updateRoot(LIST);
+
+        // Calculate the expected root
+        bytes32 one = keccak256(
+            abi.encodePacked(
+                ONE_BIT,
+                keccak256(abi.encodePacked(ZERO_BIT, values[0])),
+                keccak256(abi.encodePacked(ZERO_BIT, values[1]))
+            )
+        );
+        bytes32 two = keccak256(
+            abi.encodePacked(
+                ONE_BIT,
+                keccak256(abi.encodePacked(ZERO_BIT, values[2])),
+                keccak256(abi.encodePacked(ZERO_BIT, values[3]))
+            )
+        );
+        bytes32 three = keccak256(
+            abi.encodePacked(
+                ONE_BIT,
+                keccak256(abi.encodePacked(ZERO_BIT, values[4])),
+                keccak256(abi.encodePacked(ZERO_BIT, values[4]))
+            )
+        );
+
+        bytes32 oneTwo = keccak256(abi.encodePacked(ONE_BIT, one, two));
+        bytes32 threeThree = keccak256(abi.encodePacked(ONE_BIT, three, three));
+
+        bytes32 root = keccak256(abi.encodePacked(ONE_BIT, oneTwo, threeThree));
+
+        assertEq(merkleTreeBuilder.getRoot(LIST), root);
+    }
+
+    function testGas_updateRoot() public {
+        uint256 len = 100;
+        for (uint256 i = 0; i < len; i++) {
+            bytes32 value = keccak256(abi.encodePacked(i));
+            registrar.setKey(keccak256(abi.encodePacked(LIST, value)), ONE);
+            bytes32 before = _getValueBefore(LIST, value);
+            merkleTreeBuilder.addToList(LIST, before, value);
+        }
+
+        uint256 gas = gasleft();
+        merkleTreeBuilder.updateRoot(LIST);
+        gas = gas - gasleft();
+        console.log("updateRoot gas with 100 members", gas);
     }
 }
