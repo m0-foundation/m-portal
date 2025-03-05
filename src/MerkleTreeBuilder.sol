@@ -76,10 +76,9 @@ contract MerkleTreeBuilder {
             return;
         }
 
-        // If the list has only one member, then we duplicate the member and treat it like an odd layer
+        // If the list has only one member, then the root is the hash of the leaf
         if (leafCount == 1) {
-            bytes32 leaf = keccak256(abi.encodePacked(ZERO_BIT, sortedList.next[ZERO_WORD]));
-            _roots[list] = keccak256(abi.encodePacked(ONE_BIT, leaf, leaf));
+            _roots[list] = keccak256(abi.encodePacked(ZERO_BIT, sortedList.next[ZERO_WORD]));
             return;
         }
 
@@ -101,13 +100,14 @@ contract MerkleTreeBuilder {
             bytes32 one = sortedList.next[previous];
             bytes32 two = sortedList.next[one];
 
+            previous = two;
+
             // Hash to get leaves
             one = keccak256(abi.encodePacked(ZERO_BIT, one));
             two = keccak256(abi.encodePacked(ZERO_BIT, two));
 
             // Hash neighboring leaves to construct the first level of the tree
             tree[i / 2] = keccak256(abi.encodePacked(ONE_BIT, one, two));
-            previous = two;
         }
 
         // If the leaf count is odd, we have to populate the last node
@@ -120,9 +120,6 @@ contract MerkleTreeBuilder {
         // Now, we iteratively combine every 2 nodes until the length of the tree is 1
         // We overwrite values as we go to reuse memory that's already been allocated
         while (len > 1) {
-            // Calculate the length of the next level
-            uint256 nextLen = len % 2 == 0 ? len / 2 : len / 2 + 1;
-
             // Hash neighboring nodes
             for (uint256 i = 0; i < len - 1; i = i + 2) {
                 bytes32 one = tree[i];
@@ -132,8 +129,11 @@ contract MerkleTreeBuilder {
                 tree[i / 2] = keccak256(abi.encodePacked(ONE_BIT, one, two));
             }
 
+            // Calculate the length of the next level
+            uint256 nextLen = len % 2 == 0 ? (len / 2) : ((len / 2) + 1);
+
             // If the length of the current level is odd, we hash the final node with itself
-            if (nextLen % 2 != 0) {
+            if (len % 2 != 0) {
                 tree[nextLen - 1] = keccak256(abi.encodePacked(ONE_BIT, tree[len - 1], tree[len - 1]));
             }
 
