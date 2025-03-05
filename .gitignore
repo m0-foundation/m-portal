@@ -2,8 +2,21 @@
 cache/
 out/
 
-# Ignores development broadcast logs
-broadcast/**/*run*
+# Ignores localhost and dry-run broadcast logs
+/broadcast/*
+
+!/broadcast/Deploy*
+/broadcast/Deploy*/31337/
+/broadcast/Deploy*/*/dry-run
+
+!/broadcast/Configure*
+/broadcast/Configure*/31337/
+/broadcast/Configure*/*/dry-run
+
+!/broadcast/Upgrade*
+/broadcast/Upgrade*/31337/
+/broadcast/Upgrade*/*/dry-run
+
 
 # Coverage files
 coverage/

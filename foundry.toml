@@ -3,20 +3,20 @@ evm_version = "cancun"
 fs_permissions = [
   { access = "read", path = "./config" },
   { access = "read", path = "./test/fork/fixtures/" },
+  { access = "read-write", path = "./deployments" }
 ]
-fork_block_number = 21_146_367
 gas_reports = ["HubPortal", "SpokePortal"]
 gas_reports_ignore = []
 ignored_error_codes = []
-optimizer = false
-solc_version = "0.8.26"
+ignored_warnings_from = ["lib", "test", "script"]
+optimizer = true
+optimizer_runs = 1500
+version = "0.8.26"
 verbosity = 3
 via_ir = false
 
 [profile.production]
 build_info = true
-optimizer = true
-optimizer_runs = 1500
 sizes = true
 via_ir = true
 
@@ -41,6 +41,7 @@ depth = 250
 [rpc_endpoints]
 localhost = "${LOCALHOST_RPC_URL}"
 mainnet = "${MAINNET_RPC_URL}"
+arbitrum = "${ARBITRUM_RPC_URL}"
 base = "${BASE_RPC_URL}"
 optimism = "${OPTIMISM_RPC_URL}"
 sepolia = "${SEPOLIA_RPC_URL}"
@@ -49,6 +50,7 @@ optimism_sepolia = "${OPTIMISM_SEPOLIA_RPC_URL}"
 
 [etherscan]
 mainnet = { key = "${ETHERSCAN_API_KEY}", url = "https://api.etherscan.io/api" }
+arbitrum = { key = "${ARBITRUM_ETHERSCAN_API_KEY}", url = "https://api.arbiscan.io/api" }
 base = { key = "${BASE_ETHERSCAN_API_KEY}", url = "https://api.basescan.org/api" }
 optimism = { key = "${OPTIMISM_ETHERSCAN_API_KEY}", url = "https://api-optimistic.etherscan.io/api" }
 sepolia = { key = "${ETHERSCAN_API_KEY}", url = "https://api-sepolia.etherscan.io/api" }

@@ -16,19 +16,34 @@ import { INttManager } from "../../lib/native-token-transfers/evm/src/interfaces
 import { IWormholeTransceiver } from "../../lib/native-token-transfers/evm/src/interfaces/IWormholeTransceiver.sol";
 import { TransceiverStructs } from "../../lib/native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
 
-import { CastBase } from "../../script/cast/CastBase.sol";
+import { TaskBase } from "../../script/tasks/TaskBase.sol";
 import { ConfigureBase } from "../../script/configure/ConfigureBase.sol";
 import { DeployBase } from "../../script/deploy/DeployBase.sol";
+import { DeployConfig, SpokeDeployConfig, HubDeployConfig } from "../../script/config/DeployConfig.sol";
+import { WormholeConfig, WormholeTransceiverConfig } from "../../script/config/WormholeConfig.sol";
+import { PeersConfig, PeerConfig } from "../../script/config/PeersConfig.sol";
 
+import { TypeConverter } from "../../src/libs/TypeConverter.sol";
 import { IHubPortal } from "../../src/interfaces/IHubPortal.sol";
 import { IRegistrarLike } from "../../src/interfaces/IRegistrarLike.sol";
 
-contract ForkTestBase is CastBase, ConfigureBase, DeployBase, Test {
-    uint256 internal constant _MAINNET_FORK_BLOCK = 21_741_044;
-    uint256 internal constant _BASE_FORK_BLOCK = 25_747_655;
-    uint256 internal constant _OPTIMISM_FORK_BLOCK = 131_342_961;
+contract ForkTestBase is TaskBase, ConfigureBase, DeployBase, Test {
+    using WormholeConfig for uint256;
+    using TypeConverter for *;
+
+    uint256 internal constant _MAINNET_FORK_BLOCK = 21_828_330;
+    uint256 internal constant _ARBITRUM_FORK_BLOCK = 305_187_338;
+    uint256 internal constant _OPTIMISM_FORK_BLOCK = 131_869_592;
 
     address internal constant _DEPLOYER = 0xF2f1ACbe0BA726fEE8d75f3E32900526874740BB;
+    address internal constant _MAINNET_REGISTRAR = 0x119FbeeDD4F4f4298Fb59B720d5654442b81ae2c;
+    address internal constant _MAINNET_M_TOKEN = 0x866A2BF4E572CbcF37D5071A7a58503Bfb36be1b;
+    address internal constant _MAINNET_WRAPPED_M_TOKEN = 0x437cc33344a0B27A429f795ff6B469C72698B291;
+    address internal constant _MAINNET_VAULT = 0xd7298f620B0F752Cf41BD818a16C756d9dCAA34f;
+
+    address internal constant _MAINNET_WORMHOLE_RELAYER = 0x27428DD2d3DD32A4D7f7C497eAaa23130d894911;
+    address internal constant _ARBITRUM_WORMHOLE_RELAYER = 0x27428DD2d3DD32A4D7f7C497eAaa23130d894911;
+    address internal constant _OPTIMISM_WORMHOLE_RELAYER = 0x27428DD2d3DD32A4D7f7C497eAaa23130d894911;
 
     // TODO: confirm that this is the correct address.
     address internal constant _MIGRATION_ADMIN = 0x431169728D75bd02f4053435b87D15c8d1FB2C72;
@@ -40,7 +55,7 @@ contract ForkTestBase is CastBase, ConfigureBase, DeployBase, Test {
     address internal immutable _alice = makeAddr("alice");
     address internal immutable _bob = makeAddr("bob");
     address internal immutable _mHolder = 0x3f0376da3Ae4313E7a5F1dA184BAFC716252d759;
-    address internal immutable _wrappedMHolder = 0x942AeF058cb15C9b8b89B57B4E607d464ed8Cd33;
+    address internal immutable _wrappedMHolder = 0x6AaA90D689942b5eaB3D8433f2E02B32a0214390;
 
     TransceiverStructs.TransceiverInstruction internal _emptyTransceiverInstruction =
         TransceiverStructs.TransceiverInstruction({ index: 0, payload: "" });
@@ -48,12 +63,12 @@ contract ForkTestBase is CastBase, ConfigureBase, DeployBase, Test {
     bytes internal _encodedEmptyTransceiverInstructions = new bytes(1);
 
     WormholeSimulator _hubGuardian;
-    WormholeSimulator _baseSpokeGuardian;
+    WormholeSimulator _arbitrumSpokeGuardian;
     WormholeSimulator _optimismSpokeGuardian;
 
     // Fork IDs
     uint256 internal _mainnetForkId;
-    uint256 internal _baseForkId;
+    uint256 internal _arbitrumForkId;
     uint256 internal _optimismForkId;
     uint256[] internal _forkIds = new uint256[](3);
 
@@ -62,17 +77,17 @@ contract ForkTestBase is CastBase, ConfigureBase, DeployBase, Test {
     address internal _hubWormholeTransceiver;
     address internal _hubWormholeCore;
 
-    // Base - Spoke
-    address internal _baseSpokePortal;
-    address internal _baseSpokeWormholeTransceiver;
-    address internal _baseSpokeWormholeCore;
-    address internal _baseSpokeRegistrar;
-    address internal _baseSpokeMToken;
+    // Arbitrum - Spoke
+    address internal _arbitrumSpokePortal;
+    address internal _arbitrumSpokeWormholeTransceiver;
+    address internal _arbitrumSpokeWormholeCore;
+    address internal _arbitrumSpokeRegistrar;
+    address internal _arbitrumSpokeMToken;
 
-    address internal _baseSpokeVault;
+    address internal _arbitrumSpokeVault;
 
-    address internal _baseSpokeWrappedMTokenImplementation;
-    address internal _baseSpokeWrappedMTokenProxy;
+    address internal _arbitrumSpokeWrappedMTokenImplementation;
+    address internal _arbitrumSpokeWrappedMTokenProxy;
 
     // Optimism - Spoke
     address internal _optimismSpokePortal;
@@ -97,14 +112,31 @@ contract ForkTestBase is CastBase, ConfigureBase, DeployBase, Test {
 
         vm.startPrank(_DEPLOYER);
 
-        string memory configPath_ = "test/fork/fixtures/deploy-config.json";
+        uint256 ethereumChainId_ = block.chainid;
+        uint16 ethereumWormholeChainId_ = ethereumChainId_.toWormholeChainId();
+        HubDeployConfig memory hubDeployConfig_ = DeployConfig.getHubDeployConfig(ethereumChainId_);
+        WormholeTransceiverConfig memory hubTransceiverConfig_ = WormholeConfig.getWormholeTransceiverConfig(
+            ethereumChainId_
+        );
 
-        HubConfiguration memory hubConfig_ = _loadHubConfig(configPath_, block.chainid);
-
-        _hubWormholeCore = hubConfig_.wormhole.coreBridge;
+        _hubWormholeCore = hubTransceiverConfig_.coreBridge;
         _hubGuardian = new WormholeSimulator(_hubWormholeCore, _DEVNET_GUARDIAN_PK);
 
-        (_hubPortal, _hubWormholeTransceiver) = _deployHubComponents(_DEPLOYER, hubConfig_);
+        (_hubPortal, _hubWormholeTransceiver) = _deployHubComponents(
+            _DEPLOYER,
+            ethereumWormholeChainId_,
+            hubDeployConfig_,
+            hubTransceiverConfig_
+        );
+
+        // set peers
+        _configurePeers(
+            _hubPortal,
+            _MAINNET_M_TOKEN,
+            _MAINNET_WRAPPED_M_TOKEN,
+            _hubWormholeTransceiver,
+            PeersConfig.getPeersConfig(ethereumChainId_)
+        );
 
         vm.stopPrank();
 
@@ -117,9 +149,9 @@ contract ForkTestBase is CastBase, ConfigureBase, DeployBase, Test {
 
         IHubPortal(_hubPortal).enableEarning();
 
-        // Deploy Base - Spoke
-        _baseForkId = vm.createSelectFork({ urlOrAlias: "base", blockNumber: _BASE_FORK_BLOCK });
-        _forkIds[1] = _baseForkId;
+        // Deploy Arbitrum - Spoke
+        _arbitrumForkId = vm.createSelectFork({ urlOrAlias: "arbitrum", blockNumber: _ARBITRUM_FORK_BLOCK });
+        _forkIds[1] = _arbitrumForkId;
 
         deal(_DEPLOYER, 10 ether);
         deal(_alice, 10 ether);
@@ -127,33 +159,47 @@ contract ForkTestBase is CastBase, ConfigureBase, DeployBase, Test {
 
         vm.startPrank(_DEPLOYER);
 
-        SpokeConfiguration memory baseSpokeConfig_ = _loadSpokeConfig(configPath_, block.chainid);
+        uint256 arbitrumChainId_ = block.chainid;
+        uint16 arbitrumWormholeChainId_ = arbitrumChainId_.toWormholeChainId();
+        SpokeDeployConfig memory arbitrumSpokeDeployConfig_ = DeployConfig.getSpokeDeployConfig(arbitrumChainId_);
+        WormholeTransceiverConfig memory arbitrumSpokeTransceiverConfig_ = WormholeConfig.getWormholeTransceiverConfig(
+            arbitrumChainId_
+        );
 
-        _baseSpokeWormholeCore = baseSpokeConfig_.wormhole.coreBridge;
-        _baseSpokeGuardian = new WormholeSimulator(baseSpokeConfig_.wormhole.coreBridge, _DEVNET_GUARDIAN_PK);
+        _arbitrumSpokeWormholeCore = arbitrumSpokeTransceiverConfig_.coreBridge;
+        _arbitrumSpokeGuardian = new WormholeSimulator(_arbitrumSpokeWormholeCore, _DEVNET_GUARDIAN_PK);
 
         (
-            _baseSpokePortal,
-            _baseSpokeWormholeTransceiver,
-            _baseSpokeRegistrar,
-            _baseSpokeMToken
-        ) = _deploySpokeComponents(_DEPLOYER, baseSpokeConfig_, _burnNonces);
+            _arbitrumSpokePortal,
+            _arbitrumSpokeWormholeTransceiver,
+            _arbitrumSpokeRegistrar,
+            _arbitrumSpokeMToken
+        ) = _deploySpokeComponents(_DEPLOYER, arbitrumWormholeChainId_, arbitrumSpokeTransceiverConfig_, _burnNonces);
 
-        (, _baseSpokeVault) = _deploySpokeVault(
+        (, _arbitrumSpokeVault) = _deploySpokeVault(
             _DEPLOYER,
-            _baseSpokePortal,
-            baseSpokeConfig_.hubVault,
-            baseSpokeConfig_.hubVaultWormholechainId,
+            _arbitrumSpokePortal,
+            arbitrumSpokeDeployConfig_.hubVault,
+            arbitrumSpokeDeployConfig_.hubWormholeChainId,
             _MIGRATION_ADMIN
         );
 
-        (_baseSpokeWrappedMTokenImplementation, _baseSpokeWrappedMTokenProxy) = _deploySpokeWrappedMToken(
+        (_arbitrumSpokeWrappedMTokenImplementation, _arbitrumSpokeWrappedMTokenProxy) = _deploySpokeWrappedMToken(
             _DEPLOYER,
-            _baseSpokeMToken,
-            _baseSpokeRegistrar,
-            _baseSpokeVault,
+            _arbitrumSpokeMToken,
+            _arbitrumSpokeRegistrar,
+            _arbitrumSpokeVault,
             _MIGRATION_ADMIN,
             _burnNonces
+        );
+
+        // set peers
+        _configurePeers(
+            _arbitrumSpokePortal,
+            _arbitrumSpokeMToken,
+            _arbitrumSpokeWrappedMTokenProxy,
+            _arbitrumSpokeWormholeTransceiver,
+            PeersConfig.getPeersConfig(arbitrumChainId_)
         );
 
         vm.stopPrank();
@@ -168,23 +214,28 @@ contract ForkTestBase is CastBase, ConfigureBase, DeployBase, Test {
 
         vm.startPrank(_DEPLOYER);
 
-        SpokeConfiguration memory optimismSpokeConfig_ = _loadSpokeConfig(configPath_, block.chainid);
+        uint256 optimismChainId_ = block.chainid;
+        uint16 optimismWormholeChainId_ = optimismChainId_.toWormholeChainId();
+        SpokeDeployConfig memory optimismSpokeDeployConfig_ = DeployConfig.getSpokeDeployConfig(optimismChainId_);
+        WormholeTransceiverConfig memory optimismSpokeTransceiverConfig_ = WormholeConfig.getWormholeTransceiverConfig(
+            optimismChainId_
+        );
 
-        _optimismSpokeWormholeCore = optimismSpokeConfig_.wormhole.coreBridge;
-        _optimismSpokeGuardian = new WormholeSimulator(optimismSpokeConfig_.wormhole.coreBridge, _DEVNET_GUARDIAN_PK);
+        _optimismSpokeWormholeCore = optimismSpokeTransceiverConfig_.coreBridge;
+        _optimismSpokeGuardian = new WormholeSimulator(_optimismSpokeWormholeCore, _DEVNET_GUARDIAN_PK);
 
         (
             _optimismSpokePortal,
             _optimismSpokeWormholeTransceiver,
             _optimismSpokeRegistrar,
             _optimismSpokeMToken
-        ) = _deploySpokeComponents(_DEPLOYER, optimismSpokeConfig_, _burnNonces);
+        ) = _deploySpokeComponents(_DEPLOYER, optimismWormholeChainId_, optimismSpokeTransceiverConfig_, _burnNonces);
 
         (, _optimismSpokeVault) = _deploySpokeVault(
             _DEPLOYER,
             _optimismSpokePortal,
-            optimismSpokeConfig_.hubVault,
-            optimismSpokeConfig_.hubVaultWormholechainId,
+            optimismSpokeDeployConfig_.hubVault,
+            optimismSpokeDeployConfig_.hubWormholeChainId,
             _MIGRATION_ADMIN
         );
 
@@ -197,37 +248,16 @@ contract ForkTestBase is CastBase, ConfigureBase, DeployBase, Test {
             _burnNonces
         );
 
+        // set peers
+        _configurePeers(
+            _optimismSpokePortal,
+            _optimismSpokeMToken,
+            _optimismSpokeWrappedMTokenProxy,
+            _optimismSpokeWormholeTransceiver,
+            PeersConfig.getPeersConfig(optimismChainId_)
+        );
+
         vm.stopPrank();
-    }
-
-    function _configurePortals() internal {
-        for (uint256 i_; i_ < _forkIds.length; ++i_) {
-            vm.selectFork(_forkIds[i_]);
-            vm.startPrank(_DEPLOYER);
-
-            ChainConfig[] memory chainsConfig_ = _loadChainConfig(
-                "test/fork/fixtures/configure-config.json",
-                block.chainid
-            );
-
-            uint256 chainsConfigLength_ = chainsConfig_.length;
-
-            for (uint256 j_; j_ < chainsConfigLength_; ++j_) {
-                ChainConfig memory chainConfig_ = chainsConfig_[j_];
-
-                if (chainConfig_.chainId == block.chainid) {
-                    _configureWormholeTransceiver(
-                        IWormholeTransceiver(chainConfig_.wormholeTransceiver),
-                        chainsConfig_,
-                        chainConfig_.wormholeChainId
-                    );
-
-                    _configurePortal(INttManager(chainConfig_.portal), chainsConfig_, chainConfig_.wormholeChainId);
-                }
-            }
-
-            vm.stopPrank();
-        }
     }
 
     function _burnNonces(address account_, uint64 /**  startingNonce_ */, uint64 targetNonce_) internal {

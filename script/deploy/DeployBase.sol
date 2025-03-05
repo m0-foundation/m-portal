@@ -2,9 +2,7 @@
 
 pragma solidity 0.8.26;
 
-import { console } from "../../lib/forge-std/src/console.sol";
 import { Script } from "../../lib/forge-std/src/Script.sol";
-import { stdJson } from "../../lib/forge-std/src/StdJson.sol";
 
 import { ContractHelper } from "../../lib/common/src/libs/ContractHelper.sol";
 import { Proxy } from "../../lib/common/src/Proxy.sol";
@@ -23,33 +21,19 @@ import { HubPortal } from "../../src/HubPortal.sol";
 import { SpokePortal } from "../../src/SpokePortal.sol";
 import { SpokeVault } from "../../src/SpokeVault.sol";
 
-import { Utils } from "../helpers/Utils.sol";
+import { ScriptBase } from "../ScriptBase.sol";
+import { WormholeTransceiverConfig } from "../config/WormholeConfig.sol";
+import { HubDeployConfig, SpokeDeployConfig } from "../config/DeployConfig.sol";
 
-contract DeployBase is Script, Utils {
-    using stdJson for string;
+contract DeployBase is ScriptBase {
+    /// @dev Contract names used for deterministic deployment
+    string internal constant _PORTAL_CONTRACT_NAME = "Portal";
+    string internal constant _TRANSCEIVER_CONTRACT_NAME = "WormholeTransceiver";
+    string internal constant _VAULT_CONTRACT_NAME = "Vault";
 
-    /* ============ Config Structs ============ */
-
-    struct WormholeConfiguration {
-        uint16 chainId;
-        address coreBridge;
-        address relayer;
-        address specialRelayer;
-        uint8 consistencyLevel;
-        uint256 gasLimit;
-    }
-
-    struct HubConfiguration {
-        address mToken;
-        address registrar;
-        WormholeConfiguration wormhole;
-    }
-
-    struct SpokeConfiguration {
-        address hubVault;
-        uint16 hubVaultWormholechainId;
-        WormholeConfiguration wormhole;
-    }
+    /// @dev Contract names used for deterministic deployment of Noble Portal
+    string internal constant _NOBLE_PORTAL_CONTRACT_NAME = "NoblePortal";
+    string internal constant _NOBLE_TRANSCEIVER_CONTRACT_NAME = "NobleWormholeTransceiver";
 
     /* ============ Custom Errors ============ */
 
@@ -59,35 +43,72 @@ contract DeployBase is Script, Utils {
     /* ============ Deploy Functions ============ */
 
     /**
-     * @dev    Deploys Hub components.
-     * @param  deployer_       The address of the deployer.
-     * @param  config_         The Hub configuration.
-     * @return hubPortal_      The address of the deployed Hub Portal.
-     * @return hubTransceiver_ The address of the deployed Hub WormholeTransceiver.
+     * @dev    Deploys Hub Portal and Wormhole Transceiver.
+     * @param  deployer_          The address of the deployer.
+     * @param  wormholeChainId_   The Wormhole Chain Id where Hub is deployed.
+     * @param  hubConfig_         The configuration to deploy Hub Portal.
+     * @param  transceiverConfig_ The configuration to deploy Wormhole Transceiver.
+     * @return hubPortal_         The address of the deployed Hub Portal.
+     * @return hubTransceiver_    The address of the deployed Hub WormholeTransceiver.
      */
     function _deployHubComponents(
         address deployer_,
-        HubConfiguration memory config_
+        uint16 wormholeChainId_,
+        HubDeployConfig memory hubConfig_,
+        WormholeTransceiverConfig memory transceiverConfig_
     ) internal returns (address hubPortal_, address hubTransceiver_) {
-        hubPortal_ = _deployHubPortal(deployer_, config_);
-        hubTransceiver_ = _deployWormholeTransceiver(deployer_, config_.wormhole, hubPortal_);
+        hubPortal_ = _deployHubPortal(deployer_, wormholeChainId_, hubConfig_, _PORTAL_CONTRACT_NAME);
+        hubTransceiver_ = _deployWormholeTransceiver(
+            deployer_,
+            transceiverConfig_,
+            hubPortal_,
+            _TRANSCEIVER_CONTRACT_NAME
+        );
 
         _configurePortal(hubPortal_, hubTransceiver_);
     }
 
     /**
-     * @dev    Deploys Spoke components.
-     * @param  deployer_         The address of the deployer.
-     * @param  config_           The Spoke configuration.
-     * @param  burnNonces_       The function to burn nonces.
-     * @return spokePortal_      The address of the deployed Spoke Portal.
-     * @return spokeTransceiver_ The address of the deployed Spoke WormholeTransceiver.
-     * @return spokeRegistrar_   The address of the deployed Spoke Registrar.
-     * @return spokeMToken_      The address of the deployed Spoke MToken.
+     * @dev    Deploys Hub Portal and Wormhole Transceiver for Noble.
+     * @param  deployer_          The address of the deployer.
+     * @param  wormholeChainId_   The Wormhole Chain Id where Hub is deployed.
+     * @param  hubConfig_         The configuration to deploy Hub Portal.
+     * @param  transceiverConfig_ The configuration to deploy Wormhole Transceiver.
+     * @return hubPortal_         The address of the deployed Noble Portal.
+     * @return hubTransceiver_    The address of the deployed Noble WormholeTransceiver.
+     */
+    function _deployNobleHubComponents(
+        address deployer_,
+        uint16 wormholeChainId_,
+        HubDeployConfig memory hubConfig_,
+        WormholeTransceiverConfig memory transceiverConfig_
+    ) internal returns (address hubPortal_, address hubTransceiver_) {
+        hubPortal_ = _deployHubPortal(deployer_, wormholeChainId_, hubConfig_, _NOBLE_PORTAL_CONTRACT_NAME);
+        hubTransceiver_ = _deployWormholeTransceiver(
+            deployer_,
+            transceiverConfig_,
+            hubPortal_,
+            _NOBLE_TRANSCEIVER_CONTRACT_NAME
+        );
+
+        _configurePortal(hubPortal_, hubTransceiver_);
+    }
+
+    /**
+     * @dev    Deploys Spoke M Token, Registrar, Portal and Wormhole Transceiver.
+     * @param  deployer_          The address of the deployer.
+     * @param  wormholeChainId_   The Wormhole Chain Id where Spoke is deployed.
+     * @param  transceiverConfig_ The configuration to deploy Wormhole Transceiver.
+     * @param  burnNonces_        The function to burn nonces.
+     * @return spokePortal_       The address of the deployed Spoke Portal.
+     * @return spokeTransceiver_  The address of the deployed Spoke WormholeTransceiver.
+     * @return spokeRegistrar_    The address of the deployed Spoke Registrar.
+     * @return spokeMToken_       The address of the deployed Spoke MToken.
      */
     function _deploySpokeComponents(
         address deployer_,
-        SpokeConfiguration memory config_,
+        uint16 wormholeChainId_,
+        WormholeTransceiverConfig memory transceiverConfig_,
         function(address, uint64, uint64) internal burnNonces_
     )
         internal
@@ -96,8 +117,13 @@ contract DeployBase is Script, Utils {
     {
         (spokeRegistrar_, spokeMToken_) = _deploySpokeProtocol(deployer_, burnNonces_);
 
-        spokePortal_ = _deploySpokePortal(deployer_, spokeMToken_, spokeRegistrar_, config_.wormhole.chainId);
-        spokeTransceiver_ = _deployWormholeTransceiver(deployer_, config_.wormhole, spokePortal_);
+        spokePortal_ = _deploySpokePortal(deployer_, spokeMToken_, spokeRegistrar_, wormholeChainId_);
+        spokeTransceiver_ = _deployWormholeTransceiver(
+            deployer_,
+            transceiverConfig_,
+            spokePortal_,
+            _TRANSCEIVER_CONTRACT_NAME
+        );
 
         _configurePortal(spokePortal_, spokeTransceiver_);
     }
@@ -120,7 +146,9 @@ contract DeployBase is Script, Utils {
         }
 
         // Pre-compute the expected SpokePortal proxy address.
-        spokeRegistrar_ = _deploySpokeRegistrar(_getCreate3Address(deployer_, _computeSalt(deployer_, "Portal")));
+        spokeRegistrar_ = _deploySpokeRegistrar(
+            _getCreate3Address(deployer_, _computeSalt(deployer_, _PORTAL_CONTRACT_NAME))
+        );
 
         deployerNonce_ = vm.getNonce(deployer_);
         if (deployerNonce_ != _SPOKE_M_TOKEN_NONCE) {
@@ -130,15 +158,18 @@ contract DeployBase is Script, Utils {
         spokeMToken_ = _deploySpokeMToken(spokeRegistrar_);
     }
 
-    function _deployHubPortal(address deployer_, HubConfiguration memory config_) internal returns (address) {
-        HubPortal implementation_ = new HubPortal(config_.mToken, config_.registrar, config_.wormhole.chainId);
+    function _deployHubPortal(
+        address deployer_,
+        uint16 wormholeChainId_,
+        HubDeployConfig memory config_,
+        string memory contractName_
+    ) internal returns (address hubPortal_) {
+        HubPortal implementation_ = new HubPortal(config_.mToken, config_.registrar, wormholeChainId_);
         HubPortal hubPortalProxy_ = HubPortal(
-            _deployCreate3Proxy(address(implementation_), _computeSalt(deployer_, "Portal"))
+            _deployCreate3Proxy(address(implementation_), _computeSalt(deployer_, contractName_))
         );
 
         hubPortalProxy_.initialize();
-
-        console.log("HubPortal:", address(hubPortalProxy_));
 
         return address(hubPortalProxy_);
     }
@@ -148,23 +179,22 @@ contract DeployBase is Script, Utils {
         address mToken_,
         address registrar_,
         uint16 wormholeChainId_
-    ) internal returns (address) {
+    ) internal returns (address pokePortal_) {
         SpokePortal implementation_ = new SpokePortal(mToken_, registrar_, wormholeChainId_);
         SpokePortal spokePortalProxy_ = SpokePortal(
-            _deployCreate3Proxy(address(implementation_), _computeSalt(deployer_, "Portal"))
+            _deployCreate3Proxy(address(implementation_), _computeSalt(deployer_, _PORTAL_CONTRACT_NAME))
         );
 
         spokePortalProxy_.initialize();
-
-        console.log("SpokePortal:", address(spokePortalProxy_));
 
         return address(spokePortalProxy_);
     }
 
     function _deployWormholeTransceiver(
         address deployer_,
-        WormholeConfiguration memory config_,
-        address nttManager_
+        WormholeTransceiverConfig memory config_,
+        address nttManager_,
+        string memory contractName_
     ) internal returns (address) {
         WormholeTransceiver implementation_ = new WormholeTransceiver(
             nttManager_,
@@ -176,30 +206,20 @@ contract DeployBase is Script, Utils {
         );
 
         WormholeTransceiver transceiverProxy_ = WormholeTransceiver(
-            _deployCreate3Proxy(address(implementation_), _computeSalt(deployer_, "WormholeTransceiver"))
+            _deployCreate3Proxy(address(implementation_), _computeSalt(deployer_, contractName_))
         );
 
         transceiverProxy_.initialize();
 
-        console.log("WormholeTransceiver:", address(transceiverProxy_));
-
         return address(transceiverProxy_);
     }
 
-    function _deploySpokeRegistrar(address spokeNTTManager_) internal returns (address) {
-        SpokeRegistrar spokeRegistrar_ = new SpokeRegistrar(spokeNTTManager_);
-
-        console.log("SpokeRegistrar:", address(spokeRegistrar_));
-
-        return address(spokeRegistrar_);
+    function _deploySpokeRegistrar(address spokePortal_) internal returns (address) {
+        return address(new SpokeRegistrar(spokePortal_));
     }
 
     function _deploySpokeMToken(address spokeRegistrar_) internal returns (address) {
-        SpokeMToken spokeMToken_ = new SpokeMToken(spokeRegistrar_);
-
-        console.log("SpokeMToken:", address(spokeMToken_));
-
-        return address(spokeMToken_);
+        return address(new SpokeMToken(spokeRegistrar_));
     }
 
     function _deploySpokeVault(
@@ -213,9 +233,10 @@ contract DeployBase is Script, Utils {
             new SpokeVault(spokePortal_, hubVault_, destinationChainId_, migrationAdmin_)
         );
 
-        spokeVaultProxy_ = _deployCreate3Proxy(address(spokeVaultImplementation_), _computeSalt(deployer_, "Vault"));
-
-        console.log("SpokeVault:", spokeVaultProxy_);
+        spokeVaultProxy_ = _deployCreate3Proxy(
+            address(spokeVaultImplementation_),
+            _computeSalt(deployer_, _VAULT_CONTRACT_NAME)
+        );
     }
 
     function _deploySpokeWrappedMToken(
@@ -253,8 +274,6 @@ contract DeployBase is Script, Utils {
             revert ExpectedAddressMismatch(expectedWrappedMTokenImplementation_, spokeWrappedMTokenImplementation_);
         }
 
-        console.log("SpokeWrappedMTokenImplementation:", spokeWrappedMTokenImplementation_);
-
         deployerNonce_ = vm.getNonce(deployer_);
         if (deployerNonce_ != _SPOKE_WRAPPED_M_TOKEN_PROXY_NONCE) {
             revert DeployerNonceTooHigh(_SPOKE_WRAPPED_M_TOKEN_PROXY_NONCE, deployerNonce_);
@@ -271,75 +290,10 @@ contract DeployBase is Script, Utils {
         if (expectedWrappedMTokenProxy_ != spokeWrappedMTokenProxy_) {
             revert ExpectedAddressMismatch(expectedWrappedMTokenProxy_, spokeWrappedMTokenProxy_);
         }
-
-        console.log("SpokeWrappedMTokenProxy:", spokeWrappedMTokenProxy_);
     }
 
     function _configurePortal(address portal_, address transceiver_) internal {
         IManagerBase(portal_).setTransceiver(transceiver_);
-        console.log("Transceiver address set: ", transceiver_);
-
         INttManager(portal_).setThreshold(1);
-        console.log("Threshold set: ", uint256(1));
-    }
-
-    /* ============ JSON Config loading functions ============ */
-
-    function _loadHubConfig(
-        string memory filepath_,
-        uint256 chainId_
-    ) internal view returns (HubConfiguration memory hubConfig_) {
-        string memory file_ = vm.readFile(filepath_);
-        string memory hub_ = string.concat("$.hub.", vm.toString(chainId_), ".");
-
-        console.log("Hub configuration for chain ID %s loaded:", chainId_);
-
-        hubConfig_.mToken = file_.readAddress(_readKey(hub_, "m_token"));
-        hubConfig_.registrar = file_.readAddress(_readKey(hub_, "registrar"));
-
-        console.log("M Token:", hubConfig_.mToken);
-        console.log("Registrar:", hubConfig_.registrar);
-
-        hubConfig_.wormhole = _loadWormholeConfig(file_, hub_);
-    }
-
-    function _loadSpokeConfig(
-        string memory filepath_,
-        uint256 chainId_
-    ) internal view returns (SpokeConfiguration memory spokeConfig_) {
-        string memory file_ = vm.readFile(filepath_);
-        string memory spoke_ = string.concat("$.spoke.", vm.toString(chainId_), ".");
-        string memory hubVault_ = string.concat(spoke_, "hub_vault.");
-
-        console.log("Spoke configuration for chain ID %s loaded:", chainId_);
-
-        spokeConfig_.hubVault = file_.readAddress(_readKey(hubVault_, "address"));
-        spokeConfig_.hubVaultWormholechainId = uint16(file_.readUint(_readKey(hubVault_, "wormhole_chain_id")));
-
-        console.log("Hub Vault:", spokeConfig_.hubVault);
-        console.log("Hub Vault Wormhole Chain ID:", spokeConfig_.hubVaultWormholechainId);
-
-        spokeConfig_.wormhole = _loadWormholeConfig(file_, spoke_);
-    }
-
-    function _loadWormholeConfig(
-        string memory file_,
-        string memory parentNode_
-    ) internal pure returns (WormholeConfiguration memory wormholeConfig_) {
-        string memory wormhole_ = string.concat(parentNode_, "wormhole.");
-
-        wormholeConfig_.chainId = uint16(file_.readUint(_readKey(wormhole_, "chain_id")));
-        wormholeConfig_.coreBridge = file_.readAddress(_readKey(wormhole_, "core_bridge"));
-        wormholeConfig_.relayer = file_.readAddress(_readKey(wormhole_, "relayer"));
-        wormholeConfig_.specialRelayer = file_.readAddress(_readKey(wormhole_, "special_relayer"));
-        wormholeConfig_.consistencyLevel = uint8(file_.readUint(_readKey(wormhole_, "consistency_level")));
-        wormholeConfig_.gasLimit = file_.readUint(_readKey(wormhole_, "gas_limit"));
-
-        console.log("Wormhole chain ID:", wormholeConfig_.chainId);
-        console.log("Wormhole Core Bridge:", wormholeConfig_.coreBridge);
-        console.log("Wormhole Relayer:", wormholeConfig_.relayer);
-        console.log("Wormhole Special Relayer:", wormholeConfig_.specialRelayer);
-        console.log("Wormhole Consistency Level:", wormholeConfig_.consistencyLevel);
-        console.log("Wormhole Gas Limit:", wormholeConfig_.gasLimit);
     }
 }

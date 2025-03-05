@@ -2,35 +2,22 @@
 
 pragma solidity 0.8.26;
 
-import { INttManager } from "../../lib/native-token-transfers/evm/src/interfaces/INttManager.sol";
-import {
-    IWormholeTransceiver
-} from "../../lib/native-token-transfers/evm/src/interfaces/IWormholeTransceiver.sol";
-
+import { PeersConfig, PeerConfig } from "../config/PeersConfig.sol";
 import { ConfigureBase } from "./ConfigureBase.sol";
 
 contract Configure is ConfigureBase {
-    function run() external {
-        address caller_ = vm.rememberKey(vm.envUint("PRIVATE_KEY"));
+    function run(uint256[] memory peerChainIds_) external {
+        address signer_ = vm.rememberKey(vm.envUint("PRIVATE_KEY"));
+        uint256 chainId_ = block.chainid;
+        PeerConfig[] memory peers_ = peerChainIds_.length > 0
+            ? PeersConfig.getPeersConfig(peerChainIds_) // specific peers
+            : PeersConfig.getPeersConfig(chainId_); // all peers
 
-        ChainConfig[] memory chainsConfig_ = _loadChainConfig(vm.envString("CONFIG"), block.chainid);
-        uint256 chainsConfigLength_ = chainsConfig_.length;
+        (address mToken_, address portal_, , address transceiver_, , address wrappedM_) = _readDeployment(chainId_);
 
-        vm.startBroadcast(caller_);
+        vm.startBroadcast(signer_);
 
-        for (uint256 i_; i_ < chainsConfigLength_; ++i_) {
-            ChainConfig memory chainConfig_ = chainsConfig_[i_];
-
-            if (chainConfig_.chainId == block.chainid) {
-                _configureWormholeTransceiver(
-                    IWormholeTransceiver(chainConfig_.wormholeTransceiver),
-                    chainsConfig_,
-                    chainConfig_.wormholeChainId
-                );
-
-                _configurePortal(INttManager(chainConfig_.portal), chainsConfig_, chainConfig_.wormholeChainId);
-            }
-        }
+        _configurePeers(portal_, mToken_, wrappedM_, transceiver_, peers_);
 
         vm.stopBroadcast();
     }
