@@ -227,7 +227,6 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) = _encodeTokenTransfer(
             _trimTransferAmount(amount_, destinationChainId_),
             destinationChainId_,
-            destinationToken_,
             msg.sender,
             recipient_,
             additionalPayload_,
@@ -266,7 +265,6 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
      * @dev    Encodes transfer information into NTT format.
      * @param  amount_             The amount of tokens to transfer.
      * @param  destinationChainId_ The Wormhole destination chain ID.
-     * @param  destinationToken_   The address of the token (M or Wrapped M) on the destination chain.
      * @param  sender_             The message sender.
      * @param  recipient_          The account to receive tokens.
      * @param  additionalPayload_  The additional payload to sent with tokens transfer.
@@ -277,7 +275,6 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
     function _encodeTokenTransfer(
         TrimmedAmount amount_,
         uint16 destinationChainId_,
-        bytes32 destinationToken_,
         address sender_,
         bytes32 recipient_,
         bytes memory additionalPayload_,
