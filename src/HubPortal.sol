@@ -8,6 +8,7 @@ import { TransceiverStructs } from "../lib/native-token-transfers/evm/src/librar
 import { IMTokenLike } from "./interfaces/IMTokenLike.sol";
 import { IRegistrarLike } from "./interfaces/IRegistrarLike.sol";
 import { IHubPortal } from "./interfaces/IHubPortal.sol";
+import { IMerkleTreeBuilder } from "./interfaces/IMerkleTreeBuilder.sol";
 
 import { Portal } from "./Portal.sol";
 import { PayloadEncoder } from "./libs/PayloadEncoder.sol";
@@ -20,6 +21,10 @@ import { TypeConverter } from "./libs/TypeConverter.sol";
 contract HubPortal is IHubPortal, Portal {
     using TypeConverter for address;
 
+    uint16 internal constant _SOLANA_WORMHOLE_CHAIN_ID = 1;
+    bytes32 internal constant _SOLANA_EARNER_LIST = bytes32("solana-earners");
+    bytes32 internal constant _SOLANA_EARN_MANAGER_LIST = bytes32("solana-earn-managers");
+
     /* ============ Variables ============ */
 
     /// @inheritdoc IHubPortal
@@ -27,6 +32,9 @@ contract HubPortal is IHubPortal, Portal {
 
     /// @inheritdoc IHubPortal
     uint128 public disableEarningIndex;
+
+    /// @inheritdoc IHubPortal
+    address public merkleTreeBuilder;
 
     /* ============ Constructor ============ */
 
@@ -81,6 +89,40 @@ contract HubPortal is IHubPortal, Portal {
         messageId_ = _sendCustomMessage(destinationChainId_, refundAddress_, payload_);
 
         emit RegistrarListStatusSent(destinationChainId_, messageId_, listName_, account_, status_);
+    }
+
+    /// @inheritdoc IHubPortal
+    function sendMerkleRoots(bytes32 refundAddress_) external payable returns (uint64 sequence_) {
+        bytes32 destinationToken_ = destinationMToken[_SOLANA_WORMHOLE_CHAIN_ID];
+        IMerkleTreeBuilder merkleTreeBuilder_ = IMerkleTreeBuilder(merkleTreeBuilder);
+        bytes32 earnersMerkleRoot = merkleTreeBuilder_.getRoot(_SOLANA_EARNER_LIST);
+        bytes32 earnManagersMerkleRoot = merkleTreeBuilder_.getRoot(_SOLANA_EARN_MANAGER_LIST);
+
+        bytes memory additionalPayload_ = PayloadEncoder.encodeAdditionalPayload(
+            _currentIndex(),
+            destinationToken_,
+            earnersMerkleRoot,
+            earnManagersMerkleRoot
+        );
+
+        sequence_ = _transferNativeToken(
+            0,
+            token,
+            _SOLANA_WORMHOLE_CHAIN_ID,
+            destinationToken_,
+            refundAddress_, // recipient doesn't matter since transfer amount is 0
+            refundAddress_,
+            additionalPayload_
+        );
+
+        emit MerkleRootsSent(earnersMerkleRoot, earnManagersMerkleRoot);
+    }
+
+    /// @inheritdoc IHubPortal
+    function setMerkleTreeBuilder(address merkleTreeBuilder_) external onlyOwner {
+        merkleTreeBuilder = merkleTreeBuilder_;
+
+        emit MerkleTreeBuilderSet(merkleTreeBuilder_);
     }
 
     /// @inheritdoc IHubPortal

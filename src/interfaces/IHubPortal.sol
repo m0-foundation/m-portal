@@ -56,6 +56,19 @@ interface IHubPortal is IPortal {
         bool status
     );
 
+    /**
+     * @notice Emitted when Merkle Tree Builder contract is set.
+     * @param  merkleTreeBuilder The address of Merkle Tree Builder contract.
+     */
+    event MerkleTreeBuilderSet(address merkleTreeBuilder);
+
+    /**
+     * @notice Emitted when earners and earn managers Merkle roots are sent to Solana.
+     * @param  earnersMerkleRoot The Merkle root of earners.
+     * @param  earnManagersMerkleRoot The Merkle root of earn managers.
+     */
+    event MerkleRootsSent(bytes32 earnersMerkleRoot, bytes32 earnManagersMerkleRoot);
+
     /* ============ Custom Errors ============ */
 
     /// @notice Emitted when trying to enable earning after it has been explicitly disabled.
@@ -80,6 +93,9 @@ interface IHubPortal is IPortal {
 
     /// @notice Returns the value of M Token index when earning for HubPortal was disabled.
     function disableEarningIndex() external returns (uint128);
+
+    /// @notice Returns the address of Merkle tree builder.
+    function merkleTreeBuilder() external returns (address);
 
     /* ============ Interactive Functions ============ */
 
@@ -118,6 +134,19 @@ interface IHubPortal is IPortal {
         address account,
         bytes32 refundAddress
     ) external payable returns (bytes32);
+
+    /**
+     * @notice Sends earners and earn managers Merkle roots to Solana.
+     * @param  refundAddress Refund address to receive excess native gas.
+     * @return sequence      The message sequence.
+     */
+    function sendMerkleRoots(bytes32 refundAddress) external payable returns (uint64 sequence);
+
+    /**
+     * @notice Sets Merkle Tree Builder contract.
+     * @param  merkleTreeBuilder The address of Merkle Tree Builder contract.
+     */
+    function setMerkleTreeBuilder(address merkleTreeBuilder) external;
 
     /// @notice Enables earning for the Hub Portal if allowed by TTG.
     function enableEarning() external;

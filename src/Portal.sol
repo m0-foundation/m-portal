@@ -186,13 +186,17 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         amount_ = mToken_.balanceOf(address(this)) - balanceBefore;
         _verifyTransferAmount(amount_);
 
+        // burns M tokens on Spoke. In case of Hub, tokens are already transferred
+        _burnOrLock(amount_);
+
         sequence_ = _transferNativeToken(
             amount_,
             sourceToken_,
             destinationChainId_,
             destinationToken_,
             recipient_,
-            refundAddress_
+            refundAddress_,
+            PayloadEncoder.encodeAdditionalPayload(_currentIndex(), destinationToken_)
         );
     }
 
@@ -206,6 +210,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
      * @param  destinationToken_   The address of the token (M or Wrapped M) on the destination chain.
      * @param  recipient_          The account to receive tokens.
      * @param  refundAddress_      The address to receive excess native gas on the destination chain.
+     * @param  additionalPayload_  The additional payload to sent with tokens transfer.
      * @return sequence_           The message sequence.
      */
     function _transferNativeToken(
@@ -214,13 +219,10 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         uint16 destinationChainId_,
         bytes32 destinationToken_,
         bytes32 recipient_,
-        bytes32 refundAddress_
-    ) private returns (uint64 sequence_) {
-        // burns token on Spoke. In case of Hub, tokens are already transferred
-        _burnOrLock(amount_);
-
+        bytes32 refundAddress_,
+        bytes memory additionalPayload_
+    ) internal returns (uint64 sequence_) {
         sequence_ = _useMessageSequence();
-        uint128 index_ = _currentIndex();
 
         (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) = _encodeTokenTransfer(
             _trimTransferAmount(amount_, destinationChainId_),
@@ -228,7 +230,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
             destinationToken_,
             msg.sender,
             recipient_,
-            index_,
+            additionalPayload_,
             sequence_
         );
 
@@ -244,7 +246,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
             msg.sender,
             recipient_,
             transferAmount_,
-            index_,
+            _currentIndex(),
             messageId_
         );
 
@@ -267,7 +269,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
      * @param  destinationToken_   The address of the token (M or Wrapped M) on the destination chain.
      * @param  sender_             The message sender.
      * @param  recipient_          The account to receive tokens.
-     * @param  index_              The M token index.
+     * @param  additionalPayload_  The additional payload to sent with tokens transfer.
      * @param  sequence_           The message sequence.
      * @return message_            The message in NTT format.
      * @return messageId_          The message Id.
@@ -278,7 +280,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         bytes32 destinationToken_,
         address sender_,
         bytes32 recipient_,
-        uint128 index_,
+        bytes memory additionalPayload_,
         uint64 sequence_
     ) internal view returns (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) {
         TransceiverStructs.NativeTokenTransfer memory nativeTokenTransfer_ = TransceiverStructs.NativeTokenTransfer(
@@ -286,7 +288,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
             token.toBytes32(),
             recipient_,
             destinationChainId_,
-            PayloadEncoder.encodeAdditionalPayload(index_, destinationToken_)
+            additionalPayload_
         );
 
         message_ = TransceiverStructs.NttManagerMessage(
