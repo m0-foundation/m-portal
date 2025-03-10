@@ -95,14 +95,14 @@ contract HubPortal is IHubPortal, Portal {
     function sendMerkleRoots(bytes32 refundAddress_) external payable returns (uint64 sequence_) {
         bytes32 destinationToken_ = destinationMToken[_SOLANA_WORMHOLE_CHAIN_ID];
         IMerkleTreeBuilder merkleTreeBuilder_ = IMerkleTreeBuilder(merkleTreeBuilder);
-        bytes32 earnersMerkleRoot = merkleTreeBuilder_.getRoot(_SOLANA_EARNER_LIST);
-        bytes32 earnManagersMerkleRoot = merkleTreeBuilder_.getRoot(_SOLANA_EARN_MANAGER_LIST);
+        bytes32 earnersMerkleRoot_ = merkleTreeBuilder_.getRoot(_SOLANA_EARNER_LIST);
+        bytes32 earnManagersMerkleRoot_ = merkleTreeBuilder_.getRoot(_SOLANA_EARN_MANAGER_LIST);
 
         bytes memory additionalPayload_ = PayloadEncoder.encodeAdditionalPayload(
             _currentIndex(),
             destinationToken_,
-            earnersMerkleRoot,
-            earnManagersMerkleRoot
+            earnersMerkleRoot_,
+            earnManagersMerkleRoot_
         );
 
         sequence_ = _transferNativeToken(
@@ -115,7 +115,7 @@ contract HubPortal is IHubPortal, Portal {
             additionalPayload_
         );
 
-        emit MerkleRootsSent(earnersMerkleRoot, earnManagersMerkleRoot);
+        emit MerkleRootsSent(earnersMerkleRoot_, earnManagersMerkleRoot_);
     }
 
     /// @inheritdoc IHubPortal
