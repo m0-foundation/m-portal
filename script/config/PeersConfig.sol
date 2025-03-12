@@ -31,7 +31,7 @@ library PeersConfig {
 
     bytes32 internal constant SOLANA_M_TOKEN = 0x0b86be66bfceb4c1d7e927bcc4d014be0f2863ab9df85fda610851b64dbd0ae5;
     bytes32 internal constant SOLANA_PORTAL = 0x0b86ec181cd4c5c984e9062b13f2b2de7b9f5b5e68e84349231d6614cdf3f99f;
-    bytes32 internal constant SOLANA_TRANSCEIVER = SOLANA_PORTAL;
+    bytes32 internal constant SOLANA_TRANSCEIVER = 0xfcbdac3b256685bd2cc3a97bfcd815fb76b8d33df924e607c409c0bce3fa1668;
 
     function getPeersConfig(uint16 sourceWormholeChainId_) internal pure returns (PeerConfig[] memory _peersConfig) {
         uint16[] memory peerChainIds_ = getPeerChainIds(sourceWormholeChainId_);
