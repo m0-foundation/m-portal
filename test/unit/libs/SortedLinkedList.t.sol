@@ -194,7 +194,7 @@ contract SortedLinkedListTest is Test {
     // given the value is not in the list
     // it returns false
     function testFuzz_contains_nonEmptyList_notInList(uint8 valuesToAdd, bytes32 testValue) external {
-        vm.assume(valuesToAdd > 0 && valuesToAdd <= 20);
+        valuesToAdd = (valuesToAdd % 20) + 1;
         vm.assume(testValue != ZERO);
 
         list.initialize();
@@ -210,7 +210,7 @@ contract SortedLinkedListTest is Test {
     // given the value is in the list
     // it returns true
     function testFuzz_contains_nonEmptyList_inList(uint8 valuesToAdd, bytes32 testValue) external {
-        vm.assume(valuesToAdd > 0 && valuesToAdd <= 20);
+        valuesToAdd = (valuesToAdd % 20) + 1;
         vm.assume(testValue != ZERO);
 
         list.initialize();
@@ -261,7 +261,7 @@ contract SortedLinkedListTest is Test {
     // given the value is already in the list
     // it reverts with a ValueInList error
     function testFuzz_add_nonEmptyList_alreadyInList_reverts(uint8 valuesToAdd, bytes32 testValue) external {
-        vm.assume(valuesToAdd > 0 && valuesToAdd <= 20);
+        valuesToAdd = (valuesToAdd % 20) + 1;
         vm.assume(testValue != ZERO);
 
         list.initialize();
@@ -283,7 +283,7 @@ contract SortedLinkedListTest is Test {
         bytes32 testValue,
         bytes32 previousValue
     ) external {
-        vm.assume(valuesToAdd > 0 && valuesToAdd <= 20);
+        valuesToAdd = (valuesToAdd % 20) + 1;
         vm.assume(testValue != ZERO);
         list.initialize();
 
@@ -309,7 +309,7 @@ contract SortedLinkedListTest is Test {
         bytes32 testValue,
         bytes32 previousValue
     ) external {
-        vm.assume(valuesToAdd > 0 && valuesToAdd <= 20);
+        valuesToAdd = (valuesToAdd % 20) + 1;
         vm.assume(testValue != ZERO);
         vm.assume(previousValue > testValue);
         list.initialize();
@@ -337,7 +337,7 @@ contract SortedLinkedListTest is Test {
         bytes32 testValue,
         bytes32 previousValue
     ) external {
-        vm.assume(valuesToAdd > 0 && valuesToAdd <= 20);
+        valuesToAdd = (valuesToAdd % 20) + 1;
         vm.assume(previousValue != ZERO);
         vm.assume(testValue > previousValue);
         list.initialize();
@@ -369,7 +369,7 @@ contract SortedLinkedListTest is Test {
         bytes32 randomSeed,
         bytes32 previousValue
     ) external {
-        vm.assume(valuesToAdd > 0 && valuesToAdd <= 20);
+        valuesToAdd = (valuesToAdd % 20) + 1;
         vm.assume(previousValue != ZERO && previousValue < bytes32(type(uint256).max - 1));
         list.initialize();
 
@@ -418,7 +418,7 @@ contract SortedLinkedListTest is Test {
     // given the value is not in the list
     // it reverts with a ValueNotInList error
     function testFuzz_remove_notInList_reverts(uint8 valuesToAdd, bytes32 testValue) external {
-        vm.assume(valuesToAdd > 0 && valuesToAdd <= 20);
+        valuesToAdd = (valuesToAdd % 20) + 1;
         vm.assume(testValue != ZERO);
         list.initialize();
 
@@ -440,7 +440,7 @@ contract SortedLinkedListTest is Test {
         bytes32 testValue,
         bytes32 previousValue
     ) external {
-        vm.assume(valuesToAdd > 0 && valuesToAdd <= 20);
+        valuesToAdd = (valuesToAdd % 20) + 1;
         vm.assume(testValue != ZERO);
         list.initialize();
 
@@ -463,7 +463,7 @@ contract SortedLinkedListTest is Test {
     // it deletes the pointer from value to the next value
     // it decrements the count
     function testFuzz_remove_inList_afterPrev_success(uint8 valuesToAdd, bytes32 testValue) external {
-        vm.assume(valuesToAdd > 0 && valuesToAdd <= 20);
+        valuesToAdd = (valuesToAdd % 20) + 1;
         vm.assume(testValue != ZERO);
         list.initialize();
 
