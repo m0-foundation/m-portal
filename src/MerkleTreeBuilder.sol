@@ -89,7 +89,7 @@ contract MerkleTreeBuilder {
         // We do this at the same time to reduce the total memory required by a factor of 2
 
         // Calculate the size of array required
-        uint256 len = leafCount % 2 == 0 ? leafCount / 2 : leafCount / 2 + 1;
+        uint256 len = (leafCount + 1) / 2; // this has the same effect as rounding up the division and is more efficient
 
         // Create the array
         bytes32[] memory tree = new bytes32[](len);
@@ -130,7 +130,7 @@ contract MerkleTreeBuilder {
             }
 
             // Calculate the length of the next level
-            uint256 nextLen = len % 2 == 0 ? (len / 2) : ((len / 2) + 1);
+            uint256 nextLen = (len + 1) / 2;
 
             // If the length of the current level is odd, we hash the final node with itself
             if (len % 2 != 0) {
