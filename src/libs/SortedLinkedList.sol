@@ -37,11 +37,11 @@ library SortedLinkedList {
         // Check that the value is not already if the list
         if (contains(list, value)) revert ValueInList();
 
-        // Check that the previous value is in the list
-        if (!contains(list, previous)) revert InvalidPreviousValue();
-
         // Get the next value
         bytes32 next = list.next[previous];
+
+        // Check that the previous value is in the list
+        if (next == bytes32(0)) revert InvalidPreviousValue();
 
         // The list is sorted smallest to largest.
         // Therefore, we need previous < value < next
@@ -54,19 +54,22 @@ library SortedLinkedList {
         list.next[value] = next;
 
         // Increment the number of values in the list
-        list.count++;
+        unchecked {
+            list.count++;
+        }
     }
 
     function remove(LinkedList storage list, bytes32 previous, bytes32 value) internal {
         // Check that the value is in the list and is not the ZERO value
-        if (!contains(list, value) || value == bytes32(0)) revert ValueNotInList();
+        bytes32 next = list.next[value];
+        if (value == bytes32(0) || next == bytes32(0)) revert ValueNotInList();
 
         // Check that the previous value points to the value
         if (list.next[previous] != value) revert InvalidPreviousValue();
 
         // Delete the value by removing it from the link chain
         // and removing its pointer to a non-zero value
-        list.next[previous] = list.next[value];
+        list.next[previous] = next;
         delete list.next[value];
 
         // Decrement the count
