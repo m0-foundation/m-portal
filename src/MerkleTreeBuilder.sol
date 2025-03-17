@@ -96,7 +96,7 @@ contract MerkleTreeBuilder {
 
         // Create the leaves, then has with the neighbor to populate the first level of the tree
         bytes32 previous = ZERO_WORD;
-        for (uint256 i = 0; i < leafCount - 1; i = i + 2) {
+        for (uint256 i = 0; i < leafCount / 2; i++) {
             bytes32 one = sortedList.next[previous];
             bytes32 two = sortedList.next[one];
 
@@ -107,7 +107,7 @@ contract MerkleTreeBuilder {
             two = keccak256(abi.encodePacked(ZERO_BIT, two));
 
             // Hash neighboring leaves to construct the first level of the tree
-            tree[i / 2] = keccak256(abi.encodePacked(ONE_BIT, one, two));
+            tree[i] = keccak256(abi.encodePacked(ONE_BIT, one, two));
         }
 
         // If the leaf count is odd, we have to populate the last node
