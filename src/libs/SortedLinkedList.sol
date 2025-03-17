@@ -58,8 +58,8 @@ library SortedLinkedList {
     }
 
     function remove(LinkedList storage list, bytes32 previous, bytes32 value) internal {
-        // Check that the value is in the list
-        if (!contains(list, value)) revert ValueNotInList();
+        // Check that the value is in the list and is not the ZERO value
+        if (!contains(list, value) || value == bytes32(0)) revert ValueNotInList();
 
         // Check that the previous value points to the value
         if (list.next[previous] != value) revert InvalidPreviousValue();

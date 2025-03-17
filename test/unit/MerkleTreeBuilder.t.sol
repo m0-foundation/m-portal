@@ -328,6 +328,14 @@ contract MerkleTreeBuilderTest is Test {
 
     /* ========== removeFromList ========== */
 
+    // given the value is the zero value
+    // it reverts with 'ValueNotInList' error
+    function test_removeFromList_valueIsZero_reverts(bytes32 previous) public {
+        // The ZERO value cannot be removed
+        vm.expectRevert(abi.encodeWithSelector(MerkleTreeBuilder.ValueNotInList.selector));
+        merkleTreeBuilder.removeFromList(LIST, previous, ZERO);
+    }
+
     // given value is set on the registrar for the calculated key
     // it reverts with error 'InvalidRemove'
     function testFuzz_removeFromList_valueSet_reverts(bytes32 value) public {

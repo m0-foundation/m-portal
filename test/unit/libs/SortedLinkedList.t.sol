@@ -81,6 +81,8 @@ contract SortedLinkedListTest is Test {
     //             [X] it updates the value after "value" to previous' current next value
     //             [X] it increments the count
     // [X] remove
+    //   [ ] given the value is zero
+    //     [ ] it reverts with a ValueNotInList error
     //   [X] given the value is not in the list
     //     [X] it reverts with a ValueNotInList error
     //   [X] given the value is in the list
@@ -396,6 +398,22 @@ contract SortedLinkedListTest is Test {
     }
 
     /* ========== remove ========== */
+
+    // given the value is zero
+    // it reverts with a ValueNotInList error
+    function testFuzz_remove_zero_reverts(uint8 valuesToAdd, bytes32 testValue) external {
+        vm.assume(valuesToAdd <= 20);
+        vm.assume(testValue != ZERO);
+        list.initialize();
+
+        // Add random values
+        _addRandomValues(valuesToAdd, testValue);
+
+        // Try to remove the zero value
+        // expect revert with ValueNotInList error
+        vm.expectRevert(abi.encodeWithSelector(SortedLinkedList.ValueNotInList.selector));
+        list.remove(testValue, ZERO);
+    }
 
     // given the value is not in the list
     // it reverts with a ValueNotInList error
