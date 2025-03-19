@@ -124,6 +124,21 @@ deploy-noble-prod-eth: deploy-noble
 deploy-noble-dev-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
 deploy-noble-dev-sepolia: deploy-noble
 
+#
+# Deploy Merkle Tree Builder (used for Solana and non-EVM governance propagation)
+#
+
+deploy-merkle-tree-builder: SCRIPT=script/deploy/DeployMerkle.s.sol:DeployMerkleTreeBuilder
+deploy-merkle-tree-builder: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
+deploy-merkle-tree-builder: SCAN_API_KEY=$(ETHERSCAN_API_KEY)
+deploy-merkle-tree-builder: deploy
+
+deploy-merkle-tree-builder-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
+deploy-merkle-tree-builder-prod-eth: deploy-merkle-tree-builder
+
+deploy-merkle-tree-builder-dev-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
+deploy-merkle-tree-builder-dev-sepolia: deploy-merkle-tree-builder
+
 # 
 # 
 # CONFIGURE
