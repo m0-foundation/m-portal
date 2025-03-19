@@ -20,6 +20,7 @@ import {
 import { HubPortal } from "../../src/HubPortal.sol";
 import { SpokePortal } from "../../src/SpokePortal.sol";
 import { SpokeVault } from "../../src/SpokeVault.sol";
+import { MerkleTreeBuilder } from "../../src/MerkleTreeBuilder.sol";
 
 import { ScriptBase } from "../ScriptBase.sol";
 import { WormholeTransceiverConfig } from "../config/WormholeConfig.sol";
@@ -290,6 +291,10 @@ contract DeployBase is ScriptBase {
         if (expectedWrappedMTokenProxy_ != spokeWrappedMTokenProxy_) {
             revert ExpectedAddressMismatch(expectedWrappedMTokenProxy_, spokeWrappedMTokenProxy_);
         }
+    }
+
+    function _deployMerkleTreeBuilder(address deployer_, address registrar_) internal returns (address) {
+        return address(new MerkleTreeBuilder(registrar_));
     }
 
     function _configurePortal(address portal_, address transceiver_) internal {
