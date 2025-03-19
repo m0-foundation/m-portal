@@ -14,6 +14,9 @@ library SortedLinkedList {
     error InvalidPreviousValue();
     error InvalidValue();
 
+    bytes32 internal constant ZERO = bytes32(0);
+    bytes32 internal constant MAX = bytes32(type(uint256).max);
+
     function initialize(LinkedList storage list) internal {
         // Prevent re-initializing the list if values are currently in it
         // Re-initializing an empty list does not matter
@@ -22,11 +25,11 @@ library SortedLinkedList {
         // Initialize the starting point of the list with the max value
         // We need this to ensure our value checks are valid when adding
         // a value to the end of the list.
-        list.next[bytes32(0)] = bytes32(type(uint256).max);
+        list.next[ZERO] = MAX;
     }
 
     function contains(LinkedList storage list, bytes32 value) internal view returns (bool) {
-        return list.next[value] != bytes32(0);
+        return list.next[value] != ZERO && value != ZERO;
     }
 
     function add(LinkedList storage list, bytes32 previous, bytes32 value) internal {
@@ -34,14 +37,15 @@ library SortedLinkedList {
         // If a list is not initialized then there is no "previous" that is in the list
         // Therefore, this will revert.
 
-        // Check that the value is not already if the list
-        if (contains(list, value)) revert ValueInList();
+        // Check that the value is not already in the list
+        // We cannot add the max value to the list
+        if (contains(list, value) || value == MAX || value == ZERO) revert ValueInList();
 
         // Get the next value
         bytes32 next = list.next[previous];
 
         // Check that the previous value is in the list
-        if (next == bytes32(0)) revert InvalidPreviousValue();
+        if (next == ZERO) revert InvalidPreviousValue();
 
         // The list is sorted smallest to largest.
         // Therefore, we need previous < value < next
@@ -62,7 +66,7 @@ library SortedLinkedList {
     function remove(LinkedList storage list, bytes32 previous, bytes32 value) internal {
         // Check that the value is in the list and is not the ZERO value
         bytes32 next = list.next[value];
-        if (value == bytes32(0) || next == bytes32(0)) revert ValueNotInList();
+        if (value == ZERO || next == ZERO) revert ValueNotInList();
 
         // Check that the previous value points to the value
         if (list.next[previous] != value) revert InvalidPreviousValue();
