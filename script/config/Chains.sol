@@ -6,6 +6,7 @@ pragma solidity 0.8.26;
 /// @dev    https://wormhole.com/docs/build/reference/chain-ids/
 library Chains {
     error UnsupportedChain(uint256 chainId);
+    error UnsupportedWormholeChain(uint16 wormholeChainId);
 
     /*****************************************************************/
     /*                       EVM CHAIN IDs                           */
@@ -36,12 +37,14 @@ library Chains {
     /*****************************************************************/
 
     // Mainnet
+    uint16 internal constant WORMHOLE_SOLANA = 1;
     uint16 internal constant WORMHOLE_ETHEREUM = 2;
     uint16 internal constant WORMHOLE_OPTIMISM = 24;
     uint16 internal constant WORMHOLE_ARBITRUM = 23;
     uint16 internal constant WORMHOLE_NOBLE = 4009;
 
     // Testnet
+    uint16 internal constant WORMHOLE_SOLANA_TESTNET = 1;
     uint16 internal constant WORMHOLE_ETHEREUM_SEPOLIA = 10002;
     uint16 internal constant WORMHOLE_OPTIMISM_SEPOLIA = 10005;
     uint16 internal constant WORMHOLE_ARBITRUM_SEPOLIA = 10003;
