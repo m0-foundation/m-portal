@@ -86,6 +86,9 @@ interface IHubPortal is IPortal {
     /// @notice Emitted when calling `enableEarning` if the Hub Portal is not approved as earner by TTG.
     error NotApprovedEarner();
 
+    /// @notice Emitted when calling `setMerkleTreeBuilder` if Merkle Tree Builder address is 0x0.
+    error ZeroMerkleTreeBuilder();
+
     /* ============ View/Pure Functions ============ */
 
     /// @notice Indicates whether earning for HubPortal was ever enabled.

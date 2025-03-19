@@ -120,7 +120,7 @@ contract HubPortal is IHubPortal, Portal {
 
     /// @inheritdoc IHubPortal
     function setMerkleTreeBuilder(address merkleTreeBuilder_) external onlyOwner {
-        merkleTreeBuilder = merkleTreeBuilder_;
+        if ((merkleTreeBuilder = merkleTreeBuilder_) == address(0)) revert ZeroMerkleTreeBuilder();
 
         emit MerkleTreeBuilderSet(merkleTreeBuilder_);
     }

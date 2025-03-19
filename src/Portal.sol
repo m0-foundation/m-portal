@@ -267,7 +267,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
      * @param  destinationChainId_ The Wormhole destination chain ID.
      * @param  sender_             The message sender.
      * @param  recipient_          The account to receive tokens.
-     * @param  additionalPayload_  The additional payload to sent with tokens transfer.
+     * @param  additionalPayload_  The additional payload to send with tokens transfer.
      * @param  sequence_           The message sequence.
      * @return message_            The message in NTT format.
      * @return messageId_          The message Id.
