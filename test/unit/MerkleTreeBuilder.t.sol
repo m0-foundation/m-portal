@@ -5,7 +5,7 @@ import { Test } from "../../lib/forge-std/src/Test.sol";
 import { console } from "../../lib/forge-std/src/console.sol";
 
 import { Registrar } from "../../lib/ttg/src/Registrar.sol";
-import { MerkleTreeBuilder } from "../../src/MerkleTreeBuilder.sol";
+import { MerkleTreeBuilder, IMerkleTreeBuilder } from "../../src/MerkleTreeBuilder.sol";
 import { SortedLinkedList } from "../../src/libs/SortedLinkedList.sol";
 
 contract MerkleTreeBuilderTest is Test {
@@ -111,7 +111,7 @@ contract MerkleTreeBuilderTest is Test {
         // There are no values set on the registrar so they should all revert
 
         // The list is empty so the before value is the zero bytes32 value
-        vm.expectRevert(abi.encodeWithSelector(MerkleTreeBuilder.InvalidAdd.selector));
+        vm.expectRevert(abi.encodeWithSelector(IMerkleTreeBuilder.InvalidAdd.selector));
         merkleTreeBuilder.addToList(LIST, ZERO, value);
     }
 
@@ -131,7 +131,7 @@ contract MerkleTreeBuilderTest is Test {
         bytes32 before = _getValueBefore(LIST, value);
 
         // The value is not set on the registrar so it should revert
-        vm.expectRevert(abi.encodeWithSelector(MerkleTreeBuilder.InvalidAdd.selector));
+        vm.expectRevert(abi.encodeWithSelector(IMerkleTreeBuilder.InvalidAdd.selector));
         merkleTreeBuilder.addToList(LIST, before, value);
     }
 
@@ -145,7 +145,7 @@ contract MerkleTreeBuilderTest is Test {
         registrar.setKey(keccak256(abi.encodePacked(LIST, ZERO)), ONE);
 
         // The value is set on the registrar so it should revert
-        vm.expectRevert(abi.encodeWithSelector(MerkleTreeBuilder.ValueInList.selector));
+        vm.expectRevert(abi.encodeWithSelector(IMerkleTreeBuilder.ValueInList.selector));
         merkleTreeBuilder.addToList(LIST, ZERO, ZERO);
     }
 
@@ -200,7 +200,7 @@ contract MerkleTreeBuilderTest is Test {
         bytes32 before = _getValueBefore(LIST, ZERO);
 
         // The value is set on the registrar so it should revert
-        vm.expectRevert(abi.encodeWithSelector(MerkleTreeBuilder.ValueInList.selector));
+        vm.expectRevert(abi.encodeWithSelector(IMerkleTreeBuilder.ValueInList.selector));
         merkleTreeBuilder.addToList(LIST, before, ZERO);
     }
 
@@ -223,7 +223,7 @@ contract MerkleTreeBuilderTest is Test {
         bytes32 before = _getValueBefore(LIST, value);
 
         // The value is set on the registrar so it should revert
-        vm.expectRevert(abi.encodeWithSelector(MerkleTreeBuilder.ValueInList.selector));
+        vm.expectRevert(abi.encodeWithSelector(IMerkleTreeBuilder.ValueInList.selector));
         merkleTreeBuilder.addToList(LIST, before, value);
     }
 
@@ -332,7 +332,7 @@ contract MerkleTreeBuilderTest is Test {
     // it reverts with 'ValueNotInList' error
     function test_removeFromList_valueIsZero_reverts(bytes32 previous) public {
         // The ZERO value cannot be removed
-        vm.expectRevert(abi.encodeWithSelector(MerkleTreeBuilder.ValueNotInList.selector));
+        vm.expectRevert(abi.encodeWithSelector(IMerkleTreeBuilder.ValueNotInList.selector));
         merkleTreeBuilder.removeFromList(LIST, previous, ZERO);
     }
 
@@ -345,7 +345,7 @@ contract MerkleTreeBuilderTest is Test {
         registrar.setKey(keccak256(abi.encodePacked(LIST, value)), ONE);
 
         // The value is set on the registrar so it should revert
-        vm.expectRevert(abi.encodeWithSelector(MerkleTreeBuilder.InvalidRemove.selector));
+        vm.expectRevert(abi.encodeWithSelector(IMerkleTreeBuilder.InvalidRemove.selector));
         merkleTreeBuilder.removeFromList(LIST, ZERO, value);
     }
 
@@ -362,7 +362,7 @@ contract MerkleTreeBuilderTest is Test {
         vm.assume(!merkleTreeBuilder.contains(LIST, value));
 
         // The value is not set on the registrar so it should revert
-        vm.expectRevert(abi.encodeWithSelector(MerkleTreeBuilder.ValueNotInList.selector));
+        vm.expectRevert(abi.encodeWithSelector(IMerkleTreeBuilder.ValueNotInList.selector));
         merkleTreeBuilder.removeFromList(LIST, ZERO, value);
     }
 
