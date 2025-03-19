@@ -1,30 +1,19 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity 0.8.26;
 
+import { IMerkleTreeBuilder } from "./interfaces/IMerkleTreeBuilder.sol";
 import { IRegistrarLike } from "./interfaces/IRegistrarLike.sol";
 import { LinkedList, SortedLinkedList } from "./libs/SortedLinkedList.sol";
 
-contract MerkleTreeBuilder {
+contract MerkleTreeBuilder is IMerkleTreeBuilder {
     using SortedLinkedList for LinkedList;
-
-    /* ========== ERRORS ========== */
-
-    error ListAlreadyExists();
-    error InvalidList();
-    error InvalidAdd();
-    error InvalidRemove();
-    error NotInList();
-    error ValueInList();
-    error ValueNotInList();
-
-    /* ========== EVENTS ========== */
-
-    event RootUpdated(bytes32 indexed list, bytes32 root);
 
     /* ========== STATE ========== */
 
     uint8 internal constant ZERO_BIT = 0;
     uint8 internal constant ONE_BIT = 1;
+
+    /// @notice The address of the registrar contract to reference
     address public immutable registrar;
     bytes32 internal constant ZERO_WORD = bytes32(0);
     mapping(bytes32 => LinkedList) internal _lists;
@@ -38,6 +27,7 @@ contract MerkleTreeBuilder {
 
     /* ========== MANAGE LISTS ========== */
 
+    /// @inheritdoc IMerkleTreeBuilder
     function addToList(bytes32 list, bytes32 before, bytes32 value) external {
         // Check that the value is set on the list in the registrar
         if (!_isSetOnRegistrar(list, value)) revert InvalidAdd();
@@ -52,6 +42,7 @@ contract MerkleTreeBuilder {
         sortedList.add(before, value);
     }
 
+    /// @inheritdoc IMerkleTreeBuilder
     function removeFromList(bytes32 list, bytes32 before, bytes32 value) external {
         // Check that the value is not set on the list in the registrar
         if (_isSetOnRegistrar(list, value)) revert InvalidRemove();
@@ -64,6 +55,7 @@ contract MerkleTreeBuilder {
 
     /* ========== MERKLE TREE ========== */
 
+    /// @inheritdoc IMerkleTreeBuilder
     function updateRoot(bytes32 list) external {
         LinkedList storage sortedList = _lists[list];
         uint256 leafCount = _lists[list].count;
@@ -150,14 +142,17 @@ contract MerkleTreeBuilder {
 
     /* ========== VIEWS ========== */
 
+    /// @inheritdoc IMerkleTreeBuilder
     function getNext(bytes32 list, bytes32 value) external view returns (bytes32) {
         return _lists[list].next[value];
     }
 
+    /// @inheritdoc IMerkleTreeBuilder
     function getLen(bytes32 list) external view returns (uint256) {
         return _lists[list].count;
     }
 
+    /// @inheritdoc IMerkleTreeBuilder
     function getList(bytes32 list) external view returns (bytes32[] memory) {
         LinkedList storage sortedList = _lists[list];
         bytes32[] memory result = new bytes32[](sortedList.count);
@@ -171,10 +166,12 @@ contract MerkleTreeBuilder {
         return result;
     }
 
+    /// @inheritdoc IMerkleTreeBuilder
     function contains(bytes32 list, bytes32 value) external view returns (bool) {
         return _lists[list].contains(value);
     }
 
+    /// @inheritdoc IMerkleTreeBuilder
     function getRoot(bytes32 list) external view returns (bytes32) {
         return _roots[list];
     }
