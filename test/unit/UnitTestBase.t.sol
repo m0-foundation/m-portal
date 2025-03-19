@@ -87,6 +87,32 @@ contract UnitTestBase is Test {
         messageId_ = TransceiverStructs.nttManagerMessageDigest(sourceChainId_, message_);
     }
 
+    function _createMerkleRootTransferMessage(
+        uint128 index_,
+        bytes32 recipient_,
+        uint16 sourceChainId_,
+        uint16 destinationChainId_,
+        bytes32 destinationToken_,
+        bytes32 earnersMerkleRoot_,
+        bytes32 earnManagersMerkleRoot_
+    ) internal view returns (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) {
+        TransceiverStructs.NativeTokenTransfer memory nativeTokenTransfer_ = TransceiverStructs.NativeTokenTransfer(
+            0.trim(_tokenDecimals, _tokenDecimals),
+            _tokenAddress.toBytes32(),
+            recipient_,
+            destinationChainId_,
+            PayloadEncoder.encodeAdditionalPayload(
+                index_,
+                destinationToken_,
+                earnersMerkleRoot_,
+                earnManagersMerkleRoot_
+            )
+        );
+        bytes memory payload_ = TransceiverStructs.encodeNativeTokenTransfer(nativeTokenTransfer_);
+        message_ = TransceiverStructs.NttManagerMessage(bytes32(0), _alice.toBytes32(), payload_);
+        messageId_ = TransceiverStructs.nttManagerMessageDigest(sourceChainId_, message_);
+    }
+
     function _getMaxTransferAmount(uint8 decimals_) internal pure returns (uint256 maxAmount_) {
         return TrimmedAmountLib.untrim(TrimmedAmountLib.max(decimals_), decimals_);
     }

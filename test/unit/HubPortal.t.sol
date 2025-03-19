@@ -8,6 +8,7 @@ import { TransceiverStructs } from "../../lib/native-token-transfers/evm/src/lib
 
 import { IPortal } from "../../src/interfaces/IPortal.sol";
 import { IHubPortal } from "../../src/interfaces/IHubPortal.sol";
+import { IMerkleTreeBuilder } from "../../src/interfaces/IMerkleTreeBuilder.sol";
 import { HubPortal } from "../../src/HubPortal.sol";
 import { PayloadEncoder } from "../../src/libs/PayloadEncoder.sol";
 import { TypeConverter } from "../../src/libs/TypeConverter.sol";
@@ -17,17 +18,26 @@ import { MockHubMToken } from "../mocks/MockHubMToken.sol";
 import { MockWrappedMToken } from "../mocks/MockWrappedMToken.sol";
 import { MockHubRegistrar } from "../mocks/MockHubRegistrar.sol";
 import { MockTransceiver } from "../mocks/MockTransceiver.sol";
+import { MockMerkleTreeBuilder } from "../mocks/MockMerkleTreeBuilder.sol";
 
 contract HubPortalTests is UnitTestBase {
     using TypeConverter for *;
+
+    uint16 internal constant _SOLANA_WORMHOLE_CHAIN_ID = 1;
+    bytes32 internal constant _SOLANA_EARNER_LIST = bytes32("solana-earners");
+    bytes32 internal constant _SOLANA_EARN_MANAGER_LIST = bytes32("solana-earn-managers");
 
     MockHubMToken internal _mToken;
     MockWrappedMToken internal _wrappedMToken;
     bytes32 internal _remoteMToken;
     bytes32 internal _remoteWrappedMToken;
     MockHubRegistrar internal _registrar;
+    MockMerkleTreeBuilder internal _merkleTreeBuilder;
 
     HubPortal internal _portal;
+
+    bytes32 _solanaPeer = bytes32("solana-peer");
+    bytes32 _solanaToken = bytes32("solana-token");
 
     function setUp() external {
         _mToken = new MockHubMToken();
@@ -40,6 +50,7 @@ contract HubPortalTests is UnitTestBase {
 
         _registrar = new MockHubRegistrar();
         _transceiver = new MockTransceiver();
+        _merkleTreeBuilder = new MockMerkleTreeBuilder();
 
         HubPortal implementation_ = new HubPortal(address(_mToken), address(_registrar), _LOCAL_CHAIN_ID);
         _portal = HubPortal(_createProxy(address(implementation_)));
@@ -50,6 +61,10 @@ contract HubPortalTests is UnitTestBase {
         _portal.setSupportedBridgingPath(address(_mToken), _REMOTE_CHAIN_ID, _remoteWrappedMToken, true);
         _portal.setSupportedBridgingPath(address(_wrappedMToken), _REMOTE_CHAIN_ID, _remoteMToken, true);
         _portal.setSupportedBridgingPath(address(_wrappedMToken), _REMOTE_CHAIN_ID, _remoteWrappedMToken, true);
+
+        _portal.setMerkleTreeBuilder(address(_merkleTreeBuilder));
+        _portal.setPeer(_SOLANA_WORMHOLE_CHAIN_ID, _solanaPeer, _tokenDecimals, type(uint64).max);
+        _portal.setDestinationMToken(_SOLANA_WORMHOLE_CHAIN_ID, _solanaToken);
     }
 
     /* ============ initialState ============ */
@@ -299,6 +314,63 @@ contract HubPortalTests is UnitTestBase {
 
         vm.prank(_alice);
         _portal.sendRegistrarListStatus{ value: fee_ }(_REMOTE_CHAIN_ID, listName_, account_, refundAddress_);
+    }
+
+    /* ============ sendMerkleRoots ============ */
+
+    function test_sendMerkleRoots() external {
+        bytes32 refundAddress_ = _alice.toBytes32();
+        bytes32 earnersMerkleRoot_ = bytes32("solana-earners-root");
+        bytes32 earnManagersMerkleRoot_ = bytes32("solana-earner-manager-root");
+        uint128 index_ = 0;
+
+        _mToken.setCurrentIndex(index_);
+
+        // Mock MerkleTreeBuilder to return roots
+        vm.mockCall(
+            address(_merkleTreeBuilder),
+            abi.encodeWithSelector(IMerkleTreeBuilder.getRoot.selector, _SOLANA_EARNER_LIST),
+            abi.encode(earnersMerkleRoot_)
+        );
+
+        vm.mockCall(
+            address(_merkleTreeBuilder),
+            abi.encodeWithSelector(IMerkleTreeBuilder.getRoot.selector, _SOLANA_EARN_MANAGER_LIST),
+            abi.encode(earnManagersMerkleRoot_)
+        );
+
+        // Expected NTT message
+        (TransceiverStructs.NttManagerMessage memory message_, ) = _createMerkleRootTransferMessage(
+            index_,
+            refundAddress_,
+            _LOCAL_CHAIN_ID,
+            _SOLANA_WORMHOLE_CHAIN_ID,
+            _solanaToken,
+            earnersMerkleRoot_,
+            earnManagersMerkleRoot_
+        );
+
+        // expect to call sendMessage in Transceiver
+        vm.expectCall(
+            address(_transceiver),
+            0,
+            abi.encodeCall(
+                _transceiver.sendMessage,
+                (
+                    _SOLANA_WORMHOLE_CHAIN_ID,
+                    _emptyTransceiverInstruction,
+                    TransceiverStructs.encodeNttManagerMessage(message_),
+                    _solanaPeer,
+                    refundAddress_
+                )
+            )
+        );
+
+        vm.expectEmit();
+        emit IHubPortal.MerkleRootsSent(earnersMerkleRoot_, earnManagersMerkleRoot_);
+
+        vm.prank(_alice);
+        _portal.sendMerkleRoots(refundAddress_);
     }
 
     /* ============ transfer ============ */
