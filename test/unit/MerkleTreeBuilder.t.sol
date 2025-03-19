@@ -119,8 +119,8 @@ contract MerkleTreeBuilderTest is Test {
     // given the list is not empty
     // it reverts with error 'InvalidAdd'
     function testFuzz_addToList_valueNotSet_listNotEmpty_reverts(uint8 valuesToAdd, bytes32 value) public {
-        vm.assume(valuesToAdd > 0 && valuesToAdd <= 20);
-        vm.assume(value != ZERO);
+        valuesToAdd = (valuesToAdd % 20) + 1;
+        vm.assume(value != ZERO && value != MAX);
 
         // Set some values on the registrar but not the value we want to add
         _addRandomValues(valuesToAdd, LIST, keccak256(abi.encodePacked(value)));
@@ -156,7 +156,7 @@ contract MerkleTreeBuilderTest is Test {
     // it adds the value to the list
     // it increments the number of values in the list
     function testFuzz_addToList_valueSet_listEmpty_valueNotZero_success(bytes32 value) public {
-        vm.assume(value != ZERO);
+        vm.assume(value != ZERO && value != MAX);
 
         // Set the value on the registrar
         registrar.setKey(keccak256(abi.encodePacked(LIST, value)), ONE);
@@ -237,8 +237,8 @@ contract MerkleTreeBuilderTest is Test {
         uint8 valuesToAdd,
         bytes32 value
     ) public {
-        vm.assume(valuesToAdd > 0 && valuesToAdd <= 20);
-        vm.assume(value != ZERO);
+        valuesToAdd = (valuesToAdd % 20) + 1;
+        vm.assume(value != ZERO && value != MAX);
 
         // Set some values on the registrar but not the value we want to add
         _addRandomValues(valuesToAdd, LIST, keccak256(abi.encodePacked(value)));
@@ -269,8 +269,8 @@ contract MerkleTreeBuilderTest is Test {
         uint8 beforeIndex,
         bytes32 value
     ) public {
-        vm.assume(valuesToAdd > 0 && valuesToAdd <= 20);
-        vm.assume(value != ZERO);
+        valuesToAdd = (valuesToAdd % 20) + 1;
+        vm.assume(value != ZERO && value != MAX);
 
         // Set some values on the registrar but not the value we want to add
         _addRandomValues(valuesToAdd, LIST, keccak256(abi.encodePacked(value)));
@@ -305,8 +305,8 @@ contract MerkleTreeBuilderTest is Test {
         uint8 valuesToAdd,
         bytes32 value
     ) public {
-        vm.assume(valuesToAdd > 0 && valuesToAdd <= 20);
-        vm.assume(value != ZERO);
+        valuesToAdd = (valuesToAdd % 20) + 1;
+        vm.assume(value != ZERO && value != MAX);
 
         // Set some values on the registrar
         _addRandomValues(valuesToAdd, LIST, keccak256(abi.encodePacked(value)));
@@ -339,7 +339,7 @@ contract MerkleTreeBuilderTest is Test {
     // given value is set on the registrar for the calculated key
     // it reverts with error 'InvalidRemove'
     function testFuzz_removeFromList_valueSet_reverts(bytes32 value) public {
-        vm.assume(value != ZERO);
+        vm.assume(value != ZERO && value != MAX);
 
         // Set the value on the registrar
         registrar.setKey(keccak256(abi.encodePacked(LIST, value)), ONE);
@@ -353,8 +353,8 @@ contract MerkleTreeBuilderTest is Test {
     // given the value is not in the list
     // it reverts with error 'ValueNotInList'
     function testFuzz_removeFromList_valueNotSet_valueNotInList_reverts(uint8 valuesToAdd, bytes32 value) public {
-        vm.assume(valuesToAdd > 0 && valuesToAdd <= 20);
-        vm.assume(value != ZERO);
+        valuesToAdd = (valuesToAdd % 20) + 1;
+        vm.assume(value != ZERO && value != MAX);
 
         // Add random values to the list, excluding the one we want to remove
         _addRandomValues(valuesToAdd, LIST, keccak256(abi.encodePacked(value)));
@@ -375,8 +375,8 @@ contract MerkleTreeBuilderTest is Test {
         bytes32 before,
         bytes32 value
     ) public {
-        vm.assume(valuesToAdd > 0 && valuesToAdd <= 20);
-        vm.assume(value != ZERO);
+        valuesToAdd = (valuesToAdd % 20) + 1;
+        vm.assume(value != ZERO && value != MAX);
 
         // Add random values to the list including the one we want to remove
         _addRandomValues(valuesToAdd, LIST, value);
@@ -400,8 +400,8 @@ contract MerkleTreeBuilderTest is Test {
         uint8 beforeIndex,
         bytes32 value
     ) public {
-        vm.assume(valuesToAdd > 0 && valuesToAdd <= 20);
-        vm.assume(value != ZERO);
+        valuesToAdd = (valuesToAdd % 20) + 1;
+        vm.assume(value != ZERO && value != MAX);
 
         // Add random values to the list including the one we want to remove
         _addRandomValues(valuesToAdd, LIST, value);
@@ -429,8 +429,8 @@ contract MerkleTreeBuilderTest is Test {
         uint8 valuesToAdd,
         bytes32 value
     ) public {
-        vm.assume(valuesToAdd > 0 && valuesToAdd <= 20);
-        vm.assume(value != ZERO);
+        valuesToAdd = (valuesToAdd % 20) + 1;
+        vm.assume(value != ZERO && value != MAX);
 
         // Add random values to the list including the one we want to remove
         _addRandomValues(valuesToAdd, LIST, value);
@@ -465,7 +465,7 @@ contract MerkleTreeBuilderTest is Test {
     // given the list has one member
     // it sets the root to the hash of the member
     function testFuzz_updateRoot_listOneMember(bytes32 value) public {
-        vm.assume(value != ZERO);
+        vm.assume(value != ZERO && value != MAX);
 
         // Add a value to the list
         registrar.setKey(keccak256(abi.encodePacked(LIST, value)), ONE);
@@ -482,7 +482,7 @@ contract MerkleTreeBuilderTest is Test {
     // given the list has two members
     // it sets the root correctly
     function testFuzz_updateRoot_listTwoMembers(bytes32 value1, bytes32 value2) public {
-        vm.assume(value1 != ZERO && value2 != ZERO);
+        vm.assume(value1 != ZERO && value2 != ZERO && value1 != MAX && value2 != MAX);
         vm.assume(value1 != value2);
 
         // Add two values to the list
@@ -512,7 +512,7 @@ contract MerkleTreeBuilderTest is Test {
     // it sets the root correctly
     function testFuzz_updateRoot_listPowerOfTwoMembers(uint8 power, bytes32 seed) public {
         vm.assume(power > 0 && power <= 8);
-        vm.assume(seed != ZERO);
+        vm.assume(seed != ZERO && seed != MAX);
 
         uint256 leaves = 2 ** power;
         _addRandomValues(leaves, LIST, seed);
@@ -551,7 +551,7 @@ contract MerkleTreeBuilderTest is Test {
     // it sets the root correctly
     function testFuzz_updateRoot_listEvenNonPowerOfTwoMembers(uint8 power, uint8 selector, bytes32 seed) public {
         vm.assume(power > 0 && power <= 5);
-        vm.assume(seed != ZERO);
+        vm.assume(seed != ZERO && seed != MAX);
 
         selector = selector % 5;
         uint256 prime;
@@ -606,7 +606,7 @@ contract MerkleTreeBuilderTest is Test {
     // it sets the root correctly
     function testFuzz_updateRoot_listOddMembers(uint8 leaves, bytes32 seed) public {
         vm.assume(leaves % 2 != 0);
-        vm.assume(seed != ZERO);
+        vm.assume(seed != ZERO && seed != MAX);
 
         _addRandomValues(leaves, LIST, seed);
 
