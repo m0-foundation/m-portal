@@ -64,6 +64,8 @@ contract SortedLinkedListTest is Test {
     //       [X] it updates the start value's next value to the value
     //       [X] it updates the value's next value to the max value
     //       [X] it increments the count
+    //     [X] given the value is the max value
+    //       [X] it reverts with a ValueInList error
     //   [X] given the list is non-empty
     //     [X] given the value is already in the list
     //       [X] it reverts with a ValueInList error
@@ -80,9 +82,13 @@ contract SortedLinkedListTest is Test {
     //             [X] it updates the value after "previous" to "value"
     //             [X] it updates the value after "value" to previous' current next value
     //             [X] it increments the count
+    //      [X] given the value is the max value
+    //        [X] it reverts with a ValueInList error
     // [X] remove
-    //   [ ] given the value is zero
-    //     [ ] it reverts with a ValueNotInList error
+    //   [X] given the value is zero
+    //     [X] it reverts with a ValueNotInList error
+    //   [X] given the value is the max value
+    //     [X] it reverts with a ValueNotInList error
     //   [X] given the value is not in the list
     //     [X] it reverts with a ValueNotInList error
     //   [X] given the value is in the list
@@ -183,11 +189,11 @@ contract SortedLinkedListTest is Test {
 
     // given the list is empty
     // given the value is the start value
-    // it returns true
+    // it returns false
     function test_contains_emptyList_startValue() external {
         list.initialize();
 
-        assert(list.contains(ZERO));
+        assertFalse(list.contains(ZERO));
     }
 
     // given the list is non-empty
@@ -195,7 +201,7 @@ contract SortedLinkedListTest is Test {
     // it returns false
     function testFuzz_contains_nonEmptyList_notInList(uint8 valuesToAdd, bytes32 testValue) external {
         valuesToAdd = (valuesToAdd % 20) + 1;
-        vm.assume(testValue != ZERO);
+        vm.assume(testValue != ZERO && testValue != MAX);
 
         list.initialize();
 
@@ -211,7 +217,7 @@ contract SortedLinkedListTest is Test {
     // it returns true
     function testFuzz_contains_nonEmptyList_inList(uint8 valuesToAdd, bytes32 testValue) external {
         valuesToAdd = (valuesToAdd % 20) + 1;
-        vm.assume(testValue != ZERO);
+        vm.assume(testValue != ZERO && testValue != MAX);
 
         list.initialize();
 
@@ -242,7 +248,7 @@ contract SortedLinkedListTest is Test {
     // it updates the value's next value to the max value
     // it increments the count
     function test_add_emptyList_notInList_success(bytes32 testValue) external {
-        vm.assume(testValue != ZERO);
+        vm.assume(testValue != ZERO && testValue != MAX);
         list.initialize();
 
         // Verify the current state
@@ -262,7 +268,7 @@ contract SortedLinkedListTest is Test {
     // it reverts with a ValueInList error
     function testFuzz_add_nonEmptyList_alreadyInList_reverts(uint8 valuesToAdd, bytes32 testValue) external {
         valuesToAdd = (valuesToAdd % 20) + 1;
-        vm.assume(testValue != ZERO);
+        vm.assume(testValue != ZERO && testValue != MAX);
 
         list.initialize();
         _addRandomValues(valuesToAdd, testValue);
@@ -284,7 +290,8 @@ contract SortedLinkedListTest is Test {
         bytes32 previousValue
     ) external {
         valuesToAdd = (valuesToAdd % 20) + 1;
-        vm.assume(testValue != ZERO);
+        vm.assume(testValue != ZERO && testValue != MAX);
+        vm.assume(previousValue != ZERO);
         list.initialize();
 
         // Add random values, but not the test value
@@ -310,7 +317,7 @@ contract SortedLinkedListTest is Test {
         bytes32 previousValue
     ) external {
         valuesToAdd = (valuesToAdd % 20) + 1;
-        vm.assume(testValue != ZERO);
+        vm.assume(testValue != ZERO && testValue != MAX);
         vm.assume(previousValue > testValue);
         list.initialize();
 
@@ -338,8 +345,8 @@ contract SortedLinkedListTest is Test {
         bytes32 previousValue
     ) external {
         valuesToAdd = (valuesToAdd % 20) + 1;
-        vm.assume(previousValue != ZERO);
-        vm.assume(testValue > previousValue);
+        vm.assume(previousValue != ZERO && previousValue != MAX);
+        vm.assume(testValue > previousValue && testValue != MAX);
         list.initialize();
 
         // Add the previous value to the list
@@ -370,7 +377,7 @@ contract SortedLinkedListTest is Test {
         bytes32 previousValue
     ) external {
         valuesToAdd = (valuesToAdd % 20) + 1;
-        vm.assume(previousValue != ZERO && previousValue < bytes32(type(uint256).max - 1));
+        vm.assume(previousValue != ZERO && previousValue < bytes32(type(uint256).max - 2));
         list.initialize();
 
         // Add the previous value to the list
@@ -397,13 +404,39 @@ contract SortedLinkedListTest is Test {
         assertEq(list.count(), valuesToAdd + 2);
     }
 
+    function test_add_emptyList_maxValue_reverts() external {
+        list.initialize();
+
+        assertFalse(list.contains(MAX));
+
+        // try to add the max value
+        // expect revert with ValueInList error
+        vm.expectRevert(abi.encodeWithSelector(SortedLinkedList.ValueInList.selector));
+        list.add(ZERO, MAX);
+    }
+
+    function testFuzz_add_nonEmptyList_maxValue_reverts(uint8 valuesToAdd, bytes32 testValue) external {
+        valuesToAdd = (valuesToAdd % 20) + 1;
+        vm.assume(testValue != ZERO && testValue != MAX);
+
+        list.initialize();
+
+        _addRandomValues(valuesToAdd, testValue);
+
+        // try to add the max value
+        // expect revert with ValueInList error
+        bytes32 previous = _getPreviousValue(MAX);
+        vm.expectRevert(abi.encodeWithSelector(SortedLinkedList.ValueInList.selector));
+        list.add(previous, MAX);
+    }
+
     /* ========== remove ========== */
 
     // given the value is zero
     // it reverts with a ValueNotInList error
     function testFuzz_remove_zero_reverts(uint8 valuesToAdd, bytes32 testValue) external {
         vm.assume(valuesToAdd <= 20);
-        vm.assume(testValue != ZERO);
+        vm.assume(testValue != ZERO && testValue != MAX);
         list.initialize();
 
         // Add random values
@@ -419,7 +452,7 @@ contract SortedLinkedListTest is Test {
     // it reverts with a ValueNotInList error
     function testFuzz_remove_notInList_reverts(uint8 valuesToAdd, bytes32 testValue) external {
         valuesToAdd = (valuesToAdd % 20) + 1;
-        vm.assume(testValue != ZERO);
+        vm.assume(testValue != ZERO && testValue != MAX);
         list.initialize();
 
         // Add random values, but not the test value
@@ -441,7 +474,7 @@ contract SortedLinkedListTest is Test {
         bytes32 previousValue
     ) external {
         valuesToAdd = (valuesToAdd % 20) + 1;
-        vm.assume(testValue != ZERO);
+        vm.assume(testValue != ZERO && testValue != MAX);
         list.initialize();
 
         // Add random values, including the test value
@@ -464,7 +497,7 @@ contract SortedLinkedListTest is Test {
     // it decrements the count
     function testFuzz_remove_inList_afterPrev_success(uint8 valuesToAdd, bytes32 testValue) external {
         valuesToAdd = (valuesToAdd % 20) + 1;
-        vm.assume(testValue != ZERO);
+        vm.assume(testValue != ZERO && testValue != MAX);
         list.initialize();
 
         // Add random values, including the test value
@@ -486,5 +519,34 @@ contract SortedLinkedListTest is Test {
         assertEq(list.next(testValue), ZERO);
         assertEq(list.count(), valuesToAdd - 1);
         assert(!list.contains(testValue));
+    }
+
+    // given the list is empty
+    // given the value is the max value
+    // it reverts with a ValueNotInList error
+    function test_remove_emptyList_maxValue_reverts() external {
+        list.initialize();
+
+        // try to remove the max value
+        // expect revert with ValueNotInList error
+        vm.expectRevert(abi.encodeWithSelector(SortedLinkedList.ValueNotInList.selector));
+        list.remove(ZERO, MAX);
+    }
+
+    // given the list is not empty
+    // given the value is the max value
+    // it reverts with a ValueNotInList error
+    function testFuzz_remove_nonEmptyList_maxValue_reverts(uint8 valuesToAdd, bytes32 testValue) external {
+        valuesToAdd = (valuesToAdd % 20) + 1;
+        vm.assume(testValue != ZERO && testValue != MAX);
+        list.initialize();
+
+        _addRandomValues(valuesToAdd, testValue);
+
+        // try to remove the max value
+        // expect revert with ValueNotInList error
+        bytes32 previous = _getPreviousValue(MAX);
+        vm.expectRevert(abi.encodeWithSelector(SortedLinkedList.ValueNotInList.selector));
+        list.remove(previous, MAX);
     }
 }
