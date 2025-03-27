@@ -172,7 +172,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         if (refundAddress_ == bytes32(0)) revert InvalidRefundAddress();
 
         IERC20 mToken_ = IERC20(token);
-        uint256 balanceBefore = mToken_.balanceOf(address(this));
+        uint256 startingBalance_ = mToken_.balanceOf(address(this));
 
         // transfer source token from the sender
         IERC20(sourceToken_).transferFrom(msg.sender, address(this), amount_);
@@ -182,13 +182,15 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
             IWrappedMTokenLike(sourceToken_).unwrap(address(this), amount_);
         }
 
-        // account for potential rounding errors when transferring between earners and non-earners
-        amount_ = mToken_.balanceOf(address(this)) - balanceBefore;
-        _verifyTransferAmount(amount_);
+        // The actual amount of M tokens that Portal received from the sender.
+        // Accounts for potential rounding errors when transferring between earners and non-earners
+        uint256 actualAmount_ = mToken_.balanceOf(address(this)) - startingBalance_;
 
-        // burns M tokens on Spoke. In case of Hub, tokens are already transferred
-        _burnOrLock(amount_);
+        // Burns the actual amount of M tokens on Spoke.
+        // In case of Hub, tokens are already transferred
+        _burnOrLock(actualAmount_);
 
+        // NOTE: transfers the exact amount ignoring potential rounding error
         (sequence_, ) = _transferNativeToken(
             amount_,
             sourceToken_,

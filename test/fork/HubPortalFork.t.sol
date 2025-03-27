@@ -77,14 +77,14 @@ contract HubPortalForkTests is ForkTestBase {
         uint256 amount_ = 1_000e6;
         // Amount locked in HubPortal is less than the transfer amount due to the rounding
         // when transferring $M from a non-earner sender to the earner HubPortal.
-        // Recipient's balance is less than the amount locked in HubPortal due to the rounding
-        // when transferring $M from the non-earner SpokePortal to an earner recipient.
+        // Recipient's balance is less than the transfer amount due to the rounding
+        // when minting $M to an earner recipient.
         _testTransferScenario({
             isSenderEarner_: false,
             isRecipientEarner_: true,
             amount_: amount_,
             expectedHubBalance_: amount_ - 1,
-            expectedRecipientBalance_: amount_ - 2
+            expectedRecipientBalance_: amount_ - 1
         });
     }
 
@@ -97,7 +97,7 @@ contract HubPortalForkTests is ForkTestBase {
             isRecipientEarner_: true,
             amount_: amount_,
             expectedHubBalance_: amount_,
-            expectedRecipientBalance_: amount_ - 1
+            expectedRecipientBalance_: amount_
         });
     }
 
@@ -125,12 +125,15 @@ contract HubPortalForkTests is ForkTestBase {
             ? IndexingMath.getPrincipalAmountRoundedUp(uint240(amount_), index_)
             : IndexingMath.getPrincipalAmountRoundedDown(uint240(amount_), index_);
         expectedHubBalance_ = IndexingMath.getPresentAmountRoundedDown(principalAmount_, index_);
-        expectedRecipientBalance_ = expectedHubBalance_;
+        expectedRecipientBalance_ = amount_;
 
         // SpokePortal is always non-earner
         // Transferring to earner results in rounding down
         if (isRecipientEarner_) {
-            uint112 principalAmount_ = IndexingMath.getPrincipalAmountRoundedDown(uint240(expectedHubBalance_), index_);
+            uint112 principalAmount_ = IndexingMath.getPrincipalAmountRoundedDown(
+                uint240(expectedRecipientBalance_),
+                index_
+            );
             expectedRecipientBalance_ = IndexingMath.getPresentAmountRoundedDown(principalAmount_, index_);
         }
 
@@ -231,9 +234,7 @@ contract HubPortalForkTests is ForkTestBase {
             Chains.WORMHOLE_ARBITRUM
         );
 
-        // amount is decreased due to the rounding errors when transferring M from non-earner
-        amount_ = amount_ - 1;
-        assertEq(IERC20(_MAINNET_M_TOKEN).balanceOf(_hubPortal), amount_);
+        assertEq(IERC20(_MAINNET_M_TOKEN).balanceOf(_hubPortal), amount_ - 1);
 
         // Wormhole delivers message
         bytes memory signedMessage_ = _signMessage(_hubGuardian, Chains.WORMHOLE_ETHEREUM);
