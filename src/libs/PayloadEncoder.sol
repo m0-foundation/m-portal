@@ -75,10 +75,9 @@ library PayloadEncoder {
     function encodeAdditionalPayload(
         uint128 index_,
         bytes32 destinationToken_,
-        bytes32 earnerMerkleRoot_,
-        bytes32 earnManagerMerkleRoot_
+        bytes32 earnersMerkleRoot_
     ) internal pure returns (bytes memory encoded_) {
-        return abi.encodePacked(index_.toUint64(), destinationToken_, earnerMerkleRoot_, earnManagerMerkleRoot_);
+        return abi.encodePacked(index_.toUint64(), destinationToken_, earnersMerkleRoot_);
     }
 
     function decodeAdditionalPayload(
