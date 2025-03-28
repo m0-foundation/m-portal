@@ -189,7 +189,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         // burns M tokens on Spoke. In case of Hub, tokens are already transferred
         _burnOrLock(amount_);
 
-        sequence_ = _transferNativeToken(
+        (sequence_, ) = _transferNativeToken(
             amount_,
             sourceToken_,
             destinationChainId_,
@@ -221,10 +221,10 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         bytes32 recipient_,
         bytes32 refundAddress_,
         bytes memory additionalPayload_
-    ) internal returns (uint64 sequence_) {
+    ) internal returns (uint64 sequence_, bytes32 messageId_) {
         sequence_ = _useMessageSequence();
-
-        (TransceiverStructs.NttManagerMessage memory message_, bytes32 messageId_) = _encodeTokenTransfer(
+        TransceiverStructs.NttManagerMessage memory message_;
+        (message_, messageId_) = _encodeTokenTransfer(
             _trimTransferAmount(amount_, destinationChainId_),
             destinationChainId_,
             msg.sender,

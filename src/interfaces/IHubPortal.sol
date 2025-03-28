@@ -63,11 +63,11 @@ interface IHubPortal is IPortal {
     event MerkleTreeBuilderSet(address merkleTreeBuilder);
 
     /**
-     * @notice Emitted when earners and earn managers Merkle roots are sent to Solana.
+     * @notice Emitted when earners Merkle root is sent to Solana.
+     * @param  messageId         The unique identifier for the sent message.
      * @param  earnersMerkleRoot The Merkle root of earners.
-     * @param  earnManagersMerkleRoot The Merkle root of earn managers.
      */
-    event MerkleRootsSent(bytes32 earnersMerkleRoot, bytes32 earnManagersMerkleRoot);
+    event EarnersMerkleRootSent(bytes32 messageId, bytes32 earnersMerkleRoot);
 
     /* ============ Custom Errors ============ */
 
@@ -89,6 +89,9 @@ interface IHubPortal is IPortal {
     /// @notice Emitted when calling `setMerkleTreeBuilder` if Merkle Tree Builder address is 0x0.
     error ZeroMerkleTreeBuilder();
 
+    /// @notice Emitted when the destination chain is not supported
+    error UnsupportedDestinationChain(uint16 destinationChainId);
+
     /* ============ View/Pure Functions ============ */
 
     /// @notice Indicates whether earning for HubPortal was ever enabled.
@@ -104,46 +107,51 @@ interface IHubPortal is IPortal {
 
     /**
      * @notice Sends the M token index to the destination chain.
-     * @param  destinationChainId      The Wormhole destination chain ID.
-     * @param  refundAddress           Refund address to receive excess native gas.
-     * @return ID uniquely identifying the message
+     * @param  destinationChainId The Wormhole destination chain ID.
+     * @param  refundAddress      The refund address to receive excess native gas.
+     * @return messageId          The ID uniquely identifying the message.
      */
-    function sendMTokenIndex(uint16 destinationChainId, bytes32 refundAddress) external payable returns (bytes32);
+    function sendMTokenIndex(
+        uint16 destinationChainId,
+        bytes32 refundAddress
+    ) external payable returns (bytes32 messageId);
 
     /**
      * @notice Sends the Registrar key to the destination chain.
-     * @param  destinationChainId      The Wormhole destination chain ID.
-     * @param  key                     The key to dispatch.
-     * @param  refundAddress           Refund address to receive excess native gas.
-     * @return ID uniquely identifying the message
+     * @dev    Not supported for Solana.
+     * @param  destinationChainId The Wormhole destination chain ID.
+     * @param  key                The key to dispatch.
+     * @param  refundAddress      The refund address to receive excess native gas.
+     * @return messageId          The ID uniquely identifying the message
      */
     function sendRegistrarKey(
         uint16 destinationChainId,
         bytes32 key,
         bytes32 refundAddress
-    ) external payable returns (bytes32);
+    ) external payable returns (bytes32 messageId);
 
     /**
      * @notice Sends the Registrar list status for an account to the destination chain.
-     * @param  destinationChainId      The Wormhole destination chain ID.
-     * @param  listName                The name of the list.
-     * @param  account                 The account.
-     * @param  refundAddress           Refund address to receive excess native gas.
-     * @return ID uniquely identifying the message
+     * @dev    Not supported for Solana.
+     * @param  destinationChainId The Wormhole destination chain ID.
+     * @param  listName           The name of the list.
+     * @param  account            The account.
+     * @param  refundAddress      The refund address to receive excess native gas.
+     * @return messageId          The ID uniquely identifying the message.
      */
     function sendRegistrarListStatus(
         uint16 destinationChainId,
         bytes32 listName,
         address account,
         bytes32 refundAddress
-    ) external payable returns (bytes32);
+    ) external payable returns (bytes32 messageId);
 
     /**
-     * @notice Sends earners and earn managers Merkle roots to Solana.
-     * @param  refundAddress Refund address to receive excess native gas.
-     * @return sequence      The message sequence.
+     * @notice Sends earners Merkle root to Solana.
+     * @param  refundAddress The refund address to receive excess native gas.
+     * @return messageId     The ID uniquely identifying the message.
      */
-    function sendMerkleRoots(bytes32 refundAddress) external payable returns (uint64 sequence);
+    function sendEarnersMerkleRoot(bytes32 refundAddress) external payable returns (bytes32 messageId);
 
     /**
      * @notice Sets Merkle Tree Builder contract.
