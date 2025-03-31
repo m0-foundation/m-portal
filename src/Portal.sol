@@ -186,11 +186,14 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         // Accounts for potential rounding errors when transferring between earners and non-earners
         uint256 actualAmount_ = mToken_.balanceOf(address(this)) - startingBalance_;
 
-        // Burns the actual amount of M tokens on Spoke.
-        // In case of Hub, tokens are already transferred
+        // Burn the actual amount of M tokens on Spoke.
+        // In case of Hub, do nothing, as tokens are already transferred.
         _burnOrLock(actualAmount_);
 
-        // NOTE: transfers the exact amount ignoring potential rounding error
+        // NOTE: transfers the exact amount ignoring potential rounding errors to improve the experience for the sender.
+        // Since HubPortal is an earner the deficit is covered from the yield earned by HubPortal.
+        // M extensions registered in the Portal must not have fee-on-transfer functionality
+        // as it will lead to an exploit when using exact transfers.
         (sequence_, ) = _transferNativeToken(
             amount_,
             sourceToken_,

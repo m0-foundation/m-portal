@@ -36,7 +36,7 @@ contract HubPortalForkTests is ForkTestBase {
 
         IERC20(_MAINNET_M_TOKEN).approve(_hubPortal, amount_);
 
-        assertEq(IERC20(_MAINNET_M_TOKEN).balanceOf(_hubPortal), amount_ = amount_ - 1);
+        assertEq(IERC20(_MAINNET_M_TOKEN).balanceOf(_hubPortal), amount_ - 1);
 
         // Deliver message
         _deliverMessage(_hubGuardian, Chains.WORMHOLE_ETHEREUM, _arbitrumForkId, _ARBITRUM_WORMHOLE_RELAYER);
@@ -46,7 +46,7 @@ contract HubPortalForkTests is ForkTestBase {
     }
 
     /// @dev Sender is non-earner, recipient is non-earner
-    ///      The transferred amount is rounded down on the source, recipient gets less
+    ///      The transferred amount is exact
     function testFork_transfer_senderNonEarner_recipientNonEarner() external {
         uint256 amount_ = 15_399_539_920;
         _testTransferScenario({
@@ -54,12 +54,12 @@ contract HubPortalForkTests is ForkTestBase {
             isRecipientEarner_: false,
             amount_: amount_,
             expectedHubBalance_: amount_ - 2,
-            expectedRecipientBalance_: amount_ - 2
+            expectedRecipientBalance_: amount_
         });
     }
 
     /// @dev Sender is earner, recipient is non-earner
-    ///      The transferred amount is exact or rounded up on the source
+    ///      The transferred amount is exact
     function testFork_transfer_senderEarner_recipientNonEarner() external {
         uint256 amount_ = 38_962_247;
         _testTransferScenario({
@@ -67,12 +67,12 @@ contract HubPortalForkTests is ForkTestBase {
             isRecipientEarner_: false,
             amount_: amount_,
             expectedHubBalance_: amount_ + 1,
-            expectedRecipientBalance_: amount_ + 1
+            expectedRecipientBalance_: amount_
         });
     }
 
     /// @dev Sender is non-earner, recipient is earner
-    ///      The transferred amount is rounded down twice, recipient gets less
+    ///      The transferred amount is rounded down on the destination when minting to an earner
     function testFork_transfer_senderNonEarner_recipientEarner() external {
         uint256 amount_ = 1_000e6;
         // Amount locked in HubPortal is less than the transfer amount due to the rounding
@@ -89,7 +89,7 @@ contract HubPortalForkTests is ForkTestBase {
     }
 
     /// @dev Sender is earner, recipient is earner
-    ///      The transferred amount is rounded down on the destination, recipient gets less
+    ///      The transferred amount is rounded down on the destination when minting to an earner
     function testFork_transfer_senderEarner_recipientEarner() external {
         uint256 amount_ = 1_000e6;
         _testTransferScenario({
@@ -97,7 +97,7 @@ contract HubPortalForkTests is ForkTestBase {
             isRecipientEarner_: true,
             amount_: amount_,
             expectedHubBalance_: amount_,
-            expectedRecipientBalance_: amount_
+            expectedRecipientBalance_: amount_ - 1
         });
     }
 
@@ -250,7 +250,7 @@ contract HubPortalForkTests is ForkTestBase {
 
     /// @dev Transferring WrappedM to M
     ///      Sender is non-earner, recipient is non-earner
-    ///      The transferred amount is rounded down, recipient gets less
+    ///      The transferred amount is exact
     function testFork_transferMLikeToken_wrappedM_to_M_senderNonEarner_recipientNonEarner() external {
         uint256 amount_ = 23_242_957_645;
         _testTransferMLikeTokenScenario({
@@ -261,13 +261,13 @@ contract HubPortalForkTests is ForkTestBase {
             destinationToken_: _arbitrumSpokeMToken,
             amount_: amount_,
             expectedHubBalance_: amount_ - 2,
-            expectedRecipientBalance_: amount_ - 2
+            expectedRecipientBalance_: amount_
         });
     }
 
     /// @dev Transferring WrappedM to M
     ///      Sender is earner, recipient is non-earner
-    ///      The transferred amount is rounded down on source during unwrap(), recipient gets less
+    ///      The transferred amount is exact
     function testFork_transferMLikeToken_wrappedM_to_M_senderEarner_recipientNonEarner() external {
         uint256 amount_ = 23_242_957_645;
         _testTransferMLikeTokenScenario({
@@ -278,13 +278,13 @@ contract HubPortalForkTests is ForkTestBase {
             destinationToken_: _arbitrumSpokeMToken,
             amount_: amount_,
             expectedHubBalance_: amount_ - 2,
-            expectedRecipientBalance_: amount_ - 2
+            expectedRecipientBalance_: amount_
         });
     }
 
     /// @dev Transferring WrappedM to M
     ///      Sender is non-earner, recipient is earner
-    ///      The transferred amount is rounded down twice, on source and destination, recipient gets less
+    ///      The transferred amount is rounded down on the destination when minting to an earner
     function testFork_transferMLikeToken_wrappedM_to_M_senderNonEarner_recipientEarner() external {
         uint256 amount_ = 23_242_957_645;
         _testTransferMLikeTokenScenario({
@@ -295,13 +295,13 @@ contract HubPortalForkTests is ForkTestBase {
             destinationToken_: _arbitrumSpokeMToken,
             amount_: amount_,
             expectedHubBalance_: amount_ - 2,
-            expectedRecipientBalance_: amount_ - 3
+            expectedRecipientBalance_: amount_ - 2
         });
     }
 
     /// @dev Transferring WrappedM to M
     ///      Sender is earner, recipient is earner
-    ///      The transferred amount is rounded down twice, on source and destination, recipient gets less
+    ///      The transferred amount is rounded down on the destination when minting to an earner
     function testFork_transferMLikeToken_wrappedM_to_M_senderEarner_recipientEarner() external {
         uint256 amount_ = 23_242_957_645;
         _testTransferMLikeTokenScenario({
@@ -312,13 +312,13 @@ contract HubPortalForkTests is ForkTestBase {
             destinationToken_: _arbitrumSpokeMToken,
             amount_: amount_,
             expectedHubBalance_: amount_ - 2,
-            expectedRecipientBalance_: amount_ - 3
+            expectedRecipientBalance_: amount_ - 2
         });
     }
 
     /// @dev Transferring WrappedM to WrappedM
     ///      Sender is non-earner, recipient is non-earner
-    ///      The transferred amount is rounded down twice, recipient gets less
+    ///      The transferred amount is rounded down on the destination when wrapping
     function testFork_transferMLikeToken_wrappedM_to_wrappedM_senderNonEarner_recipientNonEarner() external {
         uint256 amount_ = 1e6;
         _testTransferMLikeTokenScenario({
@@ -329,13 +329,13 @@ contract HubPortalForkTests is ForkTestBase {
             destinationToken_: _arbitrumSpokeWrappedMTokenProxy,
             amount_: amount_,
             expectedHubBalance_: amount_ - 1,
-            expectedRecipientBalance_: amount_ - 2
+            expectedRecipientBalance_: amount_ - 1
         });
     }
 
     /// @dev Transferring WrappedM to WrappedM
     ///      Sender is earner, recipient is non-earner
-    ///      The transferred amount is rounded down twice, recipient gets less
+    ///      The transferred amount is rounded down on the destination when wrapping
     function testFork_transferMLikeToken_wrappedM_to_wrappedM_senderEarner_recipientNonEarner() external {
         uint256 amount_ = 1e6;
         _testTransferMLikeTokenScenario({
@@ -346,13 +346,13 @@ contract HubPortalForkTests is ForkTestBase {
             destinationToken_: _arbitrumSpokeWrappedMTokenProxy,
             amount_: amount_,
             expectedHubBalance_: amount_ - 1,
-            expectedRecipientBalance_: amount_ - 2
+            expectedRecipientBalance_: amount_ - 1
         });
     }
 
     /// @dev Transferring WrappedM to WrappedM
     ///      Sender is non-earner, recipient is earner
-    ///      The transferred amount is rounded down twice, recipient gets less
+    ///      The transferred amount is rounded down on the destination when wrapping
     function testFork_transferMLikeToken_wrappedM_to_wrappedM_senderNonEarner_recipientEarner() external {
         uint256 amount_ = 1e6;
         _testTransferMLikeTokenScenario({
@@ -363,13 +363,13 @@ contract HubPortalForkTests is ForkTestBase {
             destinationToken_: _arbitrumSpokeWrappedMTokenProxy,
             amount_: amount_,
             expectedHubBalance_: amount_ - 1,
-            expectedRecipientBalance_: amount_ - 2
+            expectedRecipientBalance_: amount_ - 1
         });
     }
 
     /// @dev Transferring WrappedM to WrappedM
     ///      Sender is earner, recipient is earner
-    ///      The transferred amount is rounded down twice, recipient gets less
+    ///      The transferred amount is rounded down on the destination when wrapping
     function testFork_transferMLikeToken_wrappedM_to_wrappedM_senderEarner_recipientEarner() external {
         uint256 amount_ = 1e6;
         _testTransferMLikeTokenScenario({
@@ -380,7 +380,7 @@ contract HubPortalForkTests is ForkTestBase {
             destinationToken_: _arbitrumSpokeWrappedMTokenProxy,
             amount_: amount_,
             expectedHubBalance_: amount_ - 1,
-            expectedRecipientBalance_: amount_ - 2
+            expectedRecipientBalance_: amount_ - 1
         });
     }
 

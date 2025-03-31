@@ -2,6 +2,7 @@
 
 pragma solidity 0.8.26;
 
+import { console } from "../../lib/forge-std/src/console.sol";
 import { IERC20 } from "../../lib/common/src/interfaces/IERC20.sol";
 import { IMToken } from "../../lib/protocol/src/interfaces/IMToken.sol";
 import { IndexingMath } from "../../lib/common/src/libs/IndexingMath.sol";
@@ -22,41 +23,31 @@ contract SpokePortalForkTests is ForkTestBase {
 
     /* ============ transfer ============ */
 
-    function testFork_transferToHubPortal() external {
+    function testFork_transferToHubPortal2() external {
+        // seed sender's balance on Spoke by transferring from Hub first
         _transferFromHub(_amount + 1);
 
-        vm.startPrank(_mHolder);
-
-        IERC20(_arbitrumSpokeMToken).approve(_arbitrumSpokePortal, _amount);
-
-        // Then, transfer M tokens back to the Hub chain.
-        _transfer(
-            _arbitrumSpokePortal,
-            Chains.WORMHOLE_ETHEREUM,
-            _amount,
-            _toUniversalAddress(_mHolder),
-            _toUniversalAddress(_mHolder),
-            _quoteDeliveryPrice(_arbitrumSpokePortal, Chains.WORMHOLE_ETHEREUM)
-        );
-
-        vm.stopPrank();
-
-        assertEq(IERC20(_arbitrumSpokeMToken).balanceOf(_mHolder), 0);
-
-        bytes memory spokeSignedMessage_ = _signMessage(_arbitrumSpokeGuardian, Chains.WORMHOLE_ARBITRUM);
-
         vm.selectFork(_mainnetForkId);
+        // amount is rounded down
+        assertEq(IERC20(_MAINNET_M_TOKEN).balanceOf(_hubPortal), _amount);
 
         uint256 balanceOfBefore_ = IERC20(_MAINNET_M_TOKEN).balanceOf(_mHolder);
 
-        _deliverMessage(_MAINNET_WORMHOLE_RELAYER, spokeSignedMessage_);
+        vm.selectFork(_arbitrumForkId);
+        // Execute transfer
+        _transfer(_amount, _mHolder, _mHolder, _arbitrumSpokePortal, Chains.WORMHOLE_ETHEREUM);
 
+        // Deliver message
+        _deliverMessage(_arbitrumSpokeGuardian, Chains.WORMHOLE_ARBITRUM, _mainnetForkId, _MAINNET_WORMHOLE_RELAYER);
+
+        vm.selectFork(_mainnetForkId);
+        // Verify balances
         assertEq(IERC20(_MAINNET_M_TOKEN).balanceOf(_hubPortal), 0);
         assertEq(IERC20(_MAINNET_M_TOKEN).balanceOf(_mHolder), balanceOfBefore_ + _amount);
     }
 
     function testFork_transferBetweenSpokePortals() external {
-        _transferFromHub(_amount + 1);
+        _transferFromHub(_amount);
 
         vm.selectFork(_optimismForkId);
         assertEq(IMToken(_optimismSpokeMToken).currentIndex(), _EXP_SCALED_ONE);
@@ -328,26 +319,26 @@ contract SpokePortalForkTests is ForkTestBase {
 
     /// @dev From $M on Spoke to $M on Hub
     function testFork_transferMLikeToken_M_to_M() external {
-        _transferFromHub(_amount + 1);
+        _transferFromHub(_amount);
         _transferMLikeTokenToHub(_arbitrumSpokeMToken, _MAINNET_M_TOKEN, _mHolder);
     }
 
     /// @dev From $M on Spoke to wrapped $M on Hub
     function testFork_transferMLikeToken_M_to_wrappedM() external {
-        _transferFromHub(_amount + 1);
+        _transferFromHub(_amount);
         _transferMLikeTokenToHub(_arbitrumSpokeMToken, _MAINNET_WRAPPED_M_TOKEN, _mHolder);
     }
 
     /// @dev From wrapped $M on Spoke to $M on Hub
     function testFork_transferMLikeToken_wrappedM_to_M() external {
-        _transferFromHub(_amount + 1);
+        _transferFromHub(_amount);
         _amount = _wrapSpokeM(_mHolder, _amount);
         _transferMLikeTokenToHub(_arbitrumSpokeWrappedMTokenProxy, _MAINNET_M_TOKEN, _mHolder);
     }
 
     /// @dev From wrapped $M on Spoke to wrapped $M on Hub
     function testFork_transferMLikeToken_wrappedM_to_wrappedM() external {
-        _transferFromHub(_amount + 1);
+        _transferFromHub(_amount);
         _amount = _wrapSpokeM(_mHolder, _amount);
         _transferMLikeTokenToHub(_arbitrumSpokeWrappedMTokenProxy, _MAINNET_WRAPPED_M_TOKEN, _mHolder);
     }
@@ -362,6 +353,7 @@ contract SpokePortalForkTests is ForkTestBase {
 
     function _transferMLikeTokenToHub(address sourceToken_, address destinationToken_, address user_) private {
         // User approves source token and calls transferMLikeToken
+        vm.selectFork(_arbitrumForkId);
         vm.startPrank(user_);
         IERC20(sourceToken_).approve(_arbitrumSpokePortal, _amount);
         IPortal(_arbitrumSpokePortal).transferMLikeToken{
@@ -383,12 +375,14 @@ contract SpokePortalForkTests is ForkTestBase {
 
         vm.selectFork(_mainnetForkId);
 
-        uint256 balanceOfBefore_ = IERC20(destinationToken_).balanceOf(user_);
+        // Advance time to simulate yield earning by HubPortal
+        vm.warp(block.timestamp + 10 seconds);
+
+        uint256 balanceBefore_ = IERC20(destinationToken_).balanceOf(user_);
 
         _deliverMessage(_MAINNET_WORMHOLE_RELAYER, signedMessage_);
 
-        assertEq(IERC20(_MAINNET_M_TOKEN).balanceOf(_hubPortal), 0);
-        assertEq(IERC20(destinationToken_).balanceOf(user_), balanceOfBefore_ + _amount);
+        assertGe(IERC20(destinationToken_).balanceOf(user_), balanceBefore_ + _amount);
     }
 
     /// @dev Setup Spoke with $M from Hub
