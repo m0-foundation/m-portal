@@ -171,24 +171,18 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         if (recipient_ == bytes32(0)) revert InvalidRecipient();
         if (refundAddress_ == bytes32(0)) revert InvalidRefundAddress();
 
-        IERC20 mToken_ = IERC20(token);
-        uint256 startingBalance_ = mToken_.balanceOf(address(this));
-
         // transfer source token from the sender
         IERC20(sourceToken_).transferFrom(msg.sender, address(this), amount_);
 
         // if the source token isn't M token, unwrap it
-        if (sourceToken_ != address(mToken_)) {
+        if (sourceToken_ != token) {
             IWrappedMTokenLike(sourceToken_).unwrap(address(this), amount_);
         }
 
-        // The actual amount of M tokens that Portal received from the sender.
-        // Accounts for potential rounding errors when transferring between earners and non-earners
-        uint256 actualAmount_ = mToken_.balanceOf(address(this)) - startingBalance_;
-
-        // Burn the actual amount of M tokens on Spoke.
+        // Burn M tokens on Spoke.
+        // Since SpokePortal is non-earner the exact amount is equal to the actual amount received from the sender.
         // In case of Hub, do nothing, as tokens are already transferred.
-        _burnOrLock(actualAmount_);
+        _burnOrLock(amount_);
 
         // NOTE: transfers the exact amount ignoring potential rounding errors to improve the experience for the sender.
         // Since HubPortal is an earner the deficit is covered from the yield earned by HubPortal.
