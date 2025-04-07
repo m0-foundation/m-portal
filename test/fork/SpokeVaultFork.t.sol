@@ -40,11 +40,13 @@ contract SpokeVaultForkTests is ForkTestBase {
 
         vm.selectFork(_mainnetForkId);
 
+        // Advance time to simulate yield earning by HubPortal
+        vm.warp(block.timestamp + 10 seconds);
+
         uint256 balanceOfBefore_ = IERC20(_MAINNET_M_TOKEN).balanceOf(_MAINNET_VAULT);
 
         _deliverMessage(_MAINNET_WORMHOLE_RELAYER, spokeSignedMessage_);
 
-        assertEq(IERC20(_MAINNET_M_TOKEN).balanceOf(_hubPortal), 0);
         assertEq(IERC20(_MAINNET_M_TOKEN).balanceOf(_MAINNET_VAULT), balanceOfBefore_ + _amount);
     }
 
