@@ -377,6 +377,7 @@ contract MerkleTreeBuilderTest is Test {
     ) public {
         valuesToAdd = (valuesToAdd % 20) + 1;
         vm.assume(value != ZERO && value != MAX);
+        vm.assume(before != ZERO);
 
         // Add random values to the list including the one we want to remove
         _addRandomValues(valuesToAdd, LIST, value);
