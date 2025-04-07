@@ -20,13 +20,5 @@ contract DeployMerkleTreeBuilder is DeployBase {
         vm.stopBroadcast();
 
         console.log("Merkle Tree Builder: ", merkleTreeBuilder);
-
-        _serializeMerkleTreeBuilderDeployment(chainId, merkleTreeBuilder);
-    }
-
-    function _serializeMerkleTreeBuilderDeployment(uint256 chainId_, address merkleTreeBuilder_) internal {
-        string memory root = "";
-
-        vm.writeJson(vm.serializeAddress(root, "merkleTreeBuilder", merkleTreeBuilder_), _deployOutputPath(chainId_));
     }
 }
