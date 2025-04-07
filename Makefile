@@ -147,7 +147,7 @@ deploy-merkle-tree-builder-dev-sepolia: deploy-merkle-tree-builder
 
 configure: PEERS ?= []
 configure:
-	FOUNDRY_PROFILE=production PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) forge script script/configure/Configure.s.sol:Configure --sig "run(uint256[])" $(PEERS) --rpc-url $(RPC_URL) --skip test -v --slow --broadcast
+	FOUNDRY_PROFILE=production PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) forge script script/configure/Configure.s.sol:Configure --sig "run(uint16[])" $(PEERS) --rpc-url $(RPC_URL) --skip test -v --slow --broadcast
 
 # Configure Testnet
 
@@ -185,9 +185,8 @@ configure-prod-optimism: configure-prod
 # Configure Noble Portal
 #
 
-configure-noble-prod-eth: PEERS ?= []
 configure-noble-prod-eth:
-	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) forge script script/configure/ConfigureNobleHub.s.sol:ConfigureNobleHub --sig "run(uint256[])" $(PEERS) --rpc-url $(MAINNET_RPC_URL) --skip test --broadcast -v --slow
+	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) forge script script/configure/ConfigureNobleHub.s.sol:ConfigureNobleHub --rpc-url $(MAINNET_RPC_URL) --skip test --broadcast -v --slow
 
 # 
 # 
@@ -196,7 +195,7 @@ configure-noble-prod-eth:
 # 
 
 upgrade-transceiver:
-	FOUNDRY_PROFILE=production PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) CONFIG=$(CONFIG_PATH) forge script script/upgrade/UpgradeWormholeTransceiver.s.sol:UpgradeWormholeTransceiver --rpc-url $(RPC_URL) --skip test --broadcast --slow -v
+	FOUNDRY_PROFILE=production PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) CONFIG=$(CONFIG_PATH) forge script script/upgrade/UpgradeWormholeTransceiver.s.sol:UpgradeWormholeTransceiver --rpc-url $(RPC_URL) --etherscan-api-key $(SCAN_API_KEY) --skip test --broadcast --slow -v --verify
 
 # Upgrade transceiver Testnet
 
@@ -213,9 +212,11 @@ upgrade-transceiver-prod: upgrade-transceiver
 # Chain-specific upgrade transceiver Testnet
 
 upgrade-transceiver-dev-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
+upgrade-transceiver-dev-sepolia: SCAN_API_KEY=$(ETHERSCAN_API_KEY)
 upgrade-transceiver-dev-sepolia: upgrade-transceiver-dev
 
 upgrade-transceiver-dev-arbitrum-sepolia: RPC_URL=$(ARBITRUM_SEPOLIA_RPC_URL)
+upgrade-transceiver-dev-arbitrum-sepolia: SCAN_API_KEY=$(ARBITRUM_ETHERSCAN_API_KEY)
 upgrade-transceiver-dev-arbitrum-sepolia: upgrade-transceiver-dev
 
 upgrade-transceiver-dev-optimism-sepolia: RPC_URL=$(OPTIMISM_SEPOLIA_RPC_URL)
@@ -224,12 +225,15 @@ upgrade-transceiver-dev-optimism-sepolia: upgrade-transceiver-dev
 # Chain-specific upgrade transceiver Mainnet
 
 upgrade-transceiver-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
+upgrade-transceiver-prod-eth: SCAN_API_KEY=$(ETHERSCAN_API_KEY)
 upgrade-transceiver-prod-eth: upgrade-transceiver-prod
 
 upgrade-transceiver-prod-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
+upgrade-transceiver-prod-arbitrum: SCAN_API_KEY=$(ARBITRUM_ETHERSCAN_API_KEY)
 upgrade-transceiver-prod-arbitrum: upgrade-transceiver-prod
 
 upgrade-transceiver-prod-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
+upgrade-transceiver-prod-optimism: SCAN_API_KEY=$(OPTIMISM_ETHERSCAN_API_KEY)
 upgrade-transceiver-prod-optimism: upgrade-transceiver-prod
 
 #
@@ -237,7 +241,7 @@ upgrade-transceiver-prod-optimism: upgrade-transceiver-prod
 #
 
 upgrade-hub-portal:
-	FOUNDRY_PROFILE=production PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) forge script script/upgrade/UpgradeHubPortal.s.sol:UpgradeHubPortal --rpc-url $(RPC_URL) --skip test --broadcast --slow -v
+	FOUNDRY_PROFILE=production PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) forge script script/upgrade/UpgradeHubPortal.s.sol:UpgradeHubPortal --rpc-url $(RPC_URL) --etherscan-api-key $(ETHERSCAN_API_KEY) --skip test --broadcast --slow -v --verify
 
 upgrade-hub-portal-dev-sepolia: SIGNER_PRIVATE_KEY=$(DEV_PRIVATE_KEY)
 upgrade-hub-portal-dev-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
@@ -252,7 +256,7 @@ upgrade-hub-portal-prod-eth: upgrade-hub-portal
 #
 
 upgrade-spoke-portal:
-	FOUNDRY_PROFILE=production PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) CONFIG=$(CONFIG_PATH) forge script script/upgrade/UpgradeSpokePortal.s.sol:UpgradeSpokePortal --rpc-url $(RPC_URL) --skip test --broadcast --slow -v
+	FOUNDRY_PROFILE=production PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) CONFIG=$(CONFIG_PATH) forge script script/upgrade/UpgradeSpokePortal.s.sol:UpgradeSpokePortal --rpc-url $(RPC_URL) --etherscan-api-key $(SCAN_API_KEY) --skip test --broadcast --slow -v --verify
 
 upgrade-spoke-portal-dev: CONFIG_PATH=config/upgrade/sepolia.json
 upgrade-spoke-portal-dev: SIGNER_PRIVATE_KEY=$(DEV_PRIVATE_KEY)
@@ -263,15 +267,19 @@ upgrade-spoke-portal-prod: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
 upgrade-spoke-portal-prod: upgrade-spoke-portal
 
 upgrade-spoke-portal-dev-arbitrum-sepolia: RPC_URL=$(ARBITRUM_SEPOLIA_RPC_URL)
+upgrade-spoke-portal-dev-arbitrum-sepolia: SCAN_API_KEY=$(ARBITRUM_ETHERSCAN_API_KEY)
 upgrade-spoke-portal-dev-arbitrum-sepolia: upgrade-spoke-portal-dev
 
 upgrade-spoke-portal-dev-optimism-sepolia: RPC_URL=$(OPTIMISM_SEPOLIA_RPC_URL)
+upgrade-spoke-portal-dev-optimism-sepolia: SCAN_API_KEY=$(OPTIMISM_ETHERSCAN_API_KEY)
 upgrade-spoke-portal-dev-optimism-sepolia: upgrade-spoke-portal-dev
 
 upgrade-spoke-portal-prod-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
+upgrade-spoke-portal-prod-arbitrum: SCAN_API_KEY=$(ARBITRUM_ETHERSCAN_API_KEY)
 upgrade-spoke-portal-prod-arbitrum: upgrade-spoke-portal-prod
 
 upgrade-spoke-portal-prod-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
+upgrade-spoke-portal-prod-optimism: SCAN_API_KEY=$(OPTIMISM_ETHERSCAN_API_KEY)
 upgrade-spoke-portal-prod-optimism: upgrade-spoke-portal-prod
 
 # 
