@@ -34,7 +34,7 @@ coverage:
 	FOUNDRY_PROFILE=$(profile) forge coverage --no-match-path 'test/fork/**/*.sol' --report lcov && lcov --extract lcov.info --rc lcov_branch_coverage=1 --rc derive_function_end_line=0 -o lcov.info 'src/*' && genhtml lcov.info --rc branch_coverage=1 --rc derive_function_end_line=0 -o coverage
 
 gas-report:
-	FOUNDRY_PROFILE=$(profile) forge test --no-match-path 'test/fork/**/*.sol'  --no-match-test 'testFuzz*' --gas-report > gasreport.ansi
+	FOUNDRY_PROFILE=$(profile) forge test --no-match-path 'test/fork/**/*.sol' --no-match-contract 'MerkleTreeBuilderTest|SortedLinkedListTest' --no-match-test 'testFuzz*' --gas-report > gasreport.ansi
 
 sizes:
 	./build.sh -p production -s
