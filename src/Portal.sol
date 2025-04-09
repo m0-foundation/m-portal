@@ -3,6 +3,7 @@
 pragma solidity 0.8.26;
 
 import { IERC20 } from "../lib/common/src/interfaces/IERC20.sol";
+import { IndexingMath } from "../lib/common/src/libs/IndexingMath.sol";
 import { TrimmedAmount, TrimmedAmountLib } from "../lib/native-token-transfers/evm/src/libraries/TrimmedAmount.sol";
 import { TransceiverStructs } from "../lib/native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
 import {
@@ -171,23 +172,40 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         if (recipient_ == bytes32(0)) revert InvalidRecipient();
         if (refundAddress_ == bytes32(0)) revert InvalidRefundAddress();
 
+        IERC20 mToken_ = IERC20(token);
+        uint256 startingBalance_ = mToken_.balanceOf(address(this));
+
         // transfer source token from the sender
         IERC20(sourceToken_).transferFrom(msg.sender, address(this), amount_);
 
         // if the source token isn't M token, unwrap it
-        if (sourceToken_ != token) {
+        if (sourceToken_ != address(mToken_)) {
             IWrappedMTokenLike(sourceToken_).unwrap(address(this), amount_);
         }
 
-        // Burn M tokens on Spoke.
-        // Since SpokePortal is non-earner the exact amount is equal to the actual amount received from the sender.
-        // In case of Hub, do nothing, as tokens are already transferred.
-        _burnOrLock(amount_);
+        // The actual amount of M tokens that Portal received from the sender.
+        // Accounts for potential rounding errors when transferring between earners and non-earners,
+        // as well as potential fee-on-transfer functionality in the source token.
+        uint256 actualAmount_ = mToken_.balanceOf(address(this)) - startingBalance_;
 
-        // NOTE: transfers the exact amount ignoring potential rounding errors to improve the experience for the sender.
-        // Since HubPortal is an earner the deficit is covered from the yield earned by HubPortal.
-        // M extensions registered in the Portal must not have fee-on-transfer functionality
-        // as it will lead to an exploit when using exact transfers.
+        if (amount_ > actualAmount_) {
+            unchecked {
+                // If the difference between the specified transfer amount and the actual amount exceeds
+                // the maximum acceptable rounding error (e.g., due to fee-on-transfer in an extension token)
+                // transfer the actual amount, not the specified.
+
+                // Otherwise, the specified amount will be transferred and the deficit caused by rounding error will
+                // be covered from the yield earned by HubPortal.
+                if (amount_ - actualAmount_ > _getMaxRoundingError()) {
+                    amount_ = actualAmount_;
+                }
+            }
+        }
+
+        // Burn the actual amount of M tokens on Spoke.
+        // In case of Hub, do nothing, as tokens are already transferred.
+        _burnOrLock(actualAmount_);
+
         (sequence_, ) = _transferNativeToken(
             amount_,
             sourceToken_,
@@ -469,4 +487,9 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
 
     /// @dev Returns the current M token index used by the Portal.
     function _currentIndex() internal view virtual returns (uint128) {}
+
+    /// @dev Returns the maximum rounding error that can occur when transferring M tokens to the Portal
+    function _getMaxRoundingError() private view returns (uint256 maxRoundingError_) {
+        maxRoundingError_ = _currentIndex() / IndexingMath.EXP_SCALED_ONE + 1;
+    }
 }
