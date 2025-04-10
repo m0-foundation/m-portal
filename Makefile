@@ -220,6 +220,7 @@ upgrade-transceiver-dev-arbitrum-sepolia: SCAN_API_KEY=$(ARBITRUM_ETHERSCAN_API_
 upgrade-transceiver-dev-arbitrum-sepolia: upgrade-transceiver-dev
 
 upgrade-transceiver-dev-optimism-sepolia: RPC_URL=$(OPTIMISM_SEPOLIA_RPC_URL)
+upgrade-transceiver-dev-optimism-sepolia: SCAN_API_KEY=$(ARBITRUM_ETHERSCAN_API_KEY)
 upgrade-transceiver-dev-optimism-sepolia: upgrade-transceiver-dev
 
 # Chain-specific upgrade transceiver Mainnet
