@@ -489,7 +489,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
     function _currentIndex() internal view virtual returns (uint128) {}
 
     /// @dev Returns the maximum rounding error that can occur when transferring M tokens to the Portal
-    function _getMaxRoundingError() private view returns (uint256 maxRoundingError_) {
-        maxRoundingError_ = _currentIndex() / IndexingMath.EXP_SCALED_ONE + 1;
+    function _getMaxRoundingError() private view returns (uint256) {
+        return _currentIndex() / IndexingMath.EXP_SCALED_ONE + 1;
     }
 }
