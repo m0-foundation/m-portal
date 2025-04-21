@@ -198,6 +198,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
                 // be covered from the yield earned by HubPortal.
                 if (amount_ - actualAmount_ > _getMaxRoundingError()) {
                     amount_ = actualAmount_;
+                    _verifyTransferAmount(amount_);
                 }
             }
         }
