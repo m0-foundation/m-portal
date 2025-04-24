@@ -29,7 +29,7 @@ library PeersConfig {
     bytes32 internal constant NOBLE_PORTAL = 0x0000000000000000000000002e859506ba229c183f8985d54fe7210923fb9bca;
     bytes32 internal constant NOBLE_TRANSCEIVER = 0x000000000000000000000000d1c9983597b8e45859df215dedad924b0f8505e3;
 
-    bytes32 internal constant SOLANA_M_TOKEN = 0x0b86be66bfceb4c1d7e927bcc4d014be0f2863ab9df85fda610851b64dbd0ae5;
+    bytes32 internal constant SOLANA_M_TOKEN = 0x0b86be66d32bc5a4b5ab1febdf48e33b06c3b5a163b19c1730ed78705f7ef68c;
     bytes32 internal constant SOLANA_PORTAL = 0x0b86ec181cd4c5c984e9062b13f2b2de7b9f5b5e68e84349231d6614cdf3f99f;
     bytes32 internal constant SOLANA_TRANSCEIVER = 0xfcbdac3b256685bd2cc3a97bfcd815fb76b8d33df924e607c409c0bce3fa1668;
 
@@ -117,21 +117,24 @@ library PeersConfig {
     /// @dev Returns a list of Wormhole Chain IDs where peer Portals are deployed
     function getPeerChainIds(uint16 wormholeChainId_) internal pure returns (uint16[] memory peerChainIds_) {
         if (wormholeChainId_ == Chains.WORMHOLE_ETHEREUM) {
-            peerChainIds_ = new uint16[](2);
+            peerChainIds_ = new uint16[](3);
             peerChainIds_[0] = Chains.WORMHOLE_ARBITRUM;
             peerChainIds_[1] = Chains.WORMHOLE_OPTIMISM;
+            peerChainIds_[2] = Chains.WORMHOLE_SOLANA;
         }
 
         if (wormholeChainId_ == Chains.WORMHOLE_ARBITRUM) {
-            peerChainIds_ = new uint16[](2);
+            peerChainIds_ = new uint16[](3);
             peerChainIds_[0] = Chains.WORMHOLE_ETHEREUM;
             peerChainIds_[1] = Chains.WORMHOLE_OPTIMISM;
+            peerChainIds_[2] = Chains.WORMHOLE_SOLANA;
         }
 
         if (wormholeChainId_ == Chains.WORMHOLE_OPTIMISM) {
-            peerChainIds_ = new uint16[](2);
+            peerChainIds_ = new uint16[](3);
             peerChainIds_[0] = Chains.WORMHOLE_ETHEREUM;
             peerChainIds_[1] = Chains.WORMHOLE_ARBITRUM;
+            peerChainIds_[2] = Chains.WORMHOLE_SOLANA;
         }
 
         if (wormholeChainId_ == Chains.WORMHOLE_ETHEREUM_SEPOLIA) {
