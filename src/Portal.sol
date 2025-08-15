@@ -26,8 +26,13 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
     using TrimmedAmountLib for *;
     using SafeCall for address;
 
-    /// @dev Use only standard WormholeTransceiver with relaying enabled
+    /// @dev Use standard WormholeTransceiver with relaying enabled by default
+    ///      for Solana, we need to use the Executor with relaying disabled.
     bytes public constant DEFAULT_TRANSCEIVER_INSTRUCTIONS = new bytes(1);
+    bytes public constant EXECUTOR_TRANSCEIVER_INSTRUCTIONS = hex"01000101"; // equivalent to: [TransceiverInstruction({ index: 0, payload: 0x01 })]
+
+    uint16 internal constant _SOLANA_WORMHOLE_CHAIN_ID = 1;
+    bytes32 internal constant _SOLANA_EARNER_LIST = bytes32("solana-earners");
 
     /// @inheritdoc IPortal
     address public immutable registrar;
@@ -336,7 +341,9 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
 
         (enabledTransceivers_, instructions_, priceQuotes_, totalPriceQuote_) = _prepareForTransfer(
             destinationChainId_,
-            DEFAULT_TRANSCEIVER_INSTRUCTIONS
+            destinationChainId_ == _SOLANA_WORMHOLE_CHAIN_ID
+                ? EXECUTOR_TRANSCEIVER_INSTRUCTIONS
+                : DEFAULT_TRANSCEIVER_INSTRUCTIONS
         );
 
         // send a message

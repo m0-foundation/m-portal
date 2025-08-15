@@ -21,9 +21,6 @@ import { TypeConverter } from "./libs/TypeConverter.sol";
 contract HubPortal is IHubPortal, Portal {
     using TypeConverter for address;
 
-    uint16 internal constant _SOLANA_WORMHOLE_CHAIN_ID = 1;
-    bytes32 internal constant _SOLANA_EARNER_LIST = bytes32("solana-earners");
-
     /* ============ Variables ============ */
 
     /// @inheritdoc IHubPortal

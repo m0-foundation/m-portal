@@ -27,6 +27,8 @@ contract HubPortalTests is UnitTestBase {
     bytes32 internal constant _SOLANA_EARNER_LIST = bytes32("solana-earners");
     bytes32 internal constant _SOLANA_EARN_MANAGER_LIST = bytes32("solana-earn-managers");
 
+    TransceiverStructs.TransceiverInstruction internal _executorTransceiverInstruction;
+
     MockHubMToken internal _mToken;
     MockWrappedMToken internal _wrappedMToken;
     bytes32 internal _remoteMToken;
@@ -38,6 +40,10 @@ contract HubPortalTests is UnitTestBase {
 
     bytes32 _solanaPeer = bytes32("solana-peer");
     bytes32 _solanaToken = bytes32("solana-token");
+
+    constructor() UnitTestBase() {
+        _executorTransceiverInstruction = TransceiverStructs.TransceiverInstruction({ index: 0, payload: hex"01" });
+    }
 
     function setUp() external {
         _mToken = new MockHubMToken();
@@ -252,7 +258,7 @@ contract HubPortalTests is UnitTestBase {
                 _transceiver.sendMessage,
                 (
                     _SOLANA_WORMHOLE_CHAIN_ID,
-                    _emptyTransceiverInstruction,
+                    _executorTransceiverInstruction,
                     TransceiverStructs.encodeNttManagerMessage(message_),
                     _solanaPeer,
                     refundAddress_
@@ -392,7 +398,7 @@ contract HubPortalTests is UnitTestBase {
                 _transceiver.sendMessage,
                 (
                     _SOLANA_WORMHOLE_CHAIN_ID,
-                    _emptyTransceiverInstruction,
+                    _executorTransceiverInstruction,
                     TransceiverStructs.encodeNttManagerMessage(message_),
                     _solanaPeer,
                     refundAddress_
