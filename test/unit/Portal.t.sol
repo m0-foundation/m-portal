@@ -234,7 +234,8 @@ contract PortalTests is UnitTestBase {
             _REMOTE_CHAIN_ID,
             _remoteWrappedMToken,
             recipient_,
-            refundAddress_
+            refundAddress_,
+            RELAYER_TRANSCEIVER_INSTRUCTIONS
         );
     }
 
@@ -250,7 +251,8 @@ contract PortalTests is UnitTestBase {
             _REMOTE_CHAIN_ID,
             _remoteWrappedMToken,
             recipient_,
-            refundAddress_
+            refundAddress_,
+            RELAYER_TRANSCEIVER_INSTRUCTIONS
         );
     }
 
@@ -266,7 +268,8 @@ contract PortalTests is UnitTestBase {
             _REMOTE_CHAIN_ID,
             _remoteWrappedMToken,
             recipient_,
-            refundAddress_
+            refundAddress_,
+            RELAYER_TRANSCEIVER_INSTRUCTIONS
         );
     }
 
@@ -291,7 +294,8 @@ contract PortalTests is UnitTestBase {
             _REMOTE_CHAIN_ID,
             _remoteWrappedMToken,
             recipient_,
-            refundAddress_
+            refundAddress_,
+            RELAYER_TRANSCEIVER_INSTRUCTIONS
         );
     }
 

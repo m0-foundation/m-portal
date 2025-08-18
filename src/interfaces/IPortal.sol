@@ -162,13 +162,14 @@ interface IPortal {
     /**
      * @notice Transfers M or Wrapped M Token to the destination chain.
      * @dev    If wrapping on the destination fails, the recipient will receive $M token.
-     * @param  amount             The amount of tokens to transfer.
-     * @param  sourceToken        The address of the token (M or Wrapped M) on the source chain.
-     * @param  destinationChainId The Wormhole destination chain ID.
-     * @param  destinationToken   The address of the token (M or Wrapped M) on the destination chain.
-     * @param  recipient          The account to receive tokens.
-     * @param  refundAddress      The address to receive excess native gas on the destination chain.
-     * @return sequence           The message sequence.
+     * @param  amount                  The amount of tokens to transfer.
+     * @param  sourceToken             The address of the token (M or Wrapped M) on the source chain.
+     * @param  destinationChainId      The Wormhole destination chain ID.
+     * @param  destinationToken        The address of the token (M or Wrapped M) on the destination chain.
+     * @param  recipient               The account to receive tokens.
+     * @param  refundAddress           The address to receive excess native gas on the destination chain.
+     * @param  transceiverInstructions The transceiver specific instructions for quoting and sending.
+     * @return sequence                The message sequence.
      */
     function transferMLikeToken(
         uint256 amount,
@@ -176,6 +177,7 @@ interface IPortal {
         uint16 destinationChainId,
         bytes32 destinationToken,
         bytes32 recipient,
-        bytes32 refundAddress
+        bytes32 refundAddress,
+        bytes memory transceiverInstructions
     ) external payable returns (uint64 sequence);
 }

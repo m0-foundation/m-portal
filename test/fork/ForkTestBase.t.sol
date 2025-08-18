@@ -391,7 +391,8 @@ contract ForkTestBase is TaskBase, ConfigureBase, DeployBase, Test {
             destinationChainId_,
             destinationToken_.toBytes32(),
             recipient_.toBytes32(),
-            recipient_.toBytes32()
+            recipient_.toBytes32(),
+            RELAYER_TRANSCEIVER_INSTRUCTIONS
         );
         vm.stopPrank();
     }

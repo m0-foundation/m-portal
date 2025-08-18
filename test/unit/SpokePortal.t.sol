@@ -230,7 +230,8 @@ contract SpokePortalTests is UnitTestBase {
             _REMOTE_CHAIN_ID,
             _remoteWrappedMToken,
             recipient_,
-            refundAddress_
+            refundAddress_,
+            RELAYER_TRANSCEIVER_INSTRUCTIONS
         );
 
         assertEq(_mToken.balanceOf(_alice), 0);
@@ -298,7 +299,8 @@ contract SpokePortalTests is UnitTestBase {
             _REMOTE_CHAIN_ID,
             _remoteWrappedMToken,
             recipient_,
-            refundAddress_
+            refundAddress_,
+            RELAYER_TRANSCEIVER_INSTRUCTIONS
         );
 
         assertEq(_mToken.balanceOf(_alice), 0);

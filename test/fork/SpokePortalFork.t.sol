@@ -364,7 +364,8 @@ contract SpokePortalForkTests is ForkTestBase {
             Chains.WORMHOLE_ETHEREUM,
             destinationToken_.toBytes32(),
             user_.toBytes32(),
-            user_.toBytes32()
+            user_.toBytes32(),
+            RELAYER_TRANSCEIVER_INSTRUCTIONS
         );
         vm.stopPrank();
 
