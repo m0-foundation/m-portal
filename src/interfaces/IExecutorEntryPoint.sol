@@ -28,6 +28,7 @@ interface IExecutorEntryPoint {
     /// @param destinationToken The token address on the destination chain (M or Wrapped M).
     /// @param recipient The recipient address on the destination chain.
     /// @param executorArgs The arguments to be passed into the Executor.
+    /// @param transceiverInstructions The transceiver specific instructions for quoting and sending.
     /// @return messageId The resulting message ID of the transfer
     function transferMLikeToken(
         uint256 amount,
@@ -36,26 +37,31 @@ interface IExecutorEntryPoint {
         bytes32 destinationToken,
         bytes32 recipient,
         bytes32 refundAddress,
-        ExecutorArgs calldata executorArgs
+        ExecutorArgs calldata executorArgs,
+        bytes memory transceiverInstructions
     ) external payable returns (bytes32 messageId);
 
     /// @notice Send the M token index to a given chain using the Executor for relaying.
     /// @param destinationChainId The Wormhole chain ID for the destination.
     /// @param refundAddress The Wormhole address to refund excess gas to.
     /// @param executorArgs The arguments to be passed into the Executor.
+    /// @param transceiverInstructions The transceiver specific instructions for quoting and sending.
     /// @return messageId The resulting message ID of the index send.
     function sendMTokenIndex(
         uint16 destinationChainId,
         bytes32 refundAddress,
-        ExecutorArgs calldata executorArgs
+        ExecutorArgs calldata executorArgs,
+        bytes memory transceiverInstructions
     ) external payable returns (bytes32 messageId);
 
     /// @notice Send the earners Merkle root to Solana using the Executor for relaying.
     /// @param refundAddress The Wormhole address to refund excess gas to.
     /// @param executorArgs The arguments to be passed into the Executor.
+    /// @param transceiverInstructions The transceiver specific instructions for quoting and sending.
     /// @return messageId The resulting message ID of the Merkle root send.
     function sendEarnersMerkleRoot(
         bytes32 refundAddress,
-        ExecutorArgs calldata executorArgs
+        ExecutorArgs calldata executorArgs,
+        bytes memory transceiverInstructions
     ) external payable returns (bytes32 messageId);
 }

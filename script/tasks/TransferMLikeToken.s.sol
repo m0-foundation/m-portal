@@ -41,7 +41,8 @@ contract TransferMLikeToken is TaskBase {
             destinationChainId_,
             destinationToken_,
             recipient_,
-            refundAddress_
+            refundAddress_,
+            RELAYER_TRANSCEIVER_INSTRUCTIONS
         );
 
         vm.stopBroadcast();

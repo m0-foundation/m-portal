@@ -40,7 +40,8 @@ contract ExecutorEntryPoint is IExecutorEntryPoint {
         bytes32 destinationToken,
         bytes32 recipient,
         bytes32 refundAddress,
-        ExecutorArgs calldata executorArgs
+        ExecutorArgs calldata executorArgs,
+        bytes memory transceiverInstructions
     ) external payable returns (bytes32 messageId) {
         // Validate input
         if (!portal.supportedBridgingPath(sourceToken, destinationChainId, destinationToken)) {
@@ -59,7 +60,8 @@ contract ExecutorEntryPoint is IExecutorEntryPoint {
             destinationChainId,
             destinationToken,
             recipient,
-            refundAddress
+            refundAddress,
+            transceiverInstructions
         );
         messageId = bytes32(uint256(sequence));
 
@@ -71,11 +73,13 @@ contract ExecutorEntryPoint is IExecutorEntryPoint {
     function sendMTokenIndex(
         uint16 destinationChainId,
         bytes32 refundAddress,
-        ExecutorArgs calldata executorArgs
+        ExecutorArgs calldata executorArgs,
+        bytes memory transceiverInstructions
     ) external payable returns (bytes32 messageId) {
         messageId = IHubPortal(address(portal)).sendMTokenIndex{ value: msg.value - executorArgs.value }(
             destinationChainId,
-            refundAddress
+            refundAddress,
+            transceiverInstructions
         );
 
         // Generate the executor request event.
@@ -85,10 +89,12 @@ contract ExecutorEntryPoint is IExecutorEntryPoint {
     /// @inheritdoc IExecutorEntryPoint
     function sendEarnersMerkleRoot(
         bytes32 refundAddress,
-        ExecutorArgs calldata executorArgs
+        ExecutorArgs calldata executorArgs,
+        bytes memory transceiverInstructions
     ) external payable returns (bytes32 messageId) {
         messageId = IHubPortal(address(portal)).sendEarnersMerkleRoot{ value: msg.value - executorArgs.value }(
-            refundAddress
+            refundAddress,
+            transceiverInstructions
         );
 
         // Generate the executor request event.
