@@ -88,18 +88,19 @@ contract ExecutorEntryPoint is IExecutorEntryPoint {
 
     /// @inheritdoc IExecutorEntryPoint
     function sendEarnersMerkleRoot(
+        uint16 destinationChainId,
         bytes32 refundAddress,
         ExecutorArgs calldata executorArgs,
         bytes memory transceiverInstructions
     ) external payable returns (bytes32 messageId) {
         messageId = IHubPortal(address(portal)).sendEarnersMerkleRoot{ value: msg.value - executorArgs.value }(
+            destinationChainId,
             refundAddress,
             transceiverInstructions
         );
 
         // Generate the executor request event.
-        // Chain ID is always Solana (1) for this message.
-        _requestExecution(1, messageId, executorArgs);
+        _requestExecution(destinationChainId, messageId, executorArgs);
     }
 
     // ==================== Internal Functions ==============================================
