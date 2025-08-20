@@ -5,32 +5,30 @@ import { IERC20 } from "../lib/common/src/interfaces/IERC20.sol";
 import { INttManager } from "../lib/native-token-transfers/evm/src/interfaces/INttManager.sol";
 import { IPortal } from "./interfaces/IPortal.sol";
 import { IHubPortal } from "./interfaces/IHubPortal.sol";
-import "./interfaces/IExecutorEntryPoint.sol";
-import "./external/IExecutor.sol";
-import "./external/ExecutorMessages.sol";
-
-string constant executorEntryPointVersion = "ExecutorEntryPoint-0.0.1";
+import { ExecutorArgs, IExecutorEntryPoint } from "./interfaces/IExecutorEntryPoint.sol";
+import { IExecutor } from "./external/IExecutor.sol";
+import { ExecutorMessages } from "./external/ExecutorMessages.sol";
+import { TypeConverter } from "./libs/TypeConverter.sol";
 
 /// @title ExecutorEntryPoint
 /// @notice The ExecutorEntryPoint contract is a shim contract that initiates
 ///         an M NTT transfer using the executor for relaying.
 contract ExecutorEntryPoint is IExecutorEntryPoint {
-    uint16 public immutable chainId;
-    IExecutor public immutable executor;
-    IPortal public immutable portal;
+    using TypeConverter for address;
 
-    string public constant VERSION = executorEntryPointVersion;
+    uint16 public immutable chainId;
+    address public immutable executor;
+    address public immutable portal;
+
+    string public constant VERSION = "ExecutorEntryPoint-0.0.1";
 
     constructor(uint16 _chainId, address _executor, address _portal) {
-        assert(_chainId != 0);
-        assert(_executor != address(0));
-        assert(_portal != address(0));
-        chainId = _chainId;
-        executor = IExecutor(_executor);
-        portal = IPortal(_portal);
+        if ((chainId = _chainId) == 0) revert ZeroChainId();
+        if ((executor = _executor) == address(0)) revert ZeroExecutor();
+        if ((portal = _portal) == address(0)) revert ZeroPortal();
     }
 
-    // ==================== External Interface ===============================================
+    /* ============ Interactive Functions ============ */
 
     /// @inheritdoc IExecutorEntryPoint
     function transferMLikeToken(
@@ -43,18 +41,12 @@ contract ExecutorEntryPoint is IExecutorEntryPoint {
         ExecutorArgs calldata executorArgs,
         bytes memory transceiverInstructions
     ) external payable returns (bytes32 messageId) {
-        // Validate input
-        if (!portal.supportedBridgingPath(sourceToken, destinationChainId, destinationToken)) {
-            revert IPortal.UnsupportedBridgingPath(sourceToken, destinationChainId, destinationToken);
-        }
-
         // Custody the tokens in this contract and approve Portal to spend them.
-        // TODO do we need to handle rounding b/w M earners and non-earners?
         amount = _custodyTokens(sourceToken, amount);
 
         // Initiate the transfer.
-        IERC20(sourceToken).approve(address(portal), amount);
-        uint64 sequence = portal.transferMLikeToken{ value: msg.value - executorArgs.value }(
+        IERC20(sourceToken).approve(portal, amount);
+        uint64 sequence = IPortal(portal).transferMLikeToken{ value: msg.value - executorArgs.value }(
             amount,
             sourceToken,
             destinationChainId,
@@ -76,7 +68,7 @@ contract ExecutorEntryPoint is IExecutorEntryPoint {
         ExecutorArgs calldata executorArgs,
         bytes memory transceiverInstructions
     ) external payable returns (bytes32 messageId) {
-        messageId = IHubPortal(address(portal)).sendMTokenIndex{ value: msg.value - executorArgs.value }(
+        messageId = IHubPortal(portal).sendMTokenIndex{ value: msg.value - executorArgs.value }(
             destinationChainId,
             refundAddress,
             transceiverInstructions
@@ -93,7 +85,7 @@ contract ExecutorEntryPoint is IExecutorEntryPoint {
         ExecutorArgs calldata executorArgs,
         bytes memory transceiverInstructions
     ) external payable returns (bytes32 messageId) {
-        messageId = IHubPortal(address(portal)).sendEarnersMerkleRoot{ value: msg.value - executorArgs.value }(
+        messageId = IHubPortal(portal).sendEarnersMerkleRoot{ value: msg.value - executorArgs.value }(
             destinationChainId,
             refundAddress,
             transceiverInstructions
@@ -103,7 +95,7 @@ contract ExecutorEntryPoint is IExecutorEntryPoint {
         _requestExecution(destinationChainId, messageId, executorArgs);
     }
 
-    // ==================== Internal Functions ==============================================
+    /* ============ Internal Functions ============ */
 
     function _requestExecution(
         uint16 destinationChainId,
@@ -111,12 +103,12 @@ contract ExecutorEntryPoint is IExecutorEntryPoint {
         ExecutorArgs calldata executorArgs
     ) internal {
         // Generate the executor event.
-        executor.requestExecution{ value: executorArgs.value }(
+        IExecutor(executor).requestExecution{ value: executorArgs.value }(
             destinationChainId,
-            INttManager(address(portal)).getPeer(destinationChainId).peerAddress,
+            INttManager(portal).getPeer(destinationChainId).peerAddress,
             executorArgs.refundAddress,
             executorArgs.signedQuote,
-            ExecutorMessages.makeNTTv1Request(chainId, bytes32(uint256(uint160(address(portal)))), messageId),
+            ExecutorMessages.makeNTTv1Request(chainId, portal.toBytes32(), messageId),
             executorArgs.instructions
         );
 
@@ -142,10 +134,6 @@ contract ExecutorEntryPoint is IExecutorEntryPoint {
     }
 
     function _getBalance(address token) internal view returns (uint256 balance) {
-        // fetch the specified token balance for this contract
-        (, bytes memory queriedBalance) = token.staticcall(
-            abi.encodeWithSelector(IERC20.balanceOf.selector, address(this))
-        );
-        balance = abi.decode(queriedBalance, (uint256));
+        return IERC20(token).balanceOf(address(this));
     }
 }

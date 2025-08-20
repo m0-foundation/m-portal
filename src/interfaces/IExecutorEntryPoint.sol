@@ -18,8 +18,14 @@ interface IExecutorEntryPoint {
     /// @param refundAmount The refund amount.
     error RefundFailed(uint256 refundAmount);
 
-    /// @notice Peer cannot have zero decimals.
-    error InvalidPeerDecimals();
+    /// @notice Emitted in the constructor if chain ID is 0.
+    error ZeroChainId();
+
+    /// @notice Emitted in the constructor if Executor address is 0x0.
+    error ZeroExecutor();
+
+    /// @notice Emitted in the constructor if Portal address is 0x0.
+    error ZeroPortal();
 
     /// @notice Transfer a given amount to a recipient on a given chain using the Executor for relaying.
     /// @param amount The amount to transfer.
