@@ -433,10 +433,10 @@ contract HubPortalTests is UnitTestBase {
         );
 
         vm.expectEmit();
-        emit IHubPortal.EarnersMerkleRootSent(messageId_, earnersMerkleRoot_);
+        emit IHubPortal.EarnersMerkleRootSent(_SOLANA_WORMHOLE_CHAIN_ID, messageId_, earnersMerkleRoot_);
 
         vm.prank(_alice);
-        _portal.sendEarnersMerkleRoot(refundAddress_, EXECUTOR_TRANSCEIVER_INSTRUCTIONS);
+        _portal.sendEarnersMerkleRoot(_SOLANA_WORMHOLE_CHAIN_ID, refundAddress_, EXECUTOR_TRANSCEIVER_INSTRUCTIONS);
     }
 
     /* ============ transfer ============ */

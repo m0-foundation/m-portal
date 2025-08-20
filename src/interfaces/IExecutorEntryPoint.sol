@@ -54,12 +54,14 @@ interface IExecutorEntryPoint {
         bytes memory transceiverInstructions
     ) external payable returns (bytes32 messageId);
 
-    /// @notice Send the earners Merkle root to Solana using the Executor for relaying.
+    /// @notice Send the earners Merkle root to SVM chains using the Executor for relaying.
+    /// @param destinationChainId The Wormhole chain ID for the destination.
     /// @param refundAddress The Wormhole address to refund excess gas to.
     /// @param executorArgs The arguments to be passed into the Executor.
     /// @param transceiverInstructions The transceiver specific instructions for quoting and sending.
     /// @return messageId The resulting message ID of the Merkle root send.
     function sendEarnersMerkleRoot(
+        uint16 destinationChainId,
         bytes32 refundAddress,
         ExecutorArgs calldata executorArgs,
         bytes memory transceiverInstructions
