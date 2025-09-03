@@ -3,6 +3,8 @@ pragma solidity 0.8.26;
 
 import { IERC20 } from "../lib/common/src/interfaces/IERC20.sol";
 import { INttManager } from "../lib/native-token-transfers/evm/src/interfaces/INttManager.sol";
+import { IWormhole } from "../lib/native-token-transfers/evm/lib/wormhole-solidity-sdk/src/interfaces/IWormhole.sol";
+import { TransceiverRegistry } from "../lib/native-token-transfers/evm/src/NttManager/TransceiverRegistry.sol";
 import { IPortal } from "./interfaces/IPortal.sol";
 import { IHubPortal } from "./interfaces/IHubPortal.sol";
 import { ExecutorArgs, IExecutorEntryPoint } from "./interfaces/IExecutorEntryPoint.sol";
@@ -19,13 +21,15 @@ contract ExecutorEntryPoint is IExecutorEntryPoint {
     uint16 public immutable chainId;
     address public immutable executor;
     address public immutable portal;
+    IWormhole public immutable wormhole;
 
-    string public constant VERSION = "ExecutorEntryPoint-0.0.1";
+    string public constant VERSION = "ExecutorEntryPoint-0.0.2";
 
-    constructor(uint16 _chainId, address _executor, address _portal) {
+    constructor(uint16 _chainId, address _executor, address _portal, address _wormhole) {
         if ((chainId = _chainId) == 0) revert ZeroChainId();
         if ((executor = _executor) == address(0)) revert ZeroExecutor();
         if ((portal = _portal) == address(0)) revert ZeroPortal();
+        if (address(wormhole = IWormhole(_wormhole)) == address(0)) revert ZeroWormhole();
     }
 
     /* ============ Interactive Functions ============ */
@@ -40,13 +44,17 @@ contract ExecutorEntryPoint is IExecutorEntryPoint {
         bytes32 refundAddress,
         ExecutorArgs calldata executorArgs,
         bytes memory transceiverInstructions
-    ) external payable returns (bytes32 messageId) {
+    ) external payable returns (uint64 sequence) {
         // Custody the tokens in this contract and approve Portal to spend them.
         amount = _custodyTokens(sourceToken, amount);
 
+        // Get the next sequence number for the transceiver.
+        address emitter;
+        (emitter, sequence) = _getNextTransceiverSequence();
+
         // Initiate the transfer.
         IERC20(sourceToken).approve(portal, amount);
-        uint64 sequence = IPortal(portal).transferMLikeToken{ value: msg.value - executorArgs.value }(
+        IPortal(portal).transferMLikeToken{ value: msg.value - executorArgs.value }(
             amount,
             sourceToken,
             destinationChainId,
@@ -55,10 +63,9 @@ contract ExecutorEntryPoint is IExecutorEntryPoint {
             refundAddress,
             transceiverInstructions
         );
-        messageId = bytes32(uint256(sequence));
 
         // Generate the executor request event.
-        _requestExecution(destinationChainId, messageId, executorArgs);
+        _requestExecution(destinationChainId, emitter, sequence, executorArgs);
     }
 
     /// @inheritdoc IExecutorEntryPoint
@@ -67,15 +74,18 @@ contract ExecutorEntryPoint is IExecutorEntryPoint {
         bytes32 refundAddress,
         ExecutorArgs calldata executorArgs,
         bytes memory transceiverInstructions
-    ) external payable returns (bytes32 messageId) {
-        messageId = IHubPortal(portal).sendMTokenIndex{ value: msg.value - executorArgs.value }(
+    ) external payable returns (uint64 sequence) {
+        address emitter;
+        (emitter, sequence) = _getNextTransceiverSequence();
+
+        IHubPortal(portal).sendMTokenIndex{ value: msg.value - executorArgs.value }(
             destinationChainId,
             refundAddress,
             transceiverInstructions
         );
 
         // Generate the executor request event.
-        _requestExecution(destinationChainId, messageId, executorArgs);
+        _requestExecution(destinationChainId, emitter, sequence, executorArgs);
     }
 
     /// @inheritdoc IExecutorEntryPoint
@@ -84,22 +94,26 @@ contract ExecutorEntryPoint is IExecutorEntryPoint {
         bytes32 refundAddress,
         ExecutorArgs calldata executorArgs,
         bytes memory transceiverInstructions
-    ) external payable returns (bytes32 messageId) {
-        messageId = IHubPortal(portal).sendEarnersMerkleRoot{ value: msg.value - executorArgs.value }(
+    ) external payable returns (uint64 sequence) {
+        address emitter;
+        (emitter, sequence) = _getNextTransceiverSequence();
+
+        IHubPortal(portal).sendEarnersMerkleRoot{ value: msg.value - executorArgs.value }(
             destinationChainId,
             refundAddress,
             transceiverInstructions
         );
 
         // Generate the executor request event.
-        _requestExecution(destinationChainId, messageId, executorArgs);
+        _requestExecution(destinationChainId, emitter, sequence, executorArgs);
     }
 
     /* ============ Internal Functions ============ */
 
     function _requestExecution(
         uint16 destinationChainId,
-        bytes32 messageId,
+        address emitter,
+        uint64 sequence,
         ExecutorArgs calldata executorArgs
     ) internal {
         // Generate the executor event.
@@ -108,7 +122,7 @@ contract ExecutorEntryPoint is IExecutorEntryPoint {
             INttManager(portal).getPeer(destinationChainId).peerAddress,
             executorArgs.refundAddress,
             executorArgs.signedQuote,
-            ExecutorMessages.makeNTTv1Request(chainId, portal.toBytes32(), messageId),
+            ExecutorMessages.makeVAAv1Request(destinationChainId, emitter.toBytes32(), sequence),
             executorArgs.instructions
         );
 
@@ -135,5 +149,13 @@ contract ExecutorEntryPoint is IExecutorEntryPoint {
 
     function _getBalance(address token) internal view returns (uint256 balance) {
         return IERC20(token).balanceOf(address(this));
+    }
+
+    function _getNextTransceiverSequence() internal view returns (address emitter, uint64 sequence) {
+        // Get the list of transceivers from the portal. Assume the first one is used.
+        address[] memory transceivers = TransceiverRegistry(portal).getTransceivers();
+        address transceiver = transceivers[0];
+
+        return (transceiver, wormhole.nextSequence(transceiver));
     }
 }

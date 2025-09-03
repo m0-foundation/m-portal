@@ -27,6 +27,9 @@ interface IExecutorEntryPoint {
     /// @notice Emitted in the constructor if Portal address is 0x0.
     error ZeroPortal();
 
+    /// @notice Emitted in the constructor if Wormhole address is 0x0.
+    error ZeroWormhole();
+
     /// @notice Transfer a given amount to a recipient on a given chain using the Executor for relaying.
     /// @param amount The amount to transfer.
     /// @param sourceToken M or an M extension that is supported by the Portal.
@@ -35,7 +38,7 @@ interface IExecutorEntryPoint {
     /// @param recipient The recipient address on the destination chain.
     /// @param executorArgs The arguments to be passed into the Executor.
     /// @param transceiverInstructions The transceiver specific instructions for quoting and sending.
-    /// @return messageId The resulting message ID of the transfer
+    /// @return sequence The resulting sequence ID on the transceiver for the transfer.
     function transferMLikeToken(
         uint256 amount,
         address sourceToken,
@@ -45,31 +48,31 @@ interface IExecutorEntryPoint {
         bytes32 refundAddress,
         ExecutorArgs calldata executorArgs,
         bytes memory transceiverInstructions
-    ) external payable returns (bytes32 messageId);
+    ) external payable returns (uint64 sequence);
 
     /// @notice Send the M token index to a given chain using the Executor for relaying.
     /// @param destinationChainId The Wormhole chain ID for the destination.
     /// @param refundAddress The Wormhole address to refund excess gas to.
     /// @param executorArgs The arguments to be passed into the Executor.
     /// @param transceiverInstructions The transceiver specific instructions for quoting and sending.
-    /// @return messageId The resulting message ID of the index send.
+    /// @return sequence The resulting sequence ID on the transceiver for the index send.
     function sendMTokenIndex(
         uint16 destinationChainId,
         bytes32 refundAddress,
         ExecutorArgs calldata executorArgs,
         bytes memory transceiverInstructions
-    ) external payable returns (bytes32 messageId);
+    ) external payable returns (uint64 sequence);
 
     /// @notice Send the earners Merkle root to SVM chains using the Executor for relaying.
     /// @param destinationChainId The Wormhole chain ID for the destination.
     /// @param refundAddress The Wormhole address to refund excess gas to.
     /// @param executorArgs The arguments to be passed into the Executor.
     /// @param transceiverInstructions The transceiver specific instructions for quoting and sending.
-    /// @return messageId The resulting message ID of the Merkle root send.
+    /// @return sequence The resulting sequence ID on the transceiver for the Merkle root send.
     function sendEarnersMerkleRoot(
         uint16 destinationChainId,
         bytes32 refundAddress,
         ExecutorArgs calldata executorArgs,
         bytes memory transceiverInstructions
-    ) external payable returns (bytes32 messageId);
+    ) external payable returns (uint64 sequence);
 }
