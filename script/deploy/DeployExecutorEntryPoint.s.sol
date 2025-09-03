@@ -21,7 +21,9 @@ contract DeployExecutorEntryPoint is DeployBase {
 
         vm.startBroadcast(deployer_);
 
-        address executorEntryPoint = address(new ExecutorEntryPoint(chainId.toWormholeChainId(), executor, portal));
+        address executorEntryPoint = address(
+            new ExecutorEntryPoint(chainId.toWormholeChainId(), executor, portal, wormhole)
+        );
 
         vm.stopBroadcast();
 
