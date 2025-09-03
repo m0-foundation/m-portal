@@ -122,7 +122,7 @@ contract ExecutorEntryPoint is IExecutorEntryPoint {
             INttManager(portal).getPeer(destinationChainId).peerAddress,
             executorArgs.refundAddress,
             executorArgs.signedQuote,
-            ExecutorMessages.makeVAAv1Request(destinationChainId, emitter.toBytes32(), sequence),
+            ExecutorMessages.makeVAAv1Request(chainId, emitter.toBytes32(), sequence),
             executorArgs.instructions
         );
 
