@@ -51,6 +51,15 @@ clean:
 deploy:
 	FOUNDRY_PROFILE=production MIGRATION_ADMIN=$(MIGRATION_ADMIN_ADDRESS) PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) forge script $(SCRIPT) --rpc-url $(RPC_URL) --etherscan-api-key $(SCAN_API_KEY) --skip test --broadcast --slow --non-interactive -v --verify
 
+deploy-executor-entry-point: SCRIPT=script/deploy/DeployExecutorEntryPoint.s.sol:DeployExecutorEntryPoint
+deploy-executor-entry-point: deploy
+
+deploy-executor-entry-point-sepolia: SIGNER_PRIVATE_KEY=$(DEV_PRIVATE_KEY)
+deploy-executor-entry-point-sepolia: SCAN_API_KEY=$(ETHERSCAN_API_KEY)
+deploy-executor-entry-point-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
+deploy-executor-entry-point-sepolia: deploy-executor-entry-point
+
+
 # Deploy Hub
 
 deploy-hub: SCRIPT=script/deploy/DeployHub.s.sol:DeployHub
