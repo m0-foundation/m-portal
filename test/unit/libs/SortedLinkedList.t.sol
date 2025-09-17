@@ -318,7 +318,7 @@ contract SortedLinkedListTest is Test {
     ) external {
         valuesToAdd = (valuesToAdd % 20) + 1;
         vm.assume(testValue != ZERO && testValue != MAX);
-        vm.assume(previousValue > testValue);
+        vm.assume(previousValue != MAX && previousValue > testValue);
         list.initialize();
 
         // Add the previous value to the list
