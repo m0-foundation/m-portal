@@ -21,6 +21,7 @@ import { HubPortal } from "../../src/HubPortal.sol";
 import { SpokePortal } from "../../src/SpokePortal.sol";
 import { SpokeVault } from "../../src/SpokeVault.sol";
 import { MerkleTreeBuilder } from "../../src/MerkleTreeBuilder.sol";
+import { ExecutorEntryPoint } from "../../src/ExecutorEntryPoint.sol";
 
 import { ScriptBase } from "../ScriptBase.sol";
 import { WormholeTransceiverConfig } from "../config/WormholeConfig.sol";
@@ -295,6 +296,25 @@ contract DeployBase is ScriptBase {
 
     function _deployMerkleTreeBuilder(address deployer_, address registrar_) internal returns (address) {
         return address(new MerkleTreeBuilder(registrar_));
+    }
+
+    function _deployExecutorEntryPoint(
+        address deployer_,
+        address admin_,
+        uint16 wormholeChainId_,
+        WormholeTransceiverConfig memory config_,
+        address portal_
+    ) internal returns (address implementation_, address proxy_) {
+        implementation_ = address(
+            new ExecutorEntryPoint(wormholeChainId_, config_.executor, portal_, config_.coreBridge)
+        );
+
+        proxy_ = _deployCreate3TransparentProxy(
+            implementation_,
+            admin_,
+            "",
+            _computeSalt(deployer_, "ExecutorEntryPoint")
+        );
     }
 
     function _configurePortal(address portal_, address transceiver_) internal {
