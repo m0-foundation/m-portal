@@ -9,6 +9,10 @@ import {
     ERC1967Proxy
 } from "../lib/native-token-transfers/evm/lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
+import {
+    TransparentUpgradeableProxy
+} from "../lib/native-token-transfers/evm/lib/openzeppelin-contracts/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
+
 import { ICreateXLike } from "./deploy/interfaces/ICreateXLike.sol";
 
 contract ScriptBase is Script {
@@ -65,6 +69,22 @@ contract ScriptBase is Script {
             ICreateXLike(_CREATE_X_FACTORY).deployCreate3(
                 salt_,
                 abi.encodePacked(type(ERC1967Proxy).creationCode, abi.encode(address(implementation_), ""))
+            );
+    }
+
+    function _deployCreate3TransparentProxy(
+        address implementation,
+        address initialOwner,
+        bytes memory initializerData,
+        bytes32 salt
+    ) internal returns (address) {
+        return
+            ICreateXLike(_CREATE_X_FACTORY).deployCreate3(
+                salt,
+                abi.encodePacked(
+                    type(TransparentUpgradeableProxy).creationCode,
+                    abi.encode(implementation, initialOwner, initializerData)
+                )
             );
     }
 
