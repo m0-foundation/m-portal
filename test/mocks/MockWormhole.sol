@@ -8,8 +8,11 @@ import { IWormhole } from "../../lib/native-token-transfers/evm/lib/wormhole-sol
 ///      within tests.
 contract MockWormhole is IWormhole {
     mapping(address => uint64) internal _sequences;
+    uint16 internal _chainId;
 
-    constructor() {}
+    constructor(uint16 chainId_) {
+        _chainId = chainId_;
+    }
 
     // Publish a message to be attested by the Wormhole network
     function publishMessage(
@@ -95,7 +98,9 @@ contract MockWormhole is IWormhole {
 
     function isInitialized(address impl) external view override returns (bool) {}
 
-    function chainId() external view override returns (uint16) {}
+    function chainId() external view override returns (uint16) {
+        return _chainId;
+    }
 
     function isFork() external view override returns (bool) {}
 

@@ -73,13 +73,12 @@ contract HubExecutorEntryPointTest is UnitTestBase {
         _transceiverWithPrice.setQuotePrice(_SOLANA_WORMHOLE_CHAIN_ID, _TRANSCEIVER_QUOTE_VALUE);
         _merkleTreeBuilder = new MockMerkleTreeBuilder();
         _executor = new MockExecutor();
-        _wormhole = new MockWormhole();
+        _wormhole = new MockWormhole(_LOCAL_CHAIN_ID);
 
         HubPortal portalImplementation_ = new HubPortal(address(_mToken), address(_registrar), _LOCAL_CHAIN_ID);
         _portal = HubPortal(_createProxy(address(portalImplementation_)));
 
         HubExecutorEntryPoint executorEntryPointImplementation_ = new HubExecutorEntryPoint(
-            _LOCAL_CHAIN_ID,
             address(_executor),
             address(_portal),
             address(_wormhole)

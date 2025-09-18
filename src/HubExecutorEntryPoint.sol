@@ -18,11 +18,10 @@ import { TypeConverter } from "./libs/TypeConverter.sol";
 ///         an M NTT transfer using the executor for relaying.
 contract HubExecutorEntryPoint is ExecutorEntryPoint, IHubExecutorEntryPoint {
     constructor(
-        uint16 _chainId,
         address _executor,
         address _portal,
         address _wormhole
-    ) ExecutorEntryPoint(_chainId, _executor, _portal, _wormhole) {}
+    ) ExecutorEntryPoint(_executor, _portal, _wormhole) {}
 
     /* ============ Interactive Functions ============ */
 

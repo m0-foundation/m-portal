@@ -7,7 +7,7 @@ import { console } from "../../lib/forge-std/src/console.sol";
 import { DeployBase } from "./DeployBase.sol";
 import { WormholeConfig, WormholeTransceiverConfig } from "../config/WormholeConfig.sol";
 
-contract DeployExecutorEntryPoint is DeployBase {
+contract DeployHubExecutorEntryPoint is DeployBase {
     using WormholeConfig for uint256;
 
     function run() external {
@@ -21,11 +21,11 @@ contract DeployExecutorEntryPoint is DeployBase {
 
         vm.startBroadcast(deployer_);
 
-        (address implementation_, address proxy_) = _deployExecutorEntryPoint(deployer_, admin_, config_, portal_);
+        (address implementation_, address proxy_) = _deployHubExecutorEntryPoint(deployer_, admin_, config_, portal_);
 
         vm.stopBroadcast();
 
-        console.log("ExecutorEntryPoint Proxy:         ", proxy_);
-        console.log("ExecutorEntryPoint Implementation:", implementation_);
+        console.log("HubExecutorEntryPoint Proxy:         ", proxy_);
+        console.log("HubExecutorEntryPoint Implementation:", implementation_);
     }
 }
