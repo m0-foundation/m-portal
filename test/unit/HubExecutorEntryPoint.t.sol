@@ -100,6 +100,9 @@ contract HubExecutorEntryPointTest is UnitTestBase {
         vm.deal(address(this), 10e18);
     }
 
+    // necessary for receiving native assets, e.g. refunds
+    receive() external payable {}
+
     /* ============ constructor ============ */
 
     function test_constructor() external view {
@@ -407,6 +410,97 @@ contract HubExecutorEntryPointTest is UnitTestBase {
 
         // Verify that the sequence number is as expected (1 in this case)
         assertEq(sequence, 1);
+    }
+
+    function test_transferMLikeToken_excessRefunded_success() public {
+        uint256 amount = 1e6;
+
+        // Move the sequence forward to 1 for this emitter so it's not zero
+        _wormhole.useSequence(address(_transceiverWithPrice));
+
+        // Approve the entry point to spend m tokens on behalf of this contract
+        _mToken.approve(address(_executorEntryPoint), amount);
+
+        // Capture the initial balance of this contract
+        uint256 initialBalance = _mToken.balanceOf(address(this));
+
+        // Verify that the entry point doesn't have any tokens
+        assertEq(_mToken.balanceOf(address(_executorEntryPoint)), 0);
+
+        uint256 initialEthBalance = address(this).balance;
+
+        // Verify that the entry point doesn't have any ETH
+        assertEq(address(_executorEntryPoint).balance, 0);
+
+        // Verify that the portal doesn't have any ETH
+        assertEq(address(_portal).balance, 0);
+
+        uint256 ethToSend = _EXECUTOR_QUOTE_VALUE + 1 ether;
+
+        // Perform the transfer
+        // Expect a call to the portal with the correct parameters
+        vm.expectCall(
+            address(_portal),
+            1 ether,
+            abi.encodeWithSelector(
+                IPortal.transferMLikeToken.selector,
+                amount,
+                address(_mToken),
+                _SOLANA_WORMHOLE_CHAIN_ID,
+                _solanaToken,
+                bytes32("recipient"),
+                address(this).toBytes32(),
+                _executorTransceiverInstructionBytes
+            )
+        );
+        // Expect a call to the executor with the correct parameters
+        vm.expectCall(
+            address(_executor),
+            _EXECUTOR_QUOTE_VALUE,
+            abi.encodeWithSelector(
+                MockExecutor.requestExecution.selector, //
+                _SOLANA_WORMHOLE_CHAIN_ID, // destination chain
+                _solanaPeer, // peer on destination
+                address(this), // refund address
+                hex"",
+                ExecutorMessages.makeVAAv1Request(_LOCAL_CHAIN_ID, address(_transceiverWithPrice).toBytes32(), 1),
+                hex""
+            )
+        );
+        uint64 sequence = _executorEntryPoint.transferMLikeToken{ value: ethToSend }(
+            amount,
+            address(_mToken),
+            _SOLANA_WORMHOLE_CHAIN_ID,
+            _solanaToken,
+            bytes32("recipient"),
+            address(this).toBytes32(),
+            ExecutorArgs({
+                value: _EXECUTOR_QUOTE_VALUE,
+                refundAddress: address(this),
+                signedQuote: hex"",
+                instructions: hex""
+            }),
+            _executorTransceiverInstructionBytes
+        );
+
+        // Verify that the sequence number is as expected (1 in this case)
+        assertEq(sequence, 1);
+
+        // Verify that the balance of this contract has decreased by the transferred amount
+        uint256 finalBalance = _mToken.balanceOf(address(this));
+        assertEq(finalBalance, initialBalance - amount);
+
+        // Verify that the entry point doesn't have any tokens
+        assertEq(_mToken.balanceOf(address(_executorEntryPoint)), 0);
+
+        // Verify that the balance of this contract has only decreased by the executor quote value
+        assertEq(address(this).balance, initialEthBalance - _EXECUTOR_QUOTE_VALUE);
+
+        // Verify that the entry point doesn't have any ETH
+        assertEq(address(_executorEntryPoint).balance, 0);
+
+        // Verify that the portal doesn't have any ETH
+        assertEq(address(_portal).balance, 0);
     }
 
     /* ============ sendMTokenIndex ============ */

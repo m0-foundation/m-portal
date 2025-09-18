@@ -68,6 +68,9 @@ contract ExecutorEntryPoint is IExecutorEntryPoint {
         _requestExecution(destinationChainId, emitter, sequence, executorArgs);
     }
 
+    // necessary for receiving native assets, e.g. refunds
+    receive() external payable {}
+
     /* ============ Internal Functions ============ */
 
     function _requestExecution(
