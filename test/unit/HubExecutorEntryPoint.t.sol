@@ -12,8 +12,8 @@ import { IMerkleTreeBuilder } from "../../src/interfaces/IMerkleTreeBuilder.sol"
 import { HubPortal } from "../../src/HubPortal.sol";
 import { PayloadEncoder } from "../../src/libs/PayloadEncoder.sol";
 import { TypeConverter } from "../../src/libs/TypeConverter.sol";
-import { ExecutorArgs, IExecutorEntryPoint } from "../../src/interfaces/IExecutorEntryPoint.sol";
-import { ExecutorEntryPoint, ExecutorMessages } from "../../src/ExecutorEntryPoint.sol";
+import { ExecutorArgs, IHubExecutorEntryPoint } from "../../src/interfaces/IHubExecutorEntryPoint.sol";
+import { HubExecutorEntryPoint, ExecutorMessages } from "../../src/HubExecutorEntryPoint.sol";
 
 import { UnitTestBase } from "./UnitTestBase.t.sol";
 import { MockHubMToken } from "../mocks/MockHubMToken.sol";
@@ -24,7 +24,7 @@ import { MockMerkleTreeBuilder } from "../mocks/MockMerkleTreeBuilder.sol";
 import { MockExecutor } from "../mocks/MockExecutor.sol";
 import { MockWormhole } from "../mocks/MockWormhole.sol";
 
-contract ExecutorEntryPointTest is UnitTestBase {
+contract HubExecutorEntryPointTest is UnitTestBase {
     using TypeConverter for *;
 
     uint16 internal constant _SOLANA_WORMHOLE_CHAIN_ID = 1;
@@ -43,7 +43,7 @@ contract ExecutorEntryPointTest is UnitTestBase {
     MockTransceiverPrice internal _transceiverWithPrice;
 
     HubPortal internal _portal;
-    ExecutorEntryPoint internal _executorEntryPoint;
+    HubExecutorEntryPoint internal _executorEntryPoint;
 
     uint256 internal constant _INITIAL_MINT_AMOUNT = 1_000_000e6;
     uint256 internal constant _EXECUTOR_QUOTE_VALUE = 0.01 ether;
@@ -78,13 +78,13 @@ contract ExecutorEntryPointTest is UnitTestBase {
         HubPortal portalImplementation_ = new HubPortal(address(_mToken), address(_registrar), _LOCAL_CHAIN_ID);
         _portal = HubPortal(_createProxy(address(portalImplementation_)));
 
-        ExecutorEntryPoint executorEntryPointImplementation_ = new ExecutorEntryPoint(
+        HubExecutorEntryPoint executorEntryPointImplementation_ = new HubExecutorEntryPoint(
             _LOCAL_CHAIN_ID,
             address(_executor),
             address(_portal),
             address(_wormhole)
         );
-        _executorEntryPoint = ExecutorEntryPoint(_createProxy(address(executorEntryPointImplementation_)));
+        _executorEntryPoint = HubExecutorEntryPoint(payable(_createProxy(address(executorEntryPointImplementation_))));
 
         _portal.initialize();
         _portal.setTransceiver(address(_transceiverWithPrice));

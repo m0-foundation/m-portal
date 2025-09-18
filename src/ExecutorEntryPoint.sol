@@ -68,46 +68,6 @@ contract ExecutorEntryPoint is IExecutorEntryPoint {
         _requestExecution(destinationChainId, emitter, sequence, executorArgs);
     }
 
-    /// @inheritdoc IExecutorEntryPoint
-    function sendMTokenIndex(
-        uint16 destinationChainId,
-        bytes32 refundAddress,
-        ExecutorArgs calldata executorArgs,
-        bytes memory transceiverInstructions
-    ) external payable returns (uint64 sequence) {
-        address emitter;
-        (emitter, sequence) = _getNextTransceiverSequence();
-
-        IHubPortal(portal).sendMTokenIndex{ value: msg.value - executorArgs.value }(
-            destinationChainId,
-            refundAddress,
-            transceiverInstructions
-        );
-
-        // Generate the executor request event.
-        _requestExecution(destinationChainId, emitter, sequence, executorArgs);
-    }
-
-    /// @inheritdoc IExecutorEntryPoint
-    function sendEarnersMerkleRoot(
-        uint16 destinationChainId,
-        bytes32 refundAddress,
-        ExecutorArgs calldata executorArgs,
-        bytes memory transceiverInstructions
-    ) external payable returns (uint64 sequence) {
-        address emitter;
-        (emitter, sequence) = _getNextTransceiverSequence();
-
-        IHubPortal(portal).sendEarnersMerkleRoot{ value: msg.value - executorArgs.value }(
-            destinationChainId,
-            refundAddress,
-            transceiverInstructions
-        );
-
-        // Generate the executor request event.
-        _requestExecution(destinationChainId, emitter, sequence, executorArgs);
-    }
-
     /* ============ Internal Functions ============ */
 
     function _requestExecution(
