@@ -1,17 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity 0.8.26;
 
-import { IERC20 } from "../lib/common/src/interfaces/IERC20.sol";
-import { INttManager } from "../lib/native-token-transfers/evm/src/interfaces/INttManager.sol";
-import { IWormhole } from "../lib/native-token-transfers/evm/lib/wormhole-solidity-sdk/src/interfaces/IWormhole.sol";
-import { TransceiverRegistry } from "../lib/native-token-transfers/evm/src/NttManager/TransceiverRegistry.sol";
-import { IPortal } from "./interfaces/IPortal.sol";
 import { IHubPortal } from "./interfaces/IHubPortal.sol";
 import { ExecutorArgs, IHubExecutorEntryPoint } from "./interfaces/IHubExecutorEntryPoint.sol";
 import { ExecutorEntryPoint } from "./ExecutorEntryPoint.sol";
-import { IExecutor } from "./external/IExecutor.sol";
-import { ExecutorMessages } from "./external/ExecutorMessages.sol";
-import { TypeConverter } from "./libs/TypeConverter.sol";
 
 /// @title ExecutorEntryPoint
 /// @notice The ExecutorEntryPoint contract is a shim contract that initiates

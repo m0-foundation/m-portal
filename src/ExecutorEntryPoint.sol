@@ -6,7 +6,6 @@ import { INttManager } from "../lib/native-token-transfers/evm/src/interfaces/IN
 import { IWormhole } from "../lib/native-token-transfers/evm/lib/wormhole-solidity-sdk/src/interfaces/IWormhole.sol";
 import { TransceiverRegistry } from "../lib/native-token-transfers/evm/src/NttManager/TransceiverRegistry.sol";
 import { IPortal } from "./interfaces/IPortal.sol";
-import { IHubPortal } from "./interfaces/IHubPortal.sol";
 import { ExecutorArgs, IExecutorEntryPoint } from "./interfaces/IExecutorEntryPoint.sol";
 import { IExecutor } from "./external/IExecutor.sol";
 import { ExecutorMessages } from "./external/ExecutorMessages.sol";

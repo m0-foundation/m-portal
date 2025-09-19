@@ -2,18 +2,16 @@
 
 pragma solidity 0.8.26;
 
-import { IManagerBase } from "../../lib/native-token-transfers/evm/src/interfaces/IManagerBase.sol";
-import { INttManager } from "../../lib/native-token-transfers/evm/src/interfaces/INttManager.sol";
 import { TransceiverStructs } from "../../lib/native-token-transfers/evm/src/libraries/TransceiverStructs.sol";
 
 import { IPortal } from "../../src/interfaces/IPortal.sol";
 import { IHubPortal } from "../../src/interfaces/IHubPortal.sol";
-import { IMerkleTreeBuilder } from "../../src/interfaces/IMerkleTreeBuilder.sol";
 import { HubPortal } from "../../src/HubPortal.sol";
 import { PayloadEncoder } from "../../src/libs/PayloadEncoder.sol";
 import { TypeConverter } from "../../src/libs/TypeConverter.sol";
-import { ExecutorArgs, IHubExecutorEntryPoint } from "../../src/interfaces/IHubExecutorEntryPoint.sol";
-import { HubExecutorEntryPoint, ExecutorMessages } from "../../src/HubExecutorEntryPoint.sol";
+import { ExecutorArgs } from "../../src/interfaces/IHubExecutorEntryPoint.sol";
+import { ExecutorMessages } from "../../src/external/ExecutorMessages.sol";
+import { HubExecutorEntryPoint } from "../../src/HubExecutorEntryPoint.sol";
 
 import { UnitTestBase } from "./UnitTestBase.t.sol";
 import { MockHubMToken } from "../mocks/MockHubMToken.sol";
