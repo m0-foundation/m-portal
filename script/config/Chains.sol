@@ -42,6 +42,7 @@ library Chains {
     uint16 internal constant WORMHOLE_OPTIMISM = 24;
     uint16 internal constant WORMHOLE_ARBITRUM = 23;
     uint16 internal constant WORMHOLE_NOBLE = 4009;
+    uint16 internal constant WORMHOLE_FOGO = 51;
 
     // Testnet
     uint16 internal constant WORMHOLE_SOLANA_TESTNET = 1;
@@ -49,6 +50,7 @@ library Chains {
     uint16 internal constant WORMHOLE_OPTIMISM_SEPOLIA = 10005;
     uint16 internal constant WORMHOLE_ARBITRUM_SEPOLIA = 10003;
     uint16 internal constant WORMHOLE_NOBLE_TESTNET = 4009;
+    uint16 internal constant WORMHOLE_FOGO_TESTNET = 51;
 
     function isHub(uint256 chainId_) internal pure returns (bool) {
         return chainId_ == ETHEREUM || chainId_ == ETHEREUM_SEPOLIA;
