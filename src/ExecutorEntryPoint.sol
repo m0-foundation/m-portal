@@ -25,11 +25,11 @@ contract ExecutorEntryPoint is IExecutorEntryPoint {
 
     string public constant VERSION = "ExecutorEntryPoint-0.0.2";
 
-    constructor(uint16 _chainId, address _executor, address _portal, address _wormhole) {
-        if ((chainId = _chainId) == 0) revert ZeroChainId();
+    constructor(address _executor, address _portal, address _wormhole) {
         if ((executor = _executor) == address(0)) revert ZeroExecutor();
         if ((portal = _portal) == address(0)) revert ZeroPortal();
         if (address(wormhole = IWormhole(_wormhole)) == address(0)) revert ZeroWormhole();
+        chainId = wormhole.chainId();
     }
 
     /* ============ Interactive Functions ============ */
@@ -68,45 +68,8 @@ contract ExecutorEntryPoint is IExecutorEntryPoint {
         _requestExecution(destinationChainId, emitter, sequence, executorArgs);
     }
 
-    /// @inheritdoc IExecutorEntryPoint
-    function sendMTokenIndex(
-        uint16 destinationChainId,
-        bytes32 refundAddress,
-        ExecutorArgs calldata executorArgs,
-        bytes memory transceiverInstructions
-    ) external payable returns (uint64 sequence) {
-        address emitter;
-        (emitter, sequence) = _getNextTransceiverSequence();
-
-        IHubPortal(portal).sendMTokenIndex{ value: msg.value - executorArgs.value }(
-            destinationChainId,
-            refundAddress,
-            transceiverInstructions
-        );
-
-        // Generate the executor request event.
-        _requestExecution(destinationChainId, emitter, sequence, executorArgs);
-    }
-
-    /// @inheritdoc IExecutorEntryPoint
-    function sendEarnersMerkleRoot(
-        uint16 destinationChainId,
-        bytes32 refundAddress,
-        ExecutorArgs calldata executorArgs,
-        bytes memory transceiverInstructions
-    ) external payable returns (uint64 sequence) {
-        address emitter;
-        (emitter, sequence) = _getNextTransceiverSequence();
-
-        IHubPortal(portal).sendEarnersMerkleRoot{ value: msg.value - executorArgs.value }(
-            destinationChainId,
-            refundAddress,
-            transceiverInstructions
-        );
-
-        // Generate the executor request event.
-        _requestExecution(destinationChainId, emitter, sequence, executorArgs);
-    }
+    // necessary for receiving native assets, e.g. refunds
+    receive() external payable {}
 
     /* ============ Internal Functions ============ */
 
