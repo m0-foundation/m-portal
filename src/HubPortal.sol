@@ -36,15 +36,17 @@ contract HubPortal is IHubPortal, Portal {
 
     /**
      * @notice Constructs the contract.
-     * @param  mToken_    The address of the M token to bridge.
-     * @param  registrar_ The address of the Registrar.
-     * @param  chainId_   Wormhole chain id.
+     * @param  mToken_       The address of the M token to bridge.
+     * @param  registrar_    The address of the Registrar.
+     * @param  swapFacility_ The address of Swap Facility.
+     * @param  chainId_      Wormhole chain id.
      */
     constructor(
         address mToken_,
         address registrar_,
+        address swapFacility_,
         uint16 chainId_
-    ) Portal(mToken_, registrar_, Mode.LOCKING, chainId_) {}
+    ) Portal(mToken_, registrar_, swapFacility_, Mode.LOCKING, chainId_) {}
 
     /* ============ Interactive Functions ============ */
 

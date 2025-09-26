@@ -32,6 +32,9 @@ contract ScriptBase is Script {
 
     uint8 internal constant _M_TOKEN_DECIMALS = 6;
 
+    // Same address for all EVM chains
+    address internal constant _SWAP_FACILITY = 0xB6807116b3B1B321a390594e31ECD6e0076f6278;
+
     // Same address across all supported mainnet and testnets networks.
     address internal constant _CREATE_X_FACTORY = 0xba5Ed099633D3B313e4D5F7bdc1305d3c28ba5Ed;
 

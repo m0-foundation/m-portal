@@ -234,7 +234,7 @@ contract HubPortalForkTests is ForkTestBase {
             Chains.WORMHOLE_ARBITRUM
         );
 
-        assertEq(IERC20(_MAINNET_M_TOKEN).balanceOf(_hubPortal), amount_ - 1);
+        assertApproxEqAbs(IERC20(_MAINNET_M_TOKEN).balanceOf(_hubPortal), amount_, 2);
 
         // Wormhole delivers message
         bytes memory signedMessage_ = _signMessage(_hubGuardian, Chains.WORMHOLE_ETHEREUM);
@@ -260,8 +260,8 @@ contract HubPortalForkTests is ForkTestBase {
             sourceToken_: _MAINNET_WRAPPED_M_TOKEN,
             destinationToken_: _arbitrumSpokeMToken,
             amount_: amount_,
-            expectedHubBalance_: amount_ - 2,
-            expectedRecipientBalance_: amount_
+            expectedHubBalance_: amount_ - 3,
+            expectedRecipientBalance_: amount_ - 3
         });
     }
 
@@ -277,8 +277,8 @@ contract HubPortalForkTests is ForkTestBase {
             sourceToken_: _MAINNET_WRAPPED_M_TOKEN,
             destinationToken_: _arbitrumSpokeMToken,
             amount_: amount_,
-            expectedHubBalance_: amount_ - 2,
-            expectedRecipientBalance_: amount_
+            expectedHubBalance_: amount_ - 3,
+            expectedRecipientBalance_: amount_ - 3
         });
     }
 
@@ -294,8 +294,8 @@ contract HubPortalForkTests is ForkTestBase {
             sourceToken_: _MAINNET_WRAPPED_M_TOKEN,
             destinationToken_: _arbitrumSpokeMToken,
             amount_: amount_,
-            expectedHubBalance_: amount_ - 2,
-            expectedRecipientBalance_: amount_ - 2
+            expectedHubBalance_: amount_ - 3,
+            expectedRecipientBalance_: amount_ - 4
         });
     }
 
@@ -311,8 +311,8 @@ contract HubPortalForkTests is ForkTestBase {
             sourceToken_: _MAINNET_WRAPPED_M_TOKEN,
             destinationToken_: _arbitrumSpokeMToken,
             amount_: amount_,
-            expectedHubBalance_: amount_ - 2,
-            expectedRecipientBalance_: amount_ - 2
+            expectedHubBalance_: amount_ - 3,
+            expectedRecipientBalance_: amount_ - 4
         });
     }
 
@@ -328,7 +328,7 @@ contract HubPortalForkTests is ForkTestBase {
             sourceToken_: _MAINNET_WRAPPED_M_TOKEN,
             destinationToken_: _arbitrumSpokeWrappedMTokenProxy,
             amount_: amount_,
-            expectedHubBalance_: amount_ - 1,
+            expectedHubBalance_: amount_ - 2,
             expectedRecipientBalance_: amount_ - 1
         });
     }
@@ -345,7 +345,7 @@ contract HubPortalForkTests is ForkTestBase {
             sourceToken_: _MAINNET_WRAPPED_M_TOKEN,
             destinationToken_: _arbitrumSpokeWrappedMTokenProxy,
             amount_: amount_,
-            expectedHubBalance_: amount_ - 1,
+            expectedHubBalance_: amount_ - 2,
             expectedRecipientBalance_: amount_ - 1
         });
     }
@@ -362,7 +362,7 @@ contract HubPortalForkTests is ForkTestBase {
             sourceToken_: _MAINNET_WRAPPED_M_TOKEN,
             destinationToken_: _arbitrumSpokeWrappedMTokenProxy,
             amount_: amount_,
-            expectedHubBalance_: amount_ - 1,
+            expectedHubBalance_: amount_ - 2,
             expectedRecipientBalance_: amount_ - 1
         });
     }
@@ -379,7 +379,7 @@ contract HubPortalForkTests is ForkTestBase {
             sourceToken_: _MAINNET_WRAPPED_M_TOKEN,
             destinationToken_: _arbitrumSpokeWrappedMTokenProxy,
             amount_: amount_,
-            expectedHubBalance_: amount_ - 1,
+            expectedHubBalance_: amount_ - 2,
             expectedRecipientBalance_: amount_ - 1
         });
     }

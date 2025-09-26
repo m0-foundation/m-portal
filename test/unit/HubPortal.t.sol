@@ -17,6 +17,7 @@ import { UnitTestBase } from "./UnitTestBase.t.sol";
 import { MockHubMToken } from "../mocks/MockHubMToken.sol";
 import { MockWrappedMToken } from "../mocks/MockWrappedMToken.sol";
 import { MockHubRegistrar } from "../mocks/MockHubRegistrar.sol";
+import { MockSwapFacility } from "../mocks/MockSwapFacility.sol";
 import { MockTransceiver } from "../mocks/MockTransceiver.sol";
 import { MockMerkleTreeBuilder } from "../mocks/MockMerkleTreeBuilder.sol";
 
@@ -34,6 +35,7 @@ contract HubPortalTests is UnitTestBase {
     bytes32 internal _remoteMToken;
     bytes32 internal _remoteWrappedMToken;
     MockHubRegistrar internal _registrar;
+    MockSwapFacility internal _swapFacility;
     MockMerkleTreeBuilder internal _merkleTreeBuilder;
 
     HubPortal internal _portal;
@@ -57,8 +59,14 @@ contract HubPortalTests is UnitTestBase {
         _registrar = new MockHubRegistrar();
         _transceiver = new MockTransceiver();
         _merkleTreeBuilder = new MockMerkleTreeBuilder();
+        _swapFacility = new MockSwapFacility(address(_mToken));
 
-        HubPortal implementation_ = new HubPortal(address(_mToken), address(_registrar), _LOCAL_CHAIN_ID);
+        HubPortal implementation_ = new HubPortal(
+            address(_mToken),
+            address(_registrar),
+            address(_swapFacility),
+            _LOCAL_CHAIN_ID
+        );
         _portal = HubPortal(_createProxy(address(implementation_)));
 
         _initializePortal(_portal);
@@ -78,6 +86,7 @@ contract HubPortalTests is UnitTestBase {
     function test_initialState() external view {
         assertEq(_portal.mToken(), address(_mToken));
         assertEq(_portal.registrar(), address(_registrar));
+        assertEq(_portal.swapFacility(), address(_swapFacility));
         assertEq(uint8(_portal.mode()), uint8(IManagerBase.Mode.LOCKING));
         assertEq(_portal.chainId(), _LOCAL_CHAIN_ID);
     }

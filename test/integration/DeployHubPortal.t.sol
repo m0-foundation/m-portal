@@ -42,6 +42,7 @@ contract DeployHubPortalTests is Test, DeployBase {
         (address hubPortal_, ) = _deployHubComponents(
             _DEPLOYER,
             block.chainid.toWormholeChainId(),
+            _SWAP_FACILITY,
             hubDeployConfig_,
             hubTransceiverConfig_
         );

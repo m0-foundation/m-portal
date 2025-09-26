@@ -37,8 +37,14 @@ contract UpgradeBase is ScriptBase {
         ITransceiver(transceiver_).upgrade(address(implementation_));
     }
 
-    function _upgradeHubPortal(address portal_, address mToken_, address registrar_, uint16 wormholeChainId_) internal {
-        HubPortal implementation_ = new HubPortal(mToken_, registrar_, wormholeChainId_);
+    function _upgradeHubPortal(
+        address portal_,
+        address mToken_,
+        address registrar_,
+        address swapFacility_,
+        uint16 wormholeChainId_
+    ) internal {
+        HubPortal implementation_ = new HubPortal(mToken_, registrar_, swapFacility_, wormholeChainId_);
 
         console.log("HubPortal implementation deployed at: ", address(implementation_));
 
@@ -49,9 +55,10 @@ contract UpgradeBase is ScriptBase {
         address portal_,
         address mToken_,
         address registrar_,
+        address swapFacility_,
         uint16 wormholeChainId_
     ) internal {
-        SpokePortal implementation_ = new SpokePortal(mToken_, registrar_, wormholeChainId_);
+        SpokePortal implementation_ = new SpokePortal(mToken_, registrar_, swapFacility_, wormholeChainId_);
 
         console.log("SpokePortal implementation deployed at: ", address(implementation_));
 

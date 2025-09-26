@@ -32,6 +32,7 @@ import { IPortal } from "../../src/interfaces/IPortal.sol";
 import { IMTokenLike } from "../../src/interfaces/IMTokenLike.sol";
 import { IHubPortal } from "../../src/interfaces/IHubPortal.sol";
 import { IRegistrarLike } from "../../src/interfaces/IRegistrarLike.sol";
+import { MockSwapFacility } from "../mocks/MockSwapFacility.sol";
 
 contract ForkTestBase is TaskBase, ConfigureBase, DeployBase, Test {
     using WormholeConfig for uint256;
@@ -127,10 +128,12 @@ contract ForkTestBase is TaskBase, ConfigureBase, DeployBase, Test {
 
         _hubWormholeCore = hubTransceiverConfig_.coreBridge;
         _hubGuardian = new WormholeSimulator(_hubWormholeCore, _DEVNET_GUARDIAN_PK);
+        address _swapFacility = address(new MockSwapFacility(address(_MAINNET_M_TOKEN)));
 
         (_hubPortal, _hubWormholeTransceiver) = _deployHubComponents(
             _DEPLOYER,
             ethereumWormholeChainId_,
+            _swapFacility,
             hubDeployConfig_,
             hubTransceiverConfig_
         );
@@ -174,13 +177,20 @@ contract ForkTestBase is TaskBase, ConfigureBase, DeployBase, Test {
 
         _arbitrumSpokeWormholeCore = arbitrumSpokeTransceiverConfig_.coreBridge;
         _arbitrumSpokeGuardian = new WormholeSimulator(_arbitrumSpokeWormholeCore, _DEVNET_GUARDIAN_PK);
+        address _arbitrumSwapFacility = address(new MockSwapFacility(address(_MAINNET_M_TOKEN)));
 
         (
             _arbitrumSpokePortal,
             _arbitrumSpokeWormholeTransceiver,
             _arbitrumSpokeRegistrar,
             _arbitrumSpokeMToken
-        ) = _deploySpokeComponents(_DEPLOYER, arbitrumWormholeChainId_, arbitrumSpokeTransceiverConfig_, _burnNonces);
+        ) = _deploySpokeComponents(
+            _DEPLOYER,
+            arbitrumWormholeChainId_,
+            _arbitrumSwapFacility,
+            arbitrumSpokeTransceiverConfig_,
+            _burnNonces
+        );
 
         (, _arbitrumSpokeVault) = _deploySpokeVault(
             _DEPLOYER,
@@ -229,13 +239,20 @@ contract ForkTestBase is TaskBase, ConfigureBase, DeployBase, Test {
 
         _optimismSpokeWormholeCore = optimismSpokeTransceiverConfig_.coreBridge;
         _optimismSpokeGuardian = new WormholeSimulator(_optimismSpokeWormholeCore, _DEVNET_GUARDIAN_PK);
+        address _optimismSwapFacility = address(new MockSwapFacility(address(_MAINNET_M_TOKEN)));
 
         (
             _optimismSpokePortal,
             _optimismSpokeWormholeTransceiver,
             _optimismSpokeRegistrar,
             _optimismSpokeMToken
-        ) = _deploySpokeComponents(_DEPLOYER, optimismWormholeChainId_, optimismSpokeTransceiverConfig_, _burnNonces);
+        ) = _deploySpokeComponents(
+            _DEPLOYER,
+            optimismWormholeChainId_,
+            _optimismSwapFacility,
+            optimismSpokeTransceiverConfig_,
+            _burnNonces
+        );
 
         (, _optimismSpokeVault) = _deploySpokeVault(
             _DEPLOYER,

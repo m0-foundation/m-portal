@@ -15,7 +15,7 @@ contract UpgradeSpokePortal is UpgradeBase {
 
         vm.startBroadcast(deployer_);
 
-        _upgradeSpokePortal(portal_, mToken_, registrar_, chainId_.toWormholeChainId());
+        _upgradeSpokePortal(portal_, mToken_, registrar_, _SWAP_FACILITY, chainId_.toWormholeChainId());
 
         vm.stopBroadcast();
     }

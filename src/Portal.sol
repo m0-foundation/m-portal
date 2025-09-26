@@ -11,6 +11,7 @@ import {
 } from "../lib/native-token-transfers/evm/src/NttManager/NttManagerNoRateLimiting.sol";
 
 import { IPortal } from "./interfaces/IPortal.sol";
+import { ISwapFacilityLike } from "./interfaces/ISwapFacilityLike.sol";
 import { IWrappedMTokenLike } from "./interfaces/IWrappedMTokenLike.sol";
 import { TypeConverter } from "./libs/TypeConverter.sol";
 import { SafeCall } from "./libs/SafeCall.sol";
@@ -34,6 +35,9 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
     address public immutable registrar;
 
     /// @inheritdoc IPortal
+    address public immutable swapFacility;
+
+    /// @inheritdoc IPortal
     mapping(address sourceToken => mapping(uint16 destinationChainId => mapping(bytes32 destinationToken => bool supported)))
         public supportedBridgingPath;
 
@@ -44,19 +48,22 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
 
     /**
      * @notice Constructs the contract.
-     * @param  mToken_    The address of the M token to bridge.
-     * @param  registrar_ The address of the Registrar.
-     * @param  mode_      The NttManager token transfer mode - LOCKING or BURNING.
-     * @param  chainId_   The Wormhole chain id.
+     * @param  mToken_       The address of the M token to bridge.
+     * @param  registrar_    The address of the Registrar.
+     * @param  swapFacility_ The address of Swap Facility.
+     * @param  mode_         The NttManager token transfer mode - LOCKING or BURNING.
+     * @param  chainId_      The Wormhole chain id.
      */
     constructor(
         address mToken_,
         address registrar_,
+        address swapFacility_,
         Mode mode_,
         uint16 chainId_
     ) NttManagerNoRateLimiting(mToken_, mode_, chainId_) {
         if (mToken_ == address(0)) revert ZeroMToken();
         if ((registrar = registrar_) == address(0)) revert ZeroRegistrar();
+        if ((swapFacility = swapFacility_) == address(0)) revert ZeroSwapFacility();
     }
 
     /* ============ View/Pure Functions ============ */
@@ -186,7 +193,8 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
 
         // if the source token isn't M token, unwrap it
         if (sourceToken_ != address(mToken_)) {
-            IWrappedMTokenLike(sourceToken_).unwrap(address(this), amount_);
+            IERC20(sourceToken_).approve(swapFacility, amount_);
+            ISwapFacilityLike(swapFacility).swapOutM(sourceToken_, amount_, address(this));
         }
 
         // The actual amount of M tokens that Portal received from the sender.
@@ -442,20 +450,20 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
      * @param amount_                  The amount to wrap.
      */
     function _wrap(address mToken_, address destinationWrappedToken_, address recipient_, uint256 amount_) private {
-        IERC20(mToken_).approve(destinationWrappedToken_, amount_);
+        IERC20(mToken_).approve(swapFacility, amount_);
 
         // Attempt to wrap $M token
         // NOTE: the call might fail with out-of-gas exception
         //       even if the destination token is the valid wrapped M token.
         //       Recipients must support both $M and wrapped $M transfers.
-        bool success = destinationWrappedToken_.safeCall(
-            abi.encodeCall(IWrappedMTokenLike.wrap, (recipient_, amount_))
+        (bool success, ) = swapFacility.call(
+            abi.encodeCall(ISwapFacilityLike.swapInM, (destinationWrappedToken_, amount_, recipient_))
         );
 
         if (!success) {
             emit WrapFailed(destinationWrappedToken_, recipient_, amount_);
             // reset approval to prevent a potential double-spend attack
-            IERC20(mToken_).approve(destinationWrappedToken_, 0);
+            IERC20(mToken_).approve(swapFacility, 0);
             // transfer $M token to the recipient
             IERC20(mToken_).transfer(recipient_, amount_);
         }

@@ -49,6 +49,7 @@ contract DeployBase is ScriptBase {
      * @dev    Deploys Hub Portal and Wormhole Transceiver.
      * @param  deployer_          The address of the deployer.
      * @param  wormholeChainId_   The Wormhole Chain Id where Hub is deployed.
+     * @param  swapFacility_      The address of the swap facility.
      * @param  hubConfig_         The configuration to deploy Hub Portal.
      * @param  transceiverConfig_ The configuration to deploy Wormhole Transceiver.
      * @return hubPortal_         The address of the deployed Hub Portal.
@@ -57,10 +58,11 @@ contract DeployBase is ScriptBase {
     function _deployHubComponents(
         address deployer_,
         uint16 wormholeChainId_,
+        address swapFacility_,
         HubDeployConfig memory hubConfig_,
         WormholeTransceiverConfig memory transceiverConfig_
     ) internal returns (address hubPortal_, address hubTransceiver_) {
-        hubPortal_ = _deployHubPortal(deployer_, wormholeChainId_, hubConfig_, _PORTAL_CONTRACT_NAME);
+        hubPortal_ = _deployHubPortal(deployer_, wormholeChainId_, swapFacility_, hubConfig_, _PORTAL_CONTRACT_NAME);
         hubTransceiver_ = _deployWormholeTransceiver(
             deployer_,
             transceiverConfig_,
@@ -75,6 +77,7 @@ contract DeployBase is ScriptBase {
      * @dev    Deploys Hub Portal and Wormhole Transceiver for Noble.
      * @param  deployer_          The address of the deployer.
      * @param  wormholeChainId_   The Wormhole Chain Id where Hub is deployed.
+     * @param  swapFacility_      The address of the swap facility.
      * @param  hubConfig_         The configuration to deploy Hub Portal.
      * @param  transceiverConfig_ The configuration to deploy Wormhole Transceiver.
      * @return hubPortal_         The address of the deployed Noble Portal.
@@ -83,10 +86,17 @@ contract DeployBase is ScriptBase {
     function _deployNobleHubComponents(
         address deployer_,
         uint16 wormholeChainId_,
+        address swapFacility_,
         HubDeployConfig memory hubConfig_,
         WormholeTransceiverConfig memory transceiverConfig_
     ) internal returns (address hubPortal_, address hubTransceiver_) {
-        hubPortal_ = _deployHubPortal(deployer_, wormholeChainId_, hubConfig_, _NOBLE_PORTAL_CONTRACT_NAME);
+        hubPortal_ = _deployHubPortal(
+            deployer_,
+            wormholeChainId_,
+            swapFacility_,
+            hubConfig_,
+            _NOBLE_PORTAL_CONTRACT_NAME
+        );
         hubTransceiver_ = _deployWormholeTransceiver(
             deployer_,
             transceiverConfig_,
@@ -101,6 +111,7 @@ contract DeployBase is ScriptBase {
      * @dev    Deploys Spoke M Token, Registrar, Portal and Wormhole Transceiver.
      * @param  deployer_          The address of the deployer.
      * @param  wormholeChainId_   The Wormhole Chain Id where Spoke is deployed.
+     * @param  swapFacility_      The address of the swap facility.
      * @param  transceiverConfig_ The configuration to deploy Wormhole Transceiver.
      * @param  burnNonces_        The function to burn nonces.
      * @return spokePortal_       The address of the deployed Spoke Portal.
@@ -111,6 +122,7 @@ contract DeployBase is ScriptBase {
     function _deploySpokeComponents(
         address deployer_,
         uint16 wormholeChainId_,
+        address swapFacility_,
         WormholeTransceiverConfig memory transceiverConfig_,
         function(address, uint64, uint64) internal burnNonces_
     )
@@ -120,7 +132,7 @@ contract DeployBase is ScriptBase {
     {
         (spokeRegistrar_, spokeMToken_) = _deploySpokeProtocol(deployer_, burnNonces_);
 
-        spokePortal_ = _deploySpokePortal(deployer_, spokeMToken_, spokeRegistrar_, wormholeChainId_);
+        spokePortal_ = _deploySpokePortal(deployer_, spokeMToken_, spokeRegistrar_, swapFacility_, wormholeChainId_);
         spokeTransceiver_ = _deployWormholeTransceiver(
             deployer_,
             transceiverConfig_,
@@ -164,10 +176,11 @@ contract DeployBase is ScriptBase {
     function _deployHubPortal(
         address deployer_,
         uint16 wormholeChainId_,
+        address swapFacility_,
         HubDeployConfig memory config_,
         string memory contractName_
     ) internal returns (address hubPortal_) {
-        HubPortal implementation_ = new HubPortal(config_.mToken, config_.registrar, wormholeChainId_);
+        HubPortal implementation_ = new HubPortal(config_.mToken, config_.registrar, swapFacility_, wormholeChainId_);
         HubPortal hubPortalProxy_ = HubPortal(
             _deployCreate3Proxy(address(implementation_), _computeSalt(deployer_, contractName_))
         );
@@ -181,9 +194,10 @@ contract DeployBase is ScriptBase {
         address deployer_,
         address mToken_,
         address registrar_,
+        address swapFacility_,
         uint16 wormholeChainId_
     ) internal returns (address pokePortal_) {
-        SpokePortal implementation_ = new SpokePortal(mToken_, registrar_, wormholeChainId_);
+        SpokePortal implementation_ = new SpokePortal(mToken_, registrar_, swapFacility_, wormholeChainId_);
         SpokePortal spokePortalProxy_ = SpokePortal(
             _deployCreate3Proxy(address(implementation_), _computeSalt(deployer_, _PORTAL_CONTRACT_NAME))
         );

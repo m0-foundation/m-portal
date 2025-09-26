@@ -88,6 +88,9 @@ interface IPortal {
     /// @notice Emitted when the Registrar address is 0x0.
     error ZeroRegistrar();
 
+    /// @notice Thrown when the Swap Facility address is 0x0.
+    error ZeroSwapFacility();
+
     /// @notice Emitted when the source token address is 0x0.
     error ZeroSourceToken();
 
@@ -115,6 +118,9 @@ interface IPortal {
 
     /// @notice The address of the Registrar contract.
     function registrar() external view returns (address);
+
+    /// @notice The address of the Swap Facility contract.
+    function swapFacility() external view returns (address swapFacility);
 
     /**
      * @notice Returns the address of M token on the destination chain.
