@@ -12,9 +12,7 @@ import {
 
 import { IPortal } from "./interfaces/IPortal.sol";
 import { ISwapFacilityLike } from "./interfaces/ISwapFacilityLike.sol";
-import { IWrappedMTokenLike } from "./interfaces/IWrappedMTokenLike.sol";
 import { TypeConverter } from "./libs/TypeConverter.sol";
-import { SafeCall } from "./libs/SafeCall.sol";
 import { PayloadType, PayloadEncoder } from "./libs/PayloadEncoder.sol";
 
 /**
@@ -25,7 +23,6 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
     using TypeConverter for *;
     using PayloadEncoder for bytes;
     using TrimmedAmountLib for *;
-    using SafeCall for address;
 
     uint16 internal constant _SOLANA_WORMHOLE_CHAIN_ID = 1;
     uint16 internal constant _FOGO_WORMHOLE_CHAIN_ID = 51;

@@ -120,14 +120,14 @@ interface IPortal {
     function registrar() external view returns (address);
 
     /// @notice The address of the Swap Facility contract.
-    function swapFacility() external view returns (address swapFacility);
+    function swapFacility() external view returns (address);
 
     /**
      * @notice Returns the address of M token on the destination chain.
      * @param  destinationChainId The Wormhole destination chain ID.
      * @return mToken             The address of M token on the destination chain.
      */
-    function destinationMToken(uint16 destinationChainId) external view returns (bytes32 mToken);
+    function destinationMToken(uint16 destinationChainId) external view returns (bytes32);
 
     /**
      * @notice Indicates whether the provided bridging path is supported.
