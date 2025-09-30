@@ -64,10 +64,11 @@ interface IHubPortal is IPortal {
 
     /**
      * @notice Emitted when earners Merkle root is sent to Solana.
-     * @param  messageId         The unique identifier for the sent message.
-     * @param  earnersMerkleRoot The Merkle root of earners.
+     * @param  destinationChainId The Wormhole chain ID for the destination.
+     * @param  messageId          The unique identifier for the sent message.
+     * @param  earnersMerkleRoot  The Merkle root of earners.
      */
-    event EarnersMerkleRootSent(bytes32 messageId, bytes32 earnersMerkleRoot);
+    event EarnersMerkleRootSent(uint16 indexed destinationChainId, bytes32 messageId, bytes32 earnersMerkleRoot);
 
     /* ============ Custom Errors ============ */
 
@@ -101,51 +102,63 @@ interface IHubPortal is IPortal {
 
     /**
      * @notice Sends the M token index to the destination chain.
-     * @param  destinationChainId The Wormhole destination chain ID.
-     * @param  refundAddress      The refund address to receive excess native gas.
-     * @return messageId          The ID uniquely identifying the message.
+     * @param  destinationChainId      The Wormhole destination chain ID.
+     * @param  refundAddress           The refund address to receive excess native gas.
+     * @param  transceiverInstructions The transceiver specific instructions for quoting and sending.
+     * @return messageId               The ID uniquely identifying the message.
      */
     function sendMTokenIndex(
         uint16 destinationChainId,
-        bytes32 refundAddress
+        bytes32 refundAddress,
+        bytes memory transceiverInstructions
     ) external payable returns (bytes32 messageId);
 
     /**
      * @notice Sends the Registrar key to the destination chain.
-     * @dev    Not supported for Solana.
-     * @param  destinationChainId The Wormhole destination chain ID.
-     * @param  key                The key to dispatch.
-     * @param  refundAddress      The refund address to receive excess native gas.
-     * @return messageId          The ID uniquely identifying the message
+     * @dev    Not supported for SVM chains.
+     * @param  destinationChainId      The Wormhole destination chain ID.
+     * @param  key                     The key to dispatch.
+     * @param  refundAddress           The refund address to receive excess native gas.
+     * @param  transceiverInstructions The transceiver specific instructions for quoting and sending.
+     * @return messageId               The ID uniquely identifying the message
      */
     function sendRegistrarKey(
         uint16 destinationChainId,
         bytes32 key,
-        bytes32 refundAddress
+        bytes32 refundAddress,
+        bytes memory transceiverInstructions
     ) external payable returns (bytes32 messageId);
 
     /**
      * @notice Sends the Registrar list status for an account to the destination chain.
-     * @dev    Not supported for Solana.
-     * @param  destinationChainId The Wormhole destination chain ID.
-     * @param  listName           The name of the list.
-     * @param  account            The account.
-     * @param  refundAddress      The refund address to receive excess native gas.
-     * @return messageId          The ID uniquely identifying the message.
+     * @dev    Not supported for SVM chains.
+     * @param  destinationChainId      The Wormhole destination chain ID.
+     * @param  listName                The name of the list.
+     * @param  account                 The account.
+     * @param  refundAddress           The refund address to receive excess native gas.
+     * @param  transceiverInstructions The transceiver specific instructions for quoting and sending.
+     * @return messageId               The ID uniquely identifying the message.
      */
     function sendRegistrarListStatus(
         uint16 destinationChainId,
         bytes32 listName,
         address account,
-        bytes32 refundAddress
+        bytes32 refundAddress,
+        bytes memory transceiverInstructions
     ) external payable returns (bytes32 messageId);
 
     /**
-     * @notice Sends earners Merkle root to Solana.
-     * @param  refundAddress The refund address to receive excess native gas.
-     * @return messageId     The ID uniquely identifying the message.
+     * @notice Sends earners Merkle root to SVM chains.
+     * @param  destinationChainId      The Wormhole destination chain ID.
+     * @param  refundAddress           The refund address to receive excess native gas.
+     * @param  transceiverInstructions The transceiver specific instructions for quoting and sending.
+     * @return messageId               The ID uniquely identifying the message.
      */
-    function sendEarnersMerkleRoot(bytes32 refundAddress) external payable returns (bytes32 messageId);
+    function sendEarnersMerkleRoot(
+        uint16 destinationChainId,
+        bytes32 refundAddress,
+        bytes memory transceiverInstructions
+    ) external payable returns (bytes32 messageId);
 
     /**
      * @notice Sets Merkle Tree Builder contract.

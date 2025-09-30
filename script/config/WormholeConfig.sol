@@ -11,6 +11,7 @@ struct WormholeTransceiverConfig {
     uint256 gasLimit;
     address relayer;
     address specialRelayer;
+    address executor;
 }
 
 /// @dev Wormhole addresses and configuration
@@ -40,6 +41,7 @@ library WormholeConfig {
 
     /// @dev Wormhole Core Bridge https://wormhole.com/docs/build/reference/contract-addresses/#core-contracts
     ///      Wormhole Relayer https://wormhole.com/docs/build/reference/contract-addresses/#wormhole-relayer
+    ///      Wormhole Executor https://github.com/wormholelabs-xyz/example-messaging-executor/blob/main/evm/DEPLOYMENTS.md
     function getWormholeTransceiverConfig(
         uint256 chainId_
     ) internal pure returns (WormholeTransceiverConfig memory config_) {
@@ -52,7 +54,8 @@ library WormholeConfig {
                     coreBridge: 0x98f3c9e6E3fAce36bAAd05FE09d375Ef1464288B,
                     gasLimit: GAS_LIMIT,
                     relayer: 0x27428DD2d3DD32A4D7f7C497eAaa23130d894911,
-                    specialRelayer: SPECIAL_RELAYER
+                    specialRelayer: SPECIAL_RELAYER,
+                    executor: 0x84EEe8dBa37C36947397E1E11251cA9A06Fc6F8a
                 });
 
         // Arbitrum
@@ -64,7 +67,8 @@ library WormholeConfig {
                     coreBridge: 0xa5f208e072434bC67592E4C49C1B991BA79BCA46,
                     gasLimit: GAS_LIMIT,
                     relayer: 0x27428DD2d3DD32A4D7f7C497eAaa23130d894911,
-                    specialRelayer: SPECIAL_RELAYER
+                    specialRelayer: SPECIAL_RELAYER,
+                    executor: 0x3980f8318fc03d79033Bbb421A622CDF8d2Eeab4
                 });
 
         // Optimism
@@ -76,7 +80,8 @@ library WormholeConfig {
                     coreBridge: 0xEe91C335eab126dF5fDB3797EA9d6aD93aeC9722,
                     gasLimit: GAS_LIMIT,
                     relayer: 0x27428DD2d3DD32A4D7f7C497eAaa23130d894911,
-                    specialRelayer: SPECIAL_RELAYER
+                    specialRelayer: SPECIAL_RELAYER,
+                    executor: 0x85B704501f6AE718205C0636260768C4e72ac3e7
                 });
 
         // Ethereum Sepolia
@@ -88,7 +93,8 @@ library WormholeConfig {
                     coreBridge: 0x4a8bc80Ed5a4067f1CCf107057b8270E0cC11A78,
                     gasLimit: GAS_LIMIT,
                     relayer: 0x7B1bD7a6b4E61c2a123AC6BC2cbfC614437D0470,
-                    specialRelayer: SPECIAL_RELAYER
+                    specialRelayer: SPECIAL_RELAYER,
+                    executor: 0xD0fb39f5a3361F21457653cB70F9D0C9bD86B66B
                 });
 
         // Arbitrum Sepolia
@@ -100,7 +106,8 @@ library WormholeConfig {
                     coreBridge: 0x6b9C8671cdDC8dEab9c719bB87cBd3e782bA6a35,
                     gasLimit: GAS_LIMIT,
                     relayer: 0x7B1bD7a6b4E61c2a123AC6BC2cbfC614437D0470,
-                    specialRelayer: SPECIAL_RELAYER
+                    specialRelayer: SPECIAL_RELAYER,
+                    executor: address(0) // Not deployed on Arbitrum Sepolia
                 });
 
         // Optimism Sepolia
@@ -112,7 +119,8 @@ library WormholeConfig {
                     coreBridge: 0x31377888146f3253211EFEf5c676D41ECe7D58Fe,
                     gasLimit: GAS_LIMIT,
                     relayer: 0x93BAD53DDfB6132b0aC8E37f6029163E63372cEE,
-                    specialRelayer: SPECIAL_RELAYER
+                    specialRelayer: SPECIAL_RELAYER,
+                    executor: address(0) // Not deployed on Optimism Sepolia
                 });
 
         revert Chains.UnsupportedChain(chainId_);

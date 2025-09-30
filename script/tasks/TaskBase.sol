@@ -10,15 +10,24 @@ import { INttManager } from "../../lib/native-token-transfers/evm/src/interfaces
 
 import { IHubPortal } from "../../src/interfaces/IHubPortal.sol";
 import { ISpokeVault } from "../../src/interfaces/ISpokeVault.sol";
+import { IHubExecutorEntryPoint, ExecutorArgs } from "../../src/interfaces/IHubExecutorEntryPoint.sol";
 
 import { ScriptBase } from "../ScriptBase.sol";
 
 contract TaskBase is ScriptBase {
+    bytes public constant RELAYER_TRANSCEIVER_INSTRUCTIONS = new bytes(1);
+    bytes public constant EXECUTOR_TRANSCEIVER_INSTRUCTIONS = hex"01000101"; // equivalent to: [TransceiverInstruction({ index: 0, payload: 0x01 })]
+    bytes public constant EXECUTOR_RELAY_INSTRUCTIONS =
+        hex"010000000000000000000000000003d09000000000000000000000000000e4e1c0";
+
     function _quoteDeliveryPrice(
         address hubPortal_,
         uint16 destinationChainId_
     ) internal view returns (uint256 deliveryPrice_) {
-        (, deliveryPrice_) = IManagerBase(hubPortal_).quoteDeliveryPrice(destinationChainId_, new bytes(1));
+        (, deliveryPrice_) = IManagerBase(hubPortal_).quoteDeliveryPrice(
+            destinationChainId_,
+            RELAYER_TRANSCEIVER_INSTRUCTIONS
+        );
     }
 
     function _sendMTokenIndex(
@@ -27,7 +36,12 @@ contract TaskBase is ScriptBase {
         bytes32 refundAddress_,
         uint256 value_
     ) internal returns (bytes32 messageId_) {
-        return IHubPortal(hubPortal_).sendMTokenIndex{ value: value_ }(destinationChainId_, refundAddress_);
+        return
+            IHubPortal(hubPortal_).sendMTokenIndex{ value: value_ }(
+                destinationChainId_,
+                refundAddress_,
+                RELAYER_TRANSCEIVER_INSTRUCTIONS
+            );
     }
 
     function _sendRegistrarKey(
@@ -37,7 +51,13 @@ contract TaskBase is ScriptBase {
         bytes32 refundAddress_,
         uint256 value_
     ) internal returns (bytes32 messageId_) {
-        return IHubPortal(hubPortal_).sendRegistrarKey{ value: value_ }(destinationChainId_, key_, refundAddress_);
+        return
+            IHubPortal(hubPortal_).sendRegistrarKey{ value: value_ }(
+                destinationChainId_,
+                key_,
+                refundAddress_,
+                RELAYER_TRANSCEIVER_INSTRUCTIONS
+            );
     }
 
     function _sendRegistrarListStatus(
@@ -53,7 +73,8 @@ contract TaskBase is ScriptBase {
                 destinationChainId_,
                 listName_,
                 account_,
-                refundAddress_
+                refundAddress_,
+                RELAYER_TRANSCEIVER_INSTRUCTIONS
             );
     }
 
@@ -72,7 +93,7 @@ contract TaskBase is ScriptBase {
                 recipient_,
                 refundAddress_,
                 false,
-                new bytes(1)
+                RELAYER_TRANSCEIVER_INSTRUCTIONS
             );
     }
 
@@ -99,5 +120,26 @@ contract TaskBase is ScriptBase {
         if (amount_ > balance_) {
             revert("Insufficient balance");
         }
+    }
+
+    function _sendEarnersMerkleRoot(
+        address executorEntryPoint_,
+        uint16 destinationChainId_,
+        bytes32 refundAddress_,
+        uint256 value_,
+        bytes memory signedQuote_
+    ) internal returns (uint64 sequence_) {
+        return
+            IHubExecutorEntryPoint(executorEntryPoint_).sendEarnersMerkleRoot{ value: value_ }(
+                destinationChainId_,
+                refundAddress_,
+                ExecutorArgs({
+                    value: value_,
+                    refundAddress: msg.sender,
+                    signedQuote: signedQuote_,
+                    instructions: EXECUTOR_RELAY_INSTRUCTIONS
+                }),
+                EXECUTOR_TRANSCEIVER_INSTRUCTIONS
+            );
     }
 }

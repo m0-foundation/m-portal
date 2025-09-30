@@ -20,6 +20,9 @@ contract UnitTestBase is Test {
     using TypeConverter for *;
     using TrimmedAmountLib for *;
 
+    bytes public constant RELAYER_TRANSCEIVER_INSTRUCTIONS = new bytes(1);
+    bytes public constant EXECUTOR_TRANSCEIVER_INSTRUCTIONS = hex"01000101"; // equivalent to: [TransceiverInstruction({ index: 0, payload: 0x01 })]
+
     uint16 internal constant _LOCAL_CHAIN_ID = 2;
     uint16 internal constant _REMOTE_CHAIN_ID = 3;
     bytes32 internal constant _PEER = "peer";

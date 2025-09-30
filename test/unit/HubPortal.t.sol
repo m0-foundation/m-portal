@@ -27,6 +27,8 @@ contract HubPortalTests is UnitTestBase {
     bytes32 internal constant _SOLANA_EARNER_LIST = bytes32("solana-earners");
     bytes32 internal constant _SOLANA_EARN_MANAGER_LIST = bytes32("solana-earn-managers");
 
+    TransceiverStructs.TransceiverInstruction internal _executorTransceiverInstruction;
+
     MockHubMToken internal _mToken;
     MockWrappedMToken internal _wrappedMToken;
     bytes32 internal _remoteMToken;
@@ -38,6 +40,10 @@ contract HubPortalTests is UnitTestBase {
 
     bytes32 _solanaPeer = bytes32("solana-peer");
     bytes32 _solanaToken = bytes32("solana-token");
+
+    constructor() UnitTestBase() {
+        _executorTransceiverInstruction = TransceiverStructs.TransceiverInstruction({ index: 0, payload: hex"01" });
+    }
 
     function setUp() external {
         _mToken = new MockHubMToken();
@@ -185,7 +191,7 @@ contract HubPortalTests is UnitTestBase {
         vm.expectRevert(INttManager.InvalidRefundAddress.selector);
 
         vm.prank(_alice);
-        _portal.sendMTokenIndex(_REMOTE_CHAIN_ID, address(0).toBytes32());
+        _portal.sendMTokenIndex(_REMOTE_CHAIN_ID, address(0).toBytes32(), RELAYER_TRANSCEIVER_INSTRUCTIONS);
     }
 
     function test_sendMTokenIndex() external {
@@ -222,7 +228,7 @@ contract HubPortalTests is UnitTestBase {
         emit IHubPortal.MTokenIndexSent(_REMOTE_CHAIN_ID, messageId_, index_);
 
         vm.prank(_alice);
-        _portal.sendMTokenIndex{ value: fee_ }(_REMOTE_CHAIN_ID, refundAddress_);
+        _portal.sendMTokenIndex{ value: fee_ }(_REMOTE_CHAIN_ID, refundAddress_, RELAYER_TRANSCEIVER_INSTRUCTIONS);
     }
 
     function test_sendMTokenIndex_solana() external {
@@ -252,7 +258,7 @@ contract HubPortalTests is UnitTestBase {
                 _transceiver.sendMessage,
                 (
                     _SOLANA_WORMHOLE_CHAIN_ID,
-                    _emptyTransceiverInstruction,
+                    _executorTransceiverInstruction,
                     TransceiverStructs.encodeNttManagerMessage(message_),
                     _solanaPeer,
                     refundAddress_
@@ -264,7 +270,11 @@ contract HubPortalTests is UnitTestBase {
         emit IHubPortal.MTokenIndexSent(_SOLANA_WORMHOLE_CHAIN_ID, messageId_, index_);
 
         vm.prank(_alice);
-        _portal.sendMTokenIndex{ value: fee_ }(_SOLANA_WORMHOLE_CHAIN_ID, refundAddress_);
+        _portal.sendMTokenIndex{ value: fee_ }(
+            _SOLANA_WORMHOLE_CHAIN_ID,
+            refundAddress_,
+            EXECUTOR_TRANSCEIVER_INSTRUCTIONS
+        );
     }
 
     /* ============ sendRegistrarKey ============ */
@@ -273,7 +283,12 @@ contract HubPortalTests is UnitTestBase {
         vm.expectRevert(INttManager.InvalidRefundAddress.selector);
 
         vm.prank(_alice);
-        _portal.sendRegistrarKey(_REMOTE_CHAIN_ID, bytes32("key"), address(0).toBytes32());
+        _portal.sendRegistrarKey(
+            _REMOTE_CHAIN_ID,
+            bytes32("key"),
+            address(0).toBytes32(),
+            RELAYER_TRANSCEIVER_INSTRUCTIONS
+        );
     }
 
     function test_sendRegistrarKey() external {
@@ -309,7 +324,12 @@ contract HubPortalTests is UnitTestBase {
         emit IHubPortal.RegistrarKeySent(_REMOTE_CHAIN_ID, messageId_, key_, value_);
 
         vm.prank(_alice);
-        _portal.sendRegistrarKey{ value: fee_ }(_REMOTE_CHAIN_ID, key_, refundAddress_);
+        _portal.sendRegistrarKey{ value: fee_ }(
+            _REMOTE_CHAIN_ID,
+            key_,
+            refundAddress_,
+            RELAYER_TRANSCEIVER_INSTRUCTIONS
+        );
     }
 
     /* ============ sendRegistrarListStatus ============ */
@@ -318,7 +338,13 @@ contract HubPortalTests is UnitTestBase {
         vm.expectRevert(INttManager.InvalidRefundAddress.selector);
 
         vm.prank(_alice);
-        _portal.sendRegistrarListStatus(_REMOTE_CHAIN_ID, bytes32("listName"), _bob, address(0).toBytes32());
+        _portal.sendRegistrarListStatus(
+            _REMOTE_CHAIN_ID,
+            bytes32("listName"),
+            _bob,
+            address(0).toBytes32(),
+            RELAYER_TRANSCEIVER_INSTRUCTIONS
+        );
     }
 
     function test_sendRegistrarListStatus() external {
@@ -355,7 +381,13 @@ contract HubPortalTests is UnitTestBase {
         emit IHubPortal.RegistrarListStatusSent(_REMOTE_CHAIN_ID, messageId_, listName_, account_, status_);
 
         vm.prank(_alice);
-        _portal.sendRegistrarListStatus{ value: fee_ }(_REMOTE_CHAIN_ID, listName_, account_, refundAddress_);
+        _portal.sendRegistrarListStatus{ value: fee_ }(
+            _REMOTE_CHAIN_ID,
+            listName_,
+            account_,
+            refundAddress_,
+            RELAYER_TRANSCEIVER_INSTRUCTIONS
+        );
     }
 
     /* ============ sendMerkleRoots ============ */
@@ -392,7 +424,7 @@ contract HubPortalTests is UnitTestBase {
                 _transceiver.sendMessage,
                 (
                     _SOLANA_WORMHOLE_CHAIN_ID,
-                    _emptyTransceiverInstruction,
+                    _executorTransceiverInstruction,
                     TransceiverStructs.encodeNttManagerMessage(message_),
                     _solanaPeer,
                     refundAddress_
@@ -401,10 +433,10 @@ contract HubPortalTests is UnitTestBase {
         );
 
         vm.expectEmit();
-        emit IHubPortal.EarnersMerkleRootSent(messageId_, earnersMerkleRoot_);
+        emit IHubPortal.EarnersMerkleRootSent(_SOLANA_WORMHOLE_CHAIN_ID, messageId_, earnersMerkleRoot_);
 
         vm.prank(_alice);
-        _portal.sendEarnersMerkleRoot(refundAddress_);
+        _portal.sendEarnersMerkleRoot(_SOLANA_WORMHOLE_CHAIN_ID, refundAddress_, EXECUTOR_TRANSCEIVER_INSTRUCTIONS);
     }
 
     /* ============ transfer ============ */
@@ -485,7 +517,8 @@ contract HubPortalTests is UnitTestBase {
             _REMOTE_CHAIN_ID,
             _remoteWrappedMToken,
             recipient_,
-            refundAddress_
+            refundAddress_,
+            RELAYER_TRANSCEIVER_INSTRUCTIONS
         );
 
         assertEq(_mToken.balanceOf(_alice), 0);
@@ -551,7 +584,8 @@ contract HubPortalTests is UnitTestBase {
             _REMOTE_CHAIN_ID,
             _remoteWrappedMToken,
             recipient_,
-            refundAddress_
+            refundAddress_,
+            RELAYER_TRANSCEIVER_INSTRUCTIONS
         );
 
         assertEq(_mToken.balanceOf(_alice), 0);

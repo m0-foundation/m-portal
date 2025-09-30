@@ -26,8 +26,9 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
     using TrimmedAmountLib for *;
     using SafeCall for address;
 
-    /// @dev Use only standard WormholeTransceiver with relaying enabled
-    bytes public constant DEFAULT_TRANSCEIVER_INSTRUCTIONS = new bytes(1);
+    uint16 internal constant _SOLANA_WORMHOLE_CHAIN_ID = 1;
+    uint16 internal constant _FOGO_WORMHOLE_CHAIN_ID = 51;
+    bytes32 internal constant _SOLANA_EARNER_LIST = bytes32("solana-earners");
 
     /// @inheritdoc IPortal
     address public immutable registrar;
@@ -103,7 +104,8 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         uint16 destinationChainId_,
         bytes32 destinationToken_,
         bytes32 recipient_,
-        bytes32 refundAddress_
+        bytes32 refundAddress_,
+        bytes memory transceiverInstructions_
     ) external payable nonReentrant whenNotPaused returns (uint64 sequence_) {
         if (!supportedBridgingPath[sourceToken_][destinationChainId_][destinationToken_]) {
             revert UnsupportedBridgingPath(sourceToken_, destinationChainId_, destinationToken_);
@@ -115,7 +117,8 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
             destinationChainId_,
             destinationToken_,
             recipient_,
-            refundAddress_
+            refundAddress_,
+            transceiverInstructions_
         );
     }
 
@@ -136,7 +139,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         bytes32 recipient_,
         bytes32 refundAddress_,
         bool, // shouldQueue_
-        bytes memory // transceiverInstructions_
+        bytes memory transceiverInstructions_
     ) internal override returns (uint64 sequence_) {
         sequence_ = _transferMLikeToken(
             amount_,
@@ -144,19 +147,21 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
             destinationChainId_,
             destinationMToken[destinationChainId_], // M Token on destination
             recipient_,
-            refundAddress_
+            refundAddress_,
+            transceiverInstructions_
         );
     }
 
     /**
      * @dev    Transfers M or Wrapped M Token to the destination chain.
-     * @param  amount_             The amount of tokens to transfer.
-     * @param  sourceToken_        The address of the token (M or Wrapped M) on the source chain.
-     * @param  destinationChainId_ The Wormhole destination chain ID.
-     * @param  destinationToken_   The address of the token (M or Wrapped M) on the destination chain.
-     * @param  recipient_          The account to receive tokens.
-     * @param  refundAddress_      The address to receive excess native gas on the destination chain.
-     * @return sequence_           The message sequence.
+     * @param  amount_                  The amount of tokens to transfer.
+     * @param  sourceToken_             The address of the token (M or Wrapped M) on the source chain.
+     * @param  destinationChainId_      The Wormhole destination chain ID.
+     * @param  destinationToken_        The address of the token (M or Wrapped M) on the destination chain.
+     * @param  recipient_               The account to receive tokens.
+     * @param  refundAddress_           The address to receive excess native gas on the destination chain.
+     * @param  transceiverInstructions_ The transceiver specific instructions for quoting and sending.
+     * @return sequence_                The message sequence.
      */
     function _transferMLikeToken(
         uint256 amount_,
@@ -164,7 +169,8 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         uint16 destinationChainId_,
         bytes32 destinationToken_,
         bytes32 recipient_,
-        bytes32 refundAddress_
+        bytes32 refundAddress_,
+        bytes memory transceiverInstructions_
     ) private returns (uint64 sequence_) {
         _verifyTransferAmount(amount_);
 
@@ -207,14 +213,18 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         // In case of Hub, do nothing, as tokens are already transferred.
         _burnOrLock(actualAmount_);
 
+        // Prevent stack too deep error
+        bytes32 destinationToken = destinationToken_;
+
         (sequence_, ) = _transferNativeToken(
             amount_,
             sourceToken_,
             destinationChainId_,
-            destinationToken_,
+            destinationToken,
             recipient_,
             refundAddress_,
-            PayloadEncoder.encodeAdditionalPayload(_currentIndex(), destinationToken_)
+            PayloadEncoder.encodeAdditionalPayload(_currentIndex(), destinationToken),
+            transceiverInstructions_
         );
     }
 
@@ -222,14 +232,15 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
      * @dev    Transfers M or Wrapped M Token to the destination chain.
      * @dev    adapted from NttManager `_transfer` function.
      * @dev    https://github.com/wormhole-foundation/native-token-transfers/blob/main/evm/src/NttManager/NttManager.sol#L521
-     * @param  amount_             The amount of tokens to transfer.
-     * @param  sourceToken_        The address of the token (M or Wrapped M) on the source chain.
-     * @param  destinationChainId_ The Wormhole destination chain ID.
-     * @param  destinationToken_   The address of the token (M or Wrapped M) on the destination chain.
-     * @param  recipient_          The account to receive tokens.
-     * @param  refundAddress_      The address to receive excess native gas on the destination chain.
-     * @param  additionalPayload_  The additional payload to sent with tokens transfer.
-     * @return sequence_           The message sequence.
+     * @param  amount_                  The amount of tokens to transfer.
+     * @param  sourceToken_             The address of the token (M or Wrapped M) on the source chain.
+     * @param  destinationChainId_      The Wormhole destination chain ID.
+     * @param  destinationToken_        The address of the token (M or Wrapped M) on the destination chain.
+     * @param  recipient_               The account to receive tokens.
+     * @param  refundAddress_           The address to receive excess native gas on the destination chain.
+     * @param  additionalPayload_       The additional payload to sent with tokens transfer.
+     * @param  transceiverInstructions_ The transceiver specific instructions for quoting and sending.
+     * @return sequence_                The message sequence.
      */
     function _transferNativeToken(
         uint256 amount_,
@@ -238,7 +249,8 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         bytes32 destinationToken_,
         bytes32 recipient_,
         bytes32 refundAddress_,
-        bytes memory additionalPayload_
+        bytes memory additionalPayload_,
+        bytes memory transceiverInstructions_
     ) internal returns (uint64 sequence_, bytes32 messageId_) {
         sequence_ = _useMessageSequence();
         TransceiverStructs.NttManagerMessage memory message_;
@@ -251,7 +263,12 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
             sequence_
         );
 
-        uint256 totalPriceQuote_ = _sendMessage(destinationChainId_, refundAddress_, message_);
+        uint256 totalPriceQuote_ = _sendMessage(
+            destinationChainId_,
+            refundAddress_,
+            message_,
+            transceiverInstructions_
+        );
 
         // prevent stack too deep
         uint256 transferAmount_ = amount_;
@@ -318,15 +335,17 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
     /**
      * @dev    Sends a generic message to the destination chain.
      *         The implementation is adapted from `NttManager` `_transfer` function.
-     * @param  destinationChainId_ The Wormhole destination chain ID.
-     * @param  refundAddress_      The address to receive excess native gas on the destination chain.
-     * @param  message_            The message to send.
-     * @return totalPriceQuote_    The price to deliver the message to the destination chain.
+     * @param  destinationChainId_      The Wormhole destination chain ID.
+     * @param  refundAddress_           The address to receive excess native gas on the destination chain.
+     * @param  message_                 The message to send.
+     * @param  transceiverInstructions_ The transceiver specific instructions for quoting and sending.
+     * @return totalPriceQuote_         The price to deliver the message to the destination chain.
      */
     function _sendMessage(
         uint16 destinationChainId_,
         bytes32 refundAddress_,
-        TransceiverStructs.NttManagerMessage memory message_
+        TransceiverStructs.NttManagerMessage memory message_,
+        bytes memory transceiverInstructions_
     ) internal returns (uint256 totalPriceQuote_) {
         _verifyIfChainForked();
 
@@ -336,7 +355,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
 
         (enabledTransceivers_, instructions_, priceQuotes_, totalPriceQuote_) = _prepareForTransfer(
             destinationChainId_,
-            DEFAULT_TRANSCEIVER_INSTRUCTIONS
+            transceiverInstructions_
         );
 
         // send a message
@@ -492,5 +511,10 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
     /// @dev Returns the maximum rounding error that can occur when transferring M tokens to the Portal
     function _getMaxRoundingError() private view returns (uint256) {
         return _currentIndex() / IndexingMath.EXP_SCALED_ONE + 1;
+    }
+
+    /// @dev Returns whether the current chain is SVM chain.
+    function _isSVM(uint16 wormholeChainId) internal view virtual returns (bool) {
+        return wormholeChainId == _SOLANA_WORMHOLE_CHAIN_ID || wormholeChainId == _FOGO_WORMHOLE_CHAIN_ID;
     }
 }

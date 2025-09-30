@@ -21,9 +21,6 @@ import { TypeConverter } from "./libs/TypeConverter.sol";
 contract HubPortal is IHubPortal, Portal {
     using TypeConverter for address;
 
-    uint16 internal constant _SOLANA_WORMHOLE_CHAIN_ID = 1;
-    bytes32 internal constant _SOLANA_EARNER_LIST = bytes32("solana-earners");
-
     /* ============ Variables ============ */
 
     /// @inheritdoc IHubPortal
@@ -54,15 +51,17 @@ contract HubPortal is IHubPortal, Portal {
     /// @inheritdoc IHubPortal
     function sendMTokenIndex(
         uint16 destinationChainId_,
-        bytes32 refundAddress_
+        bytes32 refundAddress_,
+        bytes memory transceiverInstructions_
     ) external payable returns (bytes32 messageId_) {
         uint128 index_ = _currentIndex();
-        messageId_ = destinationChainId_ == _SOLANA_WORMHOLE_CHAIN_ID
-            ? _sendMTokenIndexToSolana(index_, refundAddress_)
+        messageId_ = _isSVM(destinationChainId_)
+            ? _sendMTokenIndexToSVM(destinationChainId_, index_, refundAddress_, transceiverInstructions_)
             : _sendCustomMessage(
                 destinationChainId_,
                 refundAddress_,
-                PayloadEncoder.encodeIndex(index_, destinationChainId_)
+                PayloadEncoder.encodeIndex(index_, destinationChainId_),
+                transceiverInstructions_
             );
 
         emit MTokenIndexSent(destinationChainId_, messageId_, index_);
@@ -72,15 +71,16 @@ contract HubPortal is IHubPortal, Portal {
     function sendRegistrarKey(
         uint16 destinationChainId_,
         bytes32 key_,
-        bytes32 refundAddress_
+        bytes32 refundAddress_,
+        bytes memory transceiverInstructions_
     ) external payable returns (bytes32 messageId_) {
-        // Sending Registrar key to Solana is not supported at this time.
-        // To propagate earners to Solana call `sendEarnersMerkleRoot`.
-        if (destinationChainId_ == _SOLANA_WORMHOLE_CHAIN_ID) revert UnsupportedDestinationChain(destinationChainId_);
+        // Sending Registrar key to SVM chains is not supported at this time.
+        // To propagate earners to SVM chains call `sendEarnersMerkleRoot`.
+        if (_isSVM(destinationChainId_)) revert UnsupportedDestinationChain(destinationChainId_);
 
         bytes32 value_ = IRegistrarLike(registrar).get(key_);
         bytes memory payload_ = PayloadEncoder.encodeKey(key_, value_, destinationChainId_);
-        messageId_ = _sendCustomMessage(destinationChainId_, refundAddress_, payload_);
+        messageId_ = _sendCustomMessage(destinationChainId_, refundAddress_, payload_, transceiverInstructions_);
 
         emit RegistrarKeySent(destinationChainId_, messageId_, key_, value_);
     }
@@ -90,22 +90,30 @@ contract HubPortal is IHubPortal, Portal {
         uint16 destinationChainId_,
         bytes32 listName_,
         address account_,
-        bytes32 refundAddress_
+        bytes32 refundAddress_,
+        bytes memory transceiverInstructions_
     ) external payable returns (bytes32 messageId_) {
-        // Sending Registrar key status to Solana is not supported at this time.
-        // To propagate earners to Solana call `sendEarnersMerkleRoot`.
-        if (destinationChainId_ == _SOLANA_WORMHOLE_CHAIN_ID) revert UnsupportedDestinationChain(destinationChainId_);
+        // Sending Registrar list status to SVM chains is not supported at this time.
+        // To propagate earners to SVM chains call `sendEarnersMerkleRoot`.
+        if (_isSVM(destinationChainId_)) revert UnsupportedDestinationChain(destinationChainId_);
 
         bool status_ = IRegistrarLike(registrar).listContains(listName_, account_);
         bytes memory payload_ = PayloadEncoder.encodeListUpdate(listName_, account_, status_, destinationChainId_);
-        messageId_ = _sendCustomMessage(destinationChainId_, refundAddress_, payload_);
+        messageId_ = _sendCustomMessage(destinationChainId_, refundAddress_, payload_, transceiverInstructions_);
 
         emit RegistrarListStatusSent(destinationChainId_, messageId_, listName_, account_, status_);
     }
 
     /// @inheritdoc IHubPortal
-    function sendEarnersMerkleRoot(bytes32 refundAddress_) external payable returns (bytes32 messageId_) {
-        bytes32 destinationToken_ = destinationMToken[_SOLANA_WORMHOLE_CHAIN_ID];
+    function sendEarnersMerkleRoot(
+        uint16 destinationChainId_,
+        bytes32 refundAddress_,
+        bytes memory transceiverInstructions_
+    ) external payable returns (bytes32 messageId_) {
+        if (!_isSVM(destinationChainId_)) revert UnsupportedDestinationChain(destinationChainId_);
+
+        bytes32 destinationToken_ = destinationMToken[destinationChainId_];
+        // TODO: verify if a separate Merkle root needed for each SVM chain
         bytes32 earnersMerkleRoot_ = IMerkleTreeBuilder(merkleTreeBuilder).getRoot(_SOLANA_EARNER_LIST);
 
         bytes memory additionalPayload_ = PayloadEncoder.encodeAdditionalPayload(
@@ -117,14 +125,15 @@ contract HubPortal is IHubPortal, Portal {
         (, messageId_) = _transferNativeToken(
             0,
             token,
-            _SOLANA_WORMHOLE_CHAIN_ID,
+            destinationChainId_,
             destinationToken_,
             refundAddress_, // recipient doesn't matter since transfer amount is 0
             refundAddress_,
-            additionalPayload_
+            additionalPayload_,
+            transceiverInstructions_
         );
 
-        emit EarnersMerkleRootSent(messageId_, earnersMerkleRoot_);
+        emit EarnersMerkleRootSent(destinationChainId_, messageId_, earnersMerkleRoot_);
     }
 
     /// @inheritdoc IHubPortal
@@ -175,7 +184,8 @@ contract HubPortal is IHubPortal, Portal {
     function _sendCustomMessage(
         uint16 destinationChainId_,
         bytes32 refundAddress_,
-        bytes memory payload_
+        bytes memory payload_,
+        bytes memory transceiverInstructions_
     ) private returns (bytes32 messageId_) {
         if (refundAddress_ == bytes32(0)) revert InvalidRefundAddress();
 
@@ -185,24 +195,30 @@ contract HubPortal is IHubPortal, Portal {
             payload_
         );
 
-        _sendMessage(destinationChainId_, refundAddress_, message_);
+        _sendMessage(destinationChainId_, refundAddress_, message_, transceiverInstructions_);
 
         messageId_ = TransceiverStructs.nttManagerMessageDigest(chainId, message_);
     }
 
-    /// @dev A workaround to send M Token Index to Solana as an additional payload with zero token transfer
-    function _sendMTokenIndexToSolana(uint128 index_, bytes32 refundAddress_) private returns (bytes32 messageId_) {
-        bytes32 destinationToken_ = destinationMToken[_SOLANA_WORMHOLE_CHAIN_ID];
+    /// @dev A workaround to send M Token Index to SVM chains as an additional payload with zero token transfer
+    function _sendMTokenIndexToSVM(
+        uint16 destinationChainId_,
+        uint128 index_,
+        bytes32 refundAddress_,
+        bytes memory transceiverInstructions_
+    ) private returns (bytes32 messageId_) {
+        bytes32 destinationToken_ = destinationMToken[destinationChainId_];
         bytes memory additionalPayload_ = PayloadEncoder.encodeAdditionalPayload(index_, destinationToken_);
 
         (, messageId_) = _transferNativeToken(
             0,
             token,
-            _SOLANA_WORMHOLE_CHAIN_ID,
+            destinationChainId_,
             destinationToken_,
             refundAddress_, // recipient doesn't matter since transfer amount is 0
             refundAddress_,
-            additionalPayload_
+            additionalPayload_,
+            transceiverInstructions_
         );
     }
 
