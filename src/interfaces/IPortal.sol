@@ -122,6 +122,9 @@ interface IPortal {
     /// @notice The address of the Swap Facility contract.
     function swapFacility() external view returns (address);
 
+    /// @notice The address of the original caller of `transfer` and `transferMLikeToken` functions.
+    function msgSender() external view returns (address);
+
     /**
      * @notice Returns the address of M token on the destination chain.
      * @param  destinationChainId The Wormhole destination chain ID.

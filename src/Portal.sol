@@ -14,12 +14,13 @@ import { IPortal } from "./interfaces/IPortal.sol";
 import { ISwapFacilityLike } from "./interfaces/ISwapFacilityLike.sol";
 import { TypeConverter } from "./libs/TypeConverter.sol";
 import { PayloadType, PayloadEncoder } from "./libs/PayloadEncoder.sol";
+import { ReentrancyLock } from "../lib/uniswap-v4-periphery/src/base/ReentrancyLock.sol";
 
 /**
  * @title  Base Portal contract inherited by HubPortal and SpokePortal.
  * @author M^0 Labs
  */
-abstract contract Portal is NttManagerNoRateLimiting, IPortal {
+abstract contract Portal is NttManagerNoRateLimiting, ReentrancyLock, IPortal {
     using TypeConverter for *;
     using PayloadEncoder for bytes;
     using TrimmedAmountLib for *;
@@ -75,6 +76,11 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         return _currentIndex();
     }
 
+    /// @inheritdoc IPortal
+    function msgSender() external view returns (address) {
+        return _getLocker();
+    }
+
     /* ============ External Interactive Functions ============ */
 
     /// @inheritdoc IPortal
@@ -110,7 +116,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         bytes32 recipient_,
         bytes32 refundAddress_,
         bytes memory transceiverInstructions_
-    ) external payable nonReentrant whenNotPaused returns (uint64 sequence_) {
+    ) external payable isNotLocked whenNotPaused returns (uint64 sequence_) {
         if (!supportedBridgingPath[sourceToken_][destinationChainId_][destinationToken_]) {
             revert UnsupportedBridgingPath(sourceToken_, destinationChainId_, destinationToken_);
         }
@@ -144,7 +150,7 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         bytes32 refundAddress_,
         bool, // shouldQueue_
         bytes memory transceiverInstructions_
-    ) internal override returns (uint64 sequence_) {
+    ) internal override isNotLocked returns (uint64 sequence_) {
         sequence_ = _transferMLikeToken(
             amount_,
             token, // M Token
