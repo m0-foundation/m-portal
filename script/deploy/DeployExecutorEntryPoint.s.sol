@@ -12,7 +12,7 @@ contract DeployExecutorEntryPoint is DeployBase {
 
     function run() external {
         address deployer_ = vm.rememberKey(vm.envUint("PRIVATE_KEY"));
-        address admin_ = vm.rememberKey(vm.envUint("ADMIN"));
+        address admin_ = vm.envAddress("ADMIN");
 
         uint256 chainId_ = block.chainid;
 

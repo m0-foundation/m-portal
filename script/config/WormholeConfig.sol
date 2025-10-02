@@ -107,7 +107,7 @@ library WormholeConfig {
                     gasLimit: GAS_LIMIT,
                     relayer: 0x7B1bD7a6b4E61c2a123AC6BC2cbfC614437D0470,
                     specialRelayer: SPECIAL_RELAYER,
-                    executor: address(0) // Not deployed on Arbitrum Sepolia
+                    executor: 0xBF161de6B819c8af8f2230Bcd99a9B3592f6F87b
                 });
 
         // Optimism Sepolia
@@ -120,7 +120,7 @@ library WormholeConfig {
                     gasLimit: GAS_LIMIT,
                     relayer: 0x93BAD53DDfB6132b0aC8E37f6029163E63372cEE,
                     specialRelayer: SPECIAL_RELAYER,
-                    executor: address(0) // Not deployed on Optimism Sepolia
+                    executor: 0x5856651eB82aeb6979B4954317194d48e1891b3c
                 });
 
         revert Chains.UnsupportedChain(chainId_);

@@ -49,7 +49,9 @@ clean:
 # 
 
 deploy:
-	FOUNDRY_PROFILE=production MIGRATION_ADMIN=$(MIGRATION_ADMIN_ADDRESS) PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) forge script $(SCRIPT) --rpc-url $(RPC_URL) --etherscan-api-key $(SCAN_API_KEY) --skip test --broadcast --slow --non-interactive -v --verify
+	FOUNDRY_PROFILE=production MIGRATION_ADMIN=$(MIGRATION_ADMIN_ADDRESS) PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) \
+	forge script $(SCRIPT) --rpc-url $(RPC_URL) --etherscan-api-key $(SCAN_API_KEY) --skip test \
+	--slow --non-interactive -v --broadcast --verify
 
 # Deploy Hub
 
@@ -139,8 +141,48 @@ deploy-merkle-tree-builder-prod-eth: deploy-merkle-tree-builder
 deploy-merkle-tree-builder-dev-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
 deploy-merkle-tree-builder-dev-sepolia: deploy-merkle-tree-builder
 
-# 
-# 
+#
+# Deploy Hub ExecutorEntryPoint
+#
+
+deploy-hub-executor: SCRIPT=script/deploy/DeployHubExecutorEntryPoint.s.sol:DeployHubExecutorEntryPoint
+deploy-hub-executor: SCAN_API_KEY=$(ETHERSCAN_API_KEY)
+deploy-hub-executor: deploy
+
+deploy-hub-executor-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
+deploy-hub-executor-prod-eth: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
+deploy-hub-executor-prod-eth: deploy-hub-executor
+
+deploy-hub-executor-dev-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
+deploy-hub-executor-dev-sepolia: SIGNER_PRIVATE_KEY=$(DEV_PRIVATE_KEY)
+deploy-hub-executor-dev-sepolia: deploy-hub-executor
+
+#
+# Deploy Spoke ExecutorEntryPoint
+#
+
+deploy-spoke-executor: SCRIPT=script/deploy/DeployExecutorEntryPoint.s.sol:DeployExecutorEntryPoint
+deploy-spoke-executor: SCAN_API_KEY=$(ETHERSCAN_API_KEY)
+deploy-spoke-executor: deploy
+
+deploy-spoke-executor-prod-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
+deploy-spoke-executor-prod-arbitrum: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
+deploy-spoke-executor-prod-arbitrum: deploy-spoke-executor
+
+deploy-spoke-executor-dev-arbitrum-sepolia: RPC_URL=$(ARBITRUM_SEPOLIA_RPC_URL)
+deploy-spoke-executor-dev-arbitrum-sepolia: SIGNER_PRIVATE_KEY=$(DEV_PRIVATE_KEY)
+deploy-spoke-executor-dev-arbitrum-sepolia: deploy-spoke-executor
+
+deploy-spoke-executor-prod-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
+deploy-spoke-executor-prod-optimism: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
+deploy-spoke-executor-prod-optimism: deploy-spoke-executor
+
+deploy-spoke-executor-dev-optimism-sepolia: RPC_URL=$(OPTIMISM_SEPOLIA_RPC_URL)
+deploy-spoke-executor-dev-optimism-sepolia: SIGNER_PRIVATE_KEY=$(DEV_PRIVATE_KEY)
+deploy-spoke-executor-dev-optimism-sepolia: deploy-spoke-executor
+
+#
+#
 # CONFIGURE
 # 
 # 
@@ -195,7 +237,9 @@ configure-noble-prod-eth:
 # 
 
 upgrade-transceiver:
-	FOUNDRY_PROFILE=production PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) CONFIG=$(CONFIG_PATH) forge script script/upgrade/UpgradeWormholeTransceiver.s.sol:UpgradeWormholeTransceiver --rpc-url $(RPC_URL) --etherscan-api-key $(SCAN_API_KEY) --skip test --broadcast --slow -v --verify
+	FOUNDRY_PROFILE=production PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) CONFIG=$(CONFIG_PATH) \
+	forge script script/upgrade/UpgradeWormholeTransceiver.s.sol:UpgradeWormholeTransceiver --rpc-url $(RPC_URL) \
+	--etherscan-api-key $(ETHERSCAN_API_KEY) --skip test --broadcast --slow -v --verify
 
 # Upgrade transceiver Testnet
 
@@ -216,7 +260,6 @@ upgrade-transceiver-dev-sepolia: SCAN_API_KEY=$(ETHERSCAN_API_KEY)
 upgrade-transceiver-dev-sepolia: upgrade-transceiver-dev
 
 upgrade-transceiver-dev-arbitrum-sepolia: RPC_URL=$(ARBITRUM_SEPOLIA_RPC_URL)
-upgrade-transceiver-dev-arbitrum-sepolia: SCAN_API_KEY=$(ARBITRUM_ETHERSCAN_API_KEY)
 upgrade-transceiver-dev-arbitrum-sepolia: upgrade-transceiver-dev
 
 upgrade-transceiver-dev-optimism-sepolia: RPC_URL=$(OPTIMISM_SEPOLIA_RPC_URL)
@@ -256,7 +299,9 @@ upgrade-hub-portal-prod-eth: upgrade-hub-portal
 #
 
 upgrade-spoke-portal:
-	FOUNDRY_PROFILE=production PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) CONFIG=$(CONFIG_PATH) forge script script/upgrade/UpgradeSpokePortal.s.sol:UpgradeSpokePortal --rpc-url $(RPC_URL) --etherscan-api-key $(SCAN_API_KEY) --skip test --broadcast --slow -v --verify
+	FOUNDRY_PROFILE=production PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) CONFIG=$(CONFIG_PATH) \
+	forge script script/upgrade/UpgradeSpokePortal.s.sol:UpgradeSpokePortal --rpc-url $(RPC_URL) \
+	--etherscan-api-key $(ETHERSCAN_API_KEY) --skip test --broadcast --slow -v --verify
 
 upgrade-spoke-portal-dev: CONFIG_PATH=config/upgrade/sepolia.json
 upgrade-spoke-portal-dev: SIGNER_PRIVATE_KEY=$(DEV_PRIVATE_KEY)
@@ -267,11 +312,9 @@ upgrade-spoke-portal-prod: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
 upgrade-spoke-portal-prod: upgrade-spoke-portal
 
 upgrade-spoke-portal-dev-arbitrum-sepolia: RPC_URL=$(ARBITRUM_SEPOLIA_RPC_URL)
-upgrade-spoke-portal-dev-arbitrum-sepolia: SCAN_API_KEY=$(ARBITRUM_ETHERSCAN_API_KEY)
 upgrade-spoke-portal-dev-arbitrum-sepolia: upgrade-spoke-portal-dev
 
 upgrade-spoke-portal-dev-optimism-sepolia: RPC_URL=$(OPTIMISM_SEPOLIA_RPC_URL)
-upgrade-spoke-portal-dev-optimism-sepolia: SCAN_API_KEY=$(OPTIMISM_ETHERSCAN_API_KEY)
 upgrade-spoke-portal-dev-optimism-sepolia: upgrade-spoke-portal-dev
 
 upgrade-spoke-portal-prod-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
