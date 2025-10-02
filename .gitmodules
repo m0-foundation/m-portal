@@ -25,3 +25,6 @@
 [submodule "lib/uniswap-v4-periphery"]
 	path = lib/uniswap-v4-periphery
 	url = git@github.com:Uniswap/v4-periphery.git
+[submodule "lib/safe-utils"]
+	path = lib/safe-utils
+	url = git@github.com:Recon-Fuzz/safe-utils.git
