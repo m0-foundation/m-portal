@@ -325,11 +325,34 @@ upgrade-spoke-portal-prod-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
 upgrade-spoke-portal-prod-optimism: SCAN_API_KEY=$(OPTIMISM_ETHERSCAN_API_KEY)
 upgrade-spoke-portal-prod-optimism: upgrade-spoke-portal-prod
 
+#
+#
+# PROPOSE UPGRADE VIA MULTISIG
+#
+#
+
+propose-upgrade: 
+	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
+	forge script $(SCRIPT) --rpc-url $(RPC_URL) \
+	--etherscan-api-key $(ETHERSCAN_API_KEY) --skip test --slow -v --ffi --broadcast --verify
+
+propose-hub-portal-upgrade-eth: SCRIPT=script/upgrade/ProposeHubPortalUpgrade.s.sol:ProposeHubPortalUpgrade
+propose-hub-portal-upgrade-eth: RPC_URL=$(MAINNET_RPC_URL)
+propose-hub-portal-upgrade-eth: propose-upgrade
+
+propose-spoke-portal-upgrade-arbitrum: SCRIPT=script/upgrade/ProposeSpokePortalUpgrade.s.sol:ProposeSpokePortalUpgrade
+propose-spoke-portal-upgrade-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
+propose-spoke-portal-upgrade-arbitrum: propose-upgrade
+
+propose-spoke-portal-upgrade-optimism: SCRIPT=script/upgrade/ProposeSpokePortalUpgrade.s.sol:ProposeSpokePortalUpgrade
+propose-spoke-portal-upgrade-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
+propose-spoke-portal-upgrade-optimism: propose-upgrade
+
 # 
 # 
 # TASKS
-# 
-# 
+#
+#
 
 task:
 	PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) forge script $(SCRIPT) --rpc-url $(RPC_URL) --skip test --broadcast --slow -v
