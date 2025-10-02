@@ -15,7 +15,7 @@ contract UpgradeHubPortal is UpgradeBase {
 
         vm.startBroadcast(deployer_);
 
-        _upgradeHubPortal(portal_, mToken_, registrar_, chainId_.toWormholeChainId());
+        _upgradeHubPortal(portal_, mToken_, registrar_, _SWAP_FACILITY, chainId_.toWormholeChainId());
 
         vm.stopBroadcast();
     }

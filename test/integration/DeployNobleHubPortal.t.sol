@@ -37,6 +37,7 @@ contract DeployNobleHubPortalTests is Test, DeployBase {
         (address hubPortal_, address transceiver_) = _deployNobleHubComponents(
             _DEPLOYER,
             block.chainid.toWormholeChainId(),
+            _SWAP_FACILITY,
             hubDeployConfig_,
             hubTransceiverConfig_
         );

@@ -8,7 +8,8 @@ contract PortalHarness is Portal {
     constructor(
         address mToken_,
         address registrar_,
+        address swapFacility_,
         Mode mode_,
         uint16 chainId_
-    ) Portal(mToken_, registrar_, mode_, chainId_) {}
+    ) Portal(mToken_, registrar_, swapFacility_, mode_, chainId_) {}
 }

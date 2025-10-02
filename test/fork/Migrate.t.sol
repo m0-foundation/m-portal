@@ -30,7 +30,7 @@ contract Migrate is ForkTestBase, UpgradeBase {
 
         vm.startPrank(_DEPLOYER);
 
-        _upgradeHubPortal(_hubPortal, _MAINNET_M_TOKEN, _MAINNET_REGISTRAR, Chains.WORMHOLE_ETHEREUM);
+        _upgradeHubPortal(_hubPortal, _MAINNET_M_TOKEN, _MAINNET_REGISTRAR, _SWAP_FACILITY, Chains.WORMHOLE_ETHEREUM);
 
         vm.stopPrank();
     }
@@ -44,6 +44,7 @@ contract Migrate is ForkTestBase, UpgradeBase {
             _arbitrumSpokePortal,
             _arbitrumSpokeMToken,
             _arbitrumSpokeRegistrar,
+            _SWAP_FACILITY,
             Chains.WORMHOLE_ARBITRUM
         );
 
@@ -53,7 +54,7 @@ contract Migrate is ForkTestBase, UpgradeBase {
     function testFork_migrate_wormholeTransceiver() external {
         vm.selectFork(_mainnetForkId);
 
-        assertEq(WormholeTransceiver(_hubWormholeTransceiver).gasLimit(), 300_000);
+        assertEq(WormholeTransceiver(_hubWormholeTransceiver).gasLimit(), 400_000);
 
         WormholeTransceiverConfig memory transceiverConfig_ = WormholeConfig.getWormholeTransceiverConfig(
             block.chainid

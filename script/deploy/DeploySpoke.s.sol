@@ -24,6 +24,7 @@ contract DeploySpoke is DeployBase {
         (address portal_, address transceiver_, address registrar_, address mToken_) = _deploySpokeComponents(
             deployer_,
             chainId_.toWormholeChainId(),
+            _SWAP_FACILITY,
             transceiverConfig_,
             _burnNonces
         );

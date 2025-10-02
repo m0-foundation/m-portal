@@ -17,6 +17,7 @@ import { MockWrappedMToken } from "../mocks/MockWrappedMToken.sol";
 import { MockSpokeMToken } from "../mocks/MockSpokeMToken.sol";
 import { MockTransceiver } from "../mocks/MockTransceiver.sol";
 import { MockSpokeRegistrar } from "../mocks/MockSpokeRegistrar.sol";
+import { MockSwapFacility } from "../mocks/MockSwapFacility.sol";
 import { PortalHarness } from "../harnesses/PortalHarness.sol";
 
 contract PortalTests is UnitTestBase {
@@ -26,6 +27,7 @@ contract PortalTests is UnitTestBase {
     MockSpokeMToken internal _mToken;
     MockWrappedMToken internal _wrappedMToken;
     MockSpokeRegistrar internal _registrar;
+    MockSwapFacility internal _swapFacility;
     bytes32 internal _remoteMToken;
     bytes32 internal _remoteWrappedMToken;
 
@@ -41,11 +43,13 @@ contract PortalTests is UnitTestBase {
         _tokenAddress = address(_mToken);
 
         _registrar = new MockSpokeRegistrar();
+        _swapFacility = new MockSwapFacility(address(_mToken));
         _transceiver = new MockTransceiver();
 
         PortalHarness implementation_ = new PortalHarness(
             address(_mToken),
             address(_registrar),
+            address(_swapFacility),
             IManagerBase.Mode.BURNING,
             _LOCAL_CHAIN_ID
         );
@@ -61,12 +65,35 @@ contract PortalTests is UnitTestBase {
 
     function test_constructor_zeroMToken() external {
         vm.expectRevert(IPortal.ZeroMToken.selector);
-        new PortalHarness(address(0), address(_registrar), IManagerBase.Mode.BURNING, _LOCAL_CHAIN_ID);
+        new PortalHarness(
+            address(0),
+            address(_registrar),
+            address(_swapFacility),
+            IManagerBase.Mode.BURNING,
+            _LOCAL_CHAIN_ID
+        );
     }
 
     function test_constructor_zeroRegistrar() external {
         vm.expectRevert(IPortal.ZeroRegistrar.selector);
-        new PortalHarness(address(_mToken), address(0), IManagerBase.Mode.BURNING, _LOCAL_CHAIN_ID);
+        new PortalHarness(
+            address(_mToken),
+            address(0),
+            address(_swapFacility),
+            IManagerBase.Mode.BURNING,
+            _LOCAL_CHAIN_ID
+        );
+    }
+
+    function test_constructor_swapFacility() external {
+        vm.expectRevert(IPortal.ZeroSwapFacility.selector);
+        new PortalHarness(
+            address(_mToken),
+            address(_registrar),
+            address(0),
+            IManagerBase.Mode.BURNING,
+            _LOCAL_CHAIN_ID
+        );
     }
 
     /* ============ setDestinationMToken ============ */

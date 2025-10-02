@@ -24,6 +24,7 @@ contract DeployHub is DeployBase {
         (address portal_, address transceiver_) = _deployHubComponents(
             deployer_,
             chainId_.toWormholeChainId(),
+            _SWAP_FACILITY,
             hubDeployConfig_,
             transceiverConfig_
         );

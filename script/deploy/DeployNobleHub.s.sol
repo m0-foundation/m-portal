@@ -31,6 +31,7 @@ contract DeployNobleHub is DeployBase {
         (address portal_, address transceiver_) = _deployNobleHubComponents(
             deployer_,
             chainId_.toWormholeChainId(),
+            _SWAP_FACILITY,
             hubDeployConfig_,
             transceiverConfig_
         );

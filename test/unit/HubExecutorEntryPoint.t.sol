@@ -7,7 +7,6 @@ import { TransceiverStructs } from "../../lib/native-token-transfers/evm/src/lib
 import { IPortal } from "../../src/interfaces/IPortal.sol";
 import { IHubPortal } from "../../src/interfaces/IHubPortal.sol";
 import { HubPortal } from "../../src/HubPortal.sol";
-import { PayloadEncoder } from "../../src/libs/PayloadEncoder.sol";
 import { TypeConverter } from "../../src/libs/TypeConverter.sol";
 import { ExecutorArgs } from "../../src/interfaces/IHubExecutorEntryPoint.sol";
 import { ExecutorMessages } from "../../src/external/ExecutorMessages.sol";
@@ -21,6 +20,7 @@ import { MockTransceiverPrice } from "../mocks/MockTransceiver.sol";
 import { MockMerkleTreeBuilder } from "../mocks/MockMerkleTreeBuilder.sol";
 import { MockExecutor } from "../mocks/MockExecutor.sol";
 import { MockWormhole } from "../mocks/MockWormhole.sol";
+import { MockSwapFacility } from "../mocks/MockSwapFacility.sol";
 
 contract HubExecutorEntryPointTest is UnitTestBase {
     using TypeConverter for *;
@@ -39,6 +39,7 @@ contract HubExecutorEntryPointTest is UnitTestBase {
     MockExecutor internal _executor;
     MockWormhole internal _wormhole;
     MockTransceiverPrice internal _transceiverWithPrice;
+    MockSwapFacility internal _swapFacility;
 
     HubPortal internal _portal;
     HubExecutorEntryPoint internal _executorEntryPoint;
@@ -72,8 +73,14 @@ contract HubExecutorEntryPointTest is UnitTestBase {
         _merkleTreeBuilder = new MockMerkleTreeBuilder();
         _executor = new MockExecutor();
         _wormhole = new MockWormhole(_LOCAL_CHAIN_ID);
+        _swapFacility = new MockSwapFacility(address(_mToken));
 
-        HubPortal portalImplementation_ = new HubPortal(address(_mToken), address(_registrar), _LOCAL_CHAIN_ID);
+        HubPortal portalImplementation_ = new HubPortal(
+            address(_mToken),
+            address(_registrar),
+            address(_swapFacility),
+            _LOCAL_CHAIN_ID
+        );
         _portal = HubPortal(_createProxy(address(portalImplementation_)));
 
         HubExecutorEntryPoint executorEntryPointImplementation_ = new HubExecutorEntryPoint(

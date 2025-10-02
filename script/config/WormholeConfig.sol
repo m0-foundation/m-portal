@@ -21,7 +21,7 @@ library WormholeConfig {
     uint8 internal constant FINALIZED_CONSISTENCY_LEVEL = 1;
 
     /// @dev Gas limit to process a message on the destination
-    uint256 internal constant GAS_LIMIT = 300_000;
+    uint256 internal constant GAS_LIMIT = 400_000;
     address internal constant SPECIAL_RELAYER = 0x63BE47835c7D66c4aA5B2C688Dc6ed9771c94C74;
 
     /// @dev Wormhole Chain Ids https://wormhole.com/docs/build/reference/chain-ids/

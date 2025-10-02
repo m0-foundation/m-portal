@@ -16,6 +16,7 @@ import { UnitTestBase } from "./UnitTestBase.t.sol";
 import { MockWrappedMToken } from "../mocks/MockWrappedMToken.sol";
 import { MockSpokeMToken } from "../mocks/MockSpokeMToken.sol";
 import { MockSpokeRegistrar } from "../mocks/MockSpokeRegistrar.sol";
+import { MockSwapFacility } from "../mocks/MockSwapFacility.sol";
 import { MockTransceiver } from "../mocks/MockTransceiver.sol";
 
 contract SpokePortalTests is UnitTestBase {
@@ -26,6 +27,7 @@ contract SpokePortalTests is UnitTestBase {
     bytes32 internal _remoteMToken;
     bytes32 internal _remoteWrappedMToken;
     MockSpokeRegistrar internal _registrar;
+    MockSwapFacility internal _swapFacility;
 
     SpokePortal internal _portal;
 
@@ -39,9 +41,15 @@ contract SpokePortalTests is UnitTestBase {
         _tokenAddress = address(_mToken);
 
         _registrar = new MockSpokeRegistrar();
+        _swapFacility = new MockSwapFacility(address(_mToken));
         _transceiver = new MockTransceiver();
 
-        SpokePortal implementation_ = new SpokePortal(address(_mToken), address(_registrar), _LOCAL_CHAIN_ID);
+        SpokePortal implementation_ = new SpokePortal(
+            address(_mToken),
+            address(_registrar),
+            address(_swapFacility),
+            _LOCAL_CHAIN_ID
+        );
         _portal = SpokePortal(_createProxy(address(implementation_)));
 
         _initializePortal(_portal);
@@ -58,6 +66,7 @@ contract SpokePortalTests is UnitTestBase {
     function test_initialState() external view {
         assertEq(_portal.mToken(), address(_mToken));
         assertEq(_portal.registrar(), address(_registrar));
+        assertEq(_portal.swapFacility(), address(_swapFacility));
         assertEq(uint8(_portal.mode()), uint8(IManagerBase.Mode.BURNING));
         assertEq(_portal.chainId(), _LOCAL_CHAIN_ID);
     }
@@ -189,8 +198,13 @@ contract SpokePortalTests is UnitTestBase {
 
         vm.expectCall(address(_mToken), abi.encodeWithSignature("burn(uint256)", amount_));
         vm.expectCall(
-            address(_wrappedMToken),
-            abi.encodeWithSignature("unwrap(address,uint256)", address(_portal), amount_)
+            address(_swapFacility),
+            abi.encodeWithSignature(
+                "swapOutM(address,uint256,address)",
+                address(_wrappedMToken),
+                amount_,
+                address(_portal)
+            )
         );
 
         // expect to call sendMessage in Transceiver
