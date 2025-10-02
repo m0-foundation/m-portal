@@ -33,6 +33,7 @@ contract DeployBase is ScriptBase {
     string internal constant _PORTAL_CONTRACT_NAME = "Portal";
     string internal constant _TRANSCEIVER_CONTRACT_NAME = "WormholeTransceiver";
     string internal constant _VAULT_CONTRACT_NAME = "Vault";
+    string internal constant _EXECUTOR_ENTRY_POINT_CONTRACT_NAME = "ExecutorEntryPoint";
 
     /// @dev Contract names used for deterministic deployment of Noble Portal
     string internal constant _NOBLE_PORTAL_CONTRACT_NAME = "NoblePortal";
@@ -325,7 +326,7 @@ contract DeployBase is ScriptBase {
             implementation_,
             admin_,
             "",
-            _computeSalt(deployer_, "ExecutorEntryPoint")
+            _computeSalt(deployer_, _EXECUTOR_ENTRY_POINT_CONTRACT_NAME)
         );
     }
 
@@ -341,7 +342,7 @@ contract DeployBase is ScriptBase {
             implementation_,
             admin_,
             "",
-            _computeSalt(deployer_, "HubExecutorEntryPoint")
+            _computeSalt(deployer_, _EXECUTOR_ENTRY_POINT_CONTRACT_NAME)
         );
     }
 
