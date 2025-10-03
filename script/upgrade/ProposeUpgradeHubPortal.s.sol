@@ -11,9 +11,9 @@ import {
 import { ISwapFacilityLike } from "../../src/interfaces/ISwapFacilityLike.sol";
 import { WormholeConfig, WormholeTransceiverConfig } from "../config/WormholeConfig.sol";
 import { UpgradeBase } from "./UpgradeBase.sol";
-import { MultiSigProposeBase } from "./MultiSigProposeBase.sol";
+import { MultiSigBatchBase } from "./MultiSigBatchBase.sol";
 
-contract ProposeSpokePortalUpgrade is UpgradeBase, MultiSigProposeBase {
+contract ProposeUpgradeHubPortal is UpgradeBase, MultiSigBatchBase {
     using WormholeConfig for uint256;
 
     address constant _SAFE_MULTISIG = 0xdcf79C332cB3Fe9d39A830a5f8de7cE6b1BD6fD1;
@@ -28,7 +28,7 @@ contract ProposeSpokePortalUpgrade is UpgradeBase, MultiSigProposeBase {
         vm.startBroadcast(deployer_);
 
         address newTransceiverImplementation_ = _deployWormholeTransceiver(portal_, transceiverConfig_);
-        address newPortalImplementation_ = _deploySpokePortalImplementation(
+        address newPortalImplementation_ = _deployHubPortalImplementation(
             mToken_,
             registrar_,
             _SWAP_FACILITY,
@@ -37,9 +37,16 @@ contract ProposeSpokePortalUpgrade is UpgradeBase, MultiSigProposeBase {
 
         vm.stopBroadcast();
 
-        // Propose SpokePortal and WormholeTransceiver upgrades via Safe
+        // Propose HubPortal and WormholeTransceiver upgrades via Safe
         _addToBatch(portal_, abi.encodeCall(IManagerBase.upgrade, (newPortalImplementation_)));
         _addToBatch(transceiver_, abi.encodeCall(ITransceiver.upgrade, (newTransceiverImplementation_)));
+
+        // Make Portal trusted router
+        _addToBatch(_SWAP_FACILITY, abi.encodeCall(ISwapFacilityLike.setTrustedRouter, (portal_, true)));
+
+        // Grant Portal M_SWAPPER_ROLE in SwapFacility
+        bytes32 swapperRole = ISwapFacilityLike(_SWAP_FACILITY).M_SWAPPER_ROLE();
+        _addToBatch(_SWAP_FACILITY, abi.encodeCall(IAccessControl.grantRole, (swapperRole, portal_)));
 
         _simulateBatch(_SAFE_MULTISIG);
         _proposeBatch(_SAFE_MULTISIG);

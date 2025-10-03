@@ -5,7 +5,7 @@ pragma solidity 0.8.26;
 import { Safe } from "../../lib/safe-utils/src/Safe.sol";
 import { Script } from "../../lib/forge-std/src/Script.sol";
 
-abstract contract MultiSigProposeBase is Script {
+abstract contract MultiSigBatchBase is Script {
     using Safe for *;
 
     Safe.Client internal _safeMultiSig;
