@@ -17,6 +17,9 @@ out/
 /broadcast/Upgrade*/31337/
 /broadcast/Upgrade*/*/dry-run
 
+!/broadcast/Propose*
+/broadcast/Propose*/31337/
+/broadcast/Propose*/*/dry-run
 
 # Coverage files
 coverage/
