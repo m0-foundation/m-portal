@@ -336,15 +336,15 @@ propose-upgrade:
 	forge script $(SCRIPT) --rpc-url $(RPC_URL) \
 	--etherscan-api-key $(ETHERSCAN_API_KEY) --skip test --slow -v --ffi --broadcast --verify
 
-propose-hub-portal-upgrade-eth: SCRIPT=script/upgrade/ProposeHubPortalUpgrade.s.sol:ProposeHubPortalUpgrade
+propose-hub-portal-upgrade-eth: SCRIPT=script/upgrade/ProposeUpgradeHubPortal.s.sol:ProposeUpgradeHubPortal
 propose-hub-portal-upgrade-eth: RPC_URL=$(MAINNET_RPC_URL)
 propose-hub-portal-upgrade-eth: propose-upgrade
 
-propose-spoke-portal-upgrade-arbitrum: SCRIPT=script/upgrade/ProposeSpokePortalUpgrade.s.sol:ProposeSpokePortalUpgrade
+propose-spoke-portal-upgrade-arbitrum: SCRIPT=script/upgrade/ProposeUpgradeSpokePortal.s.sol:ProposeUpgradeSpokePortal
 propose-spoke-portal-upgrade-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
 propose-spoke-portal-upgrade-arbitrum: propose-upgrade
 
-propose-spoke-portal-upgrade-optimism: SCRIPT=script/upgrade/ProposeSpokePortalUpgrade.s.sol:ProposeSpokePortalUpgrade
+propose-spoke-portal-upgrade-optimism: SCRIPT=script/upgrade/ProposeUpgradeSpokePortal.s.sol:ProposeUpgradeSpokePortal
 propose-spoke-portal-upgrade-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
 propose-spoke-portal-upgrade-optimism: propose-upgrade
 
@@ -355,7 +355,7 @@ propose-spoke-portal-upgrade-optimism: propose-upgrade
 #
 
 task:
-	PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) forge script $(SCRIPT) --rpc-url $(RPC_URL) --skip test --broadcast --slow -v
+	PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) forge script $(SCRIPT) --rpc-url $(RPC_URL) --skip test --broadcast --slow -v --ffi
 
 # 
 # Regular transfer
@@ -536,6 +536,23 @@ transfer-ownership-prod-arbitrum: transfer-ownership
 
 transfer-ownership-prod-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
 transfer-ownership-prod-optimism: transfer-ownership
+
+#
+# Unpause Portal
+#
+unpause-portal: SCRIPT=script/tasks/ProposeUnpausePortal.s.sol:ProposeUnpausePortal
+unpause-portal: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
+unpause-portal: task
+
+# Mainnet
+unpause-portal-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
+unpause-portal-prod-eth: unpause-portal
+
+unpause-portal-prod-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
+unpause-portal-prod-arbitrum: unpause-portal
+
+unpause-portal-prod-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
+unpause-portal-prod-optimism: unpause-portal
 
 #
 #
