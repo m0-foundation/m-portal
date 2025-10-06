@@ -11,7 +11,7 @@ import {
 import { ISwapFacilityLike } from "../../src/interfaces/ISwapFacilityLike.sol";
 import { WormholeConfig, WormholeTransceiverConfig } from "../config/WormholeConfig.sol";
 import { UpgradeBase } from "./UpgradeBase.sol";
-import { MultiSigBatchBase } from "./MultiSigBatchBase.sol";
+import { MultiSigBatchBase } from "../MultiSigBatchBase.sol";
 
 contract ProposeUpgradeSpokePortal is UpgradeBase, MultiSigBatchBase {
     using WormholeConfig for uint256;
@@ -42,6 +42,6 @@ contract ProposeUpgradeSpokePortal is UpgradeBase, MultiSigBatchBase {
         _addToBatch(transceiver_, abi.encodeCall(ITransceiver.upgrade, (newTransceiverImplementation_)));
 
         _simulateBatch(_SAFE_MULTISIG);
-        _proposeBatch(_SAFE_MULTISIG);
+        _proposeBatch(_SAFE_MULTISIG, deployer_);
     }
 }

@@ -2,8 +2,8 @@
 
 pragma solidity 0.8.26;
 
-import { Safe } from "../../lib/safe-utils/src/Safe.sol";
-import { Script } from "../../lib/forge-std/src/Script.sol";
+import { Safe } from "../lib/safe-utils/src/Safe.sol";
+import { Script } from "../lib/forge-std/src/Script.sol";
 
 abstract contract MultiSigBatchBase is Script {
     using Safe for *;
@@ -17,9 +17,9 @@ abstract contract MultiSigBatchBase is Script {
         _data.push(data_);
     }
 
-    function _proposeBatch(address safe_) internal {
+    function _proposeBatch(address safe_, address sender) internal {
         _safeMultiSig.initialize(safe_);
-        _safeMultiSig.proposeTransactions(_targets, _data, msg.sender, "");
+        _safeMultiSig.proposeTransactions(_targets, _data, sender, "");
     }
 
     function _simulateBatch(address safe_) internal {

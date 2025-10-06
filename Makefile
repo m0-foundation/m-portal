@@ -555,6 +555,23 @@ unpause-portal-prod-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
 unpause-portal-prod-optimism: unpause-portal
 
 #
+# Set Bridging Path
+#
+set-bridging-path: SCRIPT=script/tasks/ProposeSetBridgingPath.s.sol:ProposeSetBridgingPath
+set-bridging-path: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
+set-bridging-path: task
+
+# Mainnet
+set-bridging-path-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
+set-bridging-path-prod-eth: set-bridging-path
+
+set-bridging-path-prod-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
+set-bridging-path-prod-arbitrum: set-bridging-path
+
+set-bridging-path-prod-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
+set-bridging-path-prod-optimism: set-bridging-path
+
+#
 #
 # QUERIES
 #
