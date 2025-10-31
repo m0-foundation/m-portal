@@ -17,6 +17,7 @@ import { ICreateXLike } from "./deploy/interfaces/ICreateXLike.sol";
 
 contract ScriptBase is Script {
     struct Deployment {
+        address executorEntryPoint;
         address mToken;
         address portal;
         address registrar;
@@ -25,10 +26,13 @@ contract ScriptBase is Script {
         address wrappedMToken;
     }
 
+    uint64 internal constant _SPOKE_M_TOKEN_IMPLEMENTATION_NONCE = 6;
     uint64 internal constant _SPOKE_REGISTRAR_NONCE = 7;
     uint64 internal constant _SPOKE_M_TOKEN_NONCE = 8;
-    uint64 internal constant _SPOKE_WRAPPED_M_TOKEN_NONCE = 39;
-    uint64 internal constant _SPOKE_WRAPPED_M_TOKEN_PROXY_NONCE = 40;
+    uint64 internal constant _SPOKE_WRAPPED_M_TOKEN_IMPLEMENTATION_NONCE = 39;
+    uint64 internal constant _SPOKE_WRAPPED_M_TOKEN_NONCE = 40;
+
+    address internal constant _EXPECTED_WRAPPED_M_TOKEN_ADDRESS = 0x437cc33344a0B27A429f795ff6B469C72698B291;
 
     uint8 internal constant _M_TOKEN_DECIMALS = 6;
 

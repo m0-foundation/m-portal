@@ -15,6 +15,9 @@ contract DeploySpoke is DeployBase {
         address deployer_ = vm.rememberKey(vm.envUint("PRIVATE_KEY"));
         address migrationAdmin_ = vm.envAddress("MIGRATION_ADMIN");
 
+        console.log("Deployer              ", deployer_);
+        console.log("MigrationAdmin        ", migrationAdmin_);
+
         uint256 chainId_ = block.chainid;
         SpokeDeployConfig memory spokeDeployConfig_ = DeployConfig.getSpokeDeployConfig(chainId_);
         WormholeTransceiverConfig memory transceiverConfig_ = WormholeConfig.getWormholeTransceiverConfig(chainId_);
@@ -26,7 +29,14 @@ contract DeploySpoke is DeployBase {
             chainId_.toWormholeChainId(),
             _SWAP_FACILITY,
             transceiverConfig_,
-            _burnNonces
+            migrationAdmin_
+        );
+
+        (, address executorEntryPoint_) = _deployExecutorEntryPoint(
+            deployer_,
+            migrationAdmin_,
+            transceiverConfig_,
+            portal_
         );
 
         (, address vault_) = _deploySpokeVault(
@@ -37,35 +47,33 @@ contract DeploySpoke is DeployBase {
             migrationAdmin_
         );
 
-        (, address wrappedMToken_) = _deploySpokeWrappedMToken(
-            deployer_,
-            mToken_,
-            registrar_,
-            vault_,
-            migrationAdmin_,
-            _burnNonces
-        );
+        (, address wrappedMToken_) = _deploySpokeWrappedMToken(deployer_, mToken_, registrar_, vault_, migrationAdmin_);
 
         vm.stopBroadcast();
 
-        console.log("M Token:      ", mToken_);
-        console.log("Portal:       ", portal_);
-        console.log("Registrar:    ", registrar_);
-        console.log("Transceiver:  ", transceiver_);
-        console.log("Vault:        ", vault_);
-        console.log("WrappedM Token", wrappedMToken_);
+        console.log("M Token:              ", mToken_);
+        console.log("Portal:               ", portal_);
+        console.log("Registrar:            ", registrar_);
+        console.log("Transceiver:          ", transceiver_);
+        console.log("Vault:                ", vault_);
+        console.log("WrappedM Token:       ", wrappedMToken_);
+        console.log("Executor Entry Point: ", executorEntryPoint_);
 
-        _serializeSpokeDeployments(chainId_, mToken_, registrar_, portal_, transceiver_, vault_, wrappedMToken_);
-    }
-
-    function _burnNonces(address account_, uint64 startingNonce_, uint64 targetNonce_) internal {
-        for (uint64 i_; i_ < targetNonce_ - startingNonce_; ++i_) {
-            payable(account_).transfer(0);
-        }
+        _serializeSpokeDeployments(
+            chainId_,
+            executorEntryPoint_,
+            mToken_,
+            registrar_,
+            portal_,
+            transceiver_,
+            vault_,
+            wrappedMToken_
+        );
     }
 
     function _serializeSpokeDeployments(
         uint256 chainId_,
+        address executorEntryPoint_,
         address mToken_,
         address registrar_,
         address portal_,
@@ -75,6 +83,7 @@ contract DeploySpoke is DeployBase {
     ) internal {
         string memory root = "";
 
+        vm.serializeAddress(root, "executor_entry_point", executorEntryPoint_);
         vm.serializeAddress(root, "m_token", mToken_);
         vm.serializeAddress(root, "portal", portal_);
         vm.serializeAddress(root, "registrar", registrar_);

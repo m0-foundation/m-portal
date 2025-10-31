@@ -29,18 +29,21 @@ library WormholeConfig {
         if (chainId_ == Chains.ETHEREUM) return Chains.WORMHOLE_ETHEREUM;
         if (chainId_ == Chains.ARBITRUM) return Chains.WORMHOLE_ARBITRUM;
         if (chainId_ == Chains.OPTIMISM) return Chains.WORMHOLE_OPTIMISM;
+        if (chainId_ == Chains.BASE) return Chains.WORMHOLE_BASE;
         if (chainId_ == Chains.NOBLE) return Chains.WORMHOLE_NOBLE;
 
         if (chainId_ == Chains.ETHEREUM_SEPOLIA) return Chains.WORMHOLE_ETHEREUM_SEPOLIA;
         if (chainId_ == Chains.ARBITRUM_SEPOLIA) return Chains.WORMHOLE_ARBITRUM_SEPOLIA;
         if (chainId_ == Chains.OPTIMISM_SEPOLIA) return Chains.WORMHOLE_OPTIMISM_SEPOLIA;
+        if (chainId_ == Chains.BASE_SEPOLIA) return Chains.WORMHOLE_BASE_SEPOLIA;
         if (chainId_ == Chains.NOBLE_TESTNET) return Chains.WORMHOLE_NOBLE_TESTNET;
 
         revert Chains.UnsupportedChain(chainId_);
     }
 
-    /// @dev Wormhole Core Bridge https://wormhole.com/docs/build/reference/contract-addresses/#core-contracts
+    /// @dev Wormhole Core Bridge https://wormhole.com/docs/products/reference/contract-addresses/#core-contracts
     ///      Wormhole Relayer https://wormhole.com/docs/build/reference/contract-addresses/#wormhole-relayer
+    ///                       https://wormhole.com/docs/products/reference/contract-addresses/#wormhole-relayer
     ///      Wormhole Executor https://github.com/wormholelabs-xyz/example-messaging-executor/blob/main/evm/DEPLOYMENTS.md
     function getWormholeTransceiverConfig(
         uint256 chainId_
@@ -84,6 +87,19 @@ library WormholeConfig {
                     executor: 0x85B704501f6AE718205C0636260768C4e72ac3e7
                 });
 
+        // Base
+        if (chainId_ == Chains.BASE)
+            return
+                WormholeTransceiverConfig({
+                    wormholeChainId: toWormholeChainId(chainId_),
+                    consistencyLevel: FINALIZED_CONSISTENCY_LEVEL,
+                    coreBridge: 0xbebdb6C8ddC678FfA9f8748f85C815C556Dd8ac6,
+                    gasLimit: GAS_LIMIT,
+                    relayer: 0x706F82e9bb5b0813501714Ab5974216704980e31,
+                    specialRelayer: SPECIAL_RELAYER,
+                    executor: 0x9E1936E91A4a5AE5A5F75fFc472D6cb8e93597ea
+                });
+
         // Ethereum Sepolia
         if (chainId_ == Chains.ETHEREUM_SEPOLIA)
             return
@@ -121,6 +137,19 @@ library WormholeConfig {
                     relayer: 0x93BAD53DDfB6132b0aC8E37f6029163E63372cEE,
                     specialRelayer: SPECIAL_RELAYER,
                     executor: 0x5856651eB82aeb6979B4954317194d48e1891b3c
+                });
+
+        // Base Sepolia
+        if (chainId_ == Chains.BASE_SEPOLIA)
+            return
+                WormholeTransceiverConfig({
+                    wormholeChainId: toWormholeChainId(chainId_),
+                    consistencyLevel: INSTANT_CONSISTENCY_LEVEL,
+                    coreBridge: 0x79A1027a6A159502049F10906D333EC57E95F083,
+                    gasLimit: GAS_LIMIT,
+                    relayer: 0x93BAD53DDfB6132b0aC8E37f6029163E63372cEE,
+                    specialRelayer: SPECIAL_RELAYER,
+                    executor: 0x51B47D493CBA7aB97e3F8F163D6Ce07592CE4482
                 });
 
         revert Chains.UnsupportedChain(chainId_);

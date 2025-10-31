@@ -2,14 +2,12 @@
 
 pragma solidity 0.8.26;
 
-import { Script } from "../../lib/forge-std/src/Script.sol";
-
+import { ERC1967Proxy } from "../../lib/protocol/lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import { ContractHelper } from "../../lib/common/src/libs/ContractHelper.sol";
-import { Proxy } from "../../lib/common/src/Proxy.sol";
 
-import { MToken as SpokeMToken } from "../../lib/protocol/src/MToken.sol";
-import { Registrar as SpokeRegistrar } from "../../lib/ttg/src/Registrar.sol";
-import { WrappedMToken as SpokeWrappedMToken } from "../../lib/wrapped-m-token/src/WrappedMToken.sol";
+import { MToken } from "../../lib/protocol/src/MToken.sol";
+import { Registrar } from "../../lib/ttg/src/Registrar.sol";
+import { WrappedMToken } from "../../lib/wrapped-m-token/src/WrappedMToken.sol";
 
 import { IManagerBase } from "../../lib/native-token-transfers/evm/src/interfaces/IManagerBase.sol";
 import { INttManager } from "../../lib/native-token-transfers/evm/src/interfaces/INttManager.sol";
@@ -41,6 +39,7 @@ contract DeployBase is ScriptBase {
 
     /* ============ Custom Errors ============ */
 
+    error UnexpectedDeployerNonce(uint64 expected, uint64 actual);
     error DeployerNonceTooHigh(uint64 expected, uint64 actual);
     error ExpectedAddressMismatch(address expected, address actual);
 
@@ -114,7 +113,7 @@ contract DeployBase is ScriptBase {
      * @param  wormholeChainId_   The Wormhole Chain Id where Spoke is deployed.
      * @param  swapFacility_      The address of the swap facility.
      * @param  transceiverConfig_ The configuration to deploy Wormhole Transceiver.
-     * @param  burnNonces_        The function to burn nonces.
+     * @param  migrationAdmin_    The address of the migration admin.
      * @return spokePortal_       The address of the deployed Spoke Portal.
      * @return spokeTransceiver_  The address of the deployed Spoke WormholeTransceiver.
      * @return spokeRegistrar_    The address of the deployed Spoke Registrar.
@@ -125,13 +124,13 @@ contract DeployBase is ScriptBase {
         uint16 wormholeChainId_,
         address swapFacility_,
         WormholeTransceiverConfig memory transceiverConfig_,
-        function(address, uint64, uint64) internal burnNonces_
+        address migrationAdmin_
     )
         internal
         virtual
         returns (address spokePortal_, address spokeTransceiver_, address spokeRegistrar_, address spokeMToken_)
     {
-        (spokeRegistrar_, spokeMToken_) = _deploySpokeProtocol(deployer_, burnNonces_);
+        (spokeRegistrar_, spokeMToken_) = _deploySpokeProtocol(deployer_, migrationAdmin_);
 
         spokePortal_ = _deploySpokePortal(deployer_, spokeMToken_, spokeRegistrar_, swapFacility_, wormholeChainId_);
         spokeTransceiver_ = _deployWormholeTransceiver(
@@ -146,32 +145,15 @@ contract DeployBase is ScriptBase {
 
     function _deploySpokeProtocol(
         address deployer_,
-        function(address, uint64, uint64) internal burnNonces_
+        address migrationAdmin_
     ) internal returns (address spokeRegistrar_, address spokeMToken_) {
-        uint64 deployerNonce_ = vm.getNonce(deployer_);
-
-        if (deployerNonce_ > _SPOKE_REGISTRAR_NONCE) {
-            revert DeployerNonceTooHigh(_SPOKE_REGISTRAR_NONCE, deployerNonce_);
-        }
-
-        burnNonces_(deployer_, deployerNonce_, _SPOKE_REGISTRAR_NONCE);
-
-        deployerNonce_ = vm.getNonce(deployer_);
-        if (deployerNonce_ != _SPOKE_REGISTRAR_NONCE) {
-            revert DeployerNonceTooHigh(_SPOKE_REGISTRAR_NONCE, deployerNonce_);
-        }
-
-        // Pre-compute the expected SpokePortal proxy address.
-        spokeRegistrar_ = _deploySpokeRegistrar(
-            _getCreate3Address(deployer_, _computeSalt(deployer_, _PORTAL_CONTRACT_NAME))
+        address mTokenImplementation_ = _deploySpokeMTokenImplementation(
+            migrationAdmin_,
+            deployer_,
+            vm.getNonce(deployer_)
         );
-
-        deployerNonce_ = vm.getNonce(deployer_);
-        if (deployerNonce_ != _SPOKE_M_TOKEN_NONCE) {
-            revert DeployerNonceTooHigh(_SPOKE_M_TOKEN_NONCE, deployerNonce_);
-        }
-
-        spokeMToken_ = _deploySpokeMToken(spokeRegistrar_);
+        spokeRegistrar_ = _deploySpokeRegistrar(deployer_, vm.getNonce(deployer_));
+        spokeMToken_ = _deploySpokeMToken(vm.getNonce(deployer_), mTokenImplementation_);
     }
 
     function _deployHubPortal(
@@ -232,24 +214,46 @@ contract DeployBase is ScriptBase {
         return address(transceiverProxy_);
     }
 
-    function _deploySpokeRegistrar(address spokePortal_) internal returns (address) {
-        return address(new SpokeRegistrar(spokePortal_));
+    function _deploySpokeMTokenImplementation(
+        address migrationAdmin_,
+        address deployer_,
+        uint64 currentNonce_
+    ) internal returns (address registrar_) {
+        if (currentNonce_ > _SPOKE_M_TOKEN_IMPLEMENTATION_NONCE)
+            revert DeployerNonceTooHigh(_SPOKE_M_TOKEN_IMPLEMENTATION_NONCE, currentNonce_);
+
+        while (currentNonce_ < _SPOKE_M_TOKEN_IMPLEMENTATION_NONCE) {
+            payable(deployer_).transfer(0);
+            ++currentNonce_;
+        }
+
+        if (currentNonce_ != _SPOKE_M_TOKEN_IMPLEMENTATION_NONCE)
+            revert UnexpectedDeployerNonce(_SPOKE_M_TOKEN_IMPLEMENTATION_NONCE, currentNonce_);
+
+        address registrarAddress_ = ContractHelper.getContractFrom(deployer_, _SPOKE_REGISTRAR_NONCE);
+
+        return address(new MToken(registrarAddress_, _computePortalAddress(deployer_), migrationAdmin_));
     }
 
-    function _deploySpokeMToken(address spokeRegistrar_) internal returns (address) {
-        return address(new SpokeMToken(spokeRegistrar_));
+    function _deploySpokeRegistrar(address deployer_, uint64 currentNonce_) internal returns (address registrar_) {
+        if (currentNonce_ != _SPOKE_REGISTRAR_NONCE)
+            revert UnexpectedDeployerNonce(_SPOKE_REGISTRAR_NONCE, currentNonce_);
+        return address(new Registrar(_computePortalAddress(deployer_)));
+    }
+
+    function _deploySpokeMToken(uint64 currentNonce_, address implementation_) internal returns (address mToken_) {
+        if (currentNonce_ != _SPOKE_M_TOKEN_NONCE) revert UnexpectedDeployerNonce(_SPOKE_M_TOKEN_NONCE, currentNonce_);
+        return address(new ERC1967Proxy(implementation_, abi.encodeCall(MToken.initialize, ())));
     }
 
     function _deploySpokeVault(
         address deployer_,
         address spokePortal_,
         address hubVault_,
-        uint16 destinationChainId_,
+        uint16 hubChainId_,
         address migrationAdmin_
     ) internal returns (address spokeVaultImplementation_, address spokeVaultProxy_) {
-        spokeVaultImplementation_ = address(
-            new SpokeVault(spokePortal_, hubVault_, destinationChainId_, migrationAdmin_)
-        );
+        spokeVaultImplementation_ = address(new SpokeVault(spokePortal_, hubVault_, hubChainId_, migrationAdmin_));
 
         spokeVaultProxy_ = _deployCreate3Proxy(
             address(spokeVaultImplementation_),
@@ -259,54 +263,34 @@ contract DeployBase is ScriptBase {
 
     function _deploySpokeWrappedMToken(
         address deployer_,
-        address spokeMToken_,
+        address mToken_,
         address registrar_,
-        address spokeVault_,
-        address migrationAdmin_,
-        function(address, uint64, uint64) internal burnNonces_
-    ) internal returns (address spokeWrappedMTokenImplementation_, address spokeWrappedMTokenProxy_) {
-        uint64 deployerNonce_ = vm.getNonce(deployer_);
+        address vault_,
+        address migrationAdmin_
+    ) internal returns (address wrappedMTokenImplementation_, address wrappedMTokenProxy_) {
+        uint64 currentNonce_ = vm.getNonce(deployer_);
 
-        if (deployerNonce_ > _SPOKE_WRAPPED_M_TOKEN_NONCE) {
-            revert DeployerNonceTooHigh(_SPOKE_WRAPPED_M_TOKEN_NONCE, deployerNonce_);
+        if (currentNonce_ > _SPOKE_WRAPPED_M_TOKEN_IMPLEMENTATION_NONCE)
+            revert DeployerNonceTooHigh(_SPOKE_WRAPPED_M_TOKEN_IMPLEMENTATION_NONCE, currentNonce_);
+
+        while (currentNonce_ < _SPOKE_WRAPPED_M_TOKEN_IMPLEMENTATION_NONCE) {
+            payable(deployer_).transfer(0);
+            ++currentNonce_;
         }
 
-        burnNonces_(deployer_, deployerNonce_, _SPOKE_WRAPPED_M_TOKEN_NONCE);
+        if (currentNonce_ != _SPOKE_WRAPPED_M_TOKEN_IMPLEMENTATION_NONCE)
+            revert UnexpectedDeployerNonce(_SPOKE_WRAPPED_M_TOKEN_IMPLEMENTATION_NONCE, currentNonce_);
 
-        deployerNonce_ = vm.getNonce(deployer_);
-        if (deployerNonce_ != _SPOKE_WRAPPED_M_TOKEN_NONCE) {
-            revert DeployerNonceTooHigh(_SPOKE_WRAPPED_M_TOKEN_NONCE, deployerNonce_);
-        }
+        wrappedMTokenImplementation_ = address(new WrappedMToken(mToken_, registrar_, vault_, migrationAdmin_));
 
-        // Pre-compute the expected SpokeWrappedMToken implementation address.
-        address expectedWrappedMTokenImplementation_ = ContractHelper.getContractFrom(
-            deployer_,
-            _SPOKE_WRAPPED_M_TOKEN_NONCE
-        );
+        currentNonce_ = vm.getNonce(deployer_);
+        if (currentNonce_ != _SPOKE_WRAPPED_M_TOKEN_NONCE)
+            revert DeployerNonceTooHigh(_SPOKE_WRAPPED_M_TOKEN_NONCE, currentNonce_);
 
-        spokeWrappedMTokenImplementation_ = address(
-            new SpokeWrappedMToken(spokeMToken_, registrar_, spokeVault_, migrationAdmin_)
-        );
+        wrappedMTokenProxy_ = address(new ERC1967Proxy(wrappedMTokenImplementation_, ""));
 
-        if (expectedWrappedMTokenImplementation_ != spokeWrappedMTokenImplementation_) {
-            revert ExpectedAddressMismatch(expectedWrappedMTokenImplementation_, spokeWrappedMTokenImplementation_);
-        }
-
-        deployerNonce_ = vm.getNonce(deployer_);
-        if (deployerNonce_ != _SPOKE_WRAPPED_M_TOKEN_PROXY_NONCE) {
-            revert DeployerNonceTooHigh(_SPOKE_WRAPPED_M_TOKEN_PROXY_NONCE, deployerNonce_);
-        }
-
-        // Pre-compute the expected SpokeWrappedMToken proxy address.
-        address expectedWrappedMTokenProxy_ = ContractHelper.getContractFrom(
-            deployer_,
-            _SPOKE_WRAPPED_M_TOKEN_PROXY_NONCE
-        );
-
-        spokeWrappedMTokenProxy_ = address(new Proxy(spokeWrappedMTokenImplementation_));
-
-        if (expectedWrappedMTokenProxy_ != spokeWrappedMTokenProxy_) {
-            revert ExpectedAddressMismatch(expectedWrappedMTokenProxy_, spokeWrappedMTokenProxy_);
+        if (wrappedMTokenProxy_ != _EXPECTED_WRAPPED_M_TOKEN_ADDRESS) {
+            revert ExpectedAddressMismatch(_EXPECTED_WRAPPED_M_TOKEN_ADDRESS, wrappedMTokenProxy_);
         }
     }
 
@@ -349,5 +333,9 @@ contract DeployBase is ScriptBase {
     function _configurePortal(address portal_, address transceiver_) internal {
         IManagerBase(portal_).setTransceiver(transceiver_);
         INttManager(portal_).setThreshold(1);
+    }
+
+    function _computePortalAddress(address deployer_) internal view returns (address portal_) {
+        return _getCreate3Address(deployer_, _computeSalt(deployer_, _PORTAL_CONTRACT_NAME));
     }
 }

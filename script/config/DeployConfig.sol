@@ -34,9 +34,11 @@ library DeployConfig {
     ) internal pure returns (SpokeDeployConfig memory _spokeDeployConfig) {
         if (chainId_ == Chains.ARBITRUM) return _getMainnetSpokeDeployConfig();
         if (chainId_ == Chains.OPTIMISM) return _getMainnetSpokeDeployConfig();
+        if (chainId_ == Chains.BASE) return _getMainnetSpokeDeployConfig();
 
         if (chainId_ == Chains.ARBITRUM_SEPOLIA) return _getTestnetSpokeDeployConfig();
         if (chainId_ == Chains.OPTIMISM_SEPOLIA) return _getTestnetSpokeDeployConfig();
+        if (chainId_ == Chains.BASE_SEPOLIA) return _getTestnetSpokeDeployConfig();
 
         revert Chains.UnsupportedChain(chainId_);
     }
