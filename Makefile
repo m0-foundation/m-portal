@@ -387,6 +387,9 @@ transfer-dev-optimism-sepolia: transfer-dev
 transfer-dev-arbitrum-sepolia: RPC_URL=$(ARBITRUM_SEPOLIA_RPC_URL)
 transfer-dev-arbitrum-sepolia: transfer-dev
 
+transfer-dev-base-sepolia: RPC_URL=$(BASE_SEPOLIA_RPC_URL)
+transfer-dev-base-sepolia: transfer-dev
+
 # Chain-specific transfers Mainnet
 
 transfer-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
@@ -397,6 +400,9 @@ transfer-prod-optimism: transfer-prod
 
 transfer-prod-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
 transfer-prod-arbitrum: transfer-prod
+
+transfer-prod-base: RPC_URL=$(BASE_RPC_URL)
+transfer-prod-base: transfer-prod
 
 # 
 # M-like token transfers
@@ -426,6 +432,10 @@ transfer-m-like-token-dev-optimism-sepolia: transfer-m-like-token-dev
 transfer-m-like-token-dev-arbitrum-sepolia: RPC_URL=$(ARBITRUM_SEPOLIA_RPC_URL)
 transfer-m-like-token-dev-arbitrum-sepolia: transfer-m-like-token-dev
 
+transfer-m-like-token-dev-base-sepolia: RPC_URL=$(BASE_SEPOLIA_RPC_URL)
+transfer-m-like-token-dev-base-sepolia: transfer-m-like-token-dev
+
+
 # Chain-specific transfers Mainnet
 
 transfer-m-like-token-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
@@ -436,6 +446,9 @@ transfer-m-like-token-prod-optimism: transfer-m-like-token-prod
 
 transfer-m-like-token-prod-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
 transfer-m-like-token-prod-arbitrum: transfer-m-like-token-prod
+
+transfer-m-like-token-prod-base: RPC_URL=$(BASE_RPC_URL)
+transfer-m-like-token-prod-base: transfer-m-like-token-prod
 
 # 
 # Send M index
@@ -600,6 +613,9 @@ get-portal-info-dev-optimism-sepolia: get-portal-info
 get-portal-info-dev-arbitrum-sepolia: RPC_URL=$(ARBITRUM_SEPOLIA_RPC_URL)
 get-portal-info-dev-arbitrum-sepolia: get-portal-info
 
+get-portal-info-dev-base-sepolia: RPC_URL=$(BASE_SEPOLIA_RPC_URL)
+get-portal-info-dev-base-sepolia: get-portal-info
+
 # Chain-specific transfers Mainnet
 
 get-portal-info-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
@@ -610,5 +626,8 @@ get-portal-info-prod-optimism: get-portal-info
 
 get-portal-info-prod-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
 get-portal-info-prod-arbitrum: get-portal-info
+
+get-portal-info-prod-base: RPC_URL=$(BASE_RPC_URL)
+get-portal-info-prod-base: get-portal-info
 
 

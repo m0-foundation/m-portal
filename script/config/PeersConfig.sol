@@ -98,7 +98,7 @@ library PeersConfig {
                 wormholeChainId: peerWormholeChainId_,
                 mToken: SOLANA_M_TOKEN,
                 portal: SOLANA_PORTAL,
-                wrappedMToken: bytes32(0),
+                wrappedMToken: SOLANA_WRAPPED_M_TOKEN,
                 transceiver: SOLANA_TRANSCEIVER,
                 isEvm: false,
                 specialRelaying: true,
@@ -124,21 +124,35 @@ library PeersConfig {
     /// @dev Returns a list of Wormhole Chain IDs where peer Portals are deployed
     function getPeerChainIds(uint16 wormholeChainId_) internal pure returns (uint16[] memory peerChainIds_) {
         if (wormholeChainId_ == Chains.WORMHOLE_ETHEREUM) {
-            peerChainIds_ = new uint16[](2);
+            peerChainIds_ = new uint16[](4);
             peerChainIds_[0] = Chains.WORMHOLE_ARBITRUM;
             peerChainIds_[1] = Chains.WORMHOLE_OPTIMISM;
+            peerChainIds_[2] = Chains.WORMHOLE_BASE;
+            peerChainIds_[3] = Chains.WORMHOLE_SOLANA;
         }
 
         if (wormholeChainId_ == Chains.WORMHOLE_ARBITRUM) {
-            peerChainIds_ = new uint16[](2);
+            peerChainIds_ = new uint16[](4);
             peerChainIds_[0] = Chains.WORMHOLE_ETHEREUM;
             peerChainIds_[1] = Chains.WORMHOLE_OPTIMISM;
+            peerChainIds_[2] = Chains.WORMHOLE_BASE;
+            peerChainIds_[3] = Chains.WORMHOLE_SOLANA;
         }
 
         if (wormholeChainId_ == Chains.WORMHOLE_OPTIMISM) {
-            peerChainIds_ = new uint16[](2);
+            peerChainIds_ = new uint16[](4);
             peerChainIds_[0] = Chains.WORMHOLE_ETHEREUM;
             peerChainIds_[1] = Chains.WORMHOLE_ARBITRUM;
+            peerChainIds_[2] = Chains.WORMHOLE_BASE;
+            peerChainIds_[3] = Chains.WORMHOLE_SOLANA;
+        }
+
+        if (wormholeChainId_ == Chains.WORMHOLE_BASE) {
+            peerChainIds_ = new uint16[](4);
+            peerChainIds_[0] = Chains.WORMHOLE_ETHEREUM;
+            peerChainIds_[1] = Chains.WORMHOLE_ARBITRUM;
+            peerChainIds_[2] = Chains.WORMHOLE_OPTIMISM;
+            peerChainIds_[3] = Chains.WORMHOLE_SOLANA;
         }
 
         if (wormholeChainId_ == Chains.WORMHOLE_ETHEREUM_SEPOLIA) {
@@ -164,6 +178,14 @@ library PeersConfig {
             peerChainIds_[1] = Chains.WORMHOLE_ARBITRUM_SEPOLIA;
             peerChainIds_[2] = Chains.WORMHOLE_SOLANA_TESTNET;
             peerChainIds_[3] = Chains.WORMHOLE_BASE_SEPOLIA;
+        }
+
+        if (wormholeChainId_ == Chains.WORMHOLE_BASE_SEPOLIA) {
+            peerChainIds_ = new uint16[](4);
+            peerChainIds_[0] = Chains.WORMHOLE_ETHEREUM_SEPOLIA;
+            peerChainIds_[1] = Chains.WORMHOLE_ARBITRUM_SEPOLIA;
+            peerChainIds_[2] = Chains.WORMHOLE_OPTIMISM_SEPOLIA;
+            peerChainIds_[3] = Chains.WORMHOLE_SOLANA_TESTNET;
         }
     }
 }
