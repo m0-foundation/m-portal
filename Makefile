@@ -226,6 +226,26 @@ configure-prod-base: RPC_URL=$(BASE_RPC_URL)
 configure-prod-base: configure-dev
 
 #
+# Propose configure transactions to Safe Multisig
+#
+
+propose-configure: PEERS ?= []
+propose-configure:
+	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
+	forge script script/configure/ProposeConfigure.s.sol:ProposeConfigure \
+	--sig "run(uint16[])" $(PEERS) --rpc-url $(RPC_URL) \
+	--skip test --slow --non-interactive --broadcast --ffi
+
+propose-configure-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
+propose-configure-prod-eth: propose-configure
+
+propose-configure-prod-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
+propose-configure-prod-arbitrum: propose-configure
+
+propose-configure-prod-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
+propose-configure-prod-optimism: propose-configure
+
+#
 # Configure Noble Portal
 #
 

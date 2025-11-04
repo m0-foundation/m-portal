@@ -42,8 +42,8 @@ library WormholeConfig {
     }
 
     /// @dev Wormhole Core Bridge https://wormhole.com/docs/products/reference/contract-addresses/#core-contracts
-    ///      Wormhole Relayer https://wormhole.com/docs/build/reference/contract-addresses/#wormhole-relayer
-    ///                       https://wormhole.com/docs/products/reference/contract-addresses/#wormhole-relayer
+    ///      Wormhole Relayer  https://wormhole.com/docs/build/reference/contract-addresses/#wormhole-relayer
+    ///                        https://wormhole.com/docs/products/reference/contract-addresses/#wormhole-relayer
     ///      Wormhole Executor https://github.com/wormholelabs-xyz/example-messaging-executor/blob/main/evm/DEPLOYMENTS.md
     function getWormholeTransceiverConfig(
         uint256 chainId_
