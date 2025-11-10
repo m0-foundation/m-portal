@@ -12,7 +12,7 @@ import { IPortal } from "../../src/interfaces/IPortal.sol";
 
 import { ForkTestBase } from "./ForkTestBase.t.sol";
 
-contract Configure is ForkTestBase {
+contract ConfigureTest is ForkTestBase {
     using TypeConverter for *;
 
     /// @dev Checks that peers were configured correctly for Hub

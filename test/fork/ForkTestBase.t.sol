@@ -189,7 +189,7 @@ contract ForkTestBase is TaskBase, ConfigureBase, DeployBase, Test {
             arbitrumWormholeChainId_,
             _arbitrumSwapFacility,
             arbitrumSpokeTransceiverConfig_,
-            _burnNonces
+            _MIGRATION_ADMIN
         );
 
         (, _arbitrumSpokeVault) = _deploySpokeVault(
@@ -205,8 +205,7 @@ contract ForkTestBase is TaskBase, ConfigureBase, DeployBase, Test {
             _arbitrumSpokeMToken,
             _arbitrumSpokeRegistrar,
             _arbitrumSpokeVault,
-            _MIGRATION_ADMIN,
-            _burnNonces
+            _MIGRATION_ADMIN
         );
 
         // set peers
@@ -251,7 +250,7 @@ contract ForkTestBase is TaskBase, ConfigureBase, DeployBase, Test {
             optimismWormholeChainId_,
             _optimismSwapFacility,
             optimismSpokeTransceiverConfig_,
-            _burnNonces
+            _MIGRATION_ADMIN
         );
 
         (, _optimismSpokeVault) = _deploySpokeVault(
@@ -267,8 +266,7 @@ contract ForkTestBase is TaskBase, ConfigureBase, DeployBase, Test {
             _optimismSpokeMToken,
             _optimismSpokeRegistrar,
             _optimismSpokeVault,
-            _MIGRATION_ADMIN,
-            _burnNonces
+            _MIGRATION_ADMIN
         );
 
         // set peers
@@ -281,10 +279,6 @@ contract ForkTestBase is TaskBase, ConfigureBase, DeployBase, Test {
         );
 
         vm.stopPrank();
-    }
-
-    function _burnNonces(address account_, uint64 /**  startingNonce_ */, uint64 targetNonce_) internal {
-        vm.setNonce(account_, targetNonce_);
     }
 
     function _signMessage(

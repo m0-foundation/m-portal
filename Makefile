@@ -49,9 +49,7 @@ clean:
 # 
 
 deploy:
-	FOUNDRY_PROFILE=production MIGRATION_ADMIN=$(MIGRATION_ADMIN_ADDRESS) PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) \
-	forge script $(SCRIPT) --rpc-url $(RPC_URL) --etherscan-api-key $(SCAN_API_KEY) --skip test \
-	--slow --non-interactive -v --broadcast --verify
+	FOUNDRY_PROFILE=production MIGRATION_ADMIN=$(MIGRATION_ADMIN_ADDRESS) PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) forge script $(SCRIPT) --rpc-url $(RPC_URL) --etherscan-api-key $(ETHERSCAN_API_KEY) --skip test --slow --non-interactive -v --broadcast --verify
 
 # Deploy Hub
 
@@ -86,30 +84,30 @@ deploy-spoke-prod: deploy-spoke
 # Chain-specific deployment Testnet
 
 deploy-hub-dev-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
-deploy-hub-dev-sepolia: SCAN_API_KEY=$(ETHERSCAN_API_KEY)
 deploy-hub-dev-sepolia: deploy-hub-dev
 
 deploy-spoke-dev-arbitrum-sepolia: RPC_URL=$(ARBITRUM_SEPOLIA_RPC_URL)
-deploy-spoke-dev-arbitrum-sepolia: SCAN_API_KEY=$(ARBITRUM_ETHERSCAN_API_KEY)
 deploy-spoke-dev-arbitrum-sepolia: deploy-spoke-dev
 
 deploy-spoke-dev-optimism-sepolia: RPC_URL=$(OPTIMISM_SEPOLIA_RPC_URL)
-deploy-spoke-dev-optimism-sepolia: SCAN_API_KEY=$(OPTIMISM_ETHERSCAN_API_KEY)
 deploy-spoke-dev-optimism-sepolia: deploy-spoke-dev
+
+deploy-spoke-dev-base-sepolia: RPC_URL=$(BASE_SEPOLIA_RPC_URL)
+deploy-spoke-dev-base-sepolia: deploy-spoke-dev
 
 # Chain-specific deployment Mainnet
 
 deploy-hub-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
-deploy-hub-prod-eth: SCAN_API_KEY=$(ETHERSCAN_API_KEY)
 deploy-hub-prod-eth: deploy-hub-prod
 
 deploy-spoke-prod-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
-deploy-spoke-prod-arbitrum: SCAN_API_KEY=$(ARBITRUM_ETHERSCAN_API_KEY)
 deploy-spoke-prod-arbitrum: deploy-spoke-prod
 
 deploy-spoke-prod-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
-deploy-spoke-prod-optimism: SCAN_API_KEY=$(OPTIMISM_ETHERSCAN_API_KEY)
 deploy-spoke-prod-optimism: deploy-spoke-prod
+
+deploy-spoke-prod-base: RPC_URL=$(BASE_RPC_URL)
+deploy-spoke-prod-base: deploy-spoke-prod
 
 #
 # Deploy Noble Hub Portal and Transceiver
@@ -117,7 +115,6 @@ deploy-spoke-prod-optimism: deploy-spoke-prod
 
 deploy-noble: SCRIPT=script/deploy/DeployNobleHub.s.sol:DeployNobleHub
 deploy-noble: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
-deploy-noble: SCAN_API_KEY=$(ETHERSCAN_API_KEY)
 deploy-noble: deploy
 
 deploy-noble-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
@@ -132,7 +129,6 @@ deploy-noble-dev-sepolia: deploy-noble
 
 deploy-merkle-tree-builder: SCRIPT=script/deploy/DeployMerkle.s.sol:DeployMerkleTreeBuilder
 deploy-merkle-tree-builder: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
-deploy-merkle-tree-builder: SCAN_API_KEY=$(ETHERSCAN_API_KEY)
 deploy-merkle-tree-builder: deploy
 
 deploy-merkle-tree-builder-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
@@ -212,6 +208,9 @@ configure-dev-arbitrum-sepolia: configure-dev
 configure-dev-optimism-sepolia: RPC_URL=$(OPTIMISM_SEPOLIA_RPC_URL)
 configure-dev-optimism-sepolia: configure-dev
 
+configure-dev-base-sepolia: RPC_URL=$(BASE_SEPOLIA_RPC_URL)
+configure-dev-base-sepolia: configure-dev
+
 # Chain-specific configure Mainnet
 
 configure-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
@@ -222,6 +221,29 @@ configure-prod-arbitrum: configure-prod
 
 configure-prod-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
 configure-prod-optimism: configure-prod
+
+configure-prod-base: RPC_URL=$(BASE_RPC_URL)
+configure-prod-base: configure-dev
+
+#
+# Propose configure transactions to Safe Multisig
+#
+
+propose-configure: PEERS ?= []
+propose-configure:
+	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
+	forge script script/configure/ProposeConfigure.s.sol:ProposeConfigure \
+	--sig "run(uint16[])" $(PEERS) --rpc-url $(RPC_URL) \
+	--skip test --slow --non-interactive --broadcast --ffi
+
+propose-configure-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
+propose-configure-prod-eth: propose-configure
+
+propose-configure-prod-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
+propose-configure-prod-arbitrum: propose-configure
+
+propose-configure-prod-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
+propose-configure-prod-optimism: propose-configure
 
 #
 # Configure Noble Portal
@@ -385,6 +407,9 @@ transfer-dev-optimism-sepolia: transfer-dev
 transfer-dev-arbitrum-sepolia: RPC_URL=$(ARBITRUM_SEPOLIA_RPC_URL)
 transfer-dev-arbitrum-sepolia: transfer-dev
 
+transfer-dev-base-sepolia: RPC_URL=$(BASE_SEPOLIA_RPC_URL)
+transfer-dev-base-sepolia: transfer-dev
+
 # Chain-specific transfers Mainnet
 
 transfer-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
@@ -395,6 +420,9 @@ transfer-prod-optimism: transfer-prod
 
 transfer-prod-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
 transfer-prod-arbitrum: transfer-prod
+
+transfer-prod-base: RPC_URL=$(BASE_RPC_URL)
+transfer-prod-base: transfer-prod
 
 # 
 # M-like token transfers
@@ -424,6 +452,10 @@ transfer-m-like-token-dev-optimism-sepolia: transfer-m-like-token-dev
 transfer-m-like-token-dev-arbitrum-sepolia: RPC_URL=$(ARBITRUM_SEPOLIA_RPC_URL)
 transfer-m-like-token-dev-arbitrum-sepolia: transfer-m-like-token-dev
 
+transfer-m-like-token-dev-base-sepolia: RPC_URL=$(BASE_SEPOLIA_RPC_URL)
+transfer-m-like-token-dev-base-sepolia: transfer-m-like-token-dev
+
+
 # Chain-specific transfers Mainnet
 
 transfer-m-like-token-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
@@ -434,6 +466,9 @@ transfer-m-like-token-prod-optimism: transfer-m-like-token-prod
 
 transfer-m-like-token-prod-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
 transfer-m-like-token-prod-arbitrum: transfer-m-like-token-prod
+
+transfer-m-like-token-prod-base: RPC_URL=$(BASE_RPC_URL)
+transfer-m-like-token-prod-base: transfer-m-like-token-prod
 
 # 
 # Send M index
@@ -598,6 +633,9 @@ get-portal-info-dev-optimism-sepolia: get-portal-info
 get-portal-info-dev-arbitrum-sepolia: RPC_URL=$(ARBITRUM_SEPOLIA_RPC_URL)
 get-portal-info-dev-arbitrum-sepolia: get-portal-info
 
+get-portal-info-dev-base-sepolia: RPC_URL=$(BASE_SEPOLIA_RPC_URL)
+get-portal-info-dev-base-sepolia: get-portal-info
+
 # Chain-specific transfers Mainnet
 
 get-portal-info-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
@@ -608,5 +646,8 @@ get-portal-info-prod-optimism: get-portal-info
 
 get-portal-info-prod-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
 get-portal-info-prod-arbitrum: get-portal-info
+
+get-portal-info-prod-base: RPC_URL=$(BASE_RPC_URL)
+get-portal-info-prod-base: get-portal-info
 
 

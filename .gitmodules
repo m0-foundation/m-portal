@@ -6,10 +6,6 @@
 	path = lib/common
 	url = git@github.com:m0-foundation/common.git
 	branch = main
-[submodule "lib/protocol"]
-	path = lib/protocol
-	url = git@github.com:m0-foundation/protocol.git
-	branch = spoke
 [submodule "lib/ttg"]
 	path = lib/ttg
 	url = git@github.com:m0-foundation/ttg.git
@@ -28,3 +24,7 @@
 [submodule "lib/safe-utils"]
 	path = lib/safe-utils
 	url = git@github.com:Recon-Fuzz/safe-utils.git
+[submodule "lib/protocol"]
+	path = lib/protocol
+	url = git@github.com:m0-foundation/protocol.git
+	branch = spoke-upgradeable
