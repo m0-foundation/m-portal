@@ -260,7 +260,7 @@ upgrade-hub-portal-ethereum: upgrade-hub-portal
 #
 
 upgrade-spoke-portal:
-	FOUNDRY_PROFILE=production PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) CONFIG=$(CONFIG_PATH) \
+	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) CONFIG=$(CONFIG_PATH) \
 	forge script script/upgrade/UpgradeSpokePortal.s.sol:UpgradeSpokePortal --rpc-url $(RPC_URL) \
 	--etherscan-api-key $(ETHERSCAN_API_KEY) --skip test  --slow -v --broadcast --verify
 
@@ -424,43 +424,36 @@ send-earner-status-ethereum: send-earner-status
 transfer-excess-m: SCRIPT=script/tasks/TransferExcessM.s.sol:TransferExcessM
 transfer-excess-m: task
 
-# Testnet
+transfer-excess-m-arbitrum-sepolia: RPC_URL=$(ARBITRUM_SEPOLIA_RPC_URL)
+transfer-excess-m-arbitrum-sepolia: transfer-excess-m
 
-transfer-excess-m-dev-arbitrum-sepolia: SIGNER_PRIVATE_KEY=$(DEV_PRIVATE_KEY)
-transfer-excess-m-dev-arbitrum-sepolia: RPC_URL=$(ARBITRUM_SEPOLIA_RPC_URL)
-transfer-excess-m-dev-arbitrum-sepolia: transfer-excess-m
-
-transfer-excess-m-dev-optimism-sepolia: SIGNER_PRIVATE_KEY=$(DEV_PRIVATE_KEY)
-transfer-excess-m-dev-optimism-sepolia: RPC_URL=$(OPTIMISM_SEPOLIA_RPC_URL)
-transfer-excess-m-dev-optimism-sepolia: transfer-excess-m
+transfer-excess-m-optimism-sepolia: RPC_URL=$(OPTIMISM_SEPOLIA_RPC_URL)
+transfer-excess-m-optimism-sepolia: transfer-excess-m
 
 # Mainnet
 
-transfer-excess-m-prod-arbitrum: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
-transfer-excess-m-prod-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
-transfer-excess-m-prod-arbitrum: transfer-excess-m
+transfer-excess-m-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
+transfer-excess-m-arbitrum: transfer-excess-m
 
-transfer-excess-m-prod-optimism: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
-transfer-excess-m-prod-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
-transfer-excess-m-prod-optimism: transfer-excess-m
+transfer-excess-m-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
+transfer-excess-m-optimism: transfer-excess-m
 
 # 
 # Transfer Portal and Transceiver Ownership
 # 
 
 transfer-ownership: SCRIPT=script/tasks/TransferOwnership.s.sol:TransferOwnership
-transfer-ownership: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
 transfer-ownership: task
 
 # Mainnet
-transfer-ownership-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
-transfer-ownership-prod-eth: transfer-ownership
+transfer-ownership-ethereum: RPC_URL=$(MAINNET_RPC_URL)
+transfer-ownership-ethereum: transfer-ownership
 
-transfer-ownership-prod-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
-transfer-ownership-prod-arbitrum: transfer-ownership
+transfer-ownership-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
+transfer-ownership-arbitrum: transfer-ownership
 
-transfer-ownership-prod-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
-transfer-ownership-prod-optimism: transfer-ownership
+transfer-ownership-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
+transfer-ownership-optimism: transfer-ownership
 
 #
 # Propose to Unpause Portal to Multisig
