@@ -21,6 +21,7 @@ contract ScriptBase is Script {
         address mToken;
         address portal;
         address registrar;
+        address swapFacility;
         address transceiver;
         address vault;
         address wrappedMToken;

@@ -18,15 +18,16 @@ contract DeploySpoke is DeployBase {
         console.log("Deployer              ", deployer_);
         console.log("MigrationAdmin        ", migrationAdmin_);
 
-        uint256 chainId_ = block.chainid;
-        SpokeDeployConfig memory spokeDeployConfig_ = DeployConfig.getSpokeDeployConfig(chainId_);
-        WormholeTransceiverConfig memory transceiverConfig_ = WormholeConfig.getWormholeTransceiverConfig(chainId_);
+        SpokeDeployConfig memory spokeDeployConfig_ = DeployConfig.getSpokeDeployConfig(block.chainid);
+        WormholeTransceiverConfig memory transceiverConfig_ = WormholeConfig.getWormholeTransceiverConfig(
+            block.chainid
+        );
 
         vm.startBroadcast(deployer_);
 
         (address portal_, address transceiver_, address registrar_, address mToken_) = _deploySpokeComponents(
             deployer_,
-            chainId_.toWormholeChainId(),
+            block.chainid.toWormholeChainId(),
             _SWAP_FACILITY,
             transceiverConfig_,
             migrationAdmin_
@@ -38,6 +39,8 @@ contract DeploySpoke is DeployBase {
             transceiverConfig_,
             portal_
         );
+
+        (, address swapFacility_) = _deploySpokeSwapFacility(deployer_, migrationAdmin_, mToken_, registrar_, portal_);
 
         (, address vault_) = _deploySpokeVault(
             deployer_,
@@ -58,13 +61,15 @@ contract DeploySpoke is DeployBase {
         console.log("Vault:                ", vault_);
         console.log("WrappedM Token:       ", wrappedMToken_);
         console.log("Executor Entry Point: ", executorEntryPoint_);
+        console.log("Swap Facility:        ", swapFacility_);
 
         _serializeSpokeDeployments(
-            chainId_,
+            block.chainid,
             executorEntryPoint_,
             mToken_,
-            registrar_,
             portal_,
+            registrar_,
+            swapFacility_,
             transceiver_,
             vault_,
             wrappedMToken_
@@ -75,8 +80,9 @@ contract DeploySpoke is DeployBase {
         uint256 chainId_,
         address executorEntryPoint_,
         address mToken_,
-        address registrar_,
         address portal_,
+        address registrar_,
+        address swapFacility_,
         address transceiver_,
         address vault_,
         address wrappedMToken_
@@ -87,6 +93,7 @@ contract DeploySpoke is DeployBase {
         vm.serializeAddress(root, "m_token", mToken_);
         vm.serializeAddress(root, "portal", portal_);
         vm.serializeAddress(root, "registrar", registrar_);
+        vm.serializeAddress(root, "swap_facility", swapFacility_);
         vm.serializeAddress(root, "transceiver", transceiver_);
         vm.serializeAddress(root, "vault", vault_);
         vm.writeJson(vm.serializeAddress(root, "wrapped_m_token", wrappedMToken_), _deployOutputPath(chainId_));
