@@ -48,8 +48,23 @@ clean:
 # 
 # 
 
+# Default to actual deployment (not simulation)
+DRY_RUN ?= false
+
+# Conditionally set broadcast and verify flags
+ifeq ($(DRY_RUN),true)
+    BROADCAST_FLAGS =
+else
+    BROADCAST_FLAGS = --broadcast --verify
+endif
+
 deploy:
-	FOUNDRY_PROFILE=production MIGRATION_ADMIN=$(MIGRATION_ADMIN_ADDRESS) PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) forge script $(SCRIPT) --rpc-url $(RPC_URL) --etherscan-api-key $(ETHERSCAN_API_KEY) --skip test --slow --non-interactive -v --broadcast --verify
+	FOUNDRY_PROFILE=production MIGRATION_ADMIN=$(MIGRATION_ADMIN_ADDRESS) \
+	PRIVATE_KEY=$(PRIVATE_KEY) \
+	forge script $(SCRIPT) \
+	--rpc-url $(RPC_URL) \
+	--etherscan-api-key $(ETHERSCAN_API_KEY) --skip test --slow --non-interactive \
+	-v $(BROADCAST_FLAGS)
 
 # Deploy Hub
 
@@ -61,121 +76,62 @@ deploy-hub: deploy
 deploy-spoke: SCRIPT=script/deploy/DeploySpoke.s.sol:DeploySpoke
 deploy-spoke: deploy
 
-# Deploy Hub Testnet
-
-deploy-hub-dev: SIGNER_PRIVATE_KEY=$(DEV_PRIVATE_KEY)
-deploy-hub-dev: deploy-hub
-
-# Deploy Hub Mainnet
-
-deploy-hub-prod: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
-deploy-hub-prod: deploy-hub
-
-# Deploy Spoke Testnet
-
-deploy-spoke-dev: SIGNER_PRIVATE_KEY=$(DEV_PRIVATE_KEY)
-deploy-spoke-dev: deploy-spoke
-
-# Deploy Spoke Mainnet
-
-deploy-spoke-prod: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
-deploy-spoke-prod: deploy-spoke
-
 # Chain-specific deployment Testnet
 
-deploy-hub-dev-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
-deploy-hub-dev-sepolia: deploy-hub-dev
+deploy-hub-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
+deploy-hub-sepolia: deploy-hub
 
-deploy-spoke-dev-arbitrum-sepolia: RPC_URL=$(ARBITRUM_SEPOLIA_RPC_URL)
-deploy-spoke-dev-arbitrum-sepolia: deploy-spoke-dev
+deploy-spoke-arbitrum-sepolia: RPC_URL=$(ARBITRUM_SEPOLIA_RPC_URL)
+deploy-spoke-arbitrum-sepolia: deploy-spoke
 
-deploy-spoke-dev-optimism-sepolia: RPC_URL=$(OPTIMISM_SEPOLIA_RPC_URL)
-deploy-spoke-dev-optimism-sepolia: deploy-spoke-dev
+deploy-spoke-optimism-sepolia: RPC_URL=$(OPTIMISM_SEPOLIA_RPC_URL)
+deploy-spoke-optimism-sepolia: deploy-spoke
 
-deploy-spoke-dev-base-sepolia: RPC_URL=$(BASE_SEPOLIA_RPC_URL)
-deploy-spoke-dev-base-sepolia: deploy-spoke-dev
+deploy-spoke-base-sepolia: RPC_URL=$(BASE_SEPOLIA_RPC_URL)
+deploy-spoke-base-sepolia: deploy-spoke
 
 # Chain-specific deployment Mainnet
 
-deploy-hub-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
-deploy-hub-prod-eth: deploy-hub-prod
+# To run without broadcasting use make deploy-spoke-base DRY_RUN=true
+# To broadcast use make deploy-spoke-base
 
-deploy-spoke-prod-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
-deploy-spoke-prod-arbitrum: deploy-spoke-prod
+deploy-hub-ethereum: RPC_URL=$(MAINNET_RPC_URL)
+deploy-hub-ethereum: deploy-hub
 
-deploy-spoke-prod-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
-deploy-spoke-prod-optimism: deploy-spoke-prod
+deploy-spoke-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
+deploy-spoke-arbitrum: deploy-spoke
 
-deploy-spoke-prod-base: RPC_URL=$(BASE_RPC_URL)
-deploy-spoke-prod-base: deploy-spoke-prod
+deploy-spoke-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
+deploy-spoke-optimism: deploy-spoke
+
+deploy-spoke-base: RPC_URL=$(BASE_RPC_URL)
+deploy-spoke-base: deploy-spoke
 
 #
 # Deploy Noble Hub Portal and Transceiver
 #
 
 deploy-noble: SCRIPT=script/deploy/DeployNobleHub.s.sol:DeployNobleHub
-deploy-noble: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
 deploy-noble: deploy
 
-deploy-noble-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
-deploy-noble-prod-eth: deploy-noble
+deploy-noble-ethereum: RPC_URL=$(MAINNET_RPC_URL)
+deploy-noble-ethereum: deploy-noble
 
-deploy-noble-dev-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
-deploy-noble-dev-sepolia: deploy-noble
+deploy-noble-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
+deploy-noble-sepolia: deploy-noble
 
 #
 # Deploy Merkle Tree Builder (used for Solana and non-EVM governance propagation)
 #
 
 deploy-merkle-tree-builder: SCRIPT=script/deploy/DeployMerkle.s.sol:DeployMerkleTreeBuilder
-deploy-merkle-tree-builder: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
 deploy-merkle-tree-builder: deploy
 
-deploy-merkle-tree-builder-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
-deploy-merkle-tree-builder-prod-eth: deploy-merkle-tree-builder
+deploy-merkle-tree-builder-ethereum: RPC_URL=$(MAINNET_RPC_URL)
+deploy-merkle-tree-builder-ethereum: deploy-merkle-tree-builder
 
-deploy-merkle-tree-builder-dev-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
-deploy-merkle-tree-builder-dev-sepolia: deploy-merkle-tree-builder
-
-#
-# Deploy Hub ExecutorEntryPoint
-#
-
-deploy-hub-executor: SCRIPT=script/deploy/DeployHubExecutorEntryPoint.s.sol:DeployHubExecutorEntryPoint
-deploy-hub-executor: SCAN_API_KEY=$(ETHERSCAN_API_KEY)
-deploy-hub-executor: deploy
-
-deploy-hub-executor-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
-deploy-hub-executor-prod-eth: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
-deploy-hub-executor-prod-eth: deploy-hub-executor
-
-deploy-hub-executor-dev-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
-deploy-hub-executor-dev-sepolia: SIGNER_PRIVATE_KEY=$(DEV_PRIVATE_KEY)
-deploy-hub-executor-dev-sepolia: deploy-hub-executor
-
-#
-# Deploy Spoke ExecutorEntryPoint
-#
-
-deploy-spoke-executor: SCRIPT=script/deploy/DeployExecutorEntryPoint.s.sol:DeployExecutorEntryPoint
-deploy-spoke-executor: SCAN_API_KEY=$(ETHERSCAN_API_KEY)
-deploy-spoke-executor: deploy
-
-deploy-spoke-executor-prod-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
-deploy-spoke-executor-prod-arbitrum: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
-deploy-spoke-executor-prod-arbitrum: deploy-spoke-executor
-
-deploy-spoke-executor-dev-arbitrum-sepolia: RPC_URL=$(ARBITRUM_SEPOLIA_RPC_URL)
-deploy-spoke-executor-dev-arbitrum-sepolia: SIGNER_PRIVATE_KEY=$(DEV_PRIVATE_KEY)
-deploy-spoke-executor-dev-arbitrum-sepolia: deploy-spoke-executor
-
-deploy-spoke-executor-prod-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
-deploy-spoke-executor-prod-optimism: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
-deploy-spoke-executor-prod-optimism: deploy-spoke-executor
-
-deploy-spoke-executor-dev-optimism-sepolia: RPC_URL=$(OPTIMISM_SEPOLIA_RPC_URL)
-deploy-spoke-executor-dev-optimism-sepolia: SIGNER_PRIVATE_KEY=$(DEV_PRIVATE_KEY)
-deploy-spoke-executor-dev-optimism-sepolia: deploy-spoke-executor
+deploy-merkle-tree-builder-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
+deploy-merkle-tree-builder-sepolia: deploy-merkle-tree-builder
 
 #
 #
@@ -185,45 +141,37 @@ deploy-spoke-executor-dev-optimism-sepolia: deploy-spoke-executor
 
 configure: PEERS ?= []
 configure:
-	FOUNDRY_PROFILE=production PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) forge script script/configure/Configure.s.sol:Configure --sig "run(uint16[])" $(PEERS) --rpc-url $(RPC_URL) --skip test -v --slow --broadcast
-
-# Configure Testnet
-
-configure-dev: SIGNER_PRIVATE_KEY=$(DEV_PRIVATE_KEY)
-configure-dev: configure
-
-# Configure Mainnet
-
-configure-prod: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
-configure-prod: configure
+	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
+	forge script script/configure/Configure.s.sol:Configure --sig "run(uint16[])" $(PEERS) \
+	--rpc-url $(RPC_URL) --skip test -v --slow --broadcast
 
 # Chain-specific configure Testnet
 
-configure-dev-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
-configure-dev-sepolia: configure-dev
+configure-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
+configure-sepolia: configure
 
-configure-dev-arbitrum-sepolia: RPC_URL=$(ARBITRUM_SEPOLIA_RPC_URL)
-configure-dev-arbitrum-sepolia: configure-dev
+configure-arbitrum-sepolia: RPC_URL=$(ARBITRUM_SEPOLIA_RPC_URL)
+configure-arbitrum-sepolia: configure
 
-configure-dev-optimism-sepolia: RPC_URL=$(OPTIMISM_SEPOLIA_RPC_URL)
-configure-dev-optimism-sepolia: configure-dev
+configure-optimism-sepolia: RPC_URL=$(OPTIMISM_SEPOLIA_RPC_URL)
+configure-optimism-sepolia: configure
 
-configure-dev-base-sepolia: RPC_URL=$(BASE_SEPOLIA_RPC_URL)
-configure-dev-base-sepolia: configure-dev
+configure-base-sepolia: RPC_URL=$(BASE_SEPOLIA_RPC_URL)
+configure-base-sepolia: configure
 
 # Chain-specific configure Mainnet
 
-configure-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
-configure-prod-eth: configure-prod
+configure-ethereum: RPC_URL=$(MAINNET_RPC_URL)
+configure-ethereum: configure
 
-configure-prod-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
-configure-prod-arbitrum: configure-prod
+configure-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
+configure-arbitrum: configure
 
-configure-prod-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
-configure-prod-optimism: configure-prod
+configure-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
+configure-optimism: configure
 
-configure-prod-base: RPC_URL=$(BASE_RPC_URL)
-configure-prod-base: configure-dev
+configure-base: RPC_URL=$(BASE_RPC_URL)
+configure-base: configure
 
 #
 # Propose configure transactions to Safe Multisig
@@ -236,21 +184,27 @@ propose-configure:
 	--sig "run(uint16[])" $(PEERS) --rpc-url $(RPC_URL) \
 	--skip test --slow --non-interactive --broadcast --ffi
 
-propose-configure-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
-propose-configure-prod-eth: propose-configure
+propose-configure-ethereum: RPC_URL=$(MAINNET_RPC_URL)
+propose-configure-ethereum: propose-configure
 
-propose-configure-prod-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
-propose-configure-prod-arbitrum: propose-configure
+propose-configure-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
+propose-configure-arbitrum: propose-configure
 
-propose-configure-prod-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
-propose-configure-prod-optimism: propose-configure
+propose-configure-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
+propose-configure-optimism: propose-configure
+
+propose-configure-base: RPC_URL=$(OPTIMISM_RPC_URL)
+propose-configure-base: propose-configure
 
 #
 # Configure Noble Portal
 #
 
-configure-noble-prod-eth:
-	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) forge script script/configure/ConfigureNobleHub.s.sol:ConfigureNobleHub --rpc-url $(MAINNET_RPC_URL) --skip test --broadcast -v --slow
+configure-noble-ethereum:
+	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
+	forge script script/configure/ConfigureNobleHub.s.sol:ConfigureNobleHub \
+	--rpc-url $(MAINNET_RPC_URL) \
+	--skip test --broadcast -v --slow
 
 # 
 # 
@@ -259,93 +213,68 @@ configure-noble-prod-eth:
 # 
 
 upgrade-transceiver:
-	FOUNDRY_PROFILE=production PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) CONFIG=$(CONFIG_PATH) \
+	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) CONFIG=$(CONFIG_PATH) \
 	forge script script/upgrade/UpgradeWormholeTransceiver.s.sol:UpgradeWormholeTransceiver --rpc-url $(RPC_URL) \
 	--etherscan-api-key $(ETHERSCAN_API_KEY) --skip test --broadcast --slow -v --verify
 
-# Upgrade transceiver Testnet
-
-upgrade-transceiver-dev: CONFIG_PATH=config/upgrade/sepolia.json
-upgrade-transceiver-dev: SIGNER_PRIVATE_KEY=$(DEV_PRIVATE_KEY)
-upgrade-transceiver-dev: upgrade-transceiver
-
-# Upgrade transceiver Mainnet
-
-upgrade-transceiver-prod: CONFIG_PATH=config/upgrade/mainnet.json
-upgrade-transceiver-prod: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
-upgrade-transceiver-prod: upgrade-transceiver
-
 # Chain-specific upgrade transceiver Testnet
 
-upgrade-transceiver-dev-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
-upgrade-transceiver-dev-sepolia: SCAN_API_KEY=$(ETHERSCAN_API_KEY)
-upgrade-transceiver-dev-sepolia: upgrade-transceiver-dev
+upgrade-transceiver-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
+upgrade-transceiver-sepolia: upgrade-transceiver
 
-upgrade-transceiver-dev-arbitrum-sepolia: RPC_URL=$(ARBITRUM_SEPOLIA_RPC_URL)
-upgrade-transceiver-dev-arbitrum-sepolia: upgrade-transceiver-dev
+upgrade-transceiver-arbitrum-sepolia: RPC_URL=$(ARBITRUM_SEPOLIA_RPC_URL)
+upgrade-transceiver-arbitrum-sepolia: upgrade-transceiver
 
-upgrade-transceiver-dev-optimism-sepolia: RPC_URL=$(OPTIMISM_SEPOLIA_RPC_URL)
-upgrade-transceiver-dev-optimism-sepolia: upgrade-transceiver-dev
+upgrade-transceiver-optimism-sepolia: RPC_URL=$(OPTIMISM_SEPOLIA_RPC_URL)
+upgrade-transceiver-optimism-sepolia: upgrade-transceiver
 
 # Chain-specific upgrade transceiver Mainnet
 
-upgrade-transceiver-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
-upgrade-transceiver-prod-eth: SCAN_API_KEY=$(ETHERSCAN_API_KEY)
-upgrade-transceiver-prod-eth: upgrade-transceiver-prod
+upgrade-transceiver-ethereum: RPC_URL=$(MAINNET_RPC_URL)
+upgrade-transceiver-ethereum: upgrade-transceiver
 
-upgrade-transceiver-prod-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
-upgrade-transceiver-prod-arbitrum: SCAN_API_KEY=$(ARBITRUM_ETHERSCAN_API_KEY)
-upgrade-transceiver-prod-arbitrum: upgrade-transceiver-prod
+upgrade-transceiver-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
+upgrade-transceiver-arbitrum: upgrade-transceiver
 
-upgrade-transceiver-prod-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
-upgrade-transceiver-prod-optimism: SCAN_API_KEY=$(OPTIMISM_ETHERSCAN_API_KEY)
-upgrade-transceiver-prod-optimism: upgrade-transceiver-prod
+upgrade-transceiver-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
+upgrade-transceiver-optimism: upgrade-transceiver
 
 #
 # Upgrade Hub Portal
 #
 
 upgrade-hub-portal:
-	FOUNDRY_PROFILE=production PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) forge script script/upgrade/UpgradeHubPortal.s.sol:UpgradeHubPortal --rpc-url $(RPC_URL) --etherscan-api-key $(ETHERSCAN_API_KEY) --skip test --broadcast --slow -v --verify
+	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
+	forge script script/upgrade/UpgradeHubPortal.s.sol:UpgradeHubPortal \
+	--rpc-url $(RPC_URL) --etherscan-api-key $(ETHERSCAN_API_KEY) --skip test \
+	--slow -v --broadcast --verify
 
-upgrade-hub-portal-dev-sepolia: SIGNER_PRIVATE_KEY=$(DEV_PRIVATE_KEY)
-upgrade-hub-portal-dev-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
-upgrade-hub-portal-dev-sepolia: upgrade-hub-portal
+upgrade-hub-portal-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
+upgrade-hub-portal-sepolia: upgrade-hub-portal
 
-upgrade-hub-portal-prod-eth: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
-upgrade-hub-portal-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
-upgrade-hub-portal-prod-eth: upgrade-hub-portal
+upgrade-hub-portal-ethereum: RPC_URL=$(MAINNET_RPC_URL)
+upgrade-hub-portal-ethereum: upgrade-hub-portal
 
 #
 # Upgrade Spoke Portal
 #
 
 upgrade-spoke-portal:
-	FOUNDRY_PROFILE=production PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) CONFIG=$(CONFIG_PATH) \
+	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) CONFIG=$(CONFIG_PATH) \
 	forge script script/upgrade/UpgradeSpokePortal.s.sol:UpgradeSpokePortal --rpc-url $(RPC_URL) \
-	--etherscan-api-key $(ETHERSCAN_API_KEY) --skip test --broadcast --slow -v --verify
+	--etherscan-api-key $(ETHERSCAN_API_KEY) --skip test  --slow -v --broadcast --verify
 
-upgrade-spoke-portal-dev: CONFIG_PATH=config/upgrade/sepolia.json
-upgrade-spoke-portal-dev: SIGNER_PRIVATE_KEY=$(DEV_PRIVATE_KEY)
-upgrade-spoke-portal-dev: upgrade-spoke-portal
+upgrade-spoke-portal-arbitrum-sepolia: RPC_URL=$(ARBITRUM_SEPOLIA_RPC_URL)
+upgrade-spoke-portal-arbitrum-sepolia: upgrade-spoke-portal
 
-upgrade-spoke-portal-prod: CONFIG_PATH=config/upgrade/mainnet.json
-upgrade-spoke-portal-prod: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
-upgrade-spoke-portal-prod: upgrade-spoke-portal
+upgrade-spoke-portal-optimism-sepolia: RPC_URL=$(OPTIMISM_SEPOLIA_RPC_URL)
+upgrade-spoke-portal-optimism-sepolia: upgrade-spoke-portal
 
-upgrade-spoke-portal-dev-arbitrum-sepolia: RPC_URL=$(ARBITRUM_SEPOLIA_RPC_URL)
-upgrade-spoke-portal-dev-arbitrum-sepolia: upgrade-spoke-portal-dev
+upgrade-spoke-portal-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
+upgrade-spoke-portal-arbitrum: upgrade-spoke-portal
 
-upgrade-spoke-portal-dev-optimism-sepolia: RPC_URL=$(OPTIMISM_SEPOLIA_RPC_URL)
-upgrade-spoke-portal-dev-optimism-sepolia: upgrade-spoke-portal-dev
-
-upgrade-spoke-portal-prod-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
-upgrade-spoke-portal-prod-arbitrum: SCAN_API_KEY=$(ARBITRUM_ETHERSCAN_API_KEY)
-upgrade-spoke-portal-prod-arbitrum: upgrade-spoke-portal-prod
-
-upgrade-spoke-portal-prod-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
-upgrade-spoke-portal-prod-optimism: SCAN_API_KEY=$(OPTIMISM_ETHERSCAN_API_KEY)
-upgrade-spoke-portal-prod-optimism: upgrade-spoke-portal-prod
+upgrade-spoke-portal-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
+upgrade-spoke-portal-optimism: upgrade-spoke-portal
 
 #
 #
@@ -358,9 +287,9 @@ propose-upgrade:
 	forge script $(SCRIPT) --rpc-url $(RPC_URL) \
 	--etherscan-api-key $(ETHERSCAN_API_KEY) --skip test --slow -v --ffi --broadcast --verify
 
-propose-hub-portal-upgrade-eth: SCRIPT=script/upgrade/ProposeUpgradeHubPortal.s.sol:ProposeUpgradeHubPortal
-propose-hub-portal-upgrade-eth: RPC_URL=$(MAINNET_RPC_URL)
-propose-hub-portal-upgrade-eth: propose-upgrade
+propose-hub-portal-upgrade-ethereum: SCRIPT=script/upgrade/ProposeUpgradeHubPortal.s.sol:ProposeUpgradeHubPortal
+propose-hub-portal-upgrade-ethereum: RPC_URL=$(MAINNET_RPC_URL)
+propose-hub-portal-upgrade-ethereum: propose-upgrade
 
 propose-spoke-portal-upgrade-arbitrum: SCRIPT=script/upgrade/ProposeUpgradeSpokePortal.s.sol:ProposeUpgradeSpokePortal
 propose-spoke-portal-upgrade-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
@@ -377,7 +306,7 @@ propose-spoke-portal-upgrade-optimism: propose-upgrade
 #
 
 task:
-	PRIVATE_KEY=$(SIGNER_PRIVATE_KEY) forge script $(SCRIPT) --rpc-url $(RPC_URL) --skip test --broadcast --slow -v --ffi
+	PRIVATE_KEY=$(PRIVATE_KEY) forge script $(SCRIPT) --rpc-url $(RPC_URL) --skip test --broadcast --slow -v --ffi
 
 # 
 # Regular transfer
@@ -386,43 +315,33 @@ task:
 transfer: SCRIPT=script/tasks/Transfer.s.sol:Transfer
 transfer: task
 
-# Testnet
-
-transfer-dev: SIGNER_PRIVATE_KEY=$(DEV_PRIVATE_KEY)
-transfer-dev: transfer
-
-# Mainnet
-
-transfer-prod: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
-transfer-prod: transfer
-
 # Chain-specific transfers Testnet
 
-transfer-dev-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
-transfer-dev-sepolia: transfer-dev
+transfer-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
+transfer-sepolia: transfer
 
-transfer-dev-optimism-sepolia: RPC_URL=$(OPTIMISM_SEPOLIA_RPC_URL)
-transfer-dev-optimism-sepolia: transfer-dev
+transfer-optimism-sepolia: RPC_URL=$(OPTIMISM_SEPOLIA_RPC_URL)
+transfer-optimism-sepolia: transfer
 
-transfer-dev-arbitrum-sepolia: RPC_URL=$(ARBITRUM_SEPOLIA_RPC_URL)
-transfer-dev-arbitrum-sepolia: transfer-dev
+transfer-arbitrum-sepolia: RPC_URL=$(ARBITRUM_SEPOLIA_RPC_URL)
+transfer-arbitrum-sepolia: transfer
 
-transfer-dev-base-sepolia: RPC_URL=$(BASE_SEPOLIA_RPC_URL)
-transfer-dev-base-sepolia: transfer-dev
+transfer-base-sepolia: RPC_URL=$(BASE_SEPOLIA_RPC_URL)
+transfer-base-sepolia: transfer
 
 # Chain-specific transfers Mainnet
 
-transfer-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
-transfer-prod-eth: transfer-prod
+transfer-ethereum: RPC_URL=$(MAINNET_RPC_URL)
+transfer-ethereum: transfer
 
-transfer-prod-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
-transfer-prod-optimism: transfer-prod
+transfer-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
+transfer-optimism: transfer
 
-transfer-prod-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
-transfer-prod-arbitrum: transfer-prod
+transfer-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
+transfer-arbitrum: transfer
 
-transfer-prod-base: RPC_URL=$(BASE_RPC_URL)
-transfer-prod-base: transfer-prod
+transfer-base: RPC_URL=$(BASE_RPC_URL)
+transfer-base: transfer
 
 # 
 # M-like token transfers
@@ -431,44 +350,33 @@ transfer-prod-base: transfer-prod
 transfer-m-like-token: SCRIPT=script/tasks/TransferMLikeToken.s.sol:TransferMLikeToken
 transfer-m-like-token: task
 
-# Testnet
-
-transfer-m-like-token-dev: SIGNER_PRIVATE_KEY=$(DEV_PRIVATE_KEY)
-transfer-m-like-token-dev: transfer-m-like-token
-
-# Mainnet
-
-transfer-m-like-token-prod: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
-transfer-m-like-token-prod: transfer-m-like-token
-
 # Chain-specific transfers Testnet
 
-transfer-m-like-token-dev-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
-transfer-m-like-token-dev-sepolia: transfer-m-like-token-dev
+transfer-m-like-token-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
+transfer-m-like-token-sepolia: transfer-m-like-token
 
-transfer-m-like-token-dev-optimism-sepolia: RPC_URL=$(OPTIMISM_SEPOLIA_RPC_URL)
-transfer-m-like-token-dev-optimism-sepolia: transfer-m-like-token-dev
+transfer-m-like-token-optimism-sepolia: RPC_URL=$(OPTIMISM_SEPOLIA_RPC_URL)
+transfer-m-like-token-optimism-sepolia: transfer-m-like-token
 
-transfer-m-like-token-dev-arbitrum-sepolia: RPC_URL=$(ARBITRUM_SEPOLIA_RPC_URL)
-transfer-m-like-token-dev-arbitrum-sepolia: transfer-m-like-token-dev
+transfer-m-like-token-arbitrum-sepolia: RPC_URL=$(ARBITRUM_SEPOLIA_RPC_URL)
+transfer-m-like-token-arbitrum-sepolia: transfer-m-like-token
 
-transfer-m-like-token-dev-base-sepolia: RPC_URL=$(BASE_SEPOLIA_RPC_URL)
-transfer-m-like-token-dev-base-sepolia: transfer-m-like-token-dev
-
+transfer-m-like-token-base-sepolia: RPC_URL=$(BASE_SEPOLIA_RPC_URL)
+transfer-m-like-token-base-sepolia: transfer-m-like-token
 
 # Chain-specific transfers Mainnet
 
-transfer-m-like-token-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
-transfer-m-like-token-prod-eth: transfer-m-like-token-prod
+transfer-m-like-token-ethereum: RPC_URL=$(MAINNET_RPC_URL)
+transfer-m-like-token-ethereum: transfer-m-like-token
 
-transfer-m-like-token-prod-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
-transfer-m-like-token-prod-optimism: transfer-m-like-token-prod
+transfer-m-like-token-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
+transfer-m-like-token-optimism: transfer-m-like-token
 
-transfer-m-like-token-prod-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
-transfer-m-like-token-prod-arbitrum: transfer-m-like-token-prod
+transfer-m-like-token-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
+transfer-m-like-token-arbitrum: transfer-m-like-token
 
-transfer-m-like-token-prod-base: RPC_URL=$(BASE_RPC_URL)
-transfer-m-like-token-prod-base: transfer-m-like-token-prod
+transfer-m-like-token-base: RPC_URL=$(BASE_RPC_URL)
+transfer-m-like-token-base: transfer-m-like-token
 
 # 
 # Send M index
@@ -477,17 +385,11 @@ transfer-m-like-token-prod-base: transfer-m-like-token-prod
 send-m-token-index: SCRIPT=script/tasks/SendMTokenIndex.s.sol:SendMTokenIndex
 send-m-token-index: task
 
-# Testnet
+send-m-token-index-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
+send-m-token-index-sepolia: send-m-token-index
 
-send-m-token-index-dev-sepolia: SIGNER_PRIVATE_KEY=$(DEV_PRIVATE_KEY)
-send-m-token-index-dev-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
-send-m-token-index-dev-sepolia: send-m-token-index
-
-# Mainnet
-
-send-m-token-index-prod-eth: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
-send-m-token-index-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
-send-m-token-index-prod-eth: send-m-token-index
+send-m-token-index-ethereum: RPC_URL=$(MAINNET_RPC_URL)
+send-m-token-index-ethereum: send-m-token-index
 
 # 
 # Registrar key
@@ -496,17 +398,11 @@ send-m-token-index-prod-eth: send-m-token-index
 send-registrar-key: SCRIPT=script/tasks/SendRegistrarKey.s.sol:SendRegistrarKey
 send-registrar-key: task
 
-# Testnet
+send-registrar-key-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
+send-registrar-key-sepolia: send-registrar-key
 
-send-registrar-key-dev-sepolia: SIGNER_PRIVATE_KEY=$(DEV_PRIVATE_KEY)
-send-registrar-key-dev-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
-send-registrar-key-dev-sepolia: send-registrar-key
-
-# Mainnet
-
-send-registrar-key-prod-eth: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
-send-registrar-key-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
-send-registrar-key-prod-eth: send-registrar-key
+send-registrar-key-ethereum: RPC_URL=$(MAINNET_RPC_URL)
+send-registrar-key-ethereum: send-registrar-key
 
 # 
 # Earner status
@@ -515,17 +411,11 @@ send-registrar-key-prod-eth: send-registrar-key
 send-earner-status: SCRIPT=script/tasks/SendEarnerStatus.s.sol:SendEarnerStatus
 send-earner-status: task
 
-# Testnet
+send-earner-status-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
+send-earner-status-sepolia: send-earner-status
 
-send-earner-status-dev-sepolia: SIGNER_PRIVATE_KEY=$(DEV_PRIVATE_KEY)
-send-earner-status-dev-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
-send-earner-status-dev-sepolia: send-earner-status
-
-# Mainnet
-
-send-earner-status-prod-eth: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
-send-earner-status-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
-send-earner-status-prod-eth: send-earner-status
+send-earner-status-ethereum: RPC_URL=$(MAINNET_RPC_URL)
+send-earner-status-ethereum: send-earner-status
 
 # 
 # Transfer Excess M
@@ -534,77 +424,69 @@ send-earner-status-prod-eth: send-earner-status
 transfer-excess-m: SCRIPT=script/tasks/TransferExcessM.s.sol:TransferExcessM
 transfer-excess-m: task
 
-# Testnet
+transfer-excess-m-arbitrum-sepolia: RPC_URL=$(ARBITRUM_SEPOLIA_RPC_URL)
+transfer-excess-m-arbitrum-sepolia: transfer-excess-m
 
-transfer-excess-m-dev-arbitrum-sepolia: SIGNER_PRIVATE_KEY=$(DEV_PRIVATE_KEY)
-transfer-excess-m-dev-arbitrum-sepolia: RPC_URL=$(ARBITRUM_SEPOLIA_RPC_URL)
-transfer-excess-m-dev-arbitrum-sepolia: transfer-excess-m
-
-transfer-excess-m-dev-optimism-sepolia: SIGNER_PRIVATE_KEY=$(DEV_PRIVATE_KEY)
-transfer-excess-m-dev-optimism-sepolia: RPC_URL=$(OPTIMISM_SEPOLIA_RPC_URL)
-transfer-excess-m-dev-optimism-sepolia: transfer-excess-m
+transfer-excess-m-optimism-sepolia: RPC_URL=$(OPTIMISM_SEPOLIA_RPC_URL)
+transfer-excess-m-optimism-sepolia: transfer-excess-m
 
 # Mainnet
 
-transfer-excess-m-prod-arbitrum: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
-transfer-excess-m-prod-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
-transfer-excess-m-prod-arbitrum: transfer-excess-m
+transfer-excess-m-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
+transfer-excess-m-arbitrum: transfer-excess-m
 
-transfer-excess-m-prod-optimism: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
-transfer-excess-m-prod-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
-transfer-excess-m-prod-optimism: transfer-excess-m
+transfer-excess-m-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
+transfer-excess-m-optimism: transfer-excess-m
 
 # 
 # Transfer Portal and Transceiver Ownership
 # 
 
 transfer-ownership: SCRIPT=script/tasks/TransferOwnership.s.sol:TransferOwnership
-transfer-ownership: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
 transfer-ownership: task
 
 # Mainnet
-transfer-ownership-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
-transfer-ownership-prod-eth: transfer-ownership
+transfer-ownership-ethereum: RPC_URL=$(MAINNET_RPC_URL)
+transfer-ownership-ethereum: transfer-ownership
 
-transfer-ownership-prod-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
-transfer-ownership-prod-arbitrum: transfer-ownership
+transfer-ownership-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
+transfer-ownership-arbitrum: transfer-ownership
 
-transfer-ownership-prod-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
-transfer-ownership-prod-optimism: transfer-ownership
+transfer-ownership-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
+transfer-ownership-optimism: transfer-ownership
 
 #
-# Unpause Portal
+# Propose to Unpause Portal to Multisig
 #
+
 unpause-portal: SCRIPT=script/tasks/ProposeUnpausePortal.s.sol:ProposeUnpausePortal
-unpause-portal: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
 unpause-portal: task
 
-# Mainnet
-unpause-portal-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
-unpause-portal-prod-eth: unpause-portal
+unpause-portal-ethereum: RPC_URL=$(MAINNET_RPC_URL)
+unpause-portal-ethereum: unpause-portal
 
-unpause-portal-prod-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
-unpause-portal-prod-arbitrum: unpause-portal
+unpause-portal-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
+unpause-portal-arbitrum: unpause-portal
 
-unpause-portal-prod-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
-unpause-portal-prod-optimism: unpause-portal
+unpause-portal-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
+unpause-portal-optimism: unpause-portal
 
 #
-# Set Bridging Path
+# Propose Set Bridging Path
 #
+
 set-bridging-path: SCRIPT=script/tasks/ProposeSetBridgingPath.s.sol:ProposeSetBridgingPath
-set-bridging-path: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
 set-bridging-path: task
 
 # Mainnet
-set-bridging-path-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
-set-bridging-path-prod-eth: set-bridging-path
+set-bridging-path-ethereum: RPC_URL=$(MAINNET_RPC_URL)
+set-bridging-path-ethereum: set-bridging-path
 
-set-bridging-path-prod-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
-set-bridging-path-prod-arbitrum: set-bridging-path
+set-bridging-path-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
+set-bridging-path-arbitrum: set-bridging-path
 
-set-bridging-path-prod-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
-set-bridging-path-prod-optimism: set-bridging-path
+set-bridging-path-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
+set-bridging-path-optimism: set-bridging-path
 
 #
 #
@@ -622,32 +504,26 @@ query:
 get-portal-info: SCRIPT=script/queries/GetPortalInfo.s.sol:GetPortalInfo
 get-portal-info: query
 
-# Chain-specific transfers Testnet
+get-portal-info-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
+get-portal-info-sepolia: get-portal-info
 
-get-portal-info-dev-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
-get-portal-info-dev-sepolia: get-portal-info
+get-portal-info-optimism-sepolia: RPC_URL=$(OPTIMISM_SEPOLIA_RPC_URL)
+get-portal-info-optimism-sepolia: get-portal-info
 
-get-portal-info-dev-optimism-sepolia: RPC_URL=$(OPTIMISM_SEPOLIA_RPC_URL)
-get-portal-info-dev-optimism-sepolia: get-portal-info
+get-portal-info-arbitrum-sepolia: RPC_URL=$(ARBITRUM_SEPOLIA_RPC_URL)
+get-portal-info-arbitrum-sepolia: get-portal-info
 
-get-portal-info-dev-arbitrum-sepolia: RPC_URL=$(ARBITRUM_SEPOLIA_RPC_URL)
-get-portal-info-dev-arbitrum-sepolia: get-portal-info
+get-portal-info-base-sepolia: RPC_URL=$(BASE_SEPOLIA_RPC_URL)
+get-portal-info-base-sepolia: get-portal-info
 
-get-portal-info-dev-base-sepolia: RPC_URL=$(BASE_SEPOLIA_RPC_URL)
-get-portal-info-dev-base-sepolia: get-portal-info
+get-portal-info-ethereum: RPC_URL=$(MAINNET_RPC_URL)
+get-portal-info-ethereum: get-portal-info
 
-# Chain-specific transfers Mainnet
+get-portal-info-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
+get-portal-info-optimism: get-portal-info
 
-get-portal-info-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
-get-portal-info-prod-eth: get-portal-info
+get-portal-info-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
+get-portal-info-arbitrum: get-portal-info
 
-get-portal-info-prod-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
-get-portal-info-prod-optimism: get-portal-info
-
-get-portal-info-prod-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
-get-portal-info-prod-arbitrum: get-portal-info
-
-get-portal-info-prod-base: RPC_URL=$(BASE_RPC_URL)
-get-portal-info-prod-base: get-portal-info
-
-
+get-portal-info-base: RPC_URL=$(BASE_RPC_URL)
+get-portal-info-base: get-portal-info
