@@ -28,3 +28,6 @@
 	path = lib/protocol
 	url = git@github.com:m0-foundation/protocol.git
 	branch = spoke-upgradeable
+[submodule "lib/evm-m-extensions"]
+	path = lib/evm-m-extensions
+	url = git@github.com:m0-foundation/evm-m-extensions.git
