@@ -11,10 +11,13 @@ ignored_error_codes = []
 ignored_warnings_from = ["lib", "test", "script"]
 optimizer = true
 optimizer_runs = 800
-version = "0.8.26"
 verbosity = 3
 via_ir = false
 isolate = true
+
+[lint]
+lint_on_build = false
+
 
 [profile.production]
 build_info = true

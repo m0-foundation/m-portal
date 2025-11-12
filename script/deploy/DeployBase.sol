@@ -3,11 +3,14 @@
 pragma solidity 0.8.26;
 
 import { ERC1967Proxy } from "../../lib/protocol/lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import { IAccessControl } from "../../lib/protocol/lib/openzeppelin-contracts/contracts/access/IAccessControl.sol";
 import { ContractHelper } from "../../lib/common/src/libs/ContractHelper.sol";
 
 import { MToken } from "../../lib/protocol/src/MToken.sol";
 import { Registrar } from "../../lib/ttg/src/Registrar.sol";
 import { WrappedMToken } from "../../lib/wrapped-m-token/src/WrappedMToken.sol";
+import { SwapFacility } from "../../lib/evm-m-extensions/src/swap/SwapFacility.sol";
+import { IReentrancyLock } from "../../lib/evm-m-extensions/src/swap/interfaces/IReentrancyLock.sol";
 
 import { IManagerBase } from "../../lib/native-token-transfers/evm/src/interfaces/IManagerBase.sol";
 import { INttManager } from "../../lib/native-token-transfers/evm/src/interfaces/INttManager.sol";
@@ -32,6 +35,7 @@ contract DeployBase is ScriptBase {
     string internal constant _TRANSCEIVER_CONTRACT_NAME = "WormholeTransceiver";
     string internal constant _VAULT_CONTRACT_NAME = "Vault";
     string internal constant _EXECUTOR_ENTRY_POINT_CONTRACT_NAME = "ExecutorEntryPoint";
+    string internal constant _SWAP_FACILITY_CONTRACT_NAME = "SwapFacility";
 
     /// @dev Contract names used for deterministic deployment of Noble Portal
     string internal constant _NOBLE_PORTAL_CONTRACT_NAME = "NoblePortal";
@@ -328,6 +332,29 @@ contract DeployBase is ScriptBase {
             "",
             _computeSalt(deployer_, _EXECUTOR_ENTRY_POINT_CONTRACT_NAME)
         );
+    }
+
+    function _deploySpokeSwapFacility(
+        address deployer_,
+        address upgradeAdmin_,
+        address mToken_,
+        address registrar_,
+        address portal_
+    ) internal returns (address implementation_, address proxy_) {
+        implementation_ = address(new SwapFacility(mToken_, registrar_));
+
+        proxy_ = _deployCreate3TransparentProxy(
+            implementation_,
+            upgradeAdmin_,
+            abi.encodeWithSelector(SwapFacility.initialize.selector, deployer_),
+            _computeSalt(deployer_, _SWAP_FACILITY_CONTRACT_NAME)
+        );
+
+        // Grant M Swapper Role to Portal
+        IAccessControl(proxy_).grantRole(SwapFacility(proxy_).M_SWAPPER_ROLE(), portal_);
+
+        // Make Portal trusted router
+        IReentrancyLock(proxy_).setTrustedRouter(portal_, true);
     }
 
     function _configurePortal(address portal_, address transceiver_) internal {
