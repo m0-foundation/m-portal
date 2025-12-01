@@ -68,6 +68,7 @@ library PeersConfig {
         if (peerWormholeChainId_ == Chains.WORMHOLE_NOBLE_TESTNET) return _getNoblePeerConfig(peerWormholeChainId_);
         if (peerWormholeChainId_ == Chains.WORMHOLE_SOLANA_TESTNET) return _getSolanaPeerConfig(peerWormholeChainId_);
         if (peerWormholeChainId_ == Chains.WORMHOLE_BASE_SEPOLIA) return _getEvmPeerConfig(peerWormholeChainId_);
+        if (peerWormholeChainId_ == Chains.WORMHOLE_MOCA_TESTNET) return _getEvmPeerConfig(peerWormholeChainId_);
 
         revert Chains.UnsupportedWormholeChain(peerWormholeChainId_);
     }
@@ -156,12 +157,13 @@ library PeersConfig {
         }
 
         if (wormholeChainId_ == Chains.WORMHOLE_ETHEREUM_SEPOLIA) {
-            peerChainIds_ = new uint16[](5);
+            peerChainIds_ = new uint16[](6);
             peerChainIds_[0] = Chains.WORMHOLE_ARBITRUM_SEPOLIA;
             peerChainIds_[1] = Chains.WORMHOLE_OPTIMISM_SEPOLIA;
             peerChainIds_[2] = Chains.WORMHOLE_NOBLE_TESTNET;
             peerChainIds_[3] = Chains.WORMHOLE_SOLANA_TESTNET;
             peerChainIds_[4] = Chains.WORMHOLE_BASE_SEPOLIA;
+            peerChainIds_[5] = Chains.WORMHOLE_MOCA_TESTNET;
         }
 
         if (wormholeChainId_ == Chains.WORMHOLE_ARBITRUM_SEPOLIA) {
@@ -186,6 +188,14 @@ library PeersConfig {
             peerChainIds_[1] = Chains.WORMHOLE_ARBITRUM_SEPOLIA;
             peerChainIds_[2] = Chains.WORMHOLE_OPTIMISM_SEPOLIA;
             peerChainIds_[3] = Chains.WORMHOLE_SOLANA_TESTNET;
+        }
+
+        if (wormholeChainId_ == Chains.WORMHOLE_MOCA_TESTNET) {
+            peerChainIds_ = new uint16[](4);
+            peerChainIds_[0] = Chains.WORMHOLE_ETHEREUM_SEPOLIA;
+            peerChainIds_[1] = Chains.WORMHOLE_ARBITRUM_SEPOLIA;
+            peerChainIds_[2] = Chains.WORMHOLE_OPTIMISM_SEPOLIA;
+            peerChainIds_[3] = Chains.WORMHOLE_BASE_SEPOLIA;
         }
     }
 }

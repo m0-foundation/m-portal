@@ -51,6 +51,21 @@ clean:
 # Default to actual deployment (not simulation)
 DRY_RUN ?= false
 
+# Verifier Options
+VERIFIER ?= "etherscan"
+VERIFIER_URL ?=
+VERIFIER_API_KEY ?=
+
+# Conditionally set verifier flags for custom verifier
+ifeq ($(VERIFIER),"custom")
+    VERIFIER_FLAGS = --verifier-url $(VERIFIER_URL)
+    ifneq ($(VERIFIER_API_KEY),)
+        VERIFIER_FLAGS += --verifier-api-key $(VERIFIER_API_KEY)
+    endif
+else
+    VERIFIER_FLAGS =
+endif
+
 # Conditionally set broadcast and verify flags
 ifeq ($(DRY_RUN),true)
     BROADCAST_FLAGS =
@@ -63,7 +78,7 @@ deploy:
 	PRIVATE_KEY=$(PRIVATE_KEY) \
 	forge script $(SCRIPT) \
 	--rpc-url $(RPC_URL) \
-	--etherscan-api-key $(ETHERSCAN_API_KEY) --skip test --slow --non-interactive \
+	--etherscan-api-key $(ETHERSCAN_API_KEY) --verifier $(VERIFIER) $(VERIFIER_FLAGS) --skip test --slow --non-interactive \
 	-v $(BROADCAST_FLAGS)
 
 # Deploy Hub
@@ -89,6 +104,12 @@ deploy-spoke-optimism-sepolia: deploy-spoke
 
 deploy-spoke-base-sepolia: RPC_URL=$(BASE_SEPOLIA_RPC_URL)
 deploy-spoke-base-sepolia: deploy-spoke
+
+deploy-spoke-moca-testnet: RPC_URL=$(MOCA_TESTNET_RPC_URL)
+deploy-spoke-moca-testnet: VERIFIER="custom"
+deploy-spoke-moca-testnet: VERIFIER_URL=$(MOCA_TESTNET_VERIFIER_URL)
+deploy-spoke-moca-testnet: VERIFIER_API_KEY=$(MOCA_TESTNET_VERIFIER_API_KEY)
+deploy-spoke-moca-testnet: deploy-spoke
 
 # Chain-specific deployment Mainnet
 
@@ -158,6 +179,9 @@ configure-optimism-sepolia: configure
 
 configure-base-sepolia: RPC_URL=$(BASE_SEPOLIA_RPC_URL)
 configure-base-sepolia: configure
+
+configure-moca-testnet: RPC_URL=$(MOCA_TESTNET_RPC_URL)
+configure-moca-testnet: configure
 
 # Chain-specific configure Mainnet
 
@@ -329,6 +353,9 @@ transfer-arbitrum-sepolia: transfer
 transfer-base-sepolia: RPC_URL=$(BASE_SEPOLIA_RPC_URL)
 transfer-base-sepolia: transfer
 
+transfer-moca-testnet: RPC_URL=$(MOCA_TESTNET_RPC_URL)
+transfer-moca-testnet: transfer
+
 # Chain-specific transfers Mainnet
 
 transfer-ethereum: RPC_URL=$(MAINNET_RPC_URL)
@@ -363,6 +390,9 @@ transfer-m-like-token-arbitrum-sepolia: transfer-m-like-token
 
 transfer-m-like-token-base-sepolia: RPC_URL=$(BASE_SEPOLIA_RPC_URL)
 transfer-m-like-token-base-sepolia: transfer-m-like-token
+
+transfer-m-like-token-moca-testnet: RPC_URL=$(MOCA_TESTNET_RPC_URL)
+transfer-m-like-token-moca-testnet: transfer-m-like-token
 
 # Chain-specific transfers Mainnet
 

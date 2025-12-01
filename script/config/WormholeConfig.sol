@@ -37,6 +37,7 @@ library WormholeConfig {
         if (chainId_ == Chains.OPTIMISM_SEPOLIA) return Chains.WORMHOLE_OPTIMISM_SEPOLIA;
         if (chainId_ == Chains.BASE_SEPOLIA) return Chains.WORMHOLE_BASE_SEPOLIA;
         if (chainId_ == Chains.NOBLE_TESTNET) return Chains.WORMHOLE_NOBLE_TESTNET;
+        if (chainId_ == Chains.MOCA_TESTNET) return Chains.WORMHOLE_MOCA_TESTNET;
 
         revert Chains.UnsupportedChain(chainId_);
     }
@@ -150,6 +151,19 @@ library WormholeConfig {
                     relayer: 0x93BAD53DDfB6132b0aC8E37f6029163E63372cEE,
                     specialRelayer: SPECIAL_RELAYER,
                     executor: 0x51B47D493CBA7aB97e3F8F163D6Ce07592CE4482
+                });
+
+        // Moca Testnet
+        if (chainId_ == Chains.MOCA_TESTNET)
+            return
+                WormholeTransceiverConfig({
+                    wormholeChainId: toWormholeChainId(chainId_),
+                    consistencyLevel: INSTANT_CONSISTENCY_LEVEL,
+                    coreBridge: 0xaBf89de706B583424328B54dD05a8fC986750Da8,
+                    gasLimit: GAS_LIMIT,
+                    relayer: address(0) /** WHAT DO WE DO? WORMHOLE DOESN'T HAVE ONE YET */,
+                    specialRelayer: SPECIAL_RELAYER,
+                    executor: address(0) /** WHAT DO WE DO? WORMHOLE DOESN'T HAVE ONE YET */
                 });
 
         revert Chains.UnsupportedChain(chainId_);
