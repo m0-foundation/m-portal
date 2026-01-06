@@ -36,3 +36,6 @@ docs/
 
 # NPM modules
 node_modules
+
+#soljson
+soljson-latest.js

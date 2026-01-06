@@ -30,6 +30,7 @@ library WormholeConfig {
         if (chainId_ == Chains.ARBITRUM) return Chains.WORMHOLE_ARBITRUM;
         if (chainId_ == Chains.OPTIMISM) return Chains.WORMHOLE_OPTIMISM;
         if (chainId_ == Chains.BASE) return Chains.WORMHOLE_BASE;
+        if (chainId_ == Chains.MOCA) return Chains.WORMHOLE_MOCA;
         if (chainId_ == Chains.NOBLE) return Chains.WORMHOLE_NOBLE;
 
         if (chainId_ == Chains.ETHEREUM_SEPOLIA) return Chains.WORMHOLE_ETHEREUM_SEPOLIA;
@@ -101,6 +102,20 @@ library WormholeConfig {
                     executor: 0x9E1936E91A4a5AE5A5F75fFc472D6cb8e93597ea
                 });
 
+        // TODO: add contract addresses
+        // Moca
+        if (chainId_ == Chains.MOCA)
+            return
+                WormholeTransceiverConfig({
+                    wormholeChainId: toWormholeChainId(chainId_),
+                    consistencyLevel: FINALIZED_CONSISTENCY_LEVEL,
+                    coreBridge: 0xaBf89de706B583424328B54dD05a8fC986750Da8,
+                    gasLimit: GAS_LIMIT,
+                    relayer: ,
+                    specialRelayer: SPECIAL_RELAYER,
+                    executor: 
+                });
+        
         // Ethereum Sepolia
         if (chainId_ == Chains.ETHEREUM_SEPOLIA)
             return

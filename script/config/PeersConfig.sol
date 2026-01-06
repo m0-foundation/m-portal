@@ -4,7 +4,6 @@ pragma solidity 0.8.26;
 
 import { TypeConverter } from "../../src/libs/TypeConverter.sol";
 import { Chains } from "./Chains.sol";
-import { WormholeConfig } from "./WormholeConfig.sol";
 
 struct PeerConfig {
     uint16 wormholeChainId;
@@ -58,6 +57,7 @@ library PeersConfig {
         if (peerWormholeChainId_ == Chains.WORMHOLE_BASE) return _getEvmPeerConfig(peerWormholeChainId_);
         if (peerWormholeChainId_ == Chains.WORMHOLE_ARBITRUM) return _getEvmPeerConfig(peerWormholeChainId_);
         if (peerWormholeChainId_ == Chains.WORMHOLE_OPTIMISM) return _getEvmPeerConfig(peerWormholeChainId_);
+        if (peerWormholeChainId_ == Chains.WORMHOLE_MOCA) return _getEvmPeerConfig(peerWormholeChainId_);
         if (peerWormholeChainId_ == Chains.WORMHOLE_NOBLE) return _getNoblePeerConfig(peerWormholeChainId_);
         if (peerWormholeChainId_ == Chains.WORMHOLE_SOLANA) return _getSolanaPeerConfig(peerWormholeChainId_);
 
@@ -124,38 +124,53 @@ library PeersConfig {
 
     /// @dev Returns a list of Wormhole Chain IDs where peer Portals are deployed
     function getPeerChainIds(uint16 wormholeChainId_) internal pure returns (uint16[] memory peerChainIds_) {
+        // Mainnet
         if (wormholeChainId_ == Chains.WORMHOLE_ETHEREUM) {
-            peerChainIds_ = new uint16[](4);
+            peerChainIds_ = new uint16[](5);
             peerChainIds_[0] = Chains.WORMHOLE_ARBITRUM;
             peerChainIds_[1] = Chains.WORMHOLE_OPTIMISM;
             peerChainIds_[2] = Chains.WORMHOLE_BASE;
             peerChainIds_[3] = Chains.WORMHOLE_SOLANA;
+            peerChainIds_[4] = Chains.WORMHOLE_MOCA;
         }
 
         if (wormholeChainId_ == Chains.WORMHOLE_ARBITRUM) {
-            peerChainIds_ = new uint16[](4);
+            peerChainIds_ = new uint16[](5);
             peerChainIds_[0] = Chains.WORMHOLE_ETHEREUM;
             peerChainIds_[1] = Chains.WORMHOLE_OPTIMISM;
             peerChainIds_[2] = Chains.WORMHOLE_BASE;
             peerChainIds_[3] = Chains.WORMHOLE_SOLANA;
+            peerChainIds_[4] = Chains.WORMHOLE_MOCA;
         }
 
         if (wormholeChainId_ == Chains.WORMHOLE_OPTIMISM) {
-            peerChainIds_ = new uint16[](4);
+            peerChainIds_ = new uint16[](5);
             peerChainIds_[0] = Chains.WORMHOLE_ETHEREUM;
             peerChainIds_[1] = Chains.WORMHOLE_ARBITRUM;
             peerChainIds_[2] = Chains.WORMHOLE_BASE;
             peerChainIds_[3] = Chains.WORMHOLE_SOLANA;
+            peerChainIds_[4] = Chains.WORMHOLE_MOCA;
         }
 
         if (wormholeChainId_ == Chains.WORMHOLE_BASE) {
-            peerChainIds_ = new uint16[](4);
+            peerChainIds_ = new uint16[](5);
             peerChainIds_[0] = Chains.WORMHOLE_ETHEREUM;
             peerChainIds_[1] = Chains.WORMHOLE_ARBITRUM;
             peerChainIds_[2] = Chains.WORMHOLE_OPTIMISM;
             peerChainIds_[3] = Chains.WORMHOLE_SOLANA;
+            peerChainIds_[4] = Chains.WORMHOLE_MOCA;
         }
 
+        if (wormholeChainId_ == Chains.WORMHOLE_MOCA) {
+            peerChainIds_ = new uint16[](5);
+            peerChainIds_[0] = Chains.WORMHOLE_ETHEREUM;
+            peerChainIds_[1] = Chains.WORMHOLE_ARBITRUM;
+            peerChainIds_[2] = Chains.WORMHOLE_BASE;
+            peerChainIds_[3] = Chains.WORMHOLE_OPTIMISM;
+            peerChainIds_[4] = Chains.WORMHOLE_SOLANA;
+        }
+
+        // Testnet
         if (wormholeChainId_ == Chains.WORMHOLE_ETHEREUM_SEPOLIA) {
             peerChainIds_ = new uint16[](6);
             peerChainIds_[0] = Chains.WORMHOLE_ARBITRUM_SEPOLIA;

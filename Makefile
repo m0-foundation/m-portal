@@ -128,6 +128,11 @@ deploy-spoke-optimism: deploy-spoke
 deploy-spoke-base: RPC_URL=$(BASE_RPC_URL)
 deploy-spoke-base: deploy-spoke
 
+deploy-spoke-moca: RPC_URL=$(MOCA_RPC_URL)
+deploy-spoke-moca: VERIFIER="custom"
+deploy-spoke-moca: VERIFIER_URL=$(MOCA_VERIFIER_URL)
+deploy-spoke-moca: deploy-spoke
+
 #
 # Deploy Noble Hub Portal and Transceiver
 #
@@ -196,6 +201,9 @@ configure-optimism: configure
 
 configure-base: RPC_URL=$(BASE_RPC_URL)
 configure-base: configure
+
+configure-moca: RPC_URL=$(MOCA_RPC_URL)
+configure-moca: configure
 
 #
 # Propose configure transactions to Safe Multisig
@@ -370,6 +378,9 @@ transfer-arbitrum: transfer
 transfer-base: RPC_URL=$(BASE_RPC_URL)
 transfer-base: transfer
 
+transfer-moca: RPC_URL=$(MOCA_RPC_URL)
+transfer-moca: transfer
+
 # 
 # M-like token transfers
 # 
@@ -407,6 +418,9 @@ transfer-m-like-token-arbitrum: transfer-m-like-token
 
 transfer-m-like-token-base: RPC_URL=$(BASE_RPC_URL)
 transfer-m-like-token-base: transfer-m-like-token
+
+transfer-m-like-token-moca: RPC_URL=$(MOCA_RPC_URL)
+transfer-m-like-token-moca: transfer-m-like-token
 
 # 
 # Send M index

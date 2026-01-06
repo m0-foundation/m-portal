@@ -1,9 +1,9 @@
 [profile.default]
-evm_version = "cancun"
+evm_version = "london"
 fs_permissions = [
   { access = "read", path = "./config" },
   { access = "read", path = "./test/fork/fixtures/" },
-  { access = "read-write", path = "./deployments" }
+  { access = "read-write", path = "./deployments" },
 ]
 gas_reports = ["HubPortal", "SpokePortal"]
 gas_reports_ignore = []
@@ -59,4 +59,3 @@ sepolia = { key = "${ETHERSCAN_API_KEY}", url = "https://api.etherscan.io/v2/api
 base_sepolia = { key = "${ETHERSCAN_API_KEY}", url = "https://api.etherscan.io/v2/api?chainid=84532" }
 optimism_sepolia = { key = "${ETHERSCAN_API_KEY}", url = "https://api.etherscan.io/v2/api?chainid=11155420" }
 arbitrum_sepolia = { key = "${ETHERSCAN_API_KEY}", url = "https://api.etherscan.io/v2/api?chainid=421614" }
-

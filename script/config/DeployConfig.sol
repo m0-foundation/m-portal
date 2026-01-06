@@ -35,6 +35,7 @@ library DeployConfig {
         if (chainId_ == Chains.ARBITRUM) return _getMainnetSpokeDeployConfig();
         if (chainId_ == Chains.OPTIMISM) return _getMainnetSpokeDeployConfig();
         if (chainId_ == Chains.BASE) return _getMainnetSpokeDeployConfig();
+        if (chainId_ == Chains.MOCA) return _getMainnetSpokeDeployConfig();
 
         if (chainId_ == Chains.ARBITRUM_SEPOLIA) return _getTestnetSpokeDeployConfig();
         if (chainId_ == Chains.OPTIMISM_SEPOLIA) return _getTestnetSpokeDeployConfig();
