@@ -14,7 +14,7 @@ import { IPortal } from "./interfaces/IPortal.sol";
 import { ISwapFacilityLike } from "./interfaces/ISwapFacilityLike.sol";
 import { TypeConverter } from "./libs/TypeConverter.sol";
 import { PayloadType, PayloadEncoder } from "./libs/PayloadEncoder.sol";
-import { ReentrancyLock } from "../lib/uniswap-v4-periphery/src/base/ReentrancyLock.sol";
+import { ReentrancyLock } from "./libs/ReentrancyLock.sol";
 
 /**
  * @title  Base Portal contract inherited by HubPortal and SpokePortal.
