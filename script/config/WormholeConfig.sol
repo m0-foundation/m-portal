@@ -31,12 +31,14 @@ library WormholeConfig {
         if (chainId_ == Chains.OPTIMISM) return Chains.WORMHOLE_OPTIMISM;
         if (chainId_ == Chains.BASE) return Chains.WORMHOLE_BASE;
         if (chainId_ == Chains.NOBLE) return Chains.WORMHOLE_NOBLE;
+        if (chainId_ == Chains.SEI) return Chains.WORMHOLE_SEI;
 
         if (chainId_ == Chains.ETHEREUM_SEPOLIA) return Chains.WORMHOLE_ETHEREUM_SEPOLIA;
         if (chainId_ == Chains.ARBITRUM_SEPOLIA) return Chains.WORMHOLE_ARBITRUM_SEPOLIA;
         if (chainId_ == Chains.OPTIMISM_SEPOLIA) return Chains.WORMHOLE_OPTIMISM_SEPOLIA;
         if (chainId_ == Chains.BASE_SEPOLIA) return Chains.WORMHOLE_BASE_SEPOLIA;
         if (chainId_ == Chains.NOBLE_TESTNET) return Chains.WORMHOLE_NOBLE_TESTNET;
+        if (chainId_ == Chains.SEI_TESTNET) return Chains.WORMHOLE_SEI_TESTNET;
 
         revert Chains.UnsupportedChain(chainId_);
     }
@@ -100,6 +102,19 @@ library WormholeConfig {
                     executor: 0x9E1936E91A4a5AE5A5F75fFc472D6cb8e93597ea
                 });
 
+        // Sei
+        if (chainId_ == Chains.SEI)
+            return
+                WormholeTransceiverConfig({
+                    wormholeChainId: toWormholeChainId(chainId_),
+                    consistencyLevel: FINALIZED_CONSISTENCY_LEVEL,
+                    coreBridge: 0xCa1D5a146B03f6303baF59e5AD5615ae0b9d146D,
+                    gasLimit: GAS_LIMIT,
+                    relayer: 0x27428DD2d3DD32A4D7f7C497eAaa23130d894911,
+                    specialRelayer: SPECIAL_RELAYER,
+                    executor: 0x25f1c923Fb7A5aEFA5F0A2b419fC70f2368e66e5
+                });
+
         // Ethereum Sepolia
         if (chainId_ == Chains.ETHEREUM_SEPOLIA)
             return
@@ -150,6 +165,19 @@ library WormholeConfig {
                     relayer: 0x93BAD53DDfB6132b0aC8E37f6029163E63372cEE,
                     specialRelayer: SPECIAL_RELAYER,
                     executor: 0x51B47D493CBA7aB97e3F8F163D6Ce07592CE4482
+                });
+
+        // Sei Testnet
+        if (chainId_ == Chains.SEI_TESTNET)
+            return
+                WormholeTransceiverConfig({
+                    wormholeChainId: toWormholeChainId(chainId_),
+                    consistencyLevel: INSTANT_CONSISTENCY_LEVEL,
+                    coreBridge: 0xBB73cB66C26740F31d1FabDC6b7A46a038A300dd,
+                    gasLimit: GAS_LIMIT,
+                    relayer: 0x362fca37E45fe1096b42021b543f462D49a5C8df,
+                    specialRelayer: SPECIAL_RELAYER,
+                    executor: 0x25f1c923Fb7A5aEFA5F0A2b419fC70f2368e66e5
                 });
 
         revert Chains.UnsupportedChain(chainId_);
