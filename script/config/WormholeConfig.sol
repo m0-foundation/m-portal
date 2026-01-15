@@ -38,7 +38,6 @@ library WormholeConfig {
         if (chainId_ == Chains.OPTIMISM_SEPOLIA) return Chains.WORMHOLE_OPTIMISM_SEPOLIA;
         if (chainId_ == Chains.BASE_SEPOLIA) return Chains.WORMHOLE_BASE_SEPOLIA;
         if (chainId_ == Chains.NOBLE_TESTNET) return Chains.WORMHOLE_NOBLE_TESTNET;
-        if (chainId_ == Chains.SEI_TESTNET) return Chains.WORMHOLE_SEI_TESTNET;
 
         revert Chains.UnsupportedChain(chainId_);
     }
@@ -165,19 +164,6 @@ library WormholeConfig {
                     relayer: 0x93BAD53DDfB6132b0aC8E37f6029163E63372cEE,
                     specialRelayer: SPECIAL_RELAYER,
                     executor: 0x51B47D493CBA7aB97e3F8F163D6Ce07592CE4482
-                });
-
-        // Sei Testnet
-        if (chainId_ == Chains.SEI_TESTNET)
-            return
-                WormholeTransceiverConfig({
-                    wormholeChainId: toWormholeChainId(chainId_),
-                    consistencyLevel: INSTANT_CONSISTENCY_LEVEL,
-                    coreBridge: 0xBB73cB66C26740F31d1FabDC6b7A46a038A300dd,
-                    gasLimit: GAS_LIMIT,
-                    relayer: 0x362fca37E45fe1096b42021b543f462D49a5C8df,
-                    specialRelayer: SPECIAL_RELAYER,
-                    executor: 0x25f1c923Fb7A5aEFA5F0A2b419fC70f2368e66e5
                 });
 
         revert Chains.UnsupportedChain(chainId_);
