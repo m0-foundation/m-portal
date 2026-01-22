@@ -107,6 +107,9 @@ deploy-spoke-optimism: deploy-spoke
 deploy-spoke-base: RPC_URL=$(BASE_RPC_URL)
 deploy-spoke-base: deploy-spoke
 
+deploy-spoke-sei: RPC_URL=$(SEI_RPC_URL)
+deploy-spoke-sei: deploy-spoke
+
 #
 # Deploy Noble Hub Portal and Transceiver
 #
@@ -172,6 +175,9 @@ configure-optimism: configure
 
 configure-base: RPC_URL=$(BASE_RPC_URL)
 configure-base: configure
+
+configure-sei: RPC_URL=$(SEI_RPC_URL)
+configure-sei: configure
 
 #
 # Propose configure transactions to Safe Multisig
@@ -343,6 +349,9 @@ transfer-arbitrum: transfer
 transfer-base: RPC_URL=$(BASE_RPC_URL)
 transfer-base: transfer
 
+transfer-sei: RPC_URL=$(SEI_RPC_URL)
+transfer-sei: transfer
+
 # 
 # M-like token transfers
 # 
@@ -377,6 +386,9 @@ transfer-m-like-token-arbitrum: transfer-m-like-token
 
 transfer-m-like-token-base: RPC_URL=$(BASE_RPC_URL)
 transfer-m-like-token-base: transfer-m-like-token
+
+transfer-m-like-token-sei: RPC_URL=$(SEI_RPC_URL)
+transfer-m-like-token-sei: transfer-m-like-token
 
 # 
 # Send M index

@@ -58,6 +58,7 @@ library PeersConfig {
         if (peerWormholeChainId_ == Chains.WORMHOLE_BASE) return _getEvmPeerConfig(peerWormholeChainId_);
         if (peerWormholeChainId_ == Chains.WORMHOLE_ARBITRUM) return _getEvmPeerConfig(peerWormholeChainId_);
         if (peerWormholeChainId_ == Chains.WORMHOLE_OPTIMISM) return _getEvmPeerConfig(peerWormholeChainId_);
+        if (peerWormholeChainId_ == Chains.WORMHOLE_SEI) return _getEvmPeerConfig(peerWormholeChainId_);
         if (peerWormholeChainId_ == Chains.WORMHOLE_NOBLE) return _getNoblePeerConfig(peerWormholeChainId_);
         if (peerWormholeChainId_ == Chains.WORMHOLE_SOLANA) return _getSolanaPeerConfig(peerWormholeChainId_);
 
@@ -65,9 +66,9 @@ library PeersConfig {
         if (peerWormholeChainId_ == Chains.WORMHOLE_ETHEREUM_SEPOLIA) return _getEvmPeerConfig(peerWormholeChainId_);
         if (peerWormholeChainId_ == Chains.WORMHOLE_ARBITRUM_SEPOLIA) return _getEvmPeerConfig(peerWormholeChainId_);
         if (peerWormholeChainId_ == Chains.WORMHOLE_OPTIMISM_SEPOLIA) return _getEvmPeerConfig(peerWormholeChainId_);
+        if (peerWormholeChainId_ == Chains.WORMHOLE_BASE_SEPOLIA) return _getEvmPeerConfig(peerWormholeChainId_);
         if (peerWormholeChainId_ == Chains.WORMHOLE_NOBLE_TESTNET) return _getNoblePeerConfig(peerWormholeChainId_);
         if (peerWormholeChainId_ == Chains.WORMHOLE_SOLANA_TESTNET) return _getSolanaPeerConfig(peerWormholeChainId_);
-        if (peerWormholeChainId_ == Chains.WORMHOLE_BASE_SEPOLIA) return _getEvmPeerConfig(peerWormholeChainId_);
 
         revert Chains.UnsupportedWormholeChain(peerWormholeChainId_);
     }
@@ -123,38 +124,53 @@ library PeersConfig {
 
     /// @dev Returns a list of Wormhole Chain IDs where peer Portals are deployed
     function getPeerChainIds(uint16 wormholeChainId_) internal pure returns (uint16[] memory peerChainIds_) {
+        // Mainnet
         if (wormholeChainId_ == Chains.WORMHOLE_ETHEREUM) {
-            peerChainIds_ = new uint16[](4);
+            peerChainIds_ = new uint16[](5);
             peerChainIds_[0] = Chains.WORMHOLE_ARBITRUM;
             peerChainIds_[1] = Chains.WORMHOLE_OPTIMISM;
             peerChainIds_[2] = Chains.WORMHOLE_BASE;
             peerChainIds_[3] = Chains.WORMHOLE_SOLANA;
+            peerChainIds_[4] = Chains.WORMHOLE_SEI;
         }
 
         if (wormholeChainId_ == Chains.WORMHOLE_ARBITRUM) {
-            peerChainIds_ = new uint16[](4);
+            peerChainIds_ = new uint16[](5);
             peerChainIds_[0] = Chains.WORMHOLE_ETHEREUM;
             peerChainIds_[1] = Chains.WORMHOLE_OPTIMISM;
             peerChainIds_[2] = Chains.WORMHOLE_BASE;
             peerChainIds_[3] = Chains.WORMHOLE_SOLANA;
+            peerChainIds_[4] = Chains.WORMHOLE_SEI;
         }
 
         if (wormholeChainId_ == Chains.WORMHOLE_OPTIMISM) {
-            peerChainIds_ = new uint16[](4);
+            peerChainIds_ = new uint16[](5);
             peerChainIds_[0] = Chains.WORMHOLE_ETHEREUM;
             peerChainIds_[1] = Chains.WORMHOLE_ARBITRUM;
             peerChainIds_[2] = Chains.WORMHOLE_BASE;
             peerChainIds_[3] = Chains.WORMHOLE_SOLANA;
+            peerChainIds_[4] = Chains.WORMHOLE_SEI;
         }
 
         if (wormholeChainId_ == Chains.WORMHOLE_BASE) {
-            peerChainIds_ = new uint16[](4);
+            peerChainIds_ = new uint16[](5);
             peerChainIds_[0] = Chains.WORMHOLE_ETHEREUM;
             peerChainIds_[1] = Chains.WORMHOLE_ARBITRUM;
             peerChainIds_[2] = Chains.WORMHOLE_OPTIMISM;
             peerChainIds_[3] = Chains.WORMHOLE_SOLANA;
+            peerChainIds_[4] = Chains.WORMHOLE_SEI;
         }
 
+        if (wormholeChainId_ == Chains.WORMHOLE_SEI) {
+            peerChainIds_ = new uint16[](5);
+            peerChainIds_[0] = Chains.WORMHOLE_ETHEREUM;
+            peerChainIds_[1] = Chains.WORMHOLE_ARBITRUM;
+            peerChainIds_[2] = Chains.WORMHOLE_OPTIMISM;
+            peerChainIds_[3] = Chains.WORMHOLE_BASE;
+            peerChainIds_[4] = Chains.WORMHOLE_SOLANA;
+        }
+
+        // Testnet
         if (wormholeChainId_ == Chains.WORMHOLE_ETHEREUM_SEPOLIA) {
             peerChainIds_ = new uint16[](5);
             peerChainIds_[0] = Chains.WORMHOLE_ARBITRUM_SEPOLIA;

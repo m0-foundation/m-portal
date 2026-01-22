@@ -31,6 +31,7 @@ library WormholeConfig {
         if (chainId_ == Chains.OPTIMISM) return Chains.WORMHOLE_OPTIMISM;
         if (chainId_ == Chains.BASE) return Chains.WORMHOLE_BASE;
         if (chainId_ == Chains.NOBLE) return Chains.WORMHOLE_NOBLE;
+        if (chainId_ == Chains.SEI) return Chains.WORMHOLE_SEI;
 
         if (chainId_ == Chains.ETHEREUM_SEPOLIA) return Chains.WORMHOLE_ETHEREUM_SEPOLIA;
         if (chainId_ == Chains.ARBITRUM_SEPOLIA) return Chains.WORMHOLE_ARBITRUM_SEPOLIA;
@@ -98,6 +99,19 @@ library WormholeConfig {
                     relayer: 0x706F82e9bb5b0813501714Ab5974216704980e31,
                     specialRelayer: SPECIAL_RELAYER,
                     executor: 0x9E1936E91A4a5AE5A5F75fFc472D6cb8e93597ea
+                });
+
+        // Sei
+        if (chainId_ == Chains.SEI)
+            return
+                WormholeTransceiverConfig({
+                    wormholeChainId: toWormholeChainId(chainId_),
+                    consistencyLevel: FINALIZED_CONSISTENCY_LEVEL,
+                    coreBridge: 0xCa1D5a146B03f6303baF59e5AD5615ae0b9d146D,
+                    gasLimit: GAS_LIMIT,
+                    relayer: 0x27428DD2d3DD32A4D7f7C497eAaa23130d894911,
+                    specialRelayer: SPECIAL_RELAYER,
+                    executor: 0x25f1c923Fb7A5aEFA5F0A2b419fC70f2368e66e5
                 });
 
         // Ethereum Sepolia

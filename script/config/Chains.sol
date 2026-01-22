@@ -17,6 +17,7 @@ library Chains {
     uint256 internal constant OPTIMISM = 10;
     uint256 internal constant ARBITRUM = 42161;
     uint256 internal constant BASE = 8453;
+    uint256 internal constant SEI = 1329;
 
     // Testnet
     uint256 internal constant ETHEREUM_SEPOLIA = 11155111;
@@ -46,6 +47,7 @@ library Chains {
     uint16 internal constant WORMHOLE_BASE = 30;
     uint16 internal constant WORMHOLE_NOBLE = 4009;
     uint16 internal constant WORMHOLE_FOGO = 51;
+    uint16 internal constant WORMHOLE_SEI = 40;
 
     // Testnet
     uint16 internal constant WORMHOLE_SOLANA_TESTNET = 1;
