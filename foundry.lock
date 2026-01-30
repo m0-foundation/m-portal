@@ -1,0 +1,44 @@
+{
+  "lib/common": {
+    "branch": {
+      "name": "main",
+      "rev": "3692db150ad90b21d7c213ea535f34792ad8873f"
+    }
+  },
+  "lib/forge-std": {
+    "branch": {
+      "name": "v1",
+      "rev": "1eea5bae12ae557d589f9f0f0edae2faa47cb262"
+    }
+  },
+  "lib/native-token-transfers": {
+    "branch": {
+      "name": "m0",
+      "rev": "04dc91b4960c4d1d6bc07e83858b68f3833e0647"
+    }
+  },
+  "lib/protocol": {
+    "branch": {
+      "name": "spoke-upgradeable",
+      "rev": "2ea2235d67ca5a6feeb596c0fa4e8f99de050b94"
+    }
+  },
+  "lib/safe-utils": {
+    "rev": "eccb79f80cad0f3ad98137cf3e859aac5d66e425"
+  },
+  "lib/ttg": {
+    "branch": {
+      "name": "spoke",
+      "rev": "2a11c24f88f4b0b31e376dc61b73ab8a9a67190a"
+    }
+  },
+  "lib/uniswap-v4-periphery": {
+    "rev": "60cd93803ac2b7fa65fd6cd351fd5fd4cc8c9db5"
+  },
+  "lib/wrapped-m-token": {
+    "branch": {
+      "name": "spoke",
+      "rev": "0581f8518991fb57affc91daa3eeff4a8b73ca06"
+    }
+  }
+}
