@@ -429,9 +429,22 @@ send-earner-status-sepolia: send-earner-status
 send-earner-status-ethereum: RPC_URL=$(MAINNET_RPC_URL)
 send-earner-status-ethereum: send-earner-status
 
-# 
+#
+# Add to earners list (Hub chains only)
+#
+
+add-to-earners-list: SCRIPT=script/tasks/AddToEarnersList.s.sol:AddToEarnersList
+add-to-earners-list: task
+
+add-to-earners-list-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
+add-to-earners-list-sepolia: add-to-earners-list
+
+add-to-earners-list-ethereum: RPC_URL=$(MAINNET_RPC_URL)
+add-to-earners-list-ethereum: add-to-earners-list
+
+#
 # Transfer Excess M
-# 
+#
 
 transfer-excess-m: SCRIPT=script/tasks/TransferExcessM.s.sol:TransferExcessM
 transfer-excess-m: task
