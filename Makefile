@@ -497,21 +497,39 @@ unpause-portal-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
 unpause-portal-optimism: unpause-portal
 
 #
-# Propose Set Bridging Path
+# Set Bridging Path (Testnet only - mainnet uses multisig)
 #
 
-set-bridging-path: SCRIPT=script/tasks/ProposeSetBridgingPath.s.sol:ProposeSetBridgingPath
+set-bridging-path: SCRIPT=script/tasks/SetBridgingPath.s.sol:SetBridgingPath
 set-bridging-path: task
 
-# Mainnet
-set-bridging-path-ethereum: RPC_URL=$(MAINNET_RPC_URL)
-set-bridging-path-ethereum: set-bridging-path
+set-bridging-path-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
+set-bridging-path-sepolia: set-bridging-path
 
-set-bridging-path-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
-set-bridging-path-arbitrum: set-bridging-path
+set-bridging-path-arbitrum-sepolia: RPC_URL=$(ARBITRUM_SEPOLIA_RPC_URL)
+set-bridging-path-arbitrum-sepolia: set-bridging-path
 
-set-bridging-path-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
-set-bridging-path-optimism: set-bridging-path
+set-bridging-path-optimism-sepolia: RPC_URL=$(OPTIMISM_SEPOLIA_RPC_URL)
+set-bridging-path-optimism-sepolia: set-bridging-path
+
+set-bridging-path-base-sepolia: RPC_URL=$(BASE_SEPOLIA_RPC_URL)
+set-bridging-path-base-sepolia: set-bridging-path
+
+#
+# Propose Set Bridging Path (via Safe Multisig)
+#
+
+propose-set-bridging-path: SCRIPT=script/tasks/ProposeSetBridgingPath.s.sol:ProposeSetBridgingPath
+propose-set-bridging-path: task
+
+propose-set-bridging-path-ethereum: RPC_URL=$(MAINNET_RPC_URL)
+propose-set-bridging-path-ethereum: propose-set-bridging-path
+
+propose-set-bridging-path-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
+propose-set-bridging-path-arbitrum: propose-set-bridging-path
+
+propose-set-bridging-path-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
+propose-set-bridging-path-optimism: propose-set-bridging-path
 
 #
 #
