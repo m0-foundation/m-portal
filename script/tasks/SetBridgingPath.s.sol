@@ -20,7 +20,8 @@ contract SetBridgingPath is TaskBase {
 
         address sourceToken_ = vm.parseAddress(vm.prompt("Enter source token address"));
         uint16 destinationChainId_ = _promptForDestinationChainId(portal_);
-        bytes32 destinationToken_ = vm.parseBytes32(vm.prompt("Enter destination token (bytes32)"));
+        address destinationTokenAddr_ = vm.parseAddress(vm.prompt("Enter destination token address"));
+        bytes32 destinationToken_ = _toUniversalAddress(destinationTokenAddr_);
 
         address signer_ = vm.rememberKey(vm.envUint("PRIVATE_KEY"));
 
@@ -31,6 +32,7 @@ contract SetBridgingPath is TaskBase {
         console.log("Set bridging path:");
         console.log("  Source token:", sourceToken_);
         console.log("  Destination chain:", destinationChainId_);
+        console.log("  Destination token:", destinationTokenAddr_);
 
         vm.stopBroadcast();
     }
