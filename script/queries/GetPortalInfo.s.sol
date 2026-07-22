@@ -72,7 +72,8 @@ contract GetPortalInfo is ScriptBase {
         console.log("WrappedM Migration Admin:", WrappedMToken(wrappedMToken_).migrationAdmin());
 
         if (!Chains.isHub(chainId_)) {
-            console.log("Vault Migration Admin:   ", SpokeVault(payable(vault_)).migrationAdmin());
+            console.log("Vault Migration Admin:   ", SpokeVault(vault_).migrationAdmin());
+            console.log("Vault Excess Destination:", SpokeVault(vault_).excessDestination());
         }
 
         _listPeers(wormholeChainId_, portal_, transceiver_, mToken_, wrappedMToken_);

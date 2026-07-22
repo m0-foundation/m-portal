@@ -5,7 +5,6 @@ pragma solidity 0.8.26;
 import { console } from "../../lib/forge-std/src/console.sol";
 
 import { DeployBase } from "./DeployBase.sol";
-import { DeployConfig, SpokeDeployConfig } from "../config/DeployConfig.sol";
 import { WormholeConfig, WormholeTransceiverConfig } from "../config/WormholeConfig.sol";
 
 contract DeploySpoke is DeployBase {
@@ -14,12 +13,13 @@ contract DeploySpoke is DeployBase {
     function run() external {
         address deployer_ = vm.rememberKey(vm.envUint("PRIVATE_KEY"));
         address migrationAdmin_ = vm.envAddress("MIGRATION_ADMIN");
+        address excessDestination_ = vm.envAddress("EXCESS_DESTINATION");
 
         console.log("Deployer              ", deployer_);
         console.log("MigrationAdmin        ", migrationAdmin_);
+        console.log("ExcessDestination     ", excessDestination_);
 
         uint256 chainId_ = block.chainid;
-        SpokeDeployConfig memory spokeDeployConfig_ = DeployConfig.getSpokeDeployConfig(chainId_);
         WormholeTransceiverConfig memory transceiverConfig_ = WormholeConfig.getWormholeTransceiverConfig(chainId_);
 
         vm.startBroadcast(deployer_);
@@ -39,13 +39,7 @@ contract DeploySpoke is DeployBase {
             portal_
         );
 
-        (, address vault_) = _deploySpokeVault(
-            deployer_,
-            portal_,
-            spokeDeployConfig_.hubVault,
-            spokeDeployConfig_.hubWormholeChainId,
-            migrationAdmin_
-        );
+        (, address vault_) = _deploySpokeVault(deployer_, mToken_, excessDestination_, migrationAdmin_);
 
         (, address wrappedMToken_) = _deploySpokeWrappedMToken(deployer_, mToken_, registrar_, vault_, migrationAdmin_);
 

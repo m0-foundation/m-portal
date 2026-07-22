@@ -23,7 +23,7 @@ import { Chains } from "../../script/config/Chains.sol";
 import { TaskBase } from "../../script/tasks/TaskBase.sol";
 import { ConfigureBase } from "../../script/configure/ConfigureBase.sol";
 import { DeployBase } from "../../script/deploy/DeployBase.sol";
-import { DeployConfig, SpokeDeployConfig, HubDeployConfig } from "../../script/config/DeployConfig.sol";
+import { DeployConfig, HubDeployConfig } from "../../script/config/DeployConfig.sol";
 import { WormholeConfig, WormholeTransceiverConfig } from "../../script/config/WormholeConfig.sol";
 import { PeersConfig, PeerConfig } from "../../script/config/PeersConfig.sol";
 
@@ -61,6 +61,7 @@ contract ForkTestBase is TaskBase, ConfigureBase, DeployBase, Test {
 
     address internal immutable _alice = makeAddr("alice");
     address internal immutable _bob = makeAddr("bob");
+    address internal immutable _EXCESS_DESTINATION = makeAddr("excessDestination");
     address internal immutable _mHolder = 0x3f0376da3Ae4313E7a5F1dA184BAFC716252d759;
     address internal immutable _wrappedMHolder = 0x13Ccb6E28F22E2f6783BaDedCe32cc74583A3647;
 
@@ -170,7 +171,6 @@ contract ForkTestBase is TaskBase, ConfigureBase, DeployBase, Test {
 
         uint256 arbitrumChainId_ = block.chainid;
         uint16 arbitrumWormholeChainId_ = arbitrumChainId_.toWormholeChainId();
-        SpokeDeployConfig memory arbitrumSpokeDeployConfig_ = DeployConfig.getSpokeDeployConfig(arbitrumChainId_);
         WormholeTransceiverConfig memory arbitrumSpokeTransceiverConfig_ = WormholeConfig.getWormholeTransceiverConfig(
             arbitrumChainId_
         );
@@ -194,9 +194,8 @@ contract ForkTestBase is TaskBase, ConfigureBase, DeployBase, Test {
 
         (, _arbitrumSpokeVault) = _deploySpokeVault(
             _DEPLOYER,
-            _arbitrumSpokePortal,
-            arbitrumSpokeDeployConfig_.hubVault,
-            arbitrumSpokeDeployConfig_.hubWormholeChainId,
+            _arbitrumSpokeMToken,
+            _EXCESS_DESTINATION,
             _MIGRATION_ADMIN
         );
 
@@ -231,7 +230,6 @@ contract ForkTestBase is TaskBase, ConfigureBase, DeployBase, Test {
 
         uint256 optimismChainId_ = block.chainid;
         uint16 optimismWormholeChainId_ = optimismChainId_.toWormholeChainId();
-        SpokeDeployConfig memory optimismSpokeDeployConfig_ = DeployConfig.getSpokeDeployConfig(optimismChainId_);
         WormholeTransceiverConfig memory optimismSpokeTransceiverConfig_ = WormholeConfig.getWormholeTransceiverConfig(
             optimismChainId_
         );
@@ -255,9 +253,8 @@ contract ForkTestBase is TaskBase, ConfigureBase, DeployBase, Test {
 
         (, _optimismSpokeVault) = _deploySpokeVault(
             _DEPLOYER,
-            _optimismSpokePortal,
-            optimismSpokeDeployConfig_.hubVault,
-            optimismSpokeDeployConfig_.hubWormholeChainId,
+            _optimismSpokeMToken,
+            _EXCESS_DESTINATION,
             _MIGRATION_ADMIN
         );
 
