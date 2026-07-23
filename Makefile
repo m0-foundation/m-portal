@@ -31,7 +31,7 @@ invariant:
 	./test.sh -d test/invariant -p $(profile)
 
 coverage:
-	FOUNDRY_PROFILE=$(profile) forge coverage --no-match-path 'test/fork/**/*.sol' --report lcov && lcov --extract lcov.info --rc lcov_branch_coverage=1 --rc derive_function_end_line=0 -o lcov.info 'src/*' && genhtml lcov.info --rc branch_coverage=1 --rc derive_function_end_line=0 -o coverage
+	FOUNDRY_PROFILE=$(profile) forge coverage --no-match-path 'test/fork/**/*.sol' --report lcov && lcov --extract lcov.info --rc branch_coverage=1 --rc derive_function_end_line=0 --ignore-errors inconsistent,unused -o lcov.info 'src/*' && genhtml lcov.info --rc branch_coverage=1 --rc derive_function_end_line=0 --ignore-errors inconsistent,unused,category -o coverage
 
 gas-report:
 	FOUNDRY_PROFILE=$(profile) forge test --no-match-path 'test/fork/**/*.sol' --no-match-contract 'MerkleTreeBuilderTest|SortedLinkedListTest' --no-match-test 'testFuzz*' --gas-report > gasreport.ansi

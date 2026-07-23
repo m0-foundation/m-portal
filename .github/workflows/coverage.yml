@@ -25,6 +25,11 @@ jobs:
 
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
+        with:
+          # Pin to the last release before v1.4.0, whose solar-based coverage
+          # analyzer fails on the wormhole-solidity-sdk circular re-export
+          # (import {Base} from "./WormholeRelayerSDK.sol" in TokenBase.sol).
+          version: v1.3.6
 
       - name: Install lcov
         uses: hrishikesh-kadam/setup-lcov@v1
