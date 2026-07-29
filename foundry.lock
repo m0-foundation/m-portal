@@ -24,7 +24,7 @@
     }
   },
   "lib/safe-utils": {
-    "rev": "eccb79f80cad0f3ad98137cf3e859aac5d66e425"
+    "rev": "273945a35ade03a78648a350140aace72707d5a7"
   },
   "lib/ttg": {
     "branch": {
