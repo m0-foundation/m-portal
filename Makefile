@@ -199,7 +199,7 @@ propose-configure-arbitrum: propose-configure
 propose-configure-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
 propose-configure-optimism: propose-configure
 
-propose-configure-base: RPC_URL=$(OPTIMISM_RPC_URL)
+propose-configure-base: RPC_URL=$(BASE_RPC_URL)
 propose-configure-base: propose-configure
 
 #
@@ -304,6 +304,28 @@ propose-spoke-portal-upgrade-arbitrum: propose-upgrade
 propose-spoke-portal-upgrade-optimism: SCRIPT=script/upgrade/ProposeUpgradeSpokePortal.s.sol:ProposeUpgradeSpokePortal
 propose-spoke-portal-upgrade-optimism: RPC_URL=$(OPTIMISM_RPC_URL)
 propose-spoke-portal-upgrade-optimism: propose-upgrade
+
+#
+# Propose SpokeVault deprecation via Multisig
+#
+# EXCESS_DESTINATION is the address that receives the excess M. Set it in .env,
+# or override it per run: make propose-deprecate-spoke-vault-base EXCESS_DESTINATION=0x...
+
+propose-deprecate-spoke-vault:
+	FOUNDRY_PROFILE=production PRIVATE_KEY=$(PRIVATE_KEY) \
+	EXCESS_DESTINATION=$(EXCESS_DESTINATION) \
+	forge script script/upgrade/ProposeDeprecateSpokeVault.s.sol:ProposeDeprecateSpokeVault \
+	--rpc-url $(RPC_URL) \
+	--etherscan-api-key $(ETHERSCAN_API_KEY) --skip test --slow -v --ffi --broadcast --verify
+
+propose-deprecate-spoke-vault-arbitrum: RPC_URL=$(ARBITRUM_RPC_URL)
+propose-deprecate-spoke-vault-arbitrum: propose-deprecate-spoke-vault
+
+propose-deprecate-spoke-vault-base: RPC_URL=$(BASE_RPC_URL)
+propose-deprecate-spoke-vault-base: propose-deprecate-spoke-vault
+
+propose-deprecate-spoke-vault-plasma: RPC_URL=$(PLASMA_RPC_URL)
+propose-deprecate-spoke-vault-plasma: propose-deprecate-spoke-vault
 
 # 
 # 
