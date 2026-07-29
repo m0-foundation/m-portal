@@ -4,6 +4,12 @@ pragma solidity 0.8.26;
 
 interface IWrappedMTokenLike {
     /**
+     * @notice Sends the excess M held by wM to its immutable excess destination.
+     * @return excess The amount of M sent.
+     */
+    function claimExcess() external returns (uint240 excess);
+
+    /**
      * @notice Wraps `amount` M from the caller into wM for `recipient`.
      * @param  recipient The account receiving the minted wM.
      * @param  amount    The amount of M deposited.

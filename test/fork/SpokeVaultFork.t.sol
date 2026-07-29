@@ -7,15 +7,18 @@ import { Test } from "../../lib/forge-std/src/Test.sol";
 import { IERC20 } from "../../lib/common/src/interfaces/IERC20.sol";
 
 import { ISpokeVault } from "../../src/interfaces/ISpokeVault.sol";
+import { IWrappedMTokenLike } from "../../src/interfaces/IWrappedMTokenLike.sol";
 import { SpokeVault } from "../../src/SpokeVault.sol";
 import { SpokeVaultMigrator } from "../../src/SpokeVaultMigrator.sol";
 
 contract SpokeVaultForkTests is Test {
     uint256 internal constant _ARBITRUM_FORK_BLOCK = 486_540_000;
     uint256 internal constant _BASE_FORK_BLOCK = 48_950_000;
+    uint256 internal constant _PLASMA_FORK_BLOCK = 28_350_000;
 
     address internal constant _VAULT = 0x3349e443068F76666789C4f76F00D9c4F38A4DdE;
     address internal constant _M_TOKEN = 0x866A2BF4E572CbcF37D5071A7a58503Bfb36be1b;
+    address internal constant _WRAPPED_M_TOKEN = 0x437cc33344a0B27A429f795ff6B469C72698B291;
     address internal constant _MIGRATION_ADMIN = 0xdcf79C332cB3Fe9d39A830a5f8de7cE6b1BD6fD1;
 
     address internal immutable _alice = makeAddr("alice");
@@ -30,6 +33,11 @@ contract SpokeVaultForkTests is Test {
 
     function testFork_deprecate_base() external {
         vm.createSelectFork({ urlOrAlias: "base", blockNumber: _BASE_FORK_BLOCK });
+        _testDeprecate();
+    }
+
+    function testFork_deprecate_plasma() external {
+        _selectPlasmaFork();
         _testDeprecate();
     }
 
@@ -67,6 +75,11 @@ contract SpokeVaultForkTests is Test {
         _testTransferExcessMAccruedAfterDeprecation();
     }
 
+    function testFork_transferExcessM_accruedAfterDeprecation_plasma() external {
+        _selectPlasmaFork();
+        _testTransferExcessMAccruedAfterDeprecation();
+    }
+
     /// @dev The excess destination of Wrapped M is immutable and set to the Vault, so M keeps accruing after the
     ///      deprecation and must remain sweepable.
     function _testTransferExcessMAccruedAfterDeprecation() internal {
@@ -99,6 +112,11 @@ contract SpokeVaultForkTests is Test {
         _testTransferExcessMBridgingDisabled();
     }
 
+    function testFork_transferExcessM_bridgingDisabled_plasma() external {
+        _selectPlasmaFork();
+        _testTransferExcessMBridgingDisabled();
+    }
+
     function _testTransferExcessMBridgingDisabled() internal {
         _migrate();
 
@@ -121,6 +139,14 @@ contract SpokeVaultForkTests is Test {
 
         vm.prank(_alice);
         ISpokeVault(_VAULT).migrate(migrator_);
+    }
+
+    /// @dev The Wrapped M excess has never been claimed on Plasma, so the Vault holds no M at the fork block.
+    ///      Claiming it funds the Vault the same way it was funded on the other spoke chains.
+    function _selectPlasmaFork() internal {
+        vm.createSelectFork({ urlOrAlias: "plasma", blockNumber: _PLASMA_FORK_BLOCK });
+
+        IWrappedMTokenLike(_WRAPPED_M_TOKEN).claimExcess();
     }
 
     function _migrate() internal returns (address migrator_) {
