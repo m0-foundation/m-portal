@@ -15,6 +15,9 @@ version = "0.8.26"
 verbosity = 3
 via_ir = false
 isolate = true
+remappings = [
+    "safe-smart-account/=lib/safe-utils/lib/safe-smart-account/contracts/",
+]
 
 [profile.production]
 build_info = true
@@ -45,6 +48,7 @@ mainnet = "${MAINNET_RPC_URL}"
 arbitrum = "${ARBITRUM_RPC_URL}"
 base = "${BASE_RPC_URL}"
 optimism = "${OPTIMISM_RPC_URL}"
+plasma = "${PLASMA_RPC_URL}"
 sepolia = "${SEPOLIA_RPC_URL}"
 base_sepolia = "${BASE_SEPOLIA_RPC_URL}"
 optimism_sepolia = "${OPTIMISM_SEPOLIA_RPC_URL}"
@@ -55,6 +59,7 @@ mainnet = { key = "${ETHERSCAN_API_KEY}", url = "https://api.etherscan.io/v2/api
 arbitrum = { key = "${ETHERSCAN_API_KEY}", url = "https://api.etherscan.io/v2/api?chainid=42161" }
 base = { key = "${ETHERSCAN_API_KEY}", url = "https://api.etherscan.io/v2/api?chainid=8453" }
 optimism = { key = "${ETHERSCAN_API_KEY}", url = "https://api.etherscan.io/v2/api?chainid=10" }
+plasma = { key = "${ETHERSCAN_API_KEY}", url = "https://api.etherscan.io/v2/api?chainid=9745" }
 sepolia = { key = "${ETHERSCAN_API_KEY}", url = "https://api.etherscan.io/v2/api?chainid=11155111" }
 base_sepolia = { key = "${ETHERSCAN_API_KEY}", url = "https://api.etherscan.io/v2/api?chainid=84532" }
 optimism_sepolia = { key = "${ETHERSCAN_API_KEY}", url = "https://api.etherscan.io/v2/api?chainid=11155420" }

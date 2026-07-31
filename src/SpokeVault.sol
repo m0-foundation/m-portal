@@ -4,94 +4,56 @@ pragma solidity 0.8.26;
 
 import { IERC20 } from "../lib/common/src/interfaces/IERC20.sol";
 import { Migratable } from "../lib/common/src/Migratable.sol";
-import { INttManager } from "../lib/native-token-transfers/evm/src/interfaces/INttManager.sol";
 
-import { TypeConverter } from "./libs/TypeConverter.sol";
-
-import { IPortal } from "./interfaces/IPortal.sol";
-import { IRegistrarLike } from "./interfaces/IRegistrarLike.sol";
 import { ISpokeVault } from "./interfaces/ISpokeVault.sol";
 
 /**
- * @title  Vault residing on L2s and receiving excess M from Wrapped M.
- * @author M^0 Labs
+ * @title  Deprecated Vault residing on L2s and receiving excess M from Wrapped M.
+ * @author M0 Labs
+ * @dev    The Vault no longer bridges excess M to the Vault on Ethereum Mainnet. Since the excess destination of
+ *         Wrapped M is immutable and set to this contract, excess M keeps accruing here and is swept to
+ *         `excessDestination` by anyone calling `transferExcessM`.
  */
 contract SpokeVault is ISpokeVault, Migratable {
-    using TypeConverter for address;
-
     /* ============ Variables ============ */
-
-    /// @inheritdoc ISpokeVault
-    bytes32 public constant MIGRATOR_KEY_PREFIX = "spoke_vault_migrator_v1";
 
     /// @inheritdoc ISpokeVault
     address public immutable migrationAdmin;
 
     /// @inheritdoc ISpokeVault
-    uint16 public immutable destinationChainId;
-
-    /// @inheritdoc ISpokeVault
     address public immutable mToken;
 
     /// @inheritdoc ISpokeVault
-    address public immutable hubVault;
-
-    /// @inheritdoc ISpokeVault
-    address public immutable registrar;
-
-    /// @inheritdoc ISpokeVault
-    address public immutable spokePortal;
+    address public immutable excessDestination;
 
     /* ============ Constructor ============ */
 
     /**
      * @notice Constructs the SpokeVault contract.
-     * @param  spokePortal_        The address of the SpokePortal contract.
-     * @param  hubVault_           The address of the Vault contract on the destination chain.
-     * @param  destinationChainId_ The Wormhole chain id of the destination chain.
-     * @param  migrationAdmin_     The address of a migration admin.
+     * @param  mToken_            The address of the M token.
+     * @param  excessDestination_ The address receiving the excess M held by the SpokeVault.
+     * @param  migrationAdmin_    The address of a migration admin.
      */
-    constructor(address spokePortal_, address hubVault_, uint16 destinationChainId_, address migrationAdmin_) {
-        if ((spokePortal = spokePortal_) == address(0)) revert ZeroSpokePortal();
-        if ((hubVault = hubVault_) == address(0)) revert ZeroHubVault();
-        if ((destinationChainId = destinationChainId_) == 0) revert ZeroDestinationChainId();
+    constructor(address mToken_, address excessDestination_, address migrationAdmin_) {
+        if ((mToken = mToken_) == address(0)) revert ZeroMToken();
+        if ((excessDestination = excessDestination_) == address(0)) revert ZeroExcessDestination();
         if ((migrationAdmin = migrationAdmin_) == address(0)) revert ZeroMigrationAdmin();
-
-        mToken = IPortal(spokePortal).mToken();
-        registrar = IPortal(spokePortal).registrar();
     }
 
     /* ============ Interactive Functions ============ */
 
     /// @inheritdoc ISpokeVault
-    function transferExcessM(bytes32 refundAddress_) external payable returns (uint64 messageSequence_) {
-        uint256 amount_ = IERC20(mToken).balanceOf(address(this));
+    function transferExcessM() external {
+        IERC20 mToken_ = IERC20(mToken);
+        uint256 amount_ = mToken_.balanceOf(address(this));
 
-        if (amount_ == 0) return messageSequence_;
+        if (amount_ == 0) return;
 
-        bytes32 hubVault_ = hubVault.toBytes32();
+        address excessDestination_ = excessDestination;
 
-        address spokePortal_ = spokePortal;
-        IERC20(mToken).approve(spokePortal_, amount_);
+        mToken_.transfer(excessDestination_, amount_);
 
-        messageSequence_ = INttManager(spokePortal_).transfer{ value: msg.value }(
-            amount_,
-            destinationChainId,
-            hubVault_,
-            refundAddress_,
-            false,
-            new bytes(1)
-        );
-
-        emit ExcessMTokenSent(destinationChainId, messageSequence_, msg.sender.toBytes32(), hubVault_, amount_);
-
-        uint256 ethBalance_ = address(this).balance;
-
-        /// Refund any excess ETH back to the caller.
-        if (ethBalance_ != 0) {
-            (bool sent_, ) = msg.sender.call{ value: ethBalance_ }("");
-            if (!sent_) revert FailedEthRefund(ethBalance_);
-        }
+        emit ExcessMTokenSent(excessDestination_, amount_);
     }
 
     /* ============ Temporary Admin Migration ============ */
@@ -105,19 +67,8 @@ contract SpokeVault is ISpokeVault, Migratable {
 
     /* ============ Internal View/Pure Functions ============ */
 
-    /// @dev Returns the address of the contract to use as a migrator, if any.
-    function _getMigrator() internal view override returns (address migrator_) {
-        return
-            address(
-                uint160(
-                    // NOTE: A subsequent implementation should use a unique migrator prefix.
-                    uint256(IRegistrarLike(registrar).get(keccak256(abi.encode(MIGRATOR_KEY_PREFIX, address(this)))))
-                )
-            );
+    /// @dev The Registrar is deprecated, disabling the permissionless migration path. `migrate()` always reverts.
+    function _getMigrator() internal pure override returns (address migrator_) {
+        return address(0);
     }
-
-    /* ============ Fallback Function ============ */
-
-    /// @dev Fallback function to receive ETH.
-    receive() external payable {}
 }

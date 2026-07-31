@@ -24,7 +24,7 @@ import { HubExecutorEntryPoint } from "../../src/HubExecutorEntryPoint.sol";
 
 import { ScriptBase } from "../ScriptBase.sol";
 import { WormholeTransceiverConfig } from "../config/WormholeConfig.sol";
-import { HubDeployConfig, SpokeDeployConfig } from "../config/DeployConfig.sol";
+import { HubDeployConfig } from "../config/DeployConfig.sol";
 
 contract DeployBase is ScriptBase {
     /// @dev Contract names used for deterministic deployment
@@ -248,12 +248,11 @@ contract DeployBase is ScriptBase {
 
     function _deploySpokeVault(
         address deployer_,
-        address spokePortal_,
-        address hubVault_,
-        uint16 hubChainId_,
+        address mToken_,
+        address excessDestination_,
         address migrationAdmin_
     ) internal returns (address spokeVaultImplementation_, address spokeVaultProxy_) {
-        spokeVaultImplementation_ = address(new SpokeVault(spokePortal_, hubVault_, hubChainId_, migrationAdmin_));
+        spokeVaultImplementation_ = address(new SpokeVault(mToken_, excessDestination_, migrationAdmin_));
 
         spokeVaultProxy_ = _deployCreate3Proxy(
             address(spokeVaultImplementation_),

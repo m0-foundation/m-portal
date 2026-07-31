@@ -9,7 +9,6 @@ import { IManagerBase } from "../../lib/native-token-transfers/evm/src/interface
 import { INttManager } from "../../lib/native-token-transfers/evm/src/interfaces/INttManager.sol";
 
 import { IHubPortal } from "../../src/interfaces/IHubPortal.sol";
-import { ISpokeVault } from "../../src/interfaces/ISpokeVault.sol";
 import { IHubExecutorEntryPoint, ExecutorArgs } from "../../src/interfaces/IHubExecutorEntryPoint.sol";
 
 import { ScriptBase } from "../ScriptBase.sol";
@@ -95,14 +94,6 @@ contract TaskBase is ScriptBase {
                 false,
                 RELAYER_TRANSCEIVER_INSTRUCTIONS
             );
-    }
-
-    function _transferExcessM(
-        address spokeVault_,
-        bytes32 refundAddress_,
-        uint256 value_
-    ) internal returns (uint64 messageSequence_) {
-        return ISpokeVault(spokeVault_).transferExcessM{ value: value_ }(refundAddress_);
     }
 
     function _promptForDestinationChainId(address portal_) internal returns (uint16 destinationChainId_) {

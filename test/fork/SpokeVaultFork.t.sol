@@ -2,94 +2,158 @@
 
 pragma solidity 0.8.26;
 
+import { Test } from "../../lib/forge-std/src/Test.sol";
+
 import { IERC20 } from "../../lib/common/src/interfaces/IERC20.sol";
 
-import { Chains } from "../../script/config/Chains.sol";
-import { IPortal } from "../../src/interfaces/IPortal.sol";
-import { TypeConverter } from "../../src/libs/TypeConverter.sol";
+import { ISpokeVault } from "../../src/interfaces/ISpokeVault.sol";
+import { IWrappedMTokenLike } from "../../src/interfaces/IWrappedMTokenLike.sol";
+import { SpokeVault } from "../../src/SpokeVault.sol";
+import { SpokeVaultMigrator } from "../../src/SpokeVaultMigrator.sol";
 
-import { ForkTestBase } from "./ForkTestBase.t.sol";
+contract SpokeVaultForkTests is Test {
+    uint256 internal constant _ARBITRUM_FORK_BLOCK = 486_540_000;
+    uint256 internal constant _BASE_FORK_BLOCK = 48_950_000;
+    uint256 internal constant _PLASMA_FORK_BLOCK = 28_350_000;
 
-contract SpokeVaultForkTests is ForkTestBase {
-    using TypeConverter for *;
+    address internal constant _VAULT = 0x3349e443068F76666789C4f76F00D9c4F38A4DdE;
+    address internal constant _M_TOKEN = 0x866A2BF4E572CbcF37D5071A7a58503Bfb36be1b;
+    address internal constant _WRAPPED_M_TOKEN = 0x437cc33344a0B27A429f795ff6B469C72698B291;
+    address internal constant _MIGRATION_ADMIN = 0xdcf79C332cB3Fe9d39A830a5f8de7cE6b1BD6fD1;
 
-    uint256 internal _amount;
+    address internal immutable _alice = makeAddr("alice");
+    address internal immutable _excessDestination = makeAddr("excessDestination");
 
-    /* ============ transfer ============ */
+    /* ============ deprecate ============ */
 
-    function testFork_transferExcessM() external {
-        _beforeTest();
-
-        vm.prank(_DEPLOYER);
-        IPortal(_arbitrumSpokePortal).setDestinationMToken(Chains.WORMHOLE_ETHEREUM, _MAINNET_M_TOKEN.toBytes32());
-
-        vm.startPrank(_mHolder);
-
-        // Then, transfer excess M tokens to the Hub chain.
-        _transferExcessM(
-            _arbitrumSpokeVault,
-            _toUniversalAddress(_mHolder),
-            _quoteDeliveryPrice(_arbitrumSpokePortal, Chains.WORMHOLE_ETHEREUM)
-        );
-
-        vm.stopPrank();
-
-        assertEq(IERC20(_arbitrumSpokeMToken).balanceOf(_arbitrumSpokeVault), 0);
-
-        bytes memory spokeSignedMessage_ = _signMessage(_arbitrumSpokeGuardian, Chains.WORMHOLE_ARBITRUM);
-
-        vm.selectFork(_mainnetForkId);
-
-        // Advance time to simulate yield earning by HubPortal
-        vm.warp(block.timestamp + 10 seconds);
-
-        uint256 balanceOfBefore_ = IERC20(_MAINNET_M_TOKEN).balanceOf(_MAINNET_VAULT);
-
-        _deliverMessage(_MAINNET_WORMHOLE_RELAYER, spokeSignedMessage_);
-
-        assertEq(IERC20(_MAINNET_M_TOKEN).balanceOf(_MAINNET_VAULT), balanceOfBefore_ + _amount);
+    function testFork_deprecate_arbitrum() external {
+        vm.createSelectFork({ urlOrAlias: "arbitrum", blockNumber: _ARBITRUM_FORK_BLOCK });
+        _testDeprecate();
     }
 
-    function _beforeTest() internal {
-        _amount = 1_000e6;
+    function testFork_deprecate_base() external {
+        vm.createSelectFork({ urlOrAlias: "base", blockNumber: _BASE_FORK_BLOCK });
+        _testDeprecate();
+    }
 
-        vm.selectFork(_mainnetForkId);
+    function testFork_deprecate_plasma() external {
+        _selectPlasmaFork();
+        _testDeprecate();
+    }
 
-        vm.prank(_DEPLOYER);
-        IPortal(_hubPortal).setDestinationMToken(Chains.WORMHOLE_ARBITRUM, _MAINNET_M_TOKEN.toBytes32());
+    function _testDeprecate() internal {
+        assertEq(ISpokeVault(_VAULT).migrationAdmin(), _MIGRATION_ADMIN);
 
-        vm.startPrank(_mHolder);
+        uint256 rescuedAmount_ = IERC20(_M_TOKEN).balanceOf(_VAULT);
+        assertGt(rescuedAmount_, 0);
 
-        // First, transfer M tokens to the Spoke chain
-        IERC20(_MAINNET_M_TOKEN).approve(_hubPortal, _amount);
+        address migrator_ = _migrate();
 
-        vm.recordLogs();
+        assertEq(ISpokeVault(_VAULT).implementation(), SpokeVaultMigrator(migrator_).implementation());
+        assertEq(ISpokeVault(_VAULT).mToken(), _M_TOKEN);
+        assertEq(ISpokeVault(_VAULT).excessDestination(), _excessDestination);
 
-        _transfer(
-            _hubPortal,
-            Chains.WORMHOLE_ARBITRUM,
-            _amount,
-            _toUniversalAddress(_mHolder),
-            _toUniversalAddress(_mHolder),
-            _quoteDeliveryPrice(_hubPortal, Chains.WORMHOLE_ARBITRUM)
+        vm.expectEmit();
+        emit ISpokeVault.ExcessMTokenSent(_excessDestination, rescuedAmount_);
+
+        vm.prank(_alice);
+        ISpokeVault(_VAULT).transferExcessM();
+
+        assertEq(IERC20(_M_TOKEN).balanceOf(_VAULT), 0);
+        assertEq(IERC20(_M_TOKEN).balanceOf(_excessDestination), rescuedAmount_);
+    }
+
+    /* ============ transferExcessM ============ */
+
+    function testFork_transferExcessM_accruedAfterDeprecation_arbitrum() external {
+        vm.createSelectFork({ urlOrAlias: "arbitrum", blockNumber: _ARBITRUM_FORK_BLOCK });
+        _testTransferExcessMAccruedAfterDeprecation();
+    }
+
+    function testFork_transferExcessM_accruedAfterDeprecation_base() external {
+        vm.createSelectFork({ urlOrAlias: "base", blockNumber: _BASE_FORK_BLOCK });
+        _testTransferExcessMAccruedAfterDeprecation();
+    }
+
+    function testFork_transferExcessM_accruedAfterDeprecation_plasma() external {
+        _selectPlasmaFork();
+        _testTransferExcessMAccruedAfterDeprecation();
+    }
+
+    /// @dev The excess destination of Wrapped M is immutable and set to the Vault, so M keeps accruing after the
+    ///      deprecation and must remain sweepable.
+    function _testTransferExcessMAccruedAfterDeprecation() internal {
+        uint256 rescuedAmount_ = IERC20(_M_TOKEN).balanceOf(_VAULT);
+
+        _migrate();
+
+        vm.prank(_alice);
+        ISpokeVault(_VAULT).transferExcessM();
+
+        uint256 accruedAmount_ = rescuedAmount_ / 2;
+
+        vm.prank(_excessDestination);
+        IERC20(_M_TOKEN).transfer(_VAULT, accruedAmount_);
+
+        vm.prank(_alice);
+        ISpokeVault(_VAULT).transferExcessM();
+
+        assertEq(IERC20(_M_TOKEN).balanceOf(_VAULT), 0);
+        assertEq(IERC20(_M_TOKEN).balanceOf(_excessDestination), rescuedAmount_);
+    }
+
+    function testFork_transferExcessM_bridgingDisabled_arbitrum() external {
+        vm.createSelectFork({ urlOrAlias: "arbitrum", blockNumber: _ARBITRUM_FORK_BLOCK });
+        _testTransferExcessMBridgingDisabled();
+    }
+
+    function testFork_transferExcessM_bridgingDisabled_base() external {
+        vm.createSelectFork({ urlOrAlias: "base", blockNumber: _BASE_FORK_BLOCK });
+        _testTransferExcessMBridgingDisabled();
+    }
+
+    function testFork_transferExcessM_bridgingDisabled_plasma() external {
+        _selectPlasmaFork();
+        _testTransferExcessMBridgingDisabled();
+    }
+
+    function _testTransferExcessMBridgingDisabled() internal {
+        _migrate();
+
+        (bool success_, ) = _VAULT.call(
+            abi.encodeWithSignature("transferExcessM(bytes32)", bytes32(uint256(uint160(_alice))))
         );
 
-        vm.stopPrank();
+        assertFalse(success_);
+    }
 
-        bytes memory hubSignedMessage_ = _signMessage(_hubGuardian, Chains.WORMHOLE_ETHEREUM);
+    /* ============ migrate ============ */
 
-        vm.selectFork(_arbitrumForkId);
-        _deliverMessage(_ARBITRUM_WORMHOLE_RELAYER, hubSignedMessage_);
+    function testFork_migrate_unauthorizedMigration_arbitrum() external {
+        vm.createSelectFork({ urlOrAlias: "arbitrum", blockNumber: _ARBITRUM_FORK_BLOCK });
 
-        assertEq(IERC20(_arbitrumSpokeMToken).balanceOf(_arbitrumSpokeVault), 0);
+        address implementation_ = address(new SpokeVault(_M_TOKEN, _excessDestination, _MIGRATION_ADMIN));
+        address migrator_ = address(new SpokeVaultMigrator(implementation_));
 
-        _amount = IERC20(_arbitrumSpokeMToken).balanceOf(_mHolder);
+        vm.expectRevert(ISpokeVault.UnauthorizedMigration.selector);
 
-        vm.prank(_mHolder);
+        vm.prank(_alice);
+        ISpokeVault(_VAULT).migrate(migrator_);
+    }
 
-        // Then, transfer M tokens to the SpokeVault to simulate accrual of excess M
-        IERC20(_arbitrumSpokeMToken).transfer(_arbitrumSpokeVault, _amount);
+    /// @dev The Wrapped M excess has never been claimed on Plasma, so the Vault holds no M at the fork block.
+    ///      Claiming it funds the Vault the same way it was funded on the other spoke chains.
+    function _selectPlasmaFork() internal {
+        vm.createSelectFork({ urlOrAlias: "plasma", blockNumber: _PLASMA_FORK_BLOCK });
 
-        assertEq(IERC20(_arbitrumSpokeMToken).balanceOf(_arbitrumSpokeVault), _amount);
+        IWrappedMTokenLike(_WRAPPED_M_TOKEN).claimExcess();
+    }
+
+    function _migrate() internal returns (address migrator_) {
+        address implementation_ = address(new SpokeVault(_M_TOKEN, _excessDestination, _MIGRATION_ADMIN));
+        migrator_ = address(new SpokeVaultMigrator(implementation_));
+
+        vm.prank(_MIGRATION_ADMIN);
+        ISpokeVault(_VAULT).migrate(migrator_);
     }
 }

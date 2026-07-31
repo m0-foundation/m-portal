@@ -4,19 +4,19 @@
 	branch = v1
 [submodule "lib/common"]
 	path = lib/common
-	url = git@github.com:m0-foundation/common.git
+	url = git@github.com:m0-platform/common.git
 	branch = main
 [submodule "lib/ttg"]
 	path = lib/ttg
-	url = git@github.com:m0-foundation/ttg.git
+	url = git@github.com:m0-platform/ttg.git
 	branch = spoke
 [submodule "lib/native-token-transfers"]
 	path = lib/native-token-transfers
-	url = git@github.com:m0-foundation/native-token-transfers.git
+	url = git@github.com:m0-platform/native-token-transfers.git
 	branch = m0
 [submodule "lib/wrapped-m-token"]
 	path = lib/wrapped-m-token
-	url = git@github.com:m0-foundation/wrapped-m-token.git
+	url = git@github.com:m0-platform/wrapped-m-token.git
 	branch = spoke
 [submodule "lib/uniswap-v4-periphery"]
 	path = lib/uniswap-v4-periphery
@@ -26,5 +26,5 @@
 	url = git@github.com:Recon-Fuzz/safe-utils.git
 [submodule "lib/protocol"]
 	path = lib/protocol
-	url = git@github.com:m0-foundation/protocol.git
+	url = git@github.com:m0-platform/protocol.git
 	branch = spoke-upgradeable
