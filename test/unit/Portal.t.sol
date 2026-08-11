@@ -50,6 +50,7 @@ contract PortalTests is UnitTestBase {
             _LOCAL_CHAIN_ID
         );
         _portal = PortalHarness(_createProxy(address(implementation_)));
+        _mockSwapFacility(_portal, address(_mToken));
         _initializePortal(_portal);
         _portal.setDestinationMToken(_REMOTE_CHAIN_ID, _remoteMToken);
         _portal.setSupportedBridgingPath(address(_mToken), _REMOTE_CHAIN_ID, _remoteMToken, true);

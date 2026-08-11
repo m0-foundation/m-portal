@@ -164,7 +164,10 @@ contract SpokePortalForkTests is ForkTestBase {
         _deliverMessage(_MAINNET_WORMHOLE_RELAYER, signedMessage_);
 
         assertEq(IERC20(_MAINNET_M_TOKEN).balanceOf(_hubPortal), 0);
-        assertEq(IERC20(destinationToken_).balanceOf(user_), balanceOfBefore_ + _amount);
+
+        // Wrapping via SwapFacility adds an extra $M transfer hop, losing 1 wei to earner rounding
+        uint256 expectedAmount_ = destinationToken_ == _MAINNET_WRAPPED_M_TOKEN ? _amount - 1 : _amount;
+        assertEq(IERC20(destinationToken_).balanceOf(user_), balanceOfBefore_ + expectedAmount_);
     }
 
     function _beforeTest() internal {

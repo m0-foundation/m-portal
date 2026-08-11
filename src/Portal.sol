@@ -10,9 +10,8 @@ import {
 } from "../lib/native-token-transfers/evm/src/NttManager/NttManagerNoRateLimiting.sol";
 
 import { IPortal } from "./interfaces/IPortal.sol";
-import { IWrappedMTokenLike } from "./interfaces/IWrappedMTokenLike.sol";
+import { ISwapFacilityLike } from "./interfaces/ISwapFacilityLike.sol";
 import { TypeConverter } from "./libs/TypeConverter.sol";
-import { SafeCall } from "./libs/SafeCall.sol";
 import { PayloadType, PayloadEncoder } from "./libs/PayloadEncoder.sol";
 
 /**
@@ -23,10 +22,13 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
     using TypeConverter for *;
     using PayloadEncoder for bytes;
     using TrimmedAmountLib for *;
-    using SafeCall for address;
 
     /// @dev Use only standard WormholeTransceiver with relaying enabled
     bytes public constant DEFAULT_TRANSCEIVER_INSTRUCTIONS = new bytes(1);
+
+    /// @notice The address of SwapFacility, the only contract allowed to wrap $M into $M extensions.
+    /// @dev    Hardcoded as a constant to avoid constructor and storage changes in this minimal upgrade.
+    address public constant SWAP_FACILITY = 0xB6807116b3B1B321a390594e31ECD6e0076f6278;
 
     /// @inheritdoc IPortal
     address public immutable registrar;
@@ -177,9 +179,10 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
         // transfer source token from the sender
         IERC20(sourceToken_).transferFrom(msg.sender, address(this), amount_);
 
-        // if the source token isn't M token, unwrap it
+        // if the source token isn't M token, unwrap it via SwapFacility
         if (sourceToken_ != address(mToken_)) {
-            IWrappedMTokenLike(sourceToken_).unwrap(address(this), amount_);
+            IERC20(sourceToken_).approve(SWAP_FACILITY, amount_);
+            ISwapFacilityLike(SWAP_FACILITY).swapOutM(sourceToken_, amount_, address(this));
         }
 
         // account for potential rounding errors when transferring between earners and non-earners
@@ -406,20 +409,20 @@ abstract contract Portal is NttManagerNoRateLimiting, IPortal {
      * @param amount_                  The amount to wrap.
      */
     function _wrap(address mToken_, address destinationWrappedToken_, address recipient_, uint256 amount_) private {
-        IERC20(mToken_).approve(destinationWrappedToken_, amount_);
+        IERC20(mToken_).approve(SWAP_FACILITY, amount_);
 
-        // Attempt to wrap $M token
+        // Attempt to wrap $M token via SwapFacility
         // NOTE: the call might fail with out-of-gas exception
         //       even if the destination token is the valid wrapped M token.
         //       Recipients must support both $M and wrapped $M transfers.
-        bool success = destinationWrappedToken_.safeCall(
-            abi.encodeCall(IWrappedMTokenLike.wrap, (recipient_, amount_))
+        (bool success, ) = SWAP_FACILITY.call(
+            abi.encodeCall(ISwapFacilityLike.swapInM, (destinationWrappedToken_, amount_, recipient_))
         );
 
         if (!success) {
             emit WrapFailed(destinationWrappedToken_, recipient_, amount_);
             // reset approval to prevent a potential double-spend attack
-            IERC20(mToken_).approve(destinationWrappedToken_, 0);
+            IERC20(mToken_).approve(SWAP_FACILITY, 0);
             // transfer $M token to the recipient
             IERC20(mToken_).transfer(recipient_, amount_);
         }

@@ -53,7 +53,7 @@ contract Migrate is ForkTestBase, UpgradeBase {
     function testFork_migrate_wormholeTransceiver() external {
         vm.selectFork(_mainnetForkId);
 
-        assertEq(WormholeTransceiver(_hubWormholeTransceiver).gasLimit(), 300_000);
+        assertEq(WormholeTransceiver(_hubWormholeTransceiver).gasLimit(), 400_000);
 
         WormholeTransceiverConfig memory transceiverConfig_ = WormholeConfig.getWormholeTransceiverConfig(
             block.chainid

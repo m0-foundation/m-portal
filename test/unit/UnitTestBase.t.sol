@@ -14,6 +14,7 @@ import { TypeConverter } from "../../src/libs/TypeConverter.sol";
 import { PayloadEncoder } from "../../src/libs/PayloadEncoder.sol";
 import { Portal } from "../../src/Portal.sol";
 
+import { MockSwapFacility } from "../mocks/MockSwapFacility.sol";
 import { MockTransceiver } from "../mocks/MockTransceiver.sol";
 
 contract UnitTestBase is Test {
@@ -51,6 +52,13 @@ contract UnitTestBase is Test {
 
     function _createProxy(address implementation_) internal returns (address proxy_) {
         return address(new ERC1967Proxy(implementation_, ""));
+    }
+
+    /// @dev Deploys MockSwapFacility code at the SwapFacility address hardcoded in Portal.
+    function _mockSwapFacility(Portal portal_, address mToken_) internal {
+        address swapFacility_ = portal_.SWAP_FACILITY();
+        vm.etch(swapFacility_, address(new MockSwapFacility()).code);
+        MockSwapFacility(swapFacility_).setMToken(mToken_);
     }
 
     function _initializePortal(Portal portal_) internal {

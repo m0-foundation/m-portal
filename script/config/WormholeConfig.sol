@@ -20,7 +20,7 @@ library WormholeConfig {
     uint8 internal constant FINALIZED_CONSISTENCY_LEVEL = 1;
 
     /// @dev Gas limit to process a message on the destination
-    uint256 internal constant GAS_LIMIT = 300_000;
+    uint256 internal constant GAS_LIMIT = 400_000;
     address internal constant ZERO_ADDRESS = address(0);
 
     /// @dev Wormhole Chain Ids https://wormhole.com/docs/build/reference/chain-ids/

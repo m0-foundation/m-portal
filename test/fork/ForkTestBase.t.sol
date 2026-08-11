@@ -26,6 +26,9 @@ import { PeersConfig, PeerConfig } from "../../script/config/PeersConfig.sol";
 import { TypeConverter } from "../../src/libs/TypeConverter.sol";
 import { IHubPortal } from "../../src/interfaces/IHubPortal.sol";
 import { IRegistrarLike } from "../../src/interfaces/IRegistrarLike.sol";
+import { Portal } from "../../src/Portal.sol";
+
+import { MockSwapFacility } from "../mocks/MockSwapFacility.sol";
 
 contract ForkTestBase is TaskBase, ConfigureBase, DeployBase, Test {
     using WormholeConfig for uint256;
@@ -72,6 +75,9 @@ contract ForkTestBase is TaskBase, ConfigureBase, DeployBase, Test {
     uint256 internal _optimismForkId;
     uint256[] internal _forkIds = new uint256[](3);
 
+    /// @dev MockSwapFacility runtime code to set at the SwapFacility address on every fork.
+    bytes internal _mockSwapFacilityCode;
+
     // Mainnet - Hub
     address internal _hubPortal;
     address internal _hubWormholeTransceiver;
@@ -110,6 +116,11 @@ contract ForkTestBase is TaskBase, ConfigureBase, DeployBase, Test {
         deal(_alice, 10 ether);
         deal(_mHolder, 10 ether);
 
+        // SwapFacility doesn't exist at the pinned fork blocks, deploy the mock
+        // to set its code at the SwapFacility address on every fork.
+        // NOTE: deployed before pranking `_DEPLOYER` to keep its nonce untouched.
+        _mockSwapFacilityCode = address(new MockSwapFacility()).code;
+
         vm.startPrank(_DEPLOYER);
 
         uint256 ethereumChainId_ = block.chainid;
@@ -128,6 +139,8 @@ contract ForkTestBase is TaskBase, ConfigureBase, DeployBase, Test {
             hubDeployConfig_,
             hubTransceiverConfig_
         );
+
+        _mockSwapFacility(_hubPortal, _MAINNET_M_TOKEN);
 
         // set peers
         _configurePeers(
@@ -175,6 +188,8 @@ contract ForkTestBase is TaskBase, ConfigureBase, DeployBase, Test {
             _arbitrumSpokeRegistrar,
             _arbitrumSpokeMToken
         ) = _deploySpokeComponents(_DEPLOYER, arbitrumWormholeChainId_, arbitrumSpokeTransceiverConfig_, _burnNonces);
+
+        _mockSwapFacility(_arbitrumSpokePortal, _arbitrumSpokeMToken);
 
         (, _arbitrumSpokeVault) = _deploySpokeVault(
             _DEPLOYER,
@@ -231,6 +246,8 @@ contract ForkTestBase is TaskBase, ConfigureBase, DeployBase, Test {
             _optimismSpokeMToken
         ) = _deploySpokeComponents(_DEPLOYER, optimismWormholeChainId_, optimismSpokeTransceiverConfig_, _burnNonces);
 
+        _mockSwapFacility(_optimismSpokePortal, _optimismSpokeMToken);
+
         (, _optimismSpokeVault) = _deploySpokeVault(
             _DEPLOYER,
             _optimismSpokePortal,
@@ -258,6 +275,13 @@ contract ForkTestBase is TaskBase, ConfigureBase, DeployBase, Test {
         );
 
         vm.stopPrank();
+    }
+
+    /// @dev Deploys MockSwapFacility code at the SwapFacility address hardcoded in Portal.
+    function _mockSwapFacility(address portal_, address mToken_) internal {
+        address swapFacility_ = Portal(portal_).SWAP_FACILITY();
+        vm.etch(swapFacility_, _mockSwapFacilityCode);
+        MockSwapFacility(swapFacility_).setMToken(mToken_);
     }
 
     function _burnNonces(address account_, uint64 /**  startingNonce_ */, uint64 targetNonce_) internal {

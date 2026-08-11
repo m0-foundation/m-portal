@@ -124,6 +124,13 @@ deploy-noble-prod-eth: deploy-noble
 deploy-noble-dev-sepolia: RPC_URL=$(SEPOLIA_RPC_URL)
 deploy-noble-dev-sepolia: deploy-noble
 
+# Deploy Noble Hub Portal implementation for the SwapFacility upgrade.
+deploy-noble-upgrade-prod-eth: SCRIPT=script/upgrade/DeployNobleHubImplementation.s.sol:DeployNobleHubImplementation
+deploy-noble-upgrade-prod-eth: SIGNER_PRIVATE_KEY=$(PRIVATE_KEY)
+deploy-noble-upgrade-prod-eth: SCAN_API_KEY=$(ETHERSCAN_API_KEY)
+deploy-noble-upgrade-prod-eth: RPC_URL=$(MAINNET_RPC_URL)
+deploy-noble-upgrade-prod-eth: deploy
+
 # 
 # 
 # CONFIGURE

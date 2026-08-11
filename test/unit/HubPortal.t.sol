@@ -43,6 +43,7 @@ contract HubPortalTests is UnitTestBase {
 
         HubPortal implementation_ = new HubPortal(address(_mToken), address(_registrar), _LOCAL_CHAIN_ID);
         _portal = HubPortal(_createProxy(address(implementation_)));
+        _mockSwapFacility(_portal, address(_mToken));
 
         _initializePortal(_portal);
         _portal.setDestinationMToken(_REMOTE_CHAIN_ID, _remoteMToken);
